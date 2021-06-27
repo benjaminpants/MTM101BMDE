@@ -199,7 +199,10 @@ namespace BBPlusNameAPI
                 }
                 else
                 {
-                    NameMenuManager.Current_Page = "save_select";
+                    if (!NameMenuManager.NeedsManditoryAction)
+                    {
+                        NameMenuManager.Current_Page = "save_select";
+                    }
                 }
             }
             if (NameMenuManager.Current_Page == "save_select")
