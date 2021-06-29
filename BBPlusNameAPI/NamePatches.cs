@@ -10,82 +10,15 @@ using BepInEx.Logging;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using HarmonyLib;
+using System.Linq;
 //more stuff
 using System.Collections.Generic;
 using System.Collections;
 using System.Runtime.Serialization.Formatters.Binary;
+using System.Reflection.Emit;
 
 namespace BBPlusNameAPI
 {
-    public static class NameMenuManager
-    {
-        public static string Current_Page = "root";
-        public static Dictionary<string, List<Name_MenuObject>> Folders = new Dictionary<string, List<Name_MenuObject>>();
-        public static Dictionary<string, string> PrevPages = new Dictionary<string, string>();
-        public static List<string> PendingPages = new List<string>();
-        public static List<bool> RequiresManditoryAction = new List<bool>();
-        public static string Prev_Page = "root";
-        public static bool Pending_Start;
-        public static bool NeedsManditoryAction;
-
-
-        public static void AddPage(string pagename, string returnto)
-        {
-            Folders.Add(pagename,new List<Name_MenuObject>());
-            PrevPages.Add(pagename,returnto);
-        }
-
-        public static void AddPreStartPage(string pagename, bool requiresmanditoryaction)
-        {
-            Folders.Add(pagename, new List<Name_MenuObject>());
-            PrevPages.Add(pagename, pagename);
-            PendingPages.Add(pagename);
-            RequiresManditoryAction.Add(requiresmanditoryaction);
-        }
-
-        public static void AddToPage(string pagename, Name_MenuObject obj)
-        {
-            Folders[pagename].Add(obj);
-        }
-
-        public static void AddToPageBulk(string pagename, List<Name_MenuObject> objs)
-        {
-            Folders[pagename].AddRange(objs);
-        }
-
-        public static void AllowContinue(bool instant)
-        {
-
-            if (!instant)
-            {
-                NeedsManditoryAction = false;
-            }
-            else
-            {
-                NameMenuManager.Current_Page = "save_select";
-                if (NameMenuManager.PendingPages.Count != 0)
-                {
-                    NameMenuManager.Pending_Start = true;
-                    NameMenuManager.Current_Page = NameMenuManager.PendingPages[0];
-                    NameMenuManager.NeedsManditoryAction = NameMenuManager.RequiresManditoryAction[0];
-                    NameMenuManager.PendingPages.RemoveAt(0);
-                    NameMenuManager.RequiresManditoryAction.RemoveAt(0);
-                }
-            }
-            NameManager.nm.InvokeMethod("Load");
-            NameManager.nm.UpdateState();
-        }
-
-
-        public static object InvokeMethod<T>(this T obj, string methodName, params object[] args) //thank you owen james: https://stackoverflow.com/users/2736798/owen-james
-        {
-            var type = typeof(T);
-            var method = type.GetTypeInfo().GetDeclaredMethod(methodName);
-            return method.Invoke(obj, args);
-        }
-
-    }
-
 
     [HarmonyPatch(typeof(NameManager))]
     [HarmonyPatch("ToggelDeleteMode")]
@@ -99,6 +32,31 @@ namespace BBPlusNameAPI
 
 
 
+
+
+    
+
+        /*[HarmonyReversePatch]
+        [HarmonyPatch(typeof(HijackLoadDelay), "MyLoadDelay")]
+        static IEnumerable<CodeInstruction> Transpiler(IEnumerable<CodeInstruction> instructions)
+        {
+            var codes = new List<CodeInstruction>(instructions);
+            for (var i = 0; i < codes.Count; i++) //Goes through every instruction
+            {
+                if (codes[i].opcode == OpCodes.Ldstr) //If its a string
+                {
+                    var scene = codes[i].operand as string; //Get the value as a string
+                    if (scene == "MainMenu") 
+                    {
+                        codes[i].operand = "NameEntry"
+                    }
+                }
+            }
+            return codes.AsEnumerable();
+        }*/
+
+
+
     [HarmonyPatch(typeof(NameButton))]
     [HarmonyPatch("Highlight")]
     class HijackHighlight
@@ -108,9 +66,10 @@ namespace BBPlusNameAPI
             if (NameMenuManager.Current_Page == "save_select" || ___fileNo == 7) return true;
             try //fix this later im too tired for this shit
             {
-                if (NameMenuManager.Folders[NameMenuManager.Current_Page][___fileNo] != null)
+                List<Name_MenuObject> currentelements = NameMenuManager.Folders.Find(x => x.pagename == NameMenuManager.Current_Page).GetElements();
+                if (currentelements[___fileNo] != null)
                 {
-                    return !(NameMenuManager.Folders[NameMenuManager.Current_Page][___fileNo].GetType() == typeof(Name_MenuTitle));
+                    return !(currentelements[___fileNo].GetType() == typeof(Name_MenuTitle));
                 }
             }
             catch
@@ -146,9 +105,10 @@ namespace BBPlusNameAPI
             {
                 ___nameList[i] = "";
             }
-            for (int i = 0; i < NameMenuManager.Folders[NameMenuManager.Current_Page].Count; i++)
+            List<Name_MenuObject> currentelements = NameMenuManager.Folders.Find(x => x.pagename == NameMenuManager.Current_Page).GetElements();
+            for (int i = 0; i < currentelements.Count; i++)
             {
-                ___nameList[i] = NameMenuManager.Folders[NameMenuManager.Current_Page][i].GetName();
+                ___nameList[i] = currentelements[i].GetName();
                 if (___nameList[i].Length > 11)
                 {
                     ___buttons[i].text.fontSize = Fontsize * (11f / (float)(___nameList[i].Length));
@@ -174,18 +134,46 @@ namespace BBPlusNameAPI
         }
     }
 
+
+    /*[HarmonyPatch(typeof(NameManager))]
+    [HarmonyPatch("LoadName")]
+    class ModifyLoadName
+    {
+        static IEnumerable<CodeInstruction> Transpiler(IEnumerable<CodeInstruction> instructions)
+        {
+            var codes = new List<CodeInstruction>(instructions);
+            for (var i = 0; i < codes.Count; i++) //Goes through every instruction
+            {
+                if (codes[i].opcode == OpCodes.Call) //If trying to call a function
+                {
+                    MethodInfo info = codes[i].operand as MethodInfo; //get the methodinfolol
+                    UnityEngine.Debug.Log(info.Name);
+                    if (info.Name == "LoadDelay")
+                    {
+                        codes[i].operand = SymbolExtensions.GetMethodInfo(() => NameMenuManager.RunMeInstead);
+                    }
+                }
+            }
+            return codes.AsEnumerable();
+        }
+    }*/
+
     [HarmonyPatch(typeof(NameManager))]
     [HarmonyPatch("NameClicked")]
     class ModifyNameClick
     {
+
+
+
         static bool Prefix(NameManager __instance, int fileNo)
         {
             if (NameMenuManager.Current_Page == "save_select") return true;
             if (fileNo != 7)
             {
-                if (NameMenuManager.Folders[NameMenuManager.Current_Page][fileNo] != null)
+                List<Name_MenuObject> currentelements = NameMenuManager.Folders.Find(x => x.pagename == NameMenuManager.Current_Page).GetElements();
+                if (currentelements[fileNo] != null)
                 {
-                    NameMenuManager.Folders[NameMenuManager.Current_Page][fileNo].Press();
+                    currentelements[fileNo].Press();
                 }
             }
             else
@@ -194,26 +182,24 @@ namespace BBPlusNameAPI
                 {
                     if (NameMenuManager.Current_Page != "root")
                     {
-                        NameMenuManager.Current_Page = NameMenuManager.PrevPages[NameMenuManager.Current_Page];
+                        NameMenuManager.Current_Page = NameMenuManager.Folders.Find(x => x.pagename == NameMenuManager.Current_Page).prevpage;
                     }
                 }
                 else
                 {
                     if (!NameMenuManager.NeedsManditoryAction)
                     {
-                        NameMenuManager.Current_Page = "save_select";
+                        NameMenuManager.Current_Page = "exit";
                     }
                 }
             }
-            if (NameMenuManager.Current_Page == "save_select")
+            if (NameMenuManager.Current_Page == "exit")
             {
                 if (NameMenuManager.PendingPages.Count != 0)
                 {
                     NameMenuManager.Pending_Start = true;
                     NameMenuManager.Current_Page = NameMenuManager.PendingPages[0];
-                    NameMenuManager.NeedsManditoryAction = NameMenuManager.RequiresManditoryAction[0];
                     NameMenuManager.PendingPages.RemoveAt(0);
-                    NameMenuManager.RequiresManditoryAction.RemoveAt(0);
                 }
             }
             __instance.InvokeMethod("Load");

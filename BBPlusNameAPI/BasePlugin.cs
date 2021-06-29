@@ -39,18 +39,29 @@ namespace BBPlusNameAPI
             Environment.Exit(0);
         }
 
+        public List<Name_MenuObject> RedirectPage()
+        {
+            NameMenuManager.Current_Page = "save_select";
+            //NameManager.InvokeMethod<NameManager.nm>("Load");
+            return new List<Name_MenuObject>();
+        }
+
         void Awake()
         {
             
             Harmony harmony = new Harmony("mtm101.rulerp.bbplus.baldinamemenu");
             List<Name_MenuObject> RootMenu = new List<Name_MenuObject>();
             RootMenu.Add(new Name_MenuTitle("generic_title","Welcome!"));
-            RootMenu.Add(new Name_MenuFolder("goto_start", "Start", "save_select"));
+            RootMenu.Add(new Name_MenuFolder("goto_start", "Start", "exit"));
             RootMenu.Add(new Name_MenuFolder("options", "Options", "options"));
+            RootMenu.Add(new Name_MenuFolder("savedata", "Saves", "savedata"));
             RootMenu.Add(new Name_MenuGeneric("exit", "Exit", CloseGame));
             NameMenuManager.AddPage("root", "root");
             NameMenuManager.AddPage("options", "root");
             NameMenuManager.AddPage("bbnmoptions", "options");
+            NameMenuManager.AddPage("savedata", "root");
+            NameMenuManager.AddPage("exit", "root");
+            //NameMenuManager.AddToPage("exit", new Name_MenuTitle("generic_title", "this is currently broken!"));
             NameMenuManager.AddToPage("options",new Name_MenuFolder("bbnmoptions", "BB+ Name Menu", "bbnmoptions"));
             NameMenuManager.AddToPage("bbnmoptions", new Name_MenuOption("change_test", "Test Option", funnyvariable, ChangeFunnyVariable));
             NameMenuManager.AddToPage("bbnmoptions", new Name_MenuGeneric("crash", "Crash The Game Lol", CrashTheGameBecauseFuckYou));

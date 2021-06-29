@@ -1,7 +1,59 @@
 ﻿using System;
+using System.Linq;
+using System.Collections.Generic;
+using System.Collections;
 
 namespace BBPlusNameAPI
 {
+
+    public class Name_Page
+    {
+
+        public string pagename;
+        public string prevpage;
+        public bool manditory;
+        private bool requiresconstantrefresh;
+        public List<Name_MenuObject> Elements = new List<Name_MenuObject>();
+        private Func<List<Name_MenuObject>> refresh_func;
+
+        public Name_Page()
+        {
+            pagename = "null";
+            prevpage = "root";
+            manditory = false;
+            requiresconstantrefresh = false;
+        }
+
+        public Name_Page(string name, string prev, bool mand, bool refresh)
+        {
+            pagename = name;
+            prevpage = prev;
+            manditory = mand;
+            requiresconstantrefresh = refresh;
+        }
+
+        public Name_Page(string name, string prev, bool mand, bool refresh, Func<List<Name_MenuObject>> func)
+        {
+            pagename = name;
+            prevpage = prev;
+            manditory = mand;
+            requiresconstantrefresh = refresh;
+            refresh_func = func;
+        }
+
+
+        public ref List<Name_MenuObject> GetElements()
+        {
+            if (requiresconstantrefresh)
+            {
+                Elements = refresh_func.Invoke();
+            }
+            return ref Elements;
+        }
+
+
+    }
+
 
     public class Name_MenuObject
     {
