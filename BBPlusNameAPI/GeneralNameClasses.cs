@@ -142,7 +142,7 @@ namespace BBPlusNameAPI
 
     public class Name_MenuGeneric : Name_MenuObject
     {
-        protected Action function;
+        protected Action<Name_MenuObject> function;
 
         public Name_MenuGeneric()
         {
@@ -150,7 +150,7 @@ namespace BBPlusNameAPI
         }
 
 
-        public Name_MenuGeneric(string intern, string name, Action functocall)
+        public Name_MenuGeneric(string intern, string name, Action<Name_MenuObject> functocall)
         {
             Name = intern;
             Name_External = name;
@@ -164,10 +164,12 @@ namespace BBPlusNameAPI
 
         public override void Press()
         {
-            function.Invoke();
+            function.Invoke(this);
         }
 
     }
+
+    
 
 
 
