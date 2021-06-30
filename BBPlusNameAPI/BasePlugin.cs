@@ -24,7 +24,6 @@ namespace BBPlusNameAPI
         bool funnyvariable;
         public object ChangeFunnyVariable()
         {
-            UnityEngine.Debug.Log(funnyvariable);
             funnyvariable = !funnyvariable;
             return funnyvariable;
         }
@@ -39,12 +38,6 @@ namespace BBPlusNameAPI
             Environment.Exit(0);
         }
 
-        public List<Name_MenuObject> RedirectPage()
-        {
-            NameMenuManager.Current_Page = "save_select";
-            //NameManager.InvokeMethod<NameManager.nm>("Load");
-            return new List<Name_MenuObject>();
-        }
 
         void Awake()
         {
@@ -60,7 +53,6 @@ namespace BBPlusNameAPI
             NameMenuManager.AddPage("options", "root");
             NameMenuManager.AddPage("bbnmoptions", "options");
             NameMenuManager.AddPage("savedata", "root");
-            NameMenuManager.AddPage("exit", "root");
             //NameMenuManager.AddToPage("exit", new Name_MenuTitle("generic_title", "this is currently broken!"));
             NameMenuManager.AddToPage("options",new Name_MenuFolder("bbnmoptions", "BB+ Name Menu", "bbnmoptions"));
             NameMenuManager.AddToPage("bbnmoptions", new Name_MenuOption("change_test", "Test Option", funnyvariable, ChangeFunnyVariable));

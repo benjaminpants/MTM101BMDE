@@ -71,17 +71,13 @@ namespace BBPlusNameAPI
             }
             else
             {
-                NameMenuManager.Current_Page = "exit";
+                NameMenuManager.Current_Page = "save_select";
                 if (NameMenuManager.PendingPages.Count != 0)
                 {
                     NameMenuManager.Pending_Start = true;
                     NameMenuManager.Current_Page = NameMenuManager.PendingPages[0];
                     NameMenuManager.NeedsManditoryAction = Folders.Find(x => x.pagename == Current_Page).manditory;
                     NameMenuManager.PendingPages.RemoveAt(0);
-                }
-                else
-                {
-                    NameMenuManager.Current_Page = "save_select"; //remove meeee
                 }
             }
             NameManager.nm.InvokeMethod("Load");

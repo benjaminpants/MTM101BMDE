@@ -189,11 +189,11 @@ namespace BBPlusNameAPI
                 {
                     if (!NameMenuManager.NeedsManditoryAction)
                     {
-                        NameMenuManager.Current_Page = "exit";
+                        NameMenuManager.Current_Page = "save_select";
                     }
                 }
             }
-            if (NameMenuManager.Current_Page == "exit")
+            if (NameMenuManager.Current_Page == "save_select")
             {
                 if (NameMenuManager.PendingPages.Count != 0)
                 {
