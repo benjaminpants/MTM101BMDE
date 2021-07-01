@@ -64,19 +64,12 @@ namespace BBPlusNameAPI
         static bool Prefix(ref int ___fileNo)
         {
             if (NameMenuManager.Current_Page == "save_select" || ___fileNo == 7) return true;
-            try //fix this later im too tired for this shit
+            List<Name_MenuObject> currentelements = NameMenuManager.Folders.Find(x => x.pagename == NameMenuManager.Current_Page).GetElements();
+            if (currentelements.Count > ___fileNo)
             {
-                List<Name_MenuObject> currentelements = NameMenuManager.Folders.Find(x => x.pagename == NameMenuManager.Current_Page).GetElements();
-                if (currentelements[___fileNo] != null)
-                {
-                    return !(currentelements[___fileNo].GetType() == typeof(Name_MenuTitle));
-                }
+                return !(currentelements[___fileNo].GetType() == typeof(Name_MenuTitle));
             }
-            catch
-            {
-
-            }
-            return false;
+            return true;
         }
     }
 
@@ -134,30 +127,6 @@ namespace BBPlusNameAPI
         }
     }
 
-
-    /*[HarmonyPatch(typeof(NameManager))]
-    [HarmonyPatch("LoadName")]
-    class ModifyLoadName
-    {
-        static IEnumerable<CodeInstruction> Transpiler(IEnumerable<CodeInstruction> instructions)
-        {
-            var codes = new List<CodeInstruction>(instructions);
-            for (var i = 0; i < codes.Count; i++) //Goes through every instruction
-            {
-                if (codes[i].opcode == OpCodes.Call) //If trying to call a function
-                {
-                    MethodInfo info = codes[i].operand as MethodInfo; //get the methodinfolol
-                    UnityEngine.Debug.Log(info.Name);
-                    if (info.Name == "LoadDelay")
-                    {
-                        codes[i].operand = SymbolExtensions.GetMethodInfo(() => NameMenuManager.RunMeInstead);
-                    }
-                }
-            }
-            return codes.AsEnumerable();
-        }
-    }*/
-
     [HarmonyPatch(typeof(NameManager))]
     [HarmonyPatch("NameClicked")]
     class ModifyNameClick
@@ -171,7 +140,7 @@ namespace BBPlusNameAPI
             if (fileNo != 7)
             {
                 List<Name_MenuObject> currentelements = NameMenuManager.Folders.Find(x => x.pagename == NameMenuManager.Current_Page).GetElements();
-                if (currentelements[fileNo] != null)
+                if (currentelements.Count > fileNo)
                 {
                     currentelements[fileNo].Press();
                 }
