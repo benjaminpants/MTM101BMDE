@@ -77,7 +77,7 @@ namespace BBPlusNameAPI
             Harmony harmony = new Harmony("mtm101.rulerp.bbplus.baldinamemenu");
             List<Name_MenuObject> RootMenu = new List<Name_MenuObject>();
             RootMenu.Add(new Name_MenuTitle("generic_title","Welcome!"));
-            RootMenu.Add(new Name_MenuFolder("goto_start", "Start", "exit"));
+            RootMenu.Add(new Name_MenuFolder("goto_start", "Start", "save_select"));
             RootMenu.Add(new Name_MenuFolder("options", "Options", "options"));
             RootMenu.Add(new Name_MenuFolder("modspage", "Mods", "modslist"));
             RootMenu.Add(new Name_MenuGeneric("exit", "Exit", CloseGame));

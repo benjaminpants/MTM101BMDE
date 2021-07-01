@@ -65,6 +65,7 @@ namespace BBPlusNameAPI
         {
             if (NameMenuManager.Current_Page == "save_select" || ___fileNo == 7) return true;
             List<Name_MenuObject> currentelements = NameMenuManager.Folders.Find(x => x.pagename == NameMenuManager.Current_Page).GetElements();
+            if (currentelements == null) return true;
             if (currentelements.Count > ___fileNo)
             {
                 return !(currentelements[___fileNo].GetType() == typeof(Name_MenuTitle));
