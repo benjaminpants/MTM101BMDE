@@ -168,8 +168,9 @@ namespace BBPlusNameAPI
                 if (NameMenuManager.PendingPages.Count != 0)
                 {
                     NameMenuManager.Pending_Start = true;
-                    NameMenuManager.Current_Page = NameMenuManager.PendingPages[0];
-                    NameMenuManager.PendingPages.RemoveAt(0);
+					NameMenuManager.Current_Page = NameMenuManager.PendingPages[0];
+					NameMenuManager.NeedsManditoryAction = NameMenuManager.Folders.Find(x => x.pagename == NameMenuManager.Current_Page).manditory;
+					NameMenuManager.PendingPages.RemoveAt(0);
                 }
             }
             __instance.InvokeMethod("Load");
