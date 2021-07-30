@@ -15,7 +15,7 @@ using System.Collections.Generic;
 //this code is reused from BaldiMP and BB+ twitch
 namespace BBPlusNameAPI
 {
-    [BepInPlugin("mtm101.rulerp.bbplus.baldinamemenu", "BB+ Name Menu API", "1.2.0.0")]
+    [BepInPlugin("mtm101.rulerp.bbplus.baldinamemenu", "BB+ Name Menu API", "1.2.1.0")]
 
 
 
