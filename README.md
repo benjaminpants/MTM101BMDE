@@ -1,15 +1,8 @@
-# BB+ Name Menu System API
-An API primarily for my mods that makes the process of using the Name Screen as a "second menu" signficantly easier for me.
+# MissingTextureMan101's Baldi Modding Dev API(YES I KNOW ITS AN E IN THE ACRONYM BUT I WASNT THINKING WHEN I MADE THE REPO NAME)
+An API primarily for general purpose development for Baldi's Basics Plus mods. Its based off of the BB+ Name API for the namen API and based off of the Lang Extender.
 
-USE THE VERSION IN RELEASES THE CURRENT "MAIN" BRANCH IS UNSTABLE
-
-
-You need bepinex to use this shit and this is all I'm in the mood to type for
+You need bepinex to use this and this is all I'm in the mood to type for
 
 currently used by:
 
-https://github.com/benjaminpants/BaldiPlusTwitch
-
-https://github.com/benjaminpants/BBPSlotReducer
-
-https://github.com/benjaminpants/BBPBaldnana
+none
