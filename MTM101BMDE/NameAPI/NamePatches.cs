@@ -17,7 +17,7 @@ using System.Collections;
 using System.Runtime.Serialization.Formatters.Binary;
 using System.Reflection.Emit;
 
-namespace BBPlusNameAPI
+namespace MTM101BaldAPI.NameMenu
 {
 
     [HarmonyPatch(typeof(NameManager))]
@@ -64,11 +64,11 @@ namespace BBPlusNameAPI
         static bool Prefix(ref int ___fileNo)
         {
             if (NameMenuManager.Current_Page == "save_select" || ___fileNo == 7) return true;
-            List<Name_MenuObject> currentelements = NameMenuManager.Folders.Find(x => x.pagename == NameMenuManager.Current_Page).GetElements();
+            List<MenuObject> currentelements = NameMenuManager.Folders.Find(x => x.pagename == NameMenuManager.Current_Page).GetElements();
             if (currentelements == null) return true;
             if (currentelements.Count > ___fileNo)
             {
-                return !(currentelements[___fileNo].GetType() == typeof(Name_MenuTitle));
+                return !(currentelements[___fileNo].GetType() == typeof(MenuTitle));
             }
             return true;
         }
@@ -99,7 +99,7 @@ namespace BBPlusNameAPI
             {
                 ___nameList[i] = "";
             }
-            List<Name_MenuObject> currentelements = NameMenuManager.Folders.Find(x => x.pagename == NameMenuManager.Current_Page).GetElements();
+            List<MenuObject> currentelements = NameMenuManager.Folders.Find(x => x.pagename == NameMenuManager.Current_Page).GetElements();
             for (int i = 0; i < currentelements.Count; i++)
             {
                 ___nameList[i] = currentelements[i].GetName();
@@ -140,7 +140,7 @@ namespace BBPlusNameAPI
             if (NameMenuManager.Current_Page == "save_select") return true;
             if (fileNo != 7)
             {
-                List<Name_MenuObject> currentelements = NameMenuManager.Folders.Find(x => x.pagename == NameMenuManager.Current_Page).GetElements();
+                List<MenuObject> currentelements = NameMenuManager.Folders.Find(x => x.pagename == NameMenuManager.Current_Page).GetElements();
                 if (currentelements.Count > fileNo)
                 {
                     currentelements[fileNo].Press();

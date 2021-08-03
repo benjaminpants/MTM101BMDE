@@ -12,60 +12,62 @@ using HarmonyLib; //god im hoping i got the right version of harmony
 using BepInEx.Configuration;
 using System.Linq;
 using System.Collections.Generic;
+using MTM101BaldAPI.NameMenu;
+
 //this code is reused from BaldiMP and BB+ twitch
-namespace BBPlusNameAPI
+namespace MTM101BaldAPI
 {
-    [BepInPlugin("mtm101.rulerp.bbplus.baldinamemenu", "BB+ Name Menu API", "1.2.1.0")]
+    [BepInPlugin("mtm101.rulerp.bbplus.baldidevapi", "BB+ Dev API", "0.0.0.0")]
 
 
 
     public class BaldiNameAPI : BaseUnityPlugin
     {
         bool funnyvariable;
-        string currentmod = "mtm101.rulerp.bbplus.baldinamemenu";
+        string currentmod = "mtm101.rulerp.bbplus.baldidevapi";
         public object ChangeFunnyVariable()
         {
             funnyvariable = !funnyvariable;
             return funnyvariable;
         }
 
-        public void CloseGame(Name_MenuObject obj)
+        public void CloseGame(MenuObject obj)
         {
             Application.Quit();
         }
 
-        public void CrashTheGameBecauseFuckYou(Name_MenuObject obj)
+        public void CrashTheGameBecauseFuckYou(MenuObject obj)
         {
             Environment.Exit(0);
         }
 
-        public void SetCurrentMod(Name_MenuObject obj)
+        public void SetCurrentMod(MenuObject obj)
         {
             currentmod = obj.Name; //we set this to the GUID
             NameMenuManager.Current_Page = "moddata";
         }
 
-        public List<Name_MenuObject> ReturnObjs()
+        public List<MenuObject> ReturnObjs()
         {
-            List<Name_MenuObject> objs = new List<Name_MenuObject>();
+            List<MenuObject> objs = new List<MenuObject>();
             List<BaseUnityPlugin> plugins = GameObject.FindObjectsOfType<BaseUnityPlugin>().ToList();
             foreach (BaseUnityPlugin plugin in plugins)
             {
-                objs.Add(new Name_MenuGeneric(plugin.Info.Metadata.GUID, plugin.Info.Metadata.Name, SetCurrentMod));
+                objs.Add(new MenuGeneric(plugin.Info.Metadata.GUID, plugin.Info.Metadata.Name, SetCurrentMod));
             }
 
             return objs;
         }
 
-        public List<Name_MenuObject> ReturnData()
+        public List<MenuObject> ReturnData()
         {
-            List<Name_MenuObject> objs = new List<Name_MenuObject>();
+            List<MenuObject> objs = new List<MenuObject>();
             BaseUnityPlugin plugin = GameObject.FindObjectsOfType<BaseUnityPlugin>().ToList().Find(x => x.Info.Metadata.GUID == currentmod);
-            objs.Add(new Name_MenuTitle("GUID", "GUID:" + plugin.Info.Metadata.GUID));
-            objs.Add(new Name_MenuTitle("VER", "Version:" + plugin.Info.Metadata.Version.Major + "." + plugin.Info.Metadata.Version.Minor));
-            objs.Add(new Name_MenuTitle("BUILD", "Build:" + plugin.Info.Metadata.Version.Build));
-            objs.Add(new Name_MenuTitle("REV", "Revision:" + plugin.Info.Metadata.Version.Revision));
-            objs.Add(new Name_MenuTitle("LOC", "DLL Name:" + System.IO.Path.GetFileName(plugin.Info.Location)));
+            objs.Add(new MenuTitle("GUID", "GUID:" + plugin.Info.Metadata.GUID));
+            objs.Add(new MenuTitle("VER", "Version:" + plugin.Info.Metadata.Version.Major + "." + plugin.Info.Metadata.Version.Minor));
+            objs.Add(new MenuTitle("BUILD", "Build:" + plugin.Info.Metadata.Version.Build));
+            objs.Add(new MenuTitle("REV", "Revision:" + plugin.Info.Metadata.Version.Revision));
+            objs.Add(new MenuTitle("LOC", "DLL Name:" + System.IO.Path.GetFileName(plugin.Info.Location)));
 
             return objs;
         }
@@ -74,21 +76,21 @@ namespace BBPlusNameAPI
         void Awake()
         {
             
-            Harmony harmony = new Harmony("mtm101.rulerp.bbplus.baldinamemenu");
-            List<Name_MenuObject> RootMenu = new List<Name_MenuObject>();
-            RootMenu.Add(new Name_MenuTitle("generic_title","Welcome!"));
-            RootMenu.Add(new Name_MenuFolder("goto_start", "Start", "save_select"));
-            RootMenu.Add(new Name_MenuFolder("options", "Options", "options"));
-            RootMenu.Add(new Name_MenuFolder("modspage", "Mods", "modslist"));
-            RootMenu.Add(new Name_MenuGeneric("exit", "Exit", CloseGame));
+            Harmony harmony = new Harmony("mtm101.rulerp.bbplus.baldidevapi");
+            List<MenuObject> RootMenu = new List<MenuObject>();
+            RootMenu.Add(new MenuTitle("generic_title","Welcome!"));
+            RootMenu.Add(new MenuFolder("goto_start", "Start", "save_select"));
+            RootMenu.Add(new MenuFolder("options", "Options", "options"));
+            RootMenu.Add(new MenuFolder("modspage", "Mods", "modslist"));
+            RootMenu.Add(new MenuGeneric("exit", "Exit", CloseGame));
             NameMenuManager.AddPage("root", "root");
             NameMenuManager.AddPage("options", "root");
             NameMenuManager.AddPage("bbnmoptions", "options");
             NameMenuManager.AddPage("modslist", "root", ReturnObjs);
             NameMenuManager.AddPage("moddata", "modslist", ReturnData);
-            NameMenuManager.AddToPage("options",new Name_MenuFolder("bbnmoptions", "BB+ Name Menu", "bbnmoptions"));
-            NameMenuManager.AddToPage("bbnmoptions", new Name_MenuOption("change_test", "Test Option", funnyvariable, ChangeFunnyVariable));
-            NameMenuManager.AddToPage("bbnmoptions", new Name_MenuGeneric("crash", "Crash The Game Lol", CrashTheGameBecauseFuckYou));
+            NameMenuManager.AddToPage("options",new MenuFolder("bbnmoptions", "BB+ Name Menu", "bbnmoptions"));
+            NameMenuManager.AddToPage("bbnmoptions", new MenuOption("change_test", "Test Option", funnyvariable, ChangeFunnyVariable));
+            NameMenuManager.AddToPage("bbnmoptions", new MenuGeneric("crash", "Crash The Game Lol", CrashTheGameBecauseFuckYou));
             NameMenuManager.AddToPageBulk("root",RootMenu);
 
 

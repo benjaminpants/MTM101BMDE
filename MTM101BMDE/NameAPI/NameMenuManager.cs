@@ -16,48 +16,35 @@ using System.Collections;
 using System.Runtime.Serialization.Formatters.Binary;
 
 
-namespace BBPlusNameAPI
+namespace MTM101BaldAPI.NameMenu
 {
     public static class NameMenuManager
     {
 
-        public static IEnumerator RunMeInstead(string str)
-        {
-            UnityEngine.Debug.Log("ran once... hopefully! also " + str);
-            yield break;
-        }
-
         public static string Current_Page = "root";
-        public static List<Name_Page> Folders = new List<Name_Page>();
+        public static List<Page> Folders = new List<Page>();
         public static List<string> PendingPages = new List<string>();
         public static string Prev_Page = "root";
         public static bool Pending_Start;
         public static bool NeedsManditoryAction;
 
-
-        public static void AddPage(string pagename, string returnto)
+        public static void AddPage(string pagename, string returnto, Func<List<MenuObject>> func = null)
         {
-            Folders.Add(new Name_Page(pagename, returnto, false, false));
+            Folders.Add(new Page(pagename, returnto, false, func != null, func));
         }
 
-
-        public static void AddPage(string pagename, string returnto, Func<List<Name_MenuObject>> func = null)
+        public static void AddPreStartPage(string pagename, bool requiresmanditoryaction, Func<List<MenuObject>> func = null)
         {
-            Folders.Add(new Name_Page(pagename, returnto, false, func != null, func));
-        }
-
-        public static void AddPreStartPage(string pagename, bool requiresmanditoryaction)
-        {
-            Folders.Add(new Name_Page(pagename, "", requiresmanditoryaction, false));
+            Folders.Add(new Page(pagename, "", requiresmanditoryaction, func != null, func));
             PendingPages.Add(pagename);
         }
 
-        public static void AddToPage(string pagename, Name_MenuObject obj)
+        public static void AddToPage(string pagename, MenuObject obj)
         {
             Folders.Find(x => x.pagename == pagename).Elements.Add(obj);
         }
 
-        public static void AddToPageBulk(string pagename, List<Name_MenuObject> objs)
+        public static void AddToPageBulk(string pagename, List<MenuObject> objs)
         {
             Folders.Find(x => x.pagename == pagename).Elements.AddRange(objs);
         }

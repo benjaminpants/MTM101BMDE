@@ -3,20 +3,20 @@ using System.Linq;
 using System.Collections.Generic;
 using System.Collections;
 
-namespace BBPlusNameAPI
+namespace MTM101BaldAPI.NameMenu
 {
 
-    public class Name_Page
+    public class Page
     {
 
         public string pagename;
         public string prevpage;
         public bool manditory;
         private bool requiresconstantrefresh;
-        public List<Name_MenuObject> Elements = new List<Name_MenuObject>();
-        private Func<List<Name_MenuObject>> refresh_func;
+        public List<MenuObject> Elements = new List<MenuObject>();
+        private Func<List<MenuObject>> refresh_func;
 
-        public Name_Page()
+        public Page()
         {
             pagename = "null";
             prevpage = "root";
@@ -24,7 +24,7 @@ namespace BBPlusNameAPI
             requiresconstantrefresh = false;
         }
 
-        public Name_Page(string name, string prev, bool mand, bool refresh)
+        public Page(string name, string prev, bool mand, bool refresh)
         {
             pagename = name;
             prevpage = prev;
@@ -32,7 +32,7 @@ namespace BBPlusNameAPI
             requiresconstantrefresh = refresh;
         }
 
-        public Name_Page(string name, string prev, bool mand, bool refresh, Func<List<Name_MenuObject>> func)
+        public Page(string name, string prev, bool mand, bool refresh, Func<List<MenuObject>> func)
         {
             pagename = name;
             prevpage = prev;
@@ -42,7 +42,7 @@ namespace BBPlusNameAPI
         }
 
 
-        public ref List<Name_MenuObject> GetElements()
+        public ref List<MenuObject> GetElements()
         {
             if (requiresconstantrefresh)
             {
@@ -55,7 +55,7 @@ namespace BBPlusNameAPI
     }
 
 
-    public class Name_MenuObject
+    public class MenuObject
     {
         public string Name;
         protected string Name_External;
@@ -70,12 +70,12 @@ namespace BBPlusNameAPI
             return Name_External;
         }
 
-        public Name_MenuObject()
+        public MenuObject()
         {
 
         }
 
-        public Name_MenuObject(string name, string nameextern)
+        public MenuObject(string name, string nameextern)
         {
             Name = name;
             Name_External = nameextern;
@@ -87,16 +87,16 @@ namespace BBPlusNameAPI
 
     }
 
-    public class Name_MenuTitle : Name_MenuObject
+    public class MenuTitle : MenuObject
     {
 
-        public Name_MenuTitle()
+        public MenuTitle()
         {
 
         }
 
 
-        public Name_MenuTitle(string intern, string name)
+        public MenuTitle(string intern, string name)
         {
             Name = intern;
             Name_External = name;
@@ -111,17 +111,17 @@ namespace BBPlusNameAPI
 
 
 
-    public class Name_MenuFolder : Name_MenuObject
+    public class MenuFolder : MenuObject
     {
         public string foldertogo;
 
-        public Name_MenuFolder()
+        public MenuFolder()
         {
 
         }
 
 
-        public Name_MenuFolder(string intern, string name, string foldertogoto)
+        public MenuFolder(string intern, string name, string foldertogoto)
         {
             Name = intern;
             Name_External = name;
@@ -140,17 +140,17 @@ namespace BBPlusNameAPI
 
     }
 
-    public class Name_MenuGeneric : Name_MenuObject
+    public class MenuGeneric : MenuObject
     {
-        protected Action<Name_MenuObject> function;
+        protected Action<MenuObject> function;
 
-        public Name_MenuGeneric()
+        public MenuGeneric()
         {
 
         }
 
 
-        public Name_MenuGeneric(string intern, string name, Action<Name_MenuObject> functocall)
+        public MenuGeneric(string intern, string name, Action<MenuObject> functocall)
         {
             Name = intern;
             Name_External = name;
@@ -173,14 +173,14 @@ namespace BBPlusNameAPI
 
 
 
-    public class Name_MenuOption : Name_MenuGeneric
+    public class MenuOption : MenuGeneric
     {
 
         private new Func<object> function;
 
         private object currentvalue;
 
-        public Name_MenuOption(string intern, string name, object def, Func<object> functocall)
+        public MenuOption(string intern, string name, object def, Func<object> functocall)
         {
             Name = intern;
             Name_External = name;
