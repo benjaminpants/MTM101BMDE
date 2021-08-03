@@ -71,7 +71,7 @@ namespace MTM101BaldAPI.NameMenu
             NameManager.nm.UpdateState();
         }
 
-
+		//this function is stupid? i think i know a method that I believe is faster so I'll be using that in the future
         public static object InvokeMethod<T>(this T obj, string methodName, params object[] args) //thank you owen james: https://stackoverflow.com/users/2736798/owen-james
         {
             var type = typeof(T);

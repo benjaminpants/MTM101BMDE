@@ -17,14 +17,38 @@ using MTM101BaldAPI.NameMenu;
 //this code is reused from BaldiMP and BB+ twitch
 namespace MTM101BaldAPI
 {
-    [BepInPlugin("mtm101.rulerp.bbplus.baldidevapi", "BB+ Dev API", "0.0.0.0")]
-
-
-
-    public class BaldiNameAPI : BaseUnityPlugin
+	[BepInPlugin("mtm101.rulerp.bbplus.baldidevapi", "BB+ Dev API", "0.0.0.0")]
+    public class MTM101BaldiDevAPI : BaseUnityPlugin
     {
         bool funnyvariable;
         string currentmod = "mtm101.rulerp.bbplus.baldidevapi";
+
+
+
+
+
+
+		public static bool SavesEnabled
+		{
+			get
+			{
+				return allowsaves;
+			}
+			set
+			{
+				if (value == false)
+				{
+					allowsaves = false;
+				}
+				else
+				{
+					UnityEngine.Debug.LogWarning("You can't re-enable saves once a mod has disabled them!");
+				}
+			}
+		}
+
+		private static bool allowsaves = true;
+
         public object ChangeFunnyVariable()
         {
             funnyvariable = !funnyvariable;
@@ -88,13 +112,11 @@ namespace MTM101BaldAPI
             NameMenuManager.AddPage("bbnmoptions", "options");
             NameMenuManager.AddPage("modslist", "root", ReturnObjs);
             NameMenuManager.AddPage("moddata", "modslist", ReturnData);
-            NameMenuManager.AddToPage("options",new MenuFolder("bbnmoptions", "BB+ Name Menu", "bbnmoptions"));
-            NameMenuManager.AddToPage("bbnmoptions", new MenuOption("change_test", "Test Option", funnyvariable, ChangeFunnyVariable));
-            NameMenuManager.AddToPage("bbnmoptions", new MenuGeneric("crash", "Crash The Game Lol", CrashTheGameBecauseFuckYou));
             NameMenuManager.AddToPageBulk("root",RootMenu);
 
 
-            harmony.PatchAll();
+
+			harmony.PatchAll();
 
         }
     }
