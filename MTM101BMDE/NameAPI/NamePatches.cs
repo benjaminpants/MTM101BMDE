@@ -135,7 +135,8 @@ namespace MTM101BaldAPI.NameMenu
 
 
 
-        static bool Prefix(NameManager __instance, int fileNo)
+
+        static bool Prefix(NameManager __instance, int fileNo, ref string[] ___nameList)
         {
             if (NameMenuManager.Current_Page == "save_select") return true;
             if (fileNo != 7)
@@ -163,17 +164,19 @@ namespace MTM101BaldAPI.NameMenu
                     }
                 }
             }
-            if (NameMenuManager.Current_Page == "save_select")
-            {
-                if (NameMenuManager.PendingPages.Count != 0)
-                {
-                    NameMenuManager.Pending_Start = true;
+			if (NameMenuManager.Current_Page == "save_select")
+			{
+				if (NameMenuManager.PendingPages.Count != 0)
+				{
+					NameMenuManager.Pending_Start = true;
 					NameMenuManager.Current_Page = NameMenuManager.PendingPages[0];
 					NameMenuManager.NeedsManditoryAction = NameMenuManager.Folders.Find(x => x.pagename == NameMenuManager.Current_Page).manditory;
 					NameMenuManager.PendingPages.RemoveAt(0);
-                }
-            }
-            __instance.InvokeMethod("Load");
+				}
+			}
+			___nameList = new string[8];
+
+			__instance.InvokeMethod("Load");
             __instance.UpdateState();
 
             return false;

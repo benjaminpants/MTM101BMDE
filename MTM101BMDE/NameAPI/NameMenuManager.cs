@@ -52,22 +52,23 @@ namespace MTM101BaldAPI.NameMenu
         public static void AllowContinue(bool instant)
         {
 
-            if (!instant)
-            {
-                NeedsManditoryAction = false;
-            }
-            else
-            {
-                NameMenuManager.Current_Page = "save_select";
-                if (NameMenuManager.PendingPages.Count != 0)
-                {
-                    NameMenuManager.Pending_Start = true;
-                    NameMenuManager.Current_Page = NameMenuManager.PendingPages[0];
-                    NameMenuManager.NeedsManditoryAction = Folders.Find(x => x.pagename == Current_Page).manditory;
-                    NameMenuManager.PendingPages.RemoveAt(0);
-                }
-            }
-            NameManager.nm.InvokeMethod("Load");
+			if (!instant)
+			{
+				NeedsManditoryAction = false;
+			}
+			else
+			{
+				NameMenuManager.Current_Page = "save_select";
+				if (NameMenuManager.PendingPages.Count != 0)
+				{
+					NameMenuManager.Pending_Start = true;
+					NameMenuManager.Current_Page = NameMenuManager.PendingPages[0];
+					NameMenuManager.NeedsManditoryAction = Folders.Find(x => x.pagename == Current_Page).manditory;
+					NameMenuManager.PendingPages.RemoveAt(0);
+				}
+			}
+			
+			NameManager.nm.InvokeMethod("Load");
             NameManager.nm.UpdateState();
         }
 
