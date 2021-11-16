@@ -113,7 +113,11 @@ namespace MTM101BaldAPI
             NameMenuManager.AddPage("modslist", "root", ReturnObjs);
             NameMenuManager.AddPage("moddata", "modslist", ReturnData);
             NameMenuManager.AddToPageBulk("root",RootMenu);
-
+			BaseUnityPlugin namemenu = GameObject.FindObjectsOfType<BaseUnityPlugin>().ToList().Find(x => x.Info.Metadata.Name == "BB+ Name Menu API");
+			if (namemenu != null)
+			{
+				Application.Quit();
+			}
 
 
 			harmony.PatchAll();
