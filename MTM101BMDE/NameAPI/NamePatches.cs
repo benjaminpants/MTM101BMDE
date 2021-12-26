@@ -103,6 +103,7 @@ namespace MTM101BaldAPI.NameMenu
             for (int i = 0; i < currentelements.Count; i++)
             {
                 ___nameList[i] = currentelements[i].GetName();
+				if (___buttons[i] == null) continue;
                 if (___nameList[i].Length > 11)
                 {
                     ___buttons[i].text.fontSize = Fontsize * (11f / (float)(___nameList[i].Length));
