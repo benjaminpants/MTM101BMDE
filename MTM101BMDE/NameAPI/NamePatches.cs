@@ -20,21 +20,6 @@ using System.Reflection.Emit;
 namespace MTM101BaldAPI.NameMenu
 {
 
-    [HarmonyPatch(typeof(NameManager))]
-    [HarmonyPatch("ToggelDeleteMode")]
-    class DisableDelete
-    {
-        static bool Prefix()
-        {
-            return (NameMenuManager.Current_Page == "save_select");
-        }
-    }
-
-
-
-
-
-    
 
         /*[HarmonyReversePatch]
         [HarmonyPatch(typeof(HijackLoadDelay), "MyLoadDelay")]
