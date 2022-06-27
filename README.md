@@ -5,6 +5,6 @@ An API primarily for general purpose development for Baldi's Basics Plus mods. I
 
 You need bepinex to use this and this is all I'm in the mood to type for
 
-currently used by:
+the downloads section on this page is outdated please use the GB page: https://gamebanana.com/mods/385387
 
-none
+
