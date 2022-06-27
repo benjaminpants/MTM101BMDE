@@ -42,5 +42,17 @@ namespace MTM101BaldAPI
 			return obj;
 
 		}
+
+
+		public static FieldTripObject CreateFieldTripObject(FieldTrips trip, FieldTripManager manager, string messageendkey, string animation)
+		{
+			FieldTripObject obj = ScriptableObject.CreateInstance<FieldTripObject>();
+			obj.trip = trip;
+			obj.tripPre = manager;
+			obj.messageKey = messageendkey;
+			obj.animation = animation;
+			return obj;
+
+		}
 	}
 }
