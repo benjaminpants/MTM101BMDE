@@ -4,7 +4,7 @@ using System.Text;
 using UnityEngine;
 using System.Linq;
 
-namespace MTM101BMDE
+namespace MTM101BaldAPI
 {
     public static class StringHelpers
     {

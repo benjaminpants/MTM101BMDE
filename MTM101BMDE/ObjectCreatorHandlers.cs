@@ -54,5 +54,17 @@ namespace MTM101BaldAPI
 			return obj;
 
 		}
+
+
+		public static PosterObject CreatePosterObject(Texture2D postertex, Material[] materials, PosterTextData[] text)
+        {
+			PosterObject obj = ScriptableObject.CreateInstance<PosterObject>();
+			obj.baseTexture = postertex;
+			obj.material = materials;
+			obj.textData = text;
+
+			return obj;
+        }
+
 	}
 }

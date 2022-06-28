@@ -12,6 +12,7 @@ using UnityEngine.SceneManagement;
 using HarmonyLib;
 using BepInEx.Configuration;
 using System.Collections.Generic;
+using MTM101BaldAPI;
 
 namespace MTM101BaldAPI.LangExtender
 {
@@ -44,9 +45,9 @@ namespace MTM101BaldAPI.LangExtender
 
 		public static Dictionary<string, string> OriginalText;
 
-		private static void LoadMod(string mod, Language language, ref Dictionary<string, string> ___localizedText)
+		private static void LoadMod(BaseUnityPlugin plug, Language language, ref Dictionary<string, string> ___localizedText)
 		{
-			string moddedfolderpath = Path.Combine(Application.streamingAssetsPath, "Modded", mod, "Language", language.ToString());
+			string moddedfolderpath = Path.Combine(AssetManager.AssetManager.GetModPath(plug), "Language", language.ToString());
 			if (Directory.Exists(moddedfolderpath))
 			{
 				string[] dirs = Directory.GetFiles(moddedfolderpath, "*.json");
@@ -94,7 +95,7 @@ namespace MTM101BaldAPI.LangExtender
 			{
 				foreach (BaseUnityPlugin plug in GameObject.FindObjectsOfType<BaseUnityPlugin>())
 				{
-					LoadMod(plug.Info.Metadata.GUID, language, ref ___localizedText);
+					LoadMod(plug, language, ref ___localizedText);
 				}
 			}
 			else
