@@ -10,12 +10,30 @@ namespace MTM101BaldAPI
     {
         public static string GetName(this Items en)
         {
-            return Singleton<LocalizationManager>.Instance.GetLocalizedText(en.GetFirstInstance().nameKey);
+            string e = en.ToString();
+            try
+            {
+                e = Singleton<LocalizationManager>.Instance.GetLocalizedText(en.GetFirstInstance().nameKey);
+            }
+            catch(Exception E)
+            {
+                Debug.LogWarning(E.Message);
+            }
+            return e;
         }
 
         public static string GetName(this Character en)
         {
-            return Singleton<LocalizationManager>.Instance.GetLocalizedText(en.GetFirstInstance().Poster.textData[0].textKey);
+            string e = en.ToString();
+            try
+            {
+                e = Singleton<LocalizationManager>.Instance.GetLocalizedText(en.GetFirstInstance().Poster.textData[0].textKey);
+            }
+            catch (Exception E)
+            {
+                Debug.LogWarning(E.Message);
+            }
+            return e;
         }
     }
 }

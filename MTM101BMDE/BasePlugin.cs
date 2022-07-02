@@ -17,7 +17,7 @@ using MTM101BaldAPI.NameMenu;
 //this code is reused from BaldiMP and BB+ twitch
 namespace MTM101BaldAPI
 {
-	[BepInPlugin("mtm101.rulerp.bbplus.baldidevapi", "BB+ Dev API", "1.0.0.0")]
+	[BepInPlugin("mtm101.rulerp.bbplus.baldidevapi", "BB+ Dev API", "1.1.0.0")]
     public class MTM101BaldiDevAPI : BaseUnityPlugin
     {
         bool funnyvariable;
