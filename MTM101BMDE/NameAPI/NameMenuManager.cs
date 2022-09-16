@@ -28,6 +28,18 @@ namespace MTM101BaldAPI.NameMenu
         public static bool Pending_Start;
         public static bool NeedsManditoryAction;
 
+
+
+        public static event Action<string> OnNameClicked;
+
+        /// <summary>
+        /// Don't call this ever. This is for internal use. Its public because im lazy.
+        /// </summary>
+        public static void CallNameClicked(string name)
+        {
+            OnNameClicked(name);
+        }
+
         public static void AddPage(string pagename, string returnto, Func<List<MenuObject>> func = null)
         {
             Folders.Add(new Page(pagename, returnto, false, func != null, func));

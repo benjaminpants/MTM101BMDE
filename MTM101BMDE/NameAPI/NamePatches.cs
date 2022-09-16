@@ -118,13 +118,13 @@ namespace MTM101BaldAPI.NameMenu
     [HarmonyPatch("NameClicked")]
     class ModifyNameClick
     {
-
-
-
-
         static bool Prefix(NameManager __instance, int fileNo, ref string[] ___nameList)
         {
-            if (NameMenuManager.Current_Page == "save_select") return true;
+            if (NameMenuManager.Current_Page == "save_select")
+            {
+                NameMenuManager.CallNameClicked(___nameList[fileNo]);
+                return true;
+            }
             if (fileNo != 7)
             {
                 List<MenuObject> currentelements = NameMenuManager.Folders.Find(x => x.pagename == NameMenuManager.Current_Page).GetElements();
