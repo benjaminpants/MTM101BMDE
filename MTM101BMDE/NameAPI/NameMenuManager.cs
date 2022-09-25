@@ -37,7 +37,10 @@ namespace MTM101BaldAPI.NameMenu
         /// </summary>
         public static void CallNameClicked(string name)
         {
-            OnNameClicked(name);
+            if (OnNameClicked != null)
+            {
+                OnNameClicked(name);
+            }
         }
 
         public static void AddPage(string pagename, string returnto, Func<List<MenuObject>> func = null)
