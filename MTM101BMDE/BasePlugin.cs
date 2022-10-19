@@ -20,7 +20,6 @@ namespace MTM101BaldAPI
 	[BepInPlugin("mtm101.rulerp.bbplus.baldidevapi", "BB+ Dev API", "1.1.0.0")]
     public class MTM101BaldiDevAPI : BaseUnityPlugin
     {
-        bool funnyvariable;
         string currentmod = "mtm101.rulerp.bbplus.baldidevapi";
 
 
@@ -49,20 +48,9 @@ namespace MTM101BaldAPI
 
 		private static bool allowsaves = true;
 
-        public object ChangeFunnyVariable()
-        {
-            funnyvariable = !funnyvariable;
-            return funnyvariable;
-        }
-
         public void CloseGame(MenuObject obj)
         {
             Application.Quit();
-        }
-
-        public void CrashTheGameBecauseFuckYou(MenuObject obj)
-        {
-            Environment.Exit(0);
         }
 
         public void SetCurrentMod(MenuObject obj)
