@@ -14,6 +14,8 @@ using System.Linq;
 using System.Collections.Generic;
 using MTM101BaldAPI.NameMenu;
 
+
+#if !BBCR
 namespace MTM101BaldAPI
 {
 	[HarmonyPatch(typeof(MainModeButtonController))]
@@ -50,3 +52,4 @@ namespace MTM101BaldAPI
 	}
 
 }
+#endif

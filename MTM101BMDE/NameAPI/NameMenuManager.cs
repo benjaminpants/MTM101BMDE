@@ -82,9 +82,12 @@ namespace MTM101BaldAPI.NameMenu
 					NameMenuManager.PendingPages.RemoveAt(0);
 				}
 			}
-			
-			NameManager.nm.InvokeMethod("Load");
+
+
+            #if !BBCR
+            NameManager.nm.InvokeMethod("Load");
             NameManager.nm.UpdateState();
+            #endif
         }
 
 		//this function is stupid? i think i know a method that I believe is faster so I'll be using that in the future

@@ -13,17 +13,24 @@ using BepInEx.Configuration;
 using System.Linq;
 using System.Collections.Generic;
 using MTM101BaldAPI.NameMenu;
+using System.Reflection;
 
 //this code is reused from BaldiMP and BB+ twitch
 namespace MTM101BaldAPI
 {
-	[BepInPlugin("mtm101.rulerp.bbplus.baldidevapi", "BB+ Dev API", "1.1.0.0")]
+	[BepInPlugin("mtm101.rulerp.bbplus.baldidevapi", "BB+ Dev API", "1.2.0.0")]
     public class MTM101BaldiDevAPI : BaseUnityPlugin
     {
         string currentmod = "mtm101.rulerp.bbplus.baldidevapi";
 
 
-
+        public static bool IsClassicRemastered
+        {
+            get
+            {
+                return Type.GetType("YCTP") != null;
+            }
+        }
 
 
 
