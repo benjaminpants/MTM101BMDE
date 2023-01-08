@@ -50,13 +50,13 @@ namespace MTM101BaldAPI.NameMenu
     {
         static bool Prefix(ref int ___fileNo)
         {
-            if (NameMenuManager.Current_Page == "save_select" || ___fileNo == 7) return true;
-            List<MenuObject> currentelements = NameMenuManager.Folders.Find(x => x.pagename == NameMenuManager.Current_Page).GetElements();
+            if (NameMenuManager.CurrentPageName == "save_select") return true;
+            /*List<MenuObject> currentelements = NameMenuManager.Folders.Find(x => x.pagename == NameMenuManager.Current_Page).GetElements();
             if (currentelements == null) return true;
             if (currentelements.Count > ___fileNo)
             {
                 return !(currentelements[___fileNo].GetType() == typeof(MenuTitle));
-            }
+            }*/
             return true;
         }
     }
@@ -69,11 +69,27 @@ namespace MTM101BaldAPI.NameMenu
         const float Fontsize = 24f;
         static bool Prefix(NameManager __instance, ref string[] ___nameList, ref NameButton[] ___buttons)
         {
-            for (int i = 0; i <= 6; i++)
+            for (int i = 0; i < 8; i++)
             {
                 ___buttons[i].text.fontSize = Fontsize;
             }
-            if (NameMenuManager.Current_Page == "save_select") return true;
+            if (NameMenuManager.CurrentPageName == "save_select") return true;
+            IPage CurrentPage = NameMenuManager.CurrentPage;
+            string[] CurDisplay = new string[8];
+            for (int i = 0; i < CurDisplay.Length; i++)
+            {
+                CurDisplay[i] = ___nameList[i];
+            }
+
+            CurDisplay = CurrentPage.GetDisplay(CurDisplay);
+
+            for (int i = 0; i < CurDisplay.Length; i++)
+            {
+                ___nameList[i] = CurDisplay[i];
+            }
+
+
+            /*
             if (NameMenuManager.Current_Page != "root")
             {
                 ___nameList[7] = NameMenuManager.Pending_Start ? (NameMenuManager.NeedsManditoryAction ? "" : "Continue") : "Return";
@@ -100,6 +116,7 @@ namespace MTM101BaldAPI.NameMenu
                     ___buttons[i].text.fontSize = Fontsize;
                 }
             }
+            */
             __instance.UpdateState();
             return false;
         }
@@ -112,7 +129,12 @@ namespace MTM101BaldAPI.NameMenu
     {
         static bool Prefix()
         {
-            return NameMenuManager.Current_Page == "save_select";
+            if (NameMenuManager.CurrentPageName == "save_select")
+            {
+                return true;
+            }
+            NameMenuManager.CurrentPage.OnScreenType(Input.inputString);
+            return false;
         }
     }
 
@@ -120,51 +142,22 @@ namespace MTM101BaldAPI.NameMenu
     [HarmonyPatch("NameClicked")]
     class ModifyNameClick
     {
+
+        static MethodInfo loadInfo = AccessTools.Method(typeof(NameManager),"Load");
+
         static bool Prefix(NameManager __instance, int fileNo, ref string[] ___nameList)
         {
-            if (NameMenuManager.Current_Page == "save_select")
+            if (NameMenuManager.CurrentPageName == "save_select")
             {
                 NameMenuManager.CallNameClicked(___nameList[fileNo]);
                 return true;
             }
-            if (fileNo != 7)
-            {
-                List<MenuObject> currentelements = NameMenuManager.Folders.Find(x => x.pagename == NameMenuManager.Current_Page).GetElements();
-                if (currentelements.Count > fileNo)
-                {
-                    currentelements[fileNo].Press();
-                }
-            }
             else
             {
-                if (!NameMenuManager.Pending_Start)
-                {
-                    if (NameMenuManager.Current_Page != "root")
-                    {
-                        NameMenuManager.Current_Page = NameMenuManager.Folders.Find(x => x.pagename == NameMenuManager.Current_Page).prevpage;
-                    }
-                }
-                else
-                {
-                    if (!NameMenuManager.NeedsManditoryAction)
-                    {
-                        NameMenuManager.Current_Page = "save_select";
-                    }
-                }
+                NameMenuManager.CurrentPage.OnEntryClick(fileNo);
             }
-			if (NameMenuManager.Current_Page == "save_select")
-			{
-				if (NameMenuManager.PendingPages.Count != 0)
-				{
-					NameMenuManager.Pending_Start = true;
-					NameMenuManager.Current_Page = NameMenuManager.PendingPages[0];
-					NameMenuManager.NeedsManditoryAction = NameMenuManager.Folders.Find(x => x.pagename == NameMenuManager.Current_Page).manditory;
-					NameMenuManager.PendingPages.RemoveAt(0);
-				}
-			}
-			___nameList = new string[8];
 
-			__instance.InvokeMethod("Load");
+            loadInfo.Invoke(__instance,null);
             __instance.UpdateState();
 
             return false;

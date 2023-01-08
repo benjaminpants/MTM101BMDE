@@ -13,16 +13,18 @@ using BepInEx.Configuration;
 using System.Linq;
 using System.Collections.Generic;
 using MTM101BaldAPI.NameMenu;
-using System.Reflection;
+using MTM101BaldAPI.OptionsAPI;
 
 //this code is reused from BaldiMP and BB+ twitch
 namespace MTM101BaldAPI
 {
-	[BepInPlugin("mtm101.rulerp.bbplus.baldidevapi", "BB+ Dev API", "1.2.0.0")]
+
+
+    [BepInPlugin("mtm101.rulerp.bbplus.baldidevapi", "BB+ Dev API", VersionNumber)]
     public class MTM101BaldiDevAPI : BaseUnityPlugin
     {
-        string currentmod = "mtm101.rulerp.bbplus.baldidevapi";
 
+        public const string VersionNumber = "1.3.0.0";
 
         public static bool IsClassicRemastered
         {
@@ -32,91 +34,172 @@ namespace MTM101BaldAPI
             }
         }
 
+        public static bool SavesEnabled
+        {
+            get
+            {
+                return allowsaves;
+            }
+            set
+            {
+                if (value == false)
+                {
+                    allowsaves = false;
+                }
+                else
+                {
+                    UnityEngine.Debug.LogWarning("You can't re-enable saves once a mod has disabled them!");
+                }
+            }
+        }
 
+        private static bool allowsaves = true;
 
-		public static bool SavesEnabled
-		{
-			get
-			{
-				return allowsaves;
-			}
-			set
-			{
-				if (value == false)
-				{
-					allowsaves = false;
-				}
-				else
-				{
-					UnityEngine.Debug.LogWarning("You can't re-enable saves once a mod has disabled them!");
-				}
-			}
-		}
-
-		private static bool allowsaves = true;
-
-        public void CloseGame(MenuObject obj)
+        public void CloseGame(IPageButton but, IPage p)
         {
             Application.Quit();
         }
 
-        public void SetCurrentMod(MenuObject obj)
+        static Page rootPage = new Page("root");
+
+        public static Folder optionsPage = new Folder("options", new Page("optionsroot"),new List<IPage>());
+
+        void GoToStart(IPageButton but, IPage page)
         {
-            currentmod = obj.Name; //we set this to the GUID
-            NameMenuManager.Current_Page = "moddata";
+            NameMenuManager.SwitchToPage("save_select");
         }
 
-        public List<MenuObject> ReturnObjs()
+        void GoToOptions(IPageButton but, IPage page)
         {
-            List<MenuObject> objs = new List<MenuObject>();
-            List<BaseUnityPlugin> plugins = GameObject.FindObjectsOfType<BaseUnityPlugin>().ToList();
-            foreach (BaseUnityPlugin plugin in plugins)
+            NameMenuManager.SwitchToPage("options");
+        }
+
+#if DEBUG
+        void OnMen(OptionsMenu __instance)
+        {
+            GameObject ob = CustomOptionsCore.CreateNewCategory(__instance, "Test Menu");
+            MenuToggle ch = CustomOptionsCore.CreateToggleButton(__instance, new Vector2(0f, 0f), "Checkbox", false, "Defaults to \"false\"");
+            ch.transform.SetParent(ob.transform, false);
+
+            TextLocalizer lol = CustomOptionsCore.CreateText(__instance, new Vector2(-70f, 70f), "Test Text");
+            lol.transform.SetParent(ob.transform, false);
+
+            AdjustmentBars bar = CustomOptionsCore.CreateAdjustmentBar(__instance, new Vector2(-96f, -40f), "barTiny", 2, "Tiny Bar", () =>
             {
-                objs.Add(new MenuGeneric(plugin.Info.Metadata.GUID, plugin.Info.Metadata.Name, SetCurrentMod));
-            }
+                UnityEngine.Debug.Log("1");
+            });
+            bar.transform.SetParent(ob.transform, false);
+            bar = CustomOptionsCore.CreateAdjustmentBar(__instance, new Vector2(-96f, -70f), "barSmall", 6, "Small Bar", () =>
+            {
+                UnityEngine.Debug.Log("2");
+            });
+            bar.transform.SetParent(ob.transform, false);
+            bar = CustomOptionsCore.CreateAdjustmentBar(__instance, new Vector2(-96f, -100f), "barNorm", 10, "Normal Bar", () =>
+            {
+                UnityEngine.Debug.Log("3");
+            });
+            bar.transform.SetParent(ob.transform, false);
+            bar = CustomOptionsCore.CreateAdjustmentBar(__instance, new Vector2(-96f, -130f), "barBig", 15, "Big Bar", () =>
+            {
+                UnityEngine.Debug.Log("4");
+            });
+            bar.transform.SetParent(ob.transform, false);
+            bar = CustomOptionsCore.CreateAdjustmentBar(__instance, new Vector2(-96f, -160f), "barHuge", 22, "Huge Bar", () =>
+            {
+                UnityEngine.Debug.Log("5");
+            });
+            bar.transform.SetParent(ob.transform, false);
 
-            return objs;
+            StandardMenuButton b = CustomOptionsCore.CreateApplyButton(__instance, "Apply button. Prints \"APPLY!\" in the console.", () =>
+            {
+                UnityEngine.Debug.Log("APPLY!");
+            });
+
+            b.transform.SetParent(ob.transform, false);
         }
+#endif
 
-        public List<MenuObject> ReturnData()
+#if DEBUG
+        void GoToTester(IPageButton but, IPage page)
         {
-            List<MenuObject> objs = new List<MenuObject>();
-            BaseUnityPlugin plugin = GameObject.FindObjectsOfType<BaseUnityPlugin>().ToList().Find(x => x.Info.Metadata.GUID == currentmod);
-            objs.Add(new MenuTitle("GUID", "GUID:" + plugin.Info.Metadata.GUID));
-            objs.Add(new MenuTitle("VER", "Version:" + plugin.Info.Metadata.Version.Major + "." + plugin.Info.Metadata.Version.Minor));
-            objs.Add(new MenuTitle("BUILD", "Build:" + plugin.Info.Metadata.Version.Build));
-            objs.Add(new MenuTitle("REV", "Revision:" + plugin.Info.Metadata.Version.Revision));
-            objs.Add(new MenuTitle("LOC", "DLL Name:" + System.IO.Path.GetFileName(plugin.Info.Location)));
-
-            return objs;
+            NameMenuManager.SwitchToPage("tester");
         }
-
+        void DebugFolder()
+        {
+            List<IPage> pl = new List<IPage>();
+            Page pB = new Page("TEST");
+            Folder f = new Folder("tester", pB, pl);
+            for (int i = 0; i < 4; i++)
+            {
+                Page p = new Page("TEST");
+                p.buttons.Add(new StringInput("debug", "d:%v", null, null));
+                p.buttons.Add(new Button("lol", "Return", f.ReturnToDefaultPage));
+                f.AddPage(p);
+            }
+            void goToRandom(IPageButton but, IPage page)
+            {
+                f.GoToPage(UnityEngine.Random.Range(0,3));
+            }
+            pB.buttons.Add(new Button("random","Random", goToRandom));
+            NameMenuManager.AddPage(f);
+            rootPage.buttons.Add(new Button("testBut", "Tester", GoToTester));
+        }
+#endif
 
         void Awake()
         {
-            
+            NameMenuManager.AddPage(rootPage);
+            optionsPage.rootPage = rootPage;
+            optionsPage.showReturn = true;
+            NameMenuManager.AddPage(optionsPage);
+            //Button testBut = new StringInput("testBut", "Value: %v", null, null);
+            rootPage.buttons.Add(new Button("welcomeTitle", "Welcome!", null));
+            rootPage.buttons.Add(new Button("startBut", "Start", GoToStart));
+            rootPage.buttons.Add(new Button("optionsBut","Options",GoToOptions));
+#if DEBUG
+            DebugFolder();
+            CustomOptionsCore.OnMenuInitialize += OnMen;
+#endif
+            rootPage.buttons.Add(new Button("exitBut", "Exit", CloseGame));
+            //rootPage.buttons.Add(testBut);
+
             Harmony harmony = new Harmony("mtm101.rulerp.bbplus.baldidevapi");
-            List<MenuObject> RootMenu = new List<MenuObject>();
-            RootMenu.Add(new MenuTitle("generic_title","Welcome!"));
-            RootMenu.Add(new MenuFolder("goto_start", "Start", "save_select"));
-            RootMenu.Add(new MenuFolder("options", "Options", "options"));
-            RootMenu.Add(new MenuFolder("modspage", "Mods", "modslist"));
-            RootMenu.Add(new MenuGeneric("exit", "Exit", CloseGame));
-            NameMenuManager.AddPage("root", "root");
-            NameMenuManager.AddPage("options", "root");
-            NameMenuManager.AddPage("bbnmoptions", "options");
-            NameMenuManager.AddPage("modslist", "root", ReturnObjs);
-            NameMenuManager.AddPage("moddata", "modslist", ReturnData);
-            NameMenuManager.AddToPageBulk("root",RootMenu);
 			BaseUnityPlugin namemenu = GameObject.FindObjectsOfType<BaseUnityPlugin>().ToList().Find(x => x.Info.Metadata.Name == "BB+ Name Menu API");
 			if (namemenu != null)
 			{
 				Application.Quit();
 			}
-
+            
 
 			harmony.PatchAll();
 
+        }
+    }
+
+
+    //Handle patching appropiate functions to allow for the version number to be patched
+    [HarmonyPatch(typeof(NameManager))]
+    [HarmonyPatch("Awake")]
+    class InjectAPINameName
+    {
+        static void Postfix(NameManager __instance)
+        {
+            Transform t = __instance.transform.parent.Find("Version Number");
+            TMPro.TMP_Text text = t.gameObject.GetComponent<TMPro.TMP_Text>();
+            text.text += "API " + MTM101BaldiDevAPI.VersionNumber;
+            t.localPosition += new Vector3(0f, 28f);
+        }
+    }
+
+    [HarmonyPatch(typeof(MainMenu))]
+    [HarmonyPatch("Start")]
+    class InjectAPIMainName
+    {
+        static void Postfix(MainMenu __instance)
+        {
+            Transform t = __instance.transform.Find("Reminder");
+            TMPro.TMP_Text text = t.gameObject.GetComponent<TMPro.TMP_Text>();
+            text.text = "Modding API " + MTM101BaldiDevAPI.VersionNumber;
         }
     }
 }
