@@ -66,7 +66,7 @@ namespace MTM101BaldAPI
 
         void GoToStart(IPageButton but, IPage page)
         {
-            NameMenuManager.SwitchToPage("save_select");
+            NameMenuManager.AttemptSwitchToStart();
         }
 
         void GoToOptions(IPageButton but, IPage page)

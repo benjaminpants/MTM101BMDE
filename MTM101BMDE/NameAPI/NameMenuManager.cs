@@ -22,6 +22,9 @@ namespace MTM101BaldAPI.NameMenu
     {
 
         static MethodInfo loadInfo = AccessTools.Method(typeof(NameManager), "Load");
+
+        static List<string> preStartPages = new List<string>();
+
         public static void Refresh()
         {
             NameManager inst = NameManager.nm;
@@ -42,6 +45,22 @@ namespace MTM101BaldAPI.NameMenu
         public static void SwitchToPage(string page)
         {
             CurrentPageName = page;
+        }
+
+        public static void AddToPreStart(IPage page)
+        {
+            preStartPages.Add(page.Name);
+        }
+
+        public static void AttemptSwitchToStart()
+        {
+            if (preStartPages.Count != 0)
+            {
+                SwitchToPage(preStartPages[0]);
+                preStartPages.RemoveAt(0);
+                return;
+            }
+            SwitchToPage("save_select");
         }
 
         public static void ReturnFromPage(IPage page)
