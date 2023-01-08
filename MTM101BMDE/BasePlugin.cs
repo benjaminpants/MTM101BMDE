@@ -116,6 +116,10 @@ namespace MTM101BaldAPI
             });
 
             b.transform.SetParent(ob.transform, false);
+
+            CustomOptionsCore.CreateNewCategory(__instance, "Empty Menu");
+
+            CustomOptionsCore.CreateNewCategory(__instance, "Still Empty");
         }
 #endif
 

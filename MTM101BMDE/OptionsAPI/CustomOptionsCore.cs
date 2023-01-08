@@ -93,9 +93,8 @@ namespace MTM101BaldAPI.OptionsAPI
             PreviousTitle.name = "PreviousTitle";
 
 
-
-            GetCategoryStrings(categories[0], out TMP_Text nextT, out TMP_Text nextNT, out TMP_Text nextPT);
-            GetCategoryStrings(categories[categories.Length - 1], out TMP_Text prevT, out TMP_Text prevNT, out TMP_Text prevPT);
+            GetCategoryStrings(categories[0], out TMP_Text nextT, out TMP_Text _, out TMP_Text nextPT);
+            GetCategoryStrings(categories[categories.Length - 1], out TMP_Text prevT, out TMP_Text prevNT, out TMP_Text _);
 
 
             //set this categories text
