@@ -188,9 +188,8 @@ namespace MTM101BaldAPI.OptionsAPI
 
             Transform BarContainer = barobj.transform.Find("Bars");
 
-            Transform BarClone = BarContainer.GetChild(0); //-10
+            Transform BarClone = BarContainer.GetChild(0);
 
-            //22
 
             //destroy the other bars, except the first
             for (int i = 1; i < 10; i++)
