@@ -198,9 +198,10 @@ namespace MTM101BaldAPI.OptionsAPI
                 GameObject.Destroy(BarContainer.GetChild(i).gameObject);
             }
 
-            List<Image> Bars = new List<Image>();
-
-            Bars.Add(BarClone.GetComponent<Image>());
+            List<Image> Bars = new List<Image>
+            {
+                BarClone.GetComponent<Image>()
+            };
 
             for (int i = 1; i < barCount; i++) //start at one since the first bar already exists!
             {
@@ -249,7 +250,7 @@ namespace MTM101BaldAPI.OptionsAPI
         }
     }
 
-    public class CustomOptionsHandler : MonoBehaviour //will this ever do ANYTHING besides exist? Who knows!
+    public class CustomOptionsHandler : MonoBehaviour // WOW! this exists!
     {
 
     }
