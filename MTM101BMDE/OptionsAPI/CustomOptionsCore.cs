@@ -48,6 +48,13 @@ namespace MTM101BaldAPI.OptionsAPI
 
         static FieldInfo AB_bars = AccessTools.Field(typeof(AdjustmentBars), "bars");
 
+        static FieldInfo AB_val = AccessTools.Field(typeof(AdjustmentBars), "val");
+
+        public static int GetRaw(this AdjustmentBars b)
+        {
+            return (int)AB_val.GetValue(b);
+        }
+
         static void GetCategoryStrings(GameObject obj, out TMP_Text Title, out TMP_Text NextTitle, out TMP_Text PreviousTitle)
         {
             if (obj.name == "Data")
@@ -155,7 +162,7 @@ namespace MTM101BaldAPI.OptionsAPI
             return tog;
         }
 
-        public static AdjustmentBars CreateAdjustmentBar(OptionsMenu m, Vector2 pos, string name, int barCount, string tooltipText, UnityAction act)
+        public static AdjustmentBars CreateAdjustmentBar(OptionsMenu m, Vector2 pos, string name, int barCount, string tooltipText, int initialState, UnityAction act)
         {
             GameObject barobj = GameObject.Instantiate(m.transform.Find("Audio").transform.Find("EffectsAdjustment").gameObject);
             barobj.name = name;
@@ -167,7 +174,6 @@ namespace MTM101BaldAPI.OptionsAPI
             leftBut.OnPress = new UnityEvent();
             rightBut.OnPress = new UnityEvent();
             bar.onValueChanged = new UnityEvent();
-            bar.onValueChanged.AddListener(act);
             leftBut.OnPress.AddListener(() =>
             {
                 bar.Adjust(-1);
@@ -206,6 +212,16 @@ namespace MTM101BaldAPI.OptionsAPI
             rightBut.transform.localPosition = Bars[Bars.Count - 1].transform.localPosition + new Vector3(22f,0f);
 
             AB_bars.SetValue(bar,Bars.ToArray());
+
+            //this is hacky but i cant deal with mystman12 i stg
+
+            int internVal = (int)AB_val.GetValue(bar);
+
+            bar.Adjust(-internVal);
+
+            bar.Adjust(initialState);
+
+            bar.onValueChanged.AddListener(act);
 
             barobj.transform.position = new Vector3(pos.x, pos.y, barobj.transform.position.z);
 

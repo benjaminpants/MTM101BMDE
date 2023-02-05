@@ -30,7 +30,7 @@ namespace MTM101BaldAPI
         {
             get
             {
-                return Type.GetType("YCTP") != null;
+                return Application.temporaryCachePath.Contains("Basically Games/Baldi's Basics Classic Remastered"); //thanks to fasguy
             }
         }
 
@@ -84,27 +84,27 @@ namespace MTM101BaldAPI
             TextLocalizer lol = CustomOptionsCore.CreateText(__instance, new Vector2(-70f, 70f), "Test Text");
             lol.transform.SetParent(ob.transform, false);
 
-            AdjustmentBars bar = CustomOptionsCore.CreateAdjustmentBar(__instance, new Vector2(-96f, -40f), "barTiny", 2, "Tiny Bar", () =>
+            AdjustmentBars bar = CustomOptionsCore.CreateAdjustmentBar(__instance, new Vector2(-96f, -40f), "barTiny", 2, "Tiny Bar", 0, () =>
             {
                 UnityEngine.Debug.Log("1");
             });
             bar.transform.SetParent(ob.transform, false);
-            bar = CustomOptionsCore.CreateAdjustmentBar(__instance, new Vector2(-96f, -70f), "barSmall", 6, "Small Bar", () =>
+            bar = CustomOptionsCore.CreateAdjustmentBar(__instance, new Vector2(-96f, -70f), "barSmall", 6, "Small Bar", 1, () =>
             {
                 UnityEngine.Debug.Log("2");
             });
             bar.transform.SetParent(ob.transform, false);
-            bar = CustomOptionsCore.CreateAdjustmentBar(__instance, new Vector2(-96f, -100f), "barNorm", 10, "Normal Bar", () =>
+            bar = CustomOptionsCore.CreateAdjustmentBar(__instance, new Vector2(-96f, -100f), "barNorm", 10, "Normal Bar", 5, () =>
             {
                 UnityEngine.Debug.Log("3");
             });
             bar.transform.SetParent(ob.transform, false);
-            bar = CustomOptionsCore.CreateAdjustmentBar(__instance, new Vector2(-96f, -130f), "barBig", 15, "Big Bar", () =>
+            bar = CustomOptionsCore.CreateAdjustmentBar(__instance, new Vector2(-96f, -130f), "barBig", 15, "Big Bar", 1, () =>
             {
                 UnityEngine.Debug.Log("4");
             });
             bar.transform.SetParent(ob.transform, false);
-            bar = CustomOptionsCore.CreateAdjustmentBar(__instance, new Vector2(-96f, -160f), "barHuge", 22, "Huge Bar", () =>
+            bar = CustomOptionsCore.CreateAdjustmentBar(__instance, new Vector2(-96f, -160f), "barHuge", 22, "Huge Bar", 11, () =>
             {
                 UnityEngine.Debug.Log("5");
             });
