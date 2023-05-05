@@ -111,19 +111,9 @@ namespace MTM101BaldAPI
 
         void Awake()
         {
-            /*NameMenuManager.AddPage(rootPage);
-            optionsPage.rootPage = rootPage;
-            optionsPage.showReturn = true;
-            NameMenuManager.AddPage(optionsPage);
-            //Button testBut = new StringInput("testBut", "Value: %v", null, null);
-            rootPage.buttons.Add(new Button("welcomeTitle", "Welcome!", null));
-            rootPage.buttons.Add(new Button("startBut", "Start", GoToStart));
-            rootPage.buttons.Add(new Button("optionsBut","Options",GoToOptions));*/
 #if DEBUG
             CustomOptionsCore.OnMenuInitialize += OnMen;
 #endif
-            //rootPage.buttons.Add(new Button("exitBut", "Exit", CloseGame));
-            //rootPage.buttons.Add(testBut);
 
             Harmony harmony = new Harmony("mtm101.rulerp.bbplus.baldidevapi");
 			BaseUnityPlugin namemenu = GameObject.FindObjectsOfType<BaseUnityPlugin>().ToList().Find(x => x.Info.Metadata.Name == "BB+ Name Menu API");
