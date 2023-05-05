@@ -3,11 +3,18 @@ using System.Collections.Generic;
 using System.Text;
 using UnityEngine;
 using System.Linq;
+using TMPro;
 
 namespace MTM101BaldAPI
 {
     public static class StringHelpers
     {
+
+        public static TextLocalizer GetLocalizer(this TMP_Text text)
+        {
+            return text.GetComponent<TextLocalizer>();
+        }
+
         public static string GetName(this Items en)
         {
             string e = en.ToString();

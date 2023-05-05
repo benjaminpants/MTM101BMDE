@@ -84,7 +84,7 @@ namespace MTM101BaldAPI.OptionsAPI
             }
 
             TMP_Text title = obj.transform.Find("Title").GetComponent<TMP_Text>();
-            return title.GetComponent<TextLocalizer>().key;
+            return title.GetLocalizer().key;
         }
 
         public static void RecalculateTitles(OptionsMenu m)
@@ -97,8 +97,8 @@ namespace MTM101BaldAPI.OptionsAPI
                 int prevIndex = i - 1;
                 if (nextIndex == categories.Length) nextIndex = 0;
                 if (prevIndex == -1) prevIndex = categories.Length - 1;
-                nextTitle.GetComponent<TextLocalizer>().key = GetCategoryKey(categories[nextIndex]);
-                previousTitle.GetComponent<TextLocalizer>().key = GetCategoryKey(categories[prevIndex]);
+                nextTitle.GetLocalizer().key = GetCategoryKey(categories[nextIndex]);
+                previousTitle.GetLocalizer().key = GetCategoryKey(categories[prevIndex]);
             }
         }
 
@@ -118,7 +118,7 @@ namespace MTM101BaldAPI.OptionsAPI
             TMP_Text Title = categories[0].transform.Find("Title").GetComponent<TMP_Text>();
             Title = GameObject.Instantiate(Title); //i hate stupidly long lines so I did this. Someone will kill me for it.
             Title.name = "Title";
-            Title.GetComponent<TextLocalizer>().key = optName;
+            Title.GetLocalizer().key = optName;
             Title.transform.SetParent(obj.transform, false);
 
             TMP_Text NextTitle = categories[0].transform.Find("NextTitle").GetComponent<TMP_Text>();
@@ -131,19 +131,19 @@ namespace MTM101BaldAPI.OptionsAPI
             PreviousTitle.name = "PreviousTitle";
             PreviousTitle.transform.SetParent(obj.transform, false);
 
-            NextTitle.GetComponent<TextLocalizer>().key = "Next";
-            PreviousTitle.GetComponent<TextLocalizer>().key = "Previous";
+            NextTitle.GetLocalizer().key = "Next";
+            PreviousTitle.GetLocalizer().key = "Previous";
             /*GetCategoryStrings(categories[0], out TMP_Text nextT, out TMP_Text _, out TMP_Text nextPT);
             GetCategoryStrings(categories[categories.Length - 1], out TMP_Text prevT, out TMP_Text prevNT, out TMP_Text _);
 
 
             //set this categories text
-            NextTitle.GetComponent<TextLocalizer>().key = nextT.text;
-            PreviousTitle.GetComponent<TextLocalizer>().key = prevT.text;
+            NextTitle.GetLocalizer().key = nextT.text;
+            PreviousTitle.GetLocalizer().key = prevT.text;
 
             //set the previous and next categories text
-            nextPT.GetComponent<TextLocalizer>().key = optName;
-            prevNT.GetComponent<TextLocalizer>().key = optName;*/
+            nextPT.GetLocalizer().key = optName;
+            prevNT.GetLocalizer().key = optName;*/
 
 
 
@@ -177,7 +177,7 @@ namespace MTM101BaldAPI.OptionsAPI
             GameObject checkObj = GameObject.Instantiate(audObj.transform.Find("SubtitlesToggle").gameObject);
             checkObj.name = toggleBut;
             TMP_Text Text = checkObj.transform.Find("ToggleText").GetComponent<TMP_Text>();
-            Text.transform.GetComponent<TextLocalizer>().key = toggleBut;
+            Text.GetLocalizer().key = toggleBut;
             MenuToggle tog = checkObj.GetComponent<MenuToggle>();
 
             StandardMenuButton smb = ((GameObject)MT_hotspot.GetValue(tog)).GetComponent<StandardMenuButton>();
@@ -282,7 +282,7 @@ namespace MTM101BaldAPI.OptionsAPI
         {
             StandardMenuButton btn = CreateApplyButton(m, toolTip, actOnPress);
             btn.transform.position = new Vector3(pos.x, pos.y, btn.transform.position.z);
-            btn.text.GetComponent<TextLocalizer>().key = text;
+            btn.text.GetLocalizer().key = text;
             return btn;
         }
     }

@@ -23,7 +23,7 @@ namespace MTM101BaldAPI
     public class MTM101BaldiDevAPI : BaseUnityPlugin
     {
 
-        public const string VersionNumber = "1.3.0.0";
+        public const string VersionNumber = "2.0.0.0";
 
         public static bool IsClassicRemastered
         {
@@ -121,7 +121,6 @@ namespace MTM101BaldAPI
 			{
 				Application.Quit();
 			}
-            
 
 			harmony.PatchAll();
 

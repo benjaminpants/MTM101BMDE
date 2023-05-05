@@ -17,131 +17,122 @@ namespace MTM101BaldAPI
 {
 	public static class EnumExtensions
 	{
-		private readonly static int amountofitems = Enum.GetNames(typeof(Items)).Length;
+		private struct ExtendedEnumData
+		{
+			public int valueOffset;
+			public List<string> Enums;
 
-		private readonly static int amountofcharacters = Enum.GetNames(typeof(Character)).Length;
+            public ExtendedEnumData(int offset)
+            {
+                valueOffset = offset;
+                Enums = new List<string>();
+            }
+		}
 
-		private readonly static int amountofobstacles = Enum.GetNames(typeof(Obstacle)).Length;
-
-		private readonly static int amountofevents = Enum.GetNames(typeof(RandomEventType)).Length;
-
-		private readonly static int amountofroomcats = Enum.GetNames(typeof(RoomCategory)).Length;
-
-		private static Dictionary<string, int> ItemExtensions = new Dictionary<string, int>();
-
-		private static Dictionary<string, int> CharacterExtensions = new Dictionary<string, int>();
-
-		private static Dictionary<string, int> ObstacleExtensions = new Dictionary<string, int>();
-
-		private static Dictionary<string, int> EventExtensions = new Dictionary<string, int>();
-
-		private static Dictionary<string, int> RoomCatExtensions = new Dictionary<string, int>();
+		private static Dictionary<Type, ExtendedEnumData> ExtendedData = new Dictionary<Type, ExtendedEnumData>();
 
 
+        /// <summary>
+        /// Extends an enum, same effect could be achieved by casting an int, however this has a system to keep track of multiple enum additions from different mods to prevent conflicts
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="extendName"></param>
+        /// <returns></returns>
+		public static T ExtendEnum<T>(string extendName) where T : Enum
+		{
+			if (!ExtendedData.TryGetValue(typeof(T), out ExtendedEnumData dat))
+			{
+				dat = new ExtendedEnumData(256); //Just so nothing conflicts and mods don't break when the game updates. If this becomes problematic let me know, I'll suffer but I will try to fix it.
+                //dat.valueOffset = Enum.GetNames(typeof(T)).Length - 1;
+                ExtendedData.Add(typeof(T),dat);
+            }
+            dat.Enums.Add(extendName);
+            return (T)(object)(dat.valueOffset + (dat.Enums.Count - 1));
+        }
+
+        /// <summary>
+        /// Enum.GetName but with support for extended enums.
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="val"></param>
+        /// <returns></returns>
+		public static string GetExtendedName<T>(int val) where T : Enum
+		{
+			string theName = Enum.GetName(typeof(T), val);
+            if (theName == null)
+			{
+                if (ExtendedData.TryGetValue(typeof(T), out ExtendedEnumData dat))
+                {
+                    return dat.Enums[val - dat.valueOffset];
+                }
+				else
+				{
+					return val.ToString();
+				}
+            }
+			return theName;
+
+        }
+
+		[Obsolete("Please use ExtendEnum<Items>(string extendName) instead.")]
 		public static Items CreateItemEnum(string name)
 		{
-			int value = amountofitems + ItemExtensions.Count;
-			ItemExtensions.Add(name, value);
-			return (Items)value;
+			return ExtendEnum<Items>(name);
 		}
 
-		public static string GetItemName(Items num)
+        [Obsolete("Please use GetExtendedName<Items>(int val) instead.")]
+        public static string GetItemName(Items num)
 		{
-			string name = num.ToString();
-
-			if (((int)num).ToString() == name)
-			{
-				foreach (KeyValuePair<string, int> kvp in ItemExtensions)
-				{
-					if (kvp.Value == (int)num) return kvp.Key;
-				}
-			}
-			return name;
+			return GetExtendedName<Items>((int)num);
 		}
 
-		public static RoomCategory CreateRoomCategoryEnum(string name)
+        [Obsolete("Please use ExtendEnum<RoomCategory>(string extendName) instead.")]
+        public static RoomCategory CreateRoomCategoryEnum(string name)
 		{
-			int value = amountofroomcats + RoomCatExtensions.Count;
-			RoomCatExtensions.Add(name, value);
-			return (RoomCategory)value;
-		}
+            return ExtendEnum<RoomCategory>(name);
+        }
 
-		public static string GetRoomCategoryName(RoomCategory num)
+        [Obsolete("Please use GetExtendedName<RoomCategory>(int val) instead.")]
+        public static string GetRoomCategoryName(RoomCategory num)
 		{
-			string name = num.ToString();
+            return GetExtendedName<Items>((int)num);
+        }
 
-			if (((int)num).ToString() == name)
-			{
-				foreach (KeyValuePair<string, int> kvp in RoomCatExtensions)
-				{
-					if (kvp.Value == (int)num) return kvp.Key;
-				}
-			}
-			return name;
-		}
-
-		public static RandomEventType CreateEventEnum(string name)
+        [Obsolete("Please use ExtendEnum<RandomEventType>(string extendName) instead.")]
+        public static RandomEventType CreateEventEnum(string name)
 		{
-			int value = amountofevents + EventExtensions.Count;
-			EventExtensions.Add(name, value);
-			return (RandomEventType)value;
-		}
+            return ExtendEnum<RandomEventType>(name);
+        }
 
-		public static string GetEventName(RandomEventType num)
+        [Obsolete("Please use GetExtendedName<RandomEventType>(int val) instead.")]
+        public static string GetEventName(RandomEventType num)
 		{
-			string name = num.ToString();
+            return GetExtendedName<RandomEventType>((int)num);
+        }
 
-			if (((int)num).ToString() == name)
-			{
-				foreach (KeyValuePair<string, int> kvp in EventExtensions)
-				{
-					if (kvp.Value == (int)num) return kvp.Key;
-				}
-			}
-			return name;
-		}
-
-		public static Character CreateCharacterEnum(string name)
+        [Obsolete("Please use ExtendEnum<Character>(string extendName) instead.")]
+        public static Character CreateCharacterEnum(string name)
 		{
-			int value = amountofcharacters + CharacterExtensions.Count;
-			CharacterExtensions.Add(name, value);
-			return (Character)value;
-		}
+            return ExtendEnum<Character>(name);
+        }
 
-		public static string GetCharacterName(Character num)
+        [Obsolete("Please use GetExtendedName<Character>(int val) instead.")]
+        public static string GetCharacterName(Character num)
 		{
-			string name = num.ToString();
+            return GetExtendedName<Character>((int)num);
+        }
 
-			if (((int)num).ToString() == name)
-			{
-				foreach (KeyValuePair<string, int> kvp in CharacterExtensions)
-				{
-					if (kvp.Value == (int)num) return kvp.Key;
-				}
-			}
-			return name;
-		}
-
-		public static Obstacle CreateObstacleEnum(string name)
+        [Obsolete("Please use ExtendEnum<Obstacle>(string extendName) instead.")]
+        public static Obstacle CreateObstacleEnum(string name)
 		{
-			int value = amountofobstacles + ObstacleExtensions.Count;
-			ObstacleExtensions.Add(name, value);
-			return (Obstacle)value;
-		}
+            return ExtendEnum<Obstacle>(name);
+        }
 
-		public static string GetObstacleName(Obstacle num)
+        [Obsolete("Please use GetExtendedName<Obstacle>(int val) instead.")]
+        public static string GetObstacleName(Obstacle num)
 		{
-			string name = num.ToString();
-
-			if (((int)num).ToString() == name)
-			{
-				foreach (KeyValuePair<string, int> kvp in ObstacleExtensions)
-				{
-					if (kvp.Value == (int)num) return kvp.Key;
-				}
-			}
-			return name;
-		}
+            return GetExtendedName<Character>((int)num);
+        }
 
 	}
 }

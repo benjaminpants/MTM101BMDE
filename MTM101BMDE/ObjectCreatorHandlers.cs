@@ -17,7 +17,14 @@ namespace MTM101BaldAPI
 {
 	public static class ObjectCreatorHandlers
 	{
+
+		[Obsolete("Use CreateItemObject instead.")]
 		public static ItemObject CreateObject(string localizedtext, string desckey, Sprite smallicon, Sprite largeicon, Items type, int price, int generatorcost)
+		{
+			return CreateItemObject(localizedtext, desckey, smallicon, largeicon, type, price, generatorcost);
+        }
+
+        public static ItemObject CreateItemObject(string localizedtext, string desckey, Sprite smallicon, Sprite largeicon, Items type, int price, int generatorcost)
 		{
 			ItemObject obj = ScriptableObject.CreateInstance<ItemObject>();
 			obj.nameKey = localizedtext;
@@ -31,7 +38,7 @@ namespace MTM101BaldAPI
 			return obj;
 		}
 
-		public static SoundObject CreateSoundObject(AudioClip clip, string subtitle, SoundType type, Color color, float sublength = -1f)
+        public static SoundObject CreateSoundObject(AudioClip clip, string subtitle, SoundType type, Color color, float sublength = -1f)
 		{
 			SoundObject obj = ScriptableObject.CreateInstance<SoundObject>();
 			obj.soundClip = clip;
