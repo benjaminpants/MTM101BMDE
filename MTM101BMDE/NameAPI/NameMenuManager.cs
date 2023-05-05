@@ -18,6 +18,7 @@ using System.Runtime.Serialization.Formatters.Binary;
 
 namespace MTM101BaldAPI.NameMenu
 {
+    [Obsolete("NameMenuManager and its corresponding systems will soon be depricated in favor of the OptionsAPI")]
     public static class NameMenuManager
     {
 

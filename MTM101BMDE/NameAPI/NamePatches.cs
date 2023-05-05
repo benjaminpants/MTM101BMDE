@@ -18,7 +18,7 @@ using System.Runtime.Serialization.Formatters.Binary;
 using System.Reflection.Emit;
 
 
-#if !BBCR
+#if false
 namespace MTM101BaldAPI.NameMenu
 {
 

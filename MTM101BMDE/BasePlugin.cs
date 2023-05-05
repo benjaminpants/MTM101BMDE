@@ -64,16 +64,6 @@ namespace MTM101BaldAPI
 
         public static Folder optionsPage = new Folder("options", new Page("optionsroot"),new List<IPage>());
 
-        void GoToStart(IPageButton but, IPage page)
-        {
-            NameMenuManager.AttemptSwitchToStart();
-        }
-
-        void GoToOptions(IPageButton but, IPage page)
-        {
-            NameMenuManager.SwitchToPage("options");
-        }
-
 #if DEBUG
         void OnMen(OptionsMenu __instance)
         {
@@ -83,6 +73,12 @@ namespace MTM101BaldAPI
 
             TextLocalizer lol = CustomOptionsCore.CreateText(__instance, new Vector2(-70f, 70f), "Test Text");
             lol.transform.SetParent(ob.transform, false);
+
+            StandardMenuButton lolagain = CustomOptionsCore.CreateTextButton(__instance, new Vector2(-70f, 40f), "HEY!", "This is a button that prints \"HEY!!\" in the console.", () =>
+            {
+                UnityEngine.Debug.Log("HEY!!");
+            });
+            lolagain.transform.SetParent(ob.transform, false);
 
             AdjustmentBars bar = CustomOptionsCore.CreateAdjustmentBar(__instance, new Vector2(-96f, -40f), "barTiny", 2, "Tiny Bar", 0, () =>
             {
@@ -117,9 +113,9 @@ namespace MTM101BaldAPI
 
             b.transform.SetParent(ob.transform, false);
 
-            CustomOptionsCore.CreateNewCategory(__instance, "Empty Menu");
+            //CustomOptionsCore.CreateNewCategory(__instance, "Empty Menu");
 
-            CustomOptionsCore.CreateNewCategory(__instance, "Still Empty");
+            //CustomOptionsCore.CreateNewCategory(__instance, "Still Empty");
         }
 #endif
 
@@ -152,19 +148,20 @@ namespace MTM101BaldAPI
 
         void Awake()
         {
-            NameMenuManager.AddPage(rootPage);
+            /*NameMenuManager.AddPage(rootPage);
             optionsPage.rootPage = rootPage;
             optionsPage.showReturn = true;
             NameMenuManager.AddPage(optionsPage);
             //Button testBut = new StringInput("testBut", "Value: %v", null, null);
             rootPage.buttons.Add(new Button("welcomeTitle", "Welcome!", null));
             rootPage.buttons.Add(new Button("startBut", "Start", GoToStart));
-            rootPage.buttons.Add(new Button("optionsBut","Options",GoToOptions));
+            rootPage.buttons.Add(new Button("optionsBut","Options",GoToOptions));*/
+            NameMenuManager.SwitchToPage("save_select");
 #if DEBUG
             DebugFolder();
             CustomOptionsCore.OnMenuInitialize += OnMen;
 #endif
-            rootPage.buttons.Add(new Button("exitBut", "Exit", CloseGame));
+            //rootPage.buttons.Add(new Button("exitBut", "Exit", CloseGame));
             //rootPage.buttons.Add(testBut);
 
             Harmony harmony = new Harmony("mtm101.rulerp.bbplus.baldidevapi");

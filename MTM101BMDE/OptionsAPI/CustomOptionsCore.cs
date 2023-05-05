@@ -27,6 +27,8 @@ namespace MTM101BaldAPI.OptionsAPI
             if (OnMenuInitialize != null)
             {
                 OnMenuInitialize(m);
+                //re-calculate menu titles
+                RecalculateTitles(m);
             }
         }
 
@@ -55,7 +57,8 @@ namespace MTM101BaldAPI.OptionsAPI
             return (int)AB_val.GetValue(b);
         }
 
-        static void GetCategoryStrings(GameObject obj, out TMP_Text Title, out TMP_Text NextTitle, out TMP_Text PreviousTitle)
+        // gets the TMP Texts of the next and previous categories
+        public static void GetCategoryTexts(GameObject obj, out TMP_Text Title, out TMP_Text NextTitle, out TMP_Text PreviousTitle)
         {
             if (obj.name == "Data")
             {
@@ -71,6 +74,32 @@ namespace MTM101BaldAPI.OptionsAPI
 
             TMP_Text previousTitle = obj.transform.Find("PreviousTitle").GetComponent<TMP_Text>();
             PreviousTitle = previousTitle;
+        }
+
+        public static string GetCategoryKey(GameObject obj)
+        {
+            if (obj.name == "Data")
+            {
+                obj = obj.transform.Find("Main").gameObject; //dear mystman12: what the fuck.
+            }
+
+            TMP_Text title = obj.transform.Find("Title").GetComponent<TMP_Text>();
+            return title.GetComponent<TextLocalizer>().key;
+        }
+
+        public static void RecalculateTitles(OptionsMenu m)
+        {
+            GameObject[] categories = (GameObject[])OptM_categories.GetValue(m);
+            for (int i = 0; i < categories.Length; i++)
+            {
+                GetCategoryTexts(categories[i], out TMP_Text _, out TMP_Text nextTitle, out TMP_Text previousTitle);
+                int nextIndex = i + 1;
+                int prevIndex = i - 1;
+                if (nextIndex == categories.Length) nextIndex = 0;
+                if (prevIndex == -1) prevIndex = categories.Length - 1;
+                nextTitle.GetComponent<TextLocalizer>().key = GetCategoryKey(categories[nextIndex]);
+                previousTitle.GetComponent<TextLocalizer>().key = GetCategoryKey(categories[prevIndex]);
+            }
         }
 
         public static GameObject CreateNewCategory(OptionsMenu m, string optName)
@@ -90,30 +119,31 @@ namespace MTM101BaldAPI.OptionsAPI
             Title = GameObject.Instantiate(Title); //i hate stupidly long lines so I did this. Someone will kill me for it.
             Title.name = "Title";
             Title.GetComponent<TextLocalizer>().key = optName;
+            Title.transform.SetParent(obj.transform, false);
 
             TMP_Text NextTitle = categories[0].transform.Find("NextTitle").GetComponent<TMP_Text>();
             NextTitle = GameObject.Instantiate(NextTitle);
             NextTitle.name = "NextTitle";
+            NextTitle.transform.SetParent(obj.transform, false);
 
             TMP_Text PreviousTitle = categories[0].transform.Find("PreviousTitle").GetComponent<TMP_Text>();
             PreviousTitle = GameObject.Instantiate(PreviousTitle);
             PreviousTitle.name = "PreviousTitle";
+            PreviousTitle.transform.SetParent(obj.transform, false);
 
-
-            GetCategoryStrings(categories[0], out TMP_Text nextT, out TMP_Text _, out TMP_Text nextPT);
+            NextTitle.GetComponent<TextLocalizer>().key = "Next";
+            PreviousTitle.GetComponent<TextLocalizer>().key = "Previous";
+            /*GetCategoryStrings(categories[0], out TMP_Text nextT, out TMP_Text _, out TMP_Text nextPT);
             GetCategoryStrings(categories[categories.Length - 1], out TMP_Text prevT, out TMP_Text prevNT, out TMP_Text _);
 
 
             //set this categories text
-            Title.transform.SetParent(obj.transform, false);
             NextTitle.GetComponent<TextLocalizer>().key = nextT.text;
-            NextTitle.transform.SetParent(obj.transform, false);
             PreviousTitle.GetComponent<TextLocalizer>().key = prevT.text;
-            PreviousTitle.transform.SetParent(obj.transform, false);
 
             //set the previous and next categories text
             nextPT.GetComponent<TextLocalizer>().key = optName;
-            prevNT.GetComponent<TextLocalizer>().key = optName;
+            prevNT.GetComponent<TextLocalizer>().key = optName;*/
 
 
 
@@ -245,6 +275,14 @@ namespace MTM101BaldAPI.OptionsAPI
             btn.OnPress = new UnityEvent();
             btn.OnPress.AddListener(actOnPress);
             SetTooltip(btn,toolTip);
+            return btn;
+        }
+
+        public static StandardMenuButton CreateTextButton(OptionsMenu m, Vector2 pos, string text, string toolTip, UnityAction actOnPress)
+        {
+            StandardMenuButton btn = CreateApplyButton(m, toolTip, actOnPress);
+            btn.transform.position = new Vector3(pos.x, pos.y, btn.transform.position.z);
+            btn.text.GetComponent<TextLocalizer>().key = text;
             return btn;
         }
     }
