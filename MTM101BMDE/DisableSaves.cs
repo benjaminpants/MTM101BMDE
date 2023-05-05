@@ -12,7 +12,6 @@ using HarmonyLib; //god im hoping i got the right version of harmony
 using BepInEx.Configuration;
 using System.Linq;
 using System.Collections.Generic;
-using MTM101BaldAPI.NameMenu;
 
 
 #if !BBCR

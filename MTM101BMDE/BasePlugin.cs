@@ -12,7 +12,6 @@ using HarmonyLib; //god im hoping i got the right version of harmony
 using BepInEx.Configuration;
 using System.Linq;
 using System.Collections.Generic;
-using MTM101BaldAPI.NameMenu;
 using MTM101BaldAPI.OptionsAPI;
 
 //this code is reused from BaldiMP and BB+ twitch
@@ -54,15 +53,6 @@ namespace MTM101BaldAPI
         }
 
         private static bool allowsaves = true;
-
-        public void CloseGame(IPageButton but, IPage p)
-        {
-            Application.Quit();
-        }
-
-        static Page rootPage = new Page("root");
-
-        public static Folder optionsPage = new Folder("options", new Page("optionsroot"),new List<IPage>());
 
 #if DEBUG
         void OnMen(OptionsMenu __instance)
@@ -119,33 +109,6 @@ namespace MTM101BaldAPI
         }
 #endif
 
-#if DEBUG
-        void GoToTester(IPageButton but, IPage page)
-        {
-            NameMenuManager.SwitchToPage("tester");
-        }
-        void DebugFolder()
-        {
-            List<IPage> pl = new List<IPage>();
-            Page pB = new Page("TEST");
-            Folder f = new Folder("tester", pB, pl);
-            for (int i = 0; i < 4; i++)
-            {
-                Page p = new Page("TEST");
-                p.buttons.Add(new StringInput("debug", "d:%v", null, null));
-                p.buttons.Add(new Button("lol", "Return", f.ReturnToDefaultPage));
-                f.AddPage(p);
-            }
-            void goToRandom(IPageButton but, IPage page)
-            {
-                f.GoToPage(UnityEngine.Random.Range(0,3));
-            }
-            pB.buttons.Add(new Button("random","Random", goToRandom));
-            NameMenuManager.AddPage(f);
-            rootPage.buttons.Add(new Button("testBut", "Tester", GoToTester));
-        }
-#endif
-
         void Awake()
         {
             /*NameMenuManager.AddPage(rootPage);
@@ -156,9 +119,7 @@ namespace MTM101BaldAPI
             rootPage.buttons.Add(new Button("welcomeTitle", "Welcome!", null));
             rootPage.buttons.Add(new Button("startBut", "Start", GoToStart));
             rootPage.buttons.Add(new Button("optionsBut","Options",GoToOptions));*/
-            NameMenuManager.SwitchToPage("save_select");
 #if DEBUG
-            DebugFolder();
             CustomOptionsCore.OnMenuInitialize += OnMen;
 #endif
             //rootPage.buttons.Add(new Button("exitBut", "Exit", CloseGame));
