@@ -41,14 +41,7 @@ namespace MTM101BaldAPI
             }
             set
             {
-                if (value == false)
-                {
-                    allowsaves = false;
-                }
-                else
-                {
-                    UnityEngine.Debug.LogWarning("You can't re-enable saves once a mod has disabled them!");
-                }
+                allowsaves = value;
             }
         }
 
