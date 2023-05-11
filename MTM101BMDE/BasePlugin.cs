@@ -13,6 +13,8 @@ using BepInEx.Configuration;
 using System.Linq;
 using System.Collections.Generic;
 using MTM101BaldAPI.OptionsAPI;
+using MTM101BaldAPI.SaveSystem;
+using System.IO;
 
 //this code is reused from BaldiMP and BB+ twitch
 namespace MTM101BaldAPI
@@ -116,6 +118,14 @@ namespace MTM101BaldAPI
 			}
 
 			harmony.PatchAll();
+
+            ModdedSaveSystem.AddSaveLoadAction(this, (bool isSave, string myPath) =>
+            {
+                if (isSave)
+                {
+                    File.WriteAllText(Path.Combine(myPath, "testData.txt"), "This data doesn't actually store anything!!");
+                }
+            });
 
         }
     }
