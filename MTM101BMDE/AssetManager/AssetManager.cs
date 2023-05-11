@@ -10,6 +10,7 @@ namespace MTM101BaldAPI.AssetManager
 {
     public static class AssetManager
     {
+
 		public static Texture2D TextureFromFile(string path)
 		{
 			byte[] array = File.ReadAllBytes(path);
@@ -29,11 +30,10 @@ namespace MTM101BaldAPI.AssetManager
 			return SpriteFromTexture2D(tex, new Vector2(0.5f, 0.5f));
 		}
 
-        public static Sprite SpriteFromTexture2D(Texture2D tex, Vector2 center)
+        public static Sprite SpriteFromTexture2D(Texture2D tex, Vector2 center, float pixelsPerUnit = 1)
         {
-            return Sprite.Create(tex, new Rect(0f, 0f, tex.width, tex.height), center);
+            return Sprite.Create(tex, new Rect(0f, 0f, tex.width, tex.height), center, pixelsPerUnit);
         }
-
 
         public static Texture2D TextureFromMod(BaseUnityPlugin plug, params string[] paths)
         {
@@ -41,6 +41,7 @@ namespace MTM101BaldAPI.AssetManager
 			pathz.Insert(0, GetModPath(plug));
 			return TextureFromFile(Path.Combine(pathz.ToArray()));
         }
+
 		public static AudioClip AudioClipFromMod(BaseUnityPlugin plug, params string[] paths)
 		{
 			List<string> pathz = paths.ToList();
