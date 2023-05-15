@@ -8,7 +8,7 @@ using System.IO;
 
 namespace MTM101BaldAPI.SaveSystem
 {
-    static class ModdedSaveSystem
+    public static class ModdedSaveSystem
     {
         public static event Action<bool[], int> OnOOBFind;
 
@@ -32,18 +32,15 @@ namespace MTM101BaldAPI.SaveSystem
             foreach (KeyValuePair<BaseUnityPlugin, Action<bool, string>> kvp in saveLoadActions)
             {
                 string curPath = Path.Combine(Application.persistentDataPath, "Modded", fName, kvp.Key.Info.Metadata.GUID);
-                Directory.CreateDirectory(curPath); //why would you use this system instead of just directly patching the save system if you didn't plan to put something here
-                if (Directory.Exists(curPath) || isSave) //don't call the load function if no data exists
-                {
-                    kvp.Value.Invoke(isSave,curPath);
-                }
+                Directory.CreateDirectory(curPath); // why would you use this system instead of just directly patching the save system if you didn't plan to put something here
+                kvp.Value.Invoke(isSave, curPath); // this used to only be called if there already was data. that is stupid.
             }
         }
 
         public static void DeleteFile(PlayerFileManager instance, string toDelete)
         {
-            string fName = instance.fileName;
-            Directory.Delete(Path.Combine(Application.persistentDataPath, "Modded", fName), true);
+            //string fName = instance.fileName;
+            Directory.Delete(Path.Combine(Application.persistentDataPath, "Modded", toDelete), true);
         }
 
         public static void CallSaveLoadAction(BaseUnityPlugin p, bool saveLoad, string path)

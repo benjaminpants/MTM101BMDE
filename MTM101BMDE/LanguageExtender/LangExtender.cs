@@ -19,7 +19,7 @@ namespace MTM101BaldAPI.LangExtender
 
 	static class LocalExtensions
 	{
-		public static string GetUnmoddedLocalizedText(this LocalizationManager me, string key, bool trymodonfail = true)
+		public static string GetUnmoddedLocalizedText(this LocalizationManager me, string key, bool trymodonfail = true) // todo: why did i make this an extension
 		{
 			string result = key;
 			if (LoaderExtension.OriginalText.ContainsKey(key))
@@ -60,7 +60,7 @@ namespace MTM101BaldAPI.LangExtender
 					LocalizationData localizationData = null;
 					try
 					{
-						localizationData = JsonUtility.FromJson<LocalizationData>(File.ReadAllText(dirs[i])); //use the base localisation data so if BB+ ever changes it this tool will automatically be up to date.
+						localizationData = JsonUtility.FromJson<LocalizationData>(File.ReadAllText(dirs[i])); //use the base localization data so if BB+ ever changes it this tool will automatically be up to date.
 					}
 					catch (Exception E)
 					{
@@ -79,7 +79,9 @@ namespace MTM101BaldAPI.LangExtender
 							___localizedText[localizationData.items[j].key] = localizationData.items[j].value;
 						}
 					}
+#if DEBUG
 					UnityEngine.Debug.Log("Loaded all data from " + Path.GetFileName(dirs[i]));
+#endif
 				}
 			}
 		}
@@ -89,7 +91,9 @@ namespace MTM101BaldAPI.LangExtender
 		static void Finalizer(LocalizationManager __instance, ref Language language, ref Dictionary<string, string> ___localizedText)
 		{
 			string moddedfolderpath = Path.Combine(Application.streamingAssetsPath, "Modded");
+#if DEBUG
 			UnityEngine.Debug.Log("Loading Language Extensions...");
+#endif
 			OriginalText = ___localizedText;
 			if (Directory.Exists(moddedfolderpath))
 			{
@@ -103,7 +107,9 @@ namespace MTM101BaldAPI.LangExtender
 				Directory.CreateDirectory(moddedfolderpath);
 				return;
 			}
+#if DEBUG
 			UnityEngine.Debug.Log("All language data succesfull loaded!");
+#endif
 		}
 	}
 }

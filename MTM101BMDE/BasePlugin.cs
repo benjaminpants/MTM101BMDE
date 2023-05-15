@@ -126,7 +126,6 @@ namespace MTM101BaldAPI
                     File.WriteAllText(Path.Combine(myPath, "testData.txt"), "This data doesn't actually store anything!!");
                 }
             });
-
         }
     }
 
@@ -142,6 +141,17 @@ namespace MTM101BaldAPI
             TMPro.TMP_Text text = t.gameObject.GetComponent<TMPro.TMP_Text>();
             text.text += "API " + MTM101BaldiDevAPI.VersionNumber;
             t.localPosition += new Vector3(0f, 28f);
+            
+        }
+    }
+
+    [HarmonyPatch(typeof(GameLoader))]
+    [HarmonyPatch("SetSave")]
+    class DisableSave
+    {
+        static void Prefix(ref bool val)
+        {
+            val = val & MTM101BaldiDevAPI.SavesEnabled;
         }
     }
 
