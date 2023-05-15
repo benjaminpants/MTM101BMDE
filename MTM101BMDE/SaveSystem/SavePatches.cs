@@ -31,10 +31,20 @@ namespace MTM101BaldAPI.SaveSystem
             string fName = instance.fileName;
             foreach (KeyValuePair<BaseUnityPlugin, Action<bool, string>> kvp in saveLoadActions)
             {
-                string curPath = Path.Combine(Application.persistentDataPath, "Modded", fName, kvp.Key.Info.Metadata.GUID);
+                string curPath = GetSaveFolder(kvp.Key,fName);
                 Directory.CreateDirectory(curPath); // why would you use this system instead of just directly patching the save system if you didn't plan to put something here
                 kvp.Value.Invoke(isSave, curPath); // this used to only be called if there already was data. that is stupid.
             }
+        }
+
+        public static string GetSaveFolder(BaseUnityPlugin plug, string fileName)
+        {
+            return Path.Combine(Application.persistentDataPath, "Modded", fileName, plug.Info.Metadata.GUID);
+        }
+
+        public static string GetCurrentSaveFolder(BaseUnityPlugin plug)
+        {
+            return GetSaveFolder(plug, Singleton<PlayerFileManager>.Instance.fileName);
         }
 
         public static void DeleteFile(PlayerFileManager instance, string toDelete)
