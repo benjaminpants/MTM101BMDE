@@ -34,21 +34,5 @@ namespace MTM101BaldAPI
 		}
 	}
 
-	/*[HarmonyPatch(typeof(CoreGameManager))]
-	[HarmonyPatch("SaveAndQuit")]
-	class DisableSaveAndQuit
-	{
-
-		static bool Prefix(CoreGameManager __instance)
-		{
-			if (!MTM101BaldiDevAPI.SavesEnabled)
-			{
-				__instance.Quit();
-				return false;
-			}
-			return true;
-		}
-	}*/
-
 }
 #endif
