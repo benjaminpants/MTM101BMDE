@@ -117,7 +117,7 @@ namespace MTM101BaldAPI
 				Application.Quit();
 			}
 
-			harmony.PatchAll();
+            harmony.PatchAll();
 
             ModdedSaveSystem.AddSaveLoadAction(this, (bool isSave, string myPath) =>
             {
