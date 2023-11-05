@@ -65,6 +65,14 @@ namespace MTM101BaldAPI
         }
     }
 
+    public class ConditionalPatchNever : ConditionalPatch
+    {
+        public override bool ShouldPatch()
+        {
+            return false;
+        }
+    }
+
     public class ConditionalPatchBBCROnly : ConditionalPatch
     {
         public override bool ShouldPatch()
@@ -93,6 +101,21 @@ namespace MTM101BaldAPI
         public override bool ShouldPatch()
         {
             return Chainloader.PluginInfos.ContainsKey(modKey);
+        }
+    }
+
+    public class ConditionalPatchNoMod : ConditionalPatch
+    {
+        public string modKey;
+
+        public ConditionalPatchNoMod(string mod)
+        {
+            modKey = mod;
+        }
+
+        public override bool ShouldPatch()
+        {
+            return !Chainloader.PluginInfos.ContainsKey(modKey);
         }
     }
 }
