@@ -6,6 +6,10 @@ using UnityEngine.Networking;
 using System.IO;
 using BepInEx;
 using System.Linq;
+using MidiPlayerTK;
+using MPTK.NAudio.Midi;
+using HarmonyLib;
+using MEC;
 
 namespace MTM101BaldAPI.AssetManager
 {
@@ -79,5 +83,79 @@ namespace MTM101BaldAPI.AssetManager
 			return Path.Combine(Application.streamingAssetsPath, "Modded", plug.Info.Metadata.GUID);
 		}
 
-	}
+		/// <summary>
+		/// Creates a midi from a file. It returns the id assigned to the midi, which is an altered version of the id you pass to avoid conflicts
+		/// </summary>
+		
+		public static Dictionary<string, byte[]> MidiDatas = new Dictionary<string, byte[]>();
+		public static string MidiFromFile(string path, string id)
+		{
+			string idToUse = "custom_" + id;
+            while (MidiDatas.ContainsKey(idToUse))
+            {
+                idToUse += "_";
+            }
+            MidiFromBytes(idToUse, File.ReadAllBytes(path));
+            return idToUse;
+        }
+
+        private static void MidiFromBytes(string id, byte[] data)
+        {
+            if (MidiPlayerGlobal.Instance == null)
+            {
+                throw new Exception("Attempted to add Midi before MidiPlayerGlobal is created!");
+            }
+            if (!MidiPlayerGlobal.CurrentMidiSet.MidiFiles.Contains(id))
+            {
+                MidiPlayerGlobal.CurrentMidiSet.MidiFiles.Add(id);
+                MidiPlayerGlobal.BuildMidiList();
+                MidiDatas.Add(id, data);
+            }
+        }
+    }
+
+    [HarmonyPatch(typeof(MidiFilePlayer))]
+    [HarmonyPatch("MPTK_Play", new Type[0] { })]
+    static class MusicPrefix
+	{
+        private static bool Prefix(MidiFilePlayer __instance)
+        {
+            byte[] data = AssetManager.MidiDatas.GetValueSafe(__instance.MPTK_MidiName);
+            if (data == null || data.Length == 0)
+            {
+                //we don't need to do anything here
+                return true;
+            }
+
+            try
+            {
+                if (MidiPlayerGlobal.MPTK_SoundFontLoaded)
+                {
+                    if (__instance.MPTK_IsPaused)
+                    {
+                        __instance.MPTK_UnPause();
+                    }
+                    else if (!__instance.MPTK_IsPlaying)
+                    {
+                        __instance.MPTK_InitSynth(16);
+                        __instance.MPTK_StartSequencerMidi();
+                        if (__instance.MPTK_CorePlayer)
+                        {
+                            Routine.RunCoroutine(__instance.ThreadCorePlay(data, 0f, 0f).CancelWith(__instance.gameObject), Segment.RealtimeUpdate);
+                        }
+                        else
+                        {
+                            Routine.RunCoroutine(__instance.ThreadLegacyPlay(data, 0f, 0f).CancelWith(__instance.gameObject), Segment.RealtimeUpdate);
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                MidiPlayerGlobal.ErrorDetail(ex);
+            }
+            return false;
+        }
+    }
+
 }

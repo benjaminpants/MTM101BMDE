@@ -118,7 +118,7 @@ namespace MTM101BaldAPI
 			}
 
             harmony.PatchAll();
-            
+
             ModdedSaveSystem.AddSaveLoadAction(this, (bool isSave, string myPath) =>
             {
                 if (isSave)
@@ -141,7 +141,6 @@ namespace MTM101BaldAPI
             TMPro.TMP_Text text = t.gameObject.GetComponent<TMPro.TMP_Text>();
             text.text += "API " + MTM101BaldiDevAPI.VersionNumber;
             t.localPosition += new Vector3(0f, 28f);
-            
         }
     }
 
