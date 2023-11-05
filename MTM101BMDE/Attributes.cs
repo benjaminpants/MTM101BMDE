@@ -11,7 +11,7 @@ namespace MTM101BaldAPI
     public static class HarmonyExtensions
     {
         /// <summary>
-        /// Patches all conditional patches with the specified 
+        /// Patches all conditional patches with the specified assembly
         /// </summary>
         public static void PatchAllConditionals(this Harmony _harmony, Assembly assembly)
         {
