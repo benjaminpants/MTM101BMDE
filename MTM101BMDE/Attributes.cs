@@ -13,7 +13,7 @@ namespace MTM101BaldAPI
         /// <summary>
         /// Patches all conditional patches with the specified assembly
         /// </summary>
-        public static void PatchAllConditionals(this Harmony _harmony, Assembly assembly)
+        public static void PatchAllConditionals(this Harmony _harmony, Assembly assembly, bool assumeUnmarkedAsTrue = true)
         {
             AccessTools.GetTypesFromAssembly(assembly).Do(type =>
             {
@@ -25,8 +25,13 @@ namespace MTM101BaldAPI
                         if (condP.ShouldPatch())
                         {
                             _harmony.CreateClassProcessor(type).Patch();
+                            return;
                         }
                     }
+                }
+                if (assumeUnmarkedAsTrue)
+                {
+                    _harmony.CreateClassProcessor(type).Patch();
                 }
             });
         }
