@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 using UnityEngine;
+using UnityEngine.Networking;
 using System.IO;
 using BepInEx;
 using System.Linq;
@@ -22,7 +23,31 @@ namespace MTM101BaldAPI.AssetManager
 
 		public static AudioClip AudioClipFromFile(string path)
         {
-			return WavDataUtility.ToAudioClip(File.ReadAllBytes(path),Path.GetFileNameWithoutExtension(path));
+			AudioType typeToUse = AudioType.UNKNOWN;
+			string fileType = Path.GetExtension(path).ToLower().Remove(0,1).Trim(); //what the fuck WHY DOES GET EXTENSION ADD THE FUCKING PERIOD.
+            switch (fileType)
+			{
+				case "mp2":
+				case "mp3":
+					typeToUse = AudioType.MPEG;
+					break;
+				case "wav":
+					typeToUse = AudioType.WAV;
+					break;
+				case "ogg":
+					typeToUse = AudioType.OGGVORBIS;
+					break;
+				case "aiff":
+					typeToUse = AudioType.AIFF;
+					break;
+				default:
+					throw new NotImplementedException("Unknown audio file type:" + fileType + "!");
+			}
+			UnityWebRequest request = UnityWebRequestMultimedia.GetAudioClip(Path.Combine("File:///", path), typeToUse);
+			request.SendWebRequest();
+			while (!request.isDone) { };
+			return DownloadHandlerAudioClip.GetContent(request);
+			//return WavDataUtility.ToAudioClip(File.ReadAllBytes(path),Path.GetFileNameWithoutExtension(path));
         }
 
 		public static Sprite SpriteFromTexture2D(Texture2D tex)

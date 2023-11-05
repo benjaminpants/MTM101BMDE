@@ -335,3 +335,4 @@ ASALocalRun/
 
 # Ignore Dependencies for legal reasons
 Dependencies/
+ReleaseDir/

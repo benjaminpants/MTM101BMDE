@@ -25,7 +25,7 @@ namespace MTM101BaldAPI
     public class MTM101BaldiDevAPI : BaseUnityPlugin
     {
 
-        public const string VersionNumber = "2.0.0.0";
+        public const string VersionNumber = "2.1.0.0";
 
         public static bool IsClassicRemastered
         {
