@@ -118,12 +118,12 @@ namespace MTM101BaldAPI
 			}
 
             harmony.PatchAll();
-
+            
             ModdedSaveSystem.AddSaveLoadAction(this, (bool isSave, string myPath) =>
             {
                 if (isSave)
                 {
-                    File.WriteAllText(Path.Combine(myPath, "testData.txt"), "This data doesn't actually store anything!!");
+                    File.WriteAllText(Path.Combine(myPath, "testData.txt"), "This data doesn't actually store anything (yet)!!");
                 }
             });
         }

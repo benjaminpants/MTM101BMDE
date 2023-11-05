@@ -74,6 +74,25 @@ namespace MTM101BaldAPI
 
         }
 
+        public static T GetFromExtendedName<T>(string name) where T : Enum
+        {
+            if (Enum.IsDefined(typeof(T), name))
+            {
+                return (T)Enum.Parse(typeof(T), name);
+            }
+            bool success = ExtendedData.TryGetValue(typeof(T),out ExtendedEnumData value);
+            if (!success)
+            {
+                throw new KeyNotFoundException();
+            }
+            int index = value.Enums.FindIndex(x => x == name);
+            if (index == -1)
+            {
+                throw new KeyNotFoundException();
+            }
+            return (T)(object)(value.valueOffset + index);
+        }
+
 		[Obsolete("Please use ExtendEnum<Items>(string extendName) instead.")]
 		public static Items CreateItemEnum(string name)
 		{
