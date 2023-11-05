@@ -3,6 +3,7 @@ using HarmonyLib;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Linq;
 using System.Reflection;
 using System.Text;
 
@@ -21,7 +22,13 @@ namespace MTM101BaldAPI
                 {
                     if (typeof(ConditionalPatch).IsAssignableFrom(cad.AttributeType))
                     {
-                        ConditionalPatch condP = (ConditionalPatch)Activator.CreateInstance(cad.AttributeType);
+                        List<CustomAttributeTypedArgument> list = cad.ConstructorArguments.ToList();
+                        List<object> paramList = new List<object>();
+                        list.ForEach(arg =>
+                        {
+                            paramList.Add(arg.Value);
+                        });
+                        ConditionalPatch condP = (ConditionalPatch)Activator.CreateInstance(cad.AttributeType, paramList.ToArray());
                         if (condP.ShouldPatch())
                         {
                             _harmony.CreateClassProcessor(type).Patch();
