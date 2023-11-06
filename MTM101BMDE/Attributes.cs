@@ -32,8 +32,8 @@ namespace MTM101BaldAPI
                         if (condP.ShouldPatch())
                         {
                             _harmony.CreateClassProcessor(type).Patch();
-                            return;
                         }
+                        return;
                     }
                 }
                 if (assumeUnmarkedAsTrue)
