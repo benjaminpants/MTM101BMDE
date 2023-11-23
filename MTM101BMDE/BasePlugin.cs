@@ -15,6 +15,7 @@ using System.Collections.Generic;
 using MTM101BaldAPI.OptionsAPI;
 using MTM101BaldAPI.SaveSystem;
 using System.IO;
+using MTM101BaldAPI.Registers;
 
 //this code is reused from BaldiMP and BB+ twitch
 namespace MTM101BaldAPI
