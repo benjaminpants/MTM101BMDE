@@ -64,8 +64,8 @@ namespace MTM101BaldAPI.LangExtender
 					}
 					catch (Exception E)
 					{
-						UnityEngine.Debug.LogError("Given JSON for file: " + Path.GetFileName(dirs[i]) + " is invalid!");
-						UnityEngine.Debug.LogError(E.Message);
+                        MTM101BaldiDevAPI.Log.LogError("Given JSON for file: " + Path.GetFileName(dirs[i]) + " is invalid!");
+                        MTM101BaldiDevAPI.Log.LogError(E.Message);
 						continue;
 					}
 					for (int j = 0; j < localizationData.items.Length; j++)
@@ -80,7 +80,7 @@ namespace MTM101BaldAPI.LangExtender
 						}
 					}
 #if DEBUG
-					UnityEngine.Debug.Log("Loaded all data from " + Path.GetFileName(dirs[i]));
+					MTM101BaldiDevAPI.Log.LogMessage("Loaded all data from " + Path.GetFileName(dirs[i]));
 #endif
 				}
 			}
@@ -92,9 +92,14 @@ namespace MTM101BaldAPI.LangExtender
 		{
 			string moddedfolderpath = Path.Combine(Application.streamingAssetsPath, "Modded");
 #if DEBUG
-			UnityEngine.Debug.Log("Loading Language Extensions...");
+            MTM101BaldiDevAPI.Log.LogMessage("Loading Language Extensions...");
 #endif
-			OriginalText = ___localizedText;
+			OriginalText = new Dictionary<string, string>();
+			foreach (KeyValuePair<string,string> kvp in ___localizedText)
+			{
+				OriginalText.Add(kvp.Key,kvp.Value);
+
+            }
 			if (Directory.Exists(moddedfolderpath))
 			{
 				foreach (BaseUnityPlugin plug in GameObject.FindObjectsOfType<BaseUnityPlugin>())
@@ -108,7 +113,7 @@ namespace MTM101BaldAPI.LangExtender
 				return;
 			}
 #if DEBUG
-			UnityEngine.Debug.Log("All language data succesfull loaded!");
+            MTM101BaldiDevAPI.Log.LogMessage("All language data succesfully loaded!");
 #endif
 		}
 	}

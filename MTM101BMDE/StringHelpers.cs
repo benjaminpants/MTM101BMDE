@@ -24,7 +24,7 @@ namespace MTM101BaldAPI
             }
             catch(Exception E)
             {
-                Debug.LogWarning(E.Message);
+                MTM101BaldiDevAPI.Log.LogWarning(E.Message);
             }
             return e;
         }
@@ -38,7 +38,7 @@ namespace MTM101BaldAPI
             }
             catch (Exception E)
             {
-                Debug.LogWarning(E.Message);
+                MTM101BaldiDevAPI.Log.LogWarning(E.Message);
             }
             return e;
         }

@@ -40,10 +40,22 @@ namespace MTM101BaldAPI.Registers
                     actionsList[kvp3.Key].Add(kvp3.Value);
                 }
             }
-            actionsList[GenerationModType.Base].Do(x => x.Invoke(name, obj));
-            actionsList[GenerationModType.Override].Do(x => x.Invoke(name, obj));
-            actionsList[GenerationModType.Addend].Do(x => x.Invoke(name, obj));
-            actionsList[GenerationModType.Finalizer].Do(x => x.Invoke(name, obj));
+            if (actionsList.ContainsKey(GenerationModType.Base))
+            {
+                actionsList[GenerationModType.Base].Do(x => x.Invoke(name, obj));
+            }
+            if (actionsList.ContainsKey(GenerationModType.Override))
+            {
+                actionsList[GenerationModType.Override].Do(x => x.Invoke(name, obj));
+            }
+            if (actionsList.ContainsKey(GenerationModType.Addend))
+            {
+                actionsList[GenerationModType.Addend].Do(x => x.Invoke(name, obj));
+            }
+            if (actionsList.ContainsKey(GenerationModType.Finalizer))
+            {
+                actionsList[GenerationModType.Finalizer].Do(x => x.Invoke(name, obj));
+            }
         }
     }
 }

@@ -25,6 +25,7 @@ namespace MTM101BaldAPI
     [BepInPlugin("mtm101.rulerp.bbplus.baldidevapi", "BB+ Dev API", VersionNumber)]
     public class MTM101BaldiDevAPI : BaseUnityPlugin
     {
+        internal static ManualLogSource Log;
 
         public const string VersionNumber = "2.1.0.1";
 
@@ -127,6 +128,8 @@ namespace MTM101BaldAPI
                     File.WriteAllText(Path.Combine(myPath, "testData.txt"), "This data doesn't actually store anything (yet)!!");
                 }
             });
+
+            Log = base.Logger;
         }
     }
 
@@ -142,6 +145,15 @@ namespace MTM101BaldAPI
             TMPro.TMP_Text text = t.gameObject.GetComponent<TMPro.TMP_Text>();
             text.text += "API " + MTM101BaldiDevAPI.VersionNumber;
             t.localPosition += new Vector3(0f, 28f);
+            SceneObject[] objs = Resources.FindObjectsOfTypeAll<SceneObject>();
+            foreach (SceneObject obj in objs)
+            {
+                if (obj.levelObject != null)
+                {
+                    MTM101BaldiDevAPI.Log.LogMessage(String.Format("Invoking SceneObject({0}) Generation Changes for LevelObject {1}!", obj.levelTitle, obj.levelObject.ToString()));
+                    GeneratorManagement.Invoke(obj.levelTitle, obj.levelObject);
+                }
+            }
         }
     }
 
