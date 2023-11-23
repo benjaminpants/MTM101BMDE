@@ -150,7 +150,9 @@ namespace MTM101BaldAPI
             {
                 if (obj.levelObject != null)
                 {
+#if DEBUG
                     MTM101BaldiDevAPI.Log.LogMessage(String.Format("Invoking SceneObject({0}) Generation Changes for LevelObject {1}!", obj.levelTitle, obj.levelObject.ToString()));
+#endif
                     GeneratorManagement.Invoke(obj.levelTitle, obj.levelObject);
                 }
             }
