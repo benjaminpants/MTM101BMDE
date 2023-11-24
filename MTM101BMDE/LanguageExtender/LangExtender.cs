@@ -19,7 +19,7 @@ namespace MTM101BaldAPI.LangExtender
 
 	static class LocalExtensions
 	{
-		public static string GetUnmoddedLocalizedText(this LocalizationManager me, string key, bool trymodonfail = true) // todo: why did i make this an extension
+		public static string GetUnmoddedLocalizedText(this LocalizationManager me, string key, bool trymodonfail = true)
 		{
 			string result = key;
 			if (LoaderExtension.OriginalText.ContainsKey(key))
@@ -30,7 +30,7 @@ namespace MTM101BaldAPI.LangExtender
 			{
 				if (trymodonfail)
 				{
-					result = Singleton<LocalizationManager>.Instance.GetLocalizedText(key);
+					result = me.GetLocalizedText(key);
 				}
 			}
 			return result;

@@ -22,12 +22,13 @@ namespace MTM101BaldAPI.AssetManager
 			Texture2D texture2D = new Texture2D(1, 1, TextureFormat.RGBA32, false);
 			ImageConversion.LoadImage(texture2D, array);
 			texture2D.filterMode = FilterMode.Point;
-			return texture2D;
+            texture2D.name = Path.GetFileNameWithoutExtension(path);
+            return texture2D;
 		}
 
 		public static AudioClip AudioClipFromFile(string path)
         {
-			AudioType typeToUse = AudioType.UNKNOWN;
+			AudioType typeToUse;
 			string fileType = Path.GetExtension(path).ToLower().Remove(0,1).Trim(); //what the fuck WHY DOES GET EXTENSION ADD THE FUCKING PERIOD.
             switch (fileType)
 			{
@@ -50,7 +51,9 @@ namespace MTM101BaldAPI.AssetManager
 			UnityWebRequest request = UnityWebRequestMultimedia.GetAudioClip(Path.Combine("File:///", path), typeToUse);
 			request.SendWebRequest();
 			while (!request.isDone) { };
-			return DownloadHandlerAudioClip.GetContent(request);
+            AudioClip clip = DownloadHandlerAudioClip.GetContent(request);
+            clip.name = Path.GetFileNameWithoutExtension(path);
+            return clip;
 			//return WavDataUtility.ToAudioClip(File.ReadAllBytes(path),Path.GetFileNameWithoutExtension(path));
         }
 
@@ -61,7 +64,9 @@ namespace MTM101BaldAPI.AssetManager
 
         public static Sprite SpriteFromTexture2D(Texture2D tex, Vector2 center, float pixelsPerUnit = 1)
         {
-            return Sprite.Create(tex, new Rect(0f, 0f, tex.width, tex.height), center, pixelsPerUnit);
+            Sprite sprite = Sprite.Create(tex, new Rect(0f, 0f, tex.width, tex.height), center, pixelsPerUnit);
+            sprite.name = "Spr" + tex.name;
+            return sprite;
         }
 
         public static Texture2D TextureFromMod(BaseUnityPlugin plug, params string[] paths)
@@ -84,10 +89,11 @@ namespace MTM101BaldAPI.AssetManager
 		}
 
 		/// <summary>
-		/// Creates a midi from a file. It returns the id assigned to the midi, which is an altered version of the id you pass to avoid conflicts
+		/// Creates a midi from a file. It returns the id assigned to the midi, which is an altered version of the id you pass to avoid conflicts.
 		/// </summary>
 		
-		public static Dictionary<string, byte[]> MidiDatas = new Dictionary<string, byte[]>();
+		internal static Dictionary<string, byte[]> MidiDatas = new Dictionary<string, byte[]>();
+        public static Dictionary<string, byte[]> MidisToBeAdded = new Dictionary<string, byte[]>();
 		public static string MidiFromFile(string path, string id)
 		{
 			string idToUse = "custom_" + id;
@@ -99,12 +105,18 @@ namespace MTM101BaldAPI.AssetManager
             return idToUse;
         }
 
-        private static void MidiFromBytes(string id, byte[] data)
+        internal static void MidiFromBytes(string id, byte[] data)
         {
             if (MidiPlayerGlobal.Instance == null)
             {
-                throw new Exception("Attempted to add Midi before MidiPlayerGlobal is created!");
+                //throw new Exception("Attempted to add Midi before MidiPlayerGlobal is created!");
+#if DEBUG
+                MTM101BaldiDevAPI.Log.LogMessage(String.Format("Midi with ID: {0} has been added to the midi queue.", id));
+#endif
+                MidisToBeAdded.Add(id, data);
+                return;
             }
+            MTM101BaldiDevAPI.Log.LogMessage("Adding midi with ID: " + id);
             if (!MidiPlayerGlobal.CurrentMidiSet.MidiFiles.Contains(id))
             {
                 MidiPlayerGlobal.CurrentMidiSet.MidiFiles.Add(id);

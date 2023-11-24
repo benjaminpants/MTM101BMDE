@@ -34,6 +34,7 @@ namespace MTM101BaldAPI
 			obj.descKey = desckey;
 			obj.cost = generatorcost;
 			obj.price = price;
+			obj.name = localizedtext;
 
 			return obj;
 		}
@@ -46,6 +47,7 @@ namespace MTM101BaldAPI
 			obj.soundType = type;
 			obj.soundKey = subtitle;
 			obj.color = color;
+			obj.name = subtitle;
 			return obj;
 
 		}
@@ -58,6 +60,7 @@ namespace MTM101BaldAPI
 			obj.tripPre = manager;
 			obj.messageKey = messageendkey;
 			obj.animation = animation;
+			obj.name = EnumExtensions.GetExtendedName<FieldTrips>((int)trip);
 			return obj;
 
 		}
@@ -69,6 +72,7 @@ namespace MTM101BaldAPI
 			obj.baseTexture = postertex;
 			obj.material = materials;
 			obj.textData = text;
+			obj.name = postertex.name + "Poster";
 
 			return obj;
         }

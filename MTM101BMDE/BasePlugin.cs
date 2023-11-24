@@ -16,6 +16,8 @@ using MTM101BaldAPI.OptionsAPI;
 using MTM101BaldAPI.SaveSystem;
 using System.IO;
 using MTM101BaldAPI.Registers;
+using MTM101BaldAPI.AssetManager;
+using UnityCipher;
 
 //this code is reused from BaldiMP and BB+ twitch
 namespace MTM101BaldAPI
@@ -27,7 +29,7 @@ namespace MTM101BaldAPI
     {
         internal static ManualLogSource Log;
 
-        public const string VersionNumber = "2.1.0.1";
+        public const string VersionNumber = "2.2.0.0";
 
         public static bool IsClassicRemastered
         {
@@ -141,10 +143,12 @@ namespace MTM101BaldAPI
     {
         static void Postfix(NameManager __instance)
         {
+            //the version number stuff
             Transform t = __instance.transform.parent.Find("Version Number");
             TMPro.TMP_Text text = t.gameObject.GetComponent<TMPro.TMP_Text>();
             text.text += "API " + MTM101BaldiDevAPI.VersionNumber;
             t.localPosition += new Vector3(0f, 28f);
+            //everything else
             SceneObject[] objs = Resources.FindObjectsOfTypeAll<SceneObject>();
             foreach (SceneObject obj in objs)
             {
@@ -156,6 +160,11 @@ namespace MTM101BaldAPI
                     GeneratorManagement.Invoke(obj.levelTitle, obj.levelObject);
                 }
             }
+            foreach (KeyValuePair<string, byte[]> kvp in AssetManager.AssetManager.MidisToBeAdded)
+            {
+                AssetManager.AssetManager.MidiFromBytes(kvp.Key, kvp.Value);
+            }
+            AssetManager.AssetManager.MidisToBeAdded = null;
         }
     }
 
