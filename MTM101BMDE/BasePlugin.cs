@@ -31,6 +31,8 @@ namespace MTM101BaldAPI
 
         public const string VersionNumber = "2.2.0.0";
 
+        internal static List<ScriptableObject> keepInMemory;
+
         public static bool IsClassicRemastered
         {
             get
