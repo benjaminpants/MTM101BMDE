@@ -31,7 +31,7 @@ namespace MTM101BaldAPI
 
         public const string VersionNumber = "2.2.0.0";
 
-        internal static List<ScriptableObject> keepInMemory;
+        internal static List<ScriptableObject> keepInMemory = new List<ScriptableObject>();
 
         public static bool IsClassicRemastered
         {
@@ -154,13 +154,11 @@ namespace MTM101BaldAPI
             SceneObject[] objs = Resources.FindObjectsOfTypeAll<SceneObject>();
             foreach (SceneObject obj in objs)
             {
-                if (obj.levelObject != null)
-                {
+                if (obj.levelObject == null) continue;
 #if DEBUG
-                    MTM101BaldiDevAPI.Log.LogMessage(String.Format("Invoking SceneObject({0}) Generation Changes for LevelObject {1}!", obj.levelTitle, obj.levelObject.ToString()));
+                MTM101BaldiDevAPI.Log.LogInfo(String.Format("Invoking SceneObject({0})({2}) Generation Changes for {1}!", obj.levelTitle, obj.levelObject.ToString(), obj.levelNo.ToString()));
 #endif
-                    GeneratorManagement.Invoke(obj.levelTitle, obj.levelObject);
-                }
+                GeneratorManagement.Invoke(obj.levelTitle, obj.levelNo, obj.levelObject);
             }
             foreach (KeyValuePair<string, byte[]> kvp in AssetManager.AssetManager.MidisToBeAdded)
             {

@@ -9,7 +9,10 @@ namespace MTM101BaldAPI
     {
         public static void MarkAsNeverUnload(this ScriptableObject me)
         {
-            MTM101BaldiDevAPI.keepInMemory.Add(me);
+            if (!MTM101BaldiDevAPI.keepInMemory.Contains(me))
+            {
+                MTM101BaldiDevAPI.keepInMemory.Add(me);
+            }
         }
         public static void RemoveUnloadMark(this ScriptableObject me)
         {

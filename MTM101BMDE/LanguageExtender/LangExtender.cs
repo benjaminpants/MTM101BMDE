@@ -80,7 +80,7 @@ namespace MTM101BaldAPI.LangExtender
 						}
 					}
 #if DEBUG
-					MTM101BaldiDevAPI.Log.LogMessage("Loaded all data from " + Path.GetFileName(dirs[i]));
+					MTM101BaldiDevAPI.Log.LogInfo("Loaded all data from " + Path.GetFileName(dirs[i]));
 #endif
 				}
 			}
@@ -92,7 +92,7 @@ namespace MTM101BaldAPI.LangExtender
 		{
 			string moddedfolderpath = Path.Combine(Application.streamingAssetsPath, "Modded");
 #if DEBUG
-            MTM101BaldiDevAPI.Log.LogMessage("Loading Language Extensions...");
+            MTM101BaldiDevAPI.Log.LogInfo("Loading Language Extensions...");
 #endif
 			OriginalText = new Dictionary<string, string>();
 			foreach (KeyValuePair<string,string> kvp in ___localizedText)
@@ -113,7 +113,7 @@ namespace MTM101BaldAPI.LangExtender
 				return;
 			}
 #if DEBUG
-            MTM101BaldiDevAPI.Log.LogMessage("All language data succesfully loaded!");
+            MTM101BaldiDevAPI.Log.LogInfo("All language data succesfully loaded!");
 #endif
 		}
 	}

@@ -111,12 +111,12 @@ namespace MTM101BaldAPI.AssetManager
             {
                 //throw new Exception("Attempted to add Midi before MidiPlayerGlobal is created!");
 #if DEBUG
-                MTM101BaldiDevAPI.Log.LogMessage(String.Format("Midi with ID: {0} has been added to the midi queue.", id));
+                MTM101BaldiDevAPI.Log.LogInfo(String.Format("Midi with ID: {0} has been added to the midi queue.", id));
 #endif
                 MidisToBeAdded.Add(id, data);
                 return;
             }
-            MTM101BaldiDevAPI.Log.LogMessage("Adding midi with ID: " + id);
+            MTM101BaldiDevAPI.Log.LogInfo("Adding midi with ID: " + id);
             if (!MidiPlayerGlobal.CurrentMidiSet.MidiFiles.Contains(id))
             {
                 MidiPlayerGlobal.CurrentMidiSet.MidiFiles.Add(id);
