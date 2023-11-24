@@ -19,7 +19,7 @@ using MTM101BaldAPI.Registers;
 using MTM101BaldAPI.AssetManager;
 using UnityCipher;
 
-//this code is reused from BaldiMP and BB+ twitch
+
 namespace MTM101BaldAPI
 {
 
