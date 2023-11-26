@@ -65,7 +65,7 @@ namespace MTM101BaldAPI
 
 		}
 
-
+		[Obsolete]
 		public static PosterObject CreatePosterObject(Texture2D postertex, Material[] materials, PosterTextData[] text)
         {
 			PosterObject obj = ScriptableObject.CreateInstance<PosterObject>();
@@ -77,5 +77,38 @@ namespace MTM101BaldAPI
 			return obj;
         }
 
-	}
+        public static PosterObject CreatePosterObject(Texture2D postertex, PosterTextData[] text)
+        {
+            PosterObject obj = ScriptableObject.CreateInstance<PosterObject>();
+            obj.baseTexture = postertex;
+            obj.textData = text;
+            obj.name = postertex.name + "Poster";
+
+            return obj;
+        }
+
+        public static PosterObject CreatePosterObject(Texture2D[] postertexs)
+        {
+			if (postertexs.Length == 0) throw new ArgumentNullException();
+            PosterObject obj = ScriptableObject.CreateInstance<PosterObject>();
+			obj.textData = new PosterTextData[0];
+			if (postertexs.Length == 1)
+			{
+                obj.name = postertexs[0].name + "Poster";
+				obj.baseTexture = postertexs.First();
+            }
+			else
+			{
+				List<PosterObject> otherPosters = new List<PosterObject>();
+				for (int i = 0; i < postertexs.Length; i++)
+				{
+					otherPosters.Add(CreatePosterObject(postertexs[i],new PosterTextData[0]));
+				}
+				obj.multiPosterArray = otherPosters.ToArray();
+                obj.name = postertexs[0].name + "PosterChain";
+            }
+
+            return obj;
+        }
+    }
 }

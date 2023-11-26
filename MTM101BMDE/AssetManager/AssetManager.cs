@@ -18,13 +18,87 @@ namespace MTM101BaldAPI.AssetManager
 
 		public static Texture2D TextureFromFile(string path)
 		{
-			byte[] array = File.ReadAllBytes(path);
-			Texture2D texture2D = new Texture2D(1, 1, TextureFormat.RGBA32, false);
-			ImageConversion.LoadImage(texture2D, array);
-			texture2D.filterMode = FilterMode.Point;
+            return TextureFromFile(path, TextureFormat.RGBA32);
+		}
+
+        public static Texture2D TextureFromFile(string path, TextureFormat format)
+        {
+            byte[] array = File.ReadAllBytes(path);
+            Texture2D texture2D = new Texture2D(2, 2, format, false);
+            ImageConversion.LoadImage(texture2D, array);
+            texture2D.filterMode = FilterMode.Point;
             texture2D.name = Path.GetFileNameWithoutExtension(path);
             return texture2D;
-		}
+        }
+
+        public static bool ReplaceTexture(Texture2D toReplace, Texture2D replacement)
+        {
+            if (toReplace == null)
+            {
+                MTM101BaldiDevAPI.Log.LogError("toReplace is null!");
+                return false;
+            }
+            if (replacement == null)
+            {
+                MTM101BaldiDevAPI.Log.LogError("replacement is null!");
+                return false;
+            }
+            if ((toReplace.width != replacement.width) || (toReplace.height != replacement.height))
+            {
+                MTM101BaldiDevAPI.Log.LogWarning(String.Format("{0}({1}) and {2}({3}) have mismatched sizes!", toReplace.name, new Vector2Int(toReplace.width, toReplace.height).ToString(), replacement.name, new Vector2Int(replacement.width, replacement.height).ToString()));
+                return false;
+            }
+            if (toReplace.format != replacement.format)
+            {
+                MTM101BaldiDevAPI.Log.LogWarning(String.Format("{0}({1}) and {2}({3}) have mismatched formats!", toReplace.name, toReplace.format.ToString(), replacement.name, replacement.format.ToString()));
+                return false;
+            }
+            Graphics.CopyTexture(replacement, toReplace);
+            return true;
+        }
+
+        public static bool ReplaceTexture(string toReplace, Texture2D replacement)
+        {
+            return ReplaceTexture(Resources.FindObjectsOfTypeAll<Texture2D>().Where(x => x.name == toReplace).First(), replacement);
+        }
+
+        internal static Texture2D AttemptConvertTo(Texture2D toConvert, TextureFormat format)
+        {
+            if (toConvert.format == format) return toConvert;
+            Texture2D n = new Texture2D(toConvert.width, toConvert.height, format, false);
+            n.SetPixels(toConvert.GetPixels());
+            n.Apply();
+            n.name = toConvert.name;
+            UnityEngine.Object.DestroyImmediate(toConvert); //bye bye!
+            return n;
+        }
+
+        internal static Texture2D ConvertToRGBA32(Texture2D toConvert)
+        {
+            return AttemptConvertTo(toConvert, TextureFormat.RGBA32);
+        }
+
+        public static bool ReplaceAllTexturesFromFolder(string path)
+        {
+            Texture2D[] foundTextures = Resources.FindObjectsOfTypeAll<Texture2D>();
+            string[] files = Directory.GetFiles(path);
+            bool allSucceeded = true;
+            files.Do(x =>
+            {
+                if (Path.GetExtension(x) != ".png")
+                {
+                    MTM101BaldiDevAPI.Log.LogWarning("Found non PNG while attempting bulk replace: " + x);
+                    return;
+                }
+                string targetName = Path.GetFileNameWithoutExtension(x);
+                Texture2D targetTex = foundTextures.Where(z => z.name == targetName).First();
+                Texture2D replacement = AssetManager.TextureFromFile(x, targetTex.format);
+                replacement = AttemptConvertTo(replacement, targetTex.format);
+                replacement.name = replacement.name + "_REPLACEMENT";
+                ReplaceTexture(targetTex, replacement);
+            });
+            return allSucceeded;
+        }
 
 		public static AudioClip AudioClipFromFile(string path)
         {
