@@ -155,7 +155,10 @@ namespace MTM101BaldAPI
             if (MTM101BaldiDevAPI.CalledInitialize) return;
             MTM101BaldiDevAPI.CalledInitialize = true;
             //everything else
-            LoadingEvents.OnAllAssetsLoaded.Invoke();
+            if (LoadingEvents.OnAllAssetsLoaded != null)
+            {
+                LoadingEvents.OnAllAssetsLoaded.Invoke();
+            }
             SceneObject[] objs = Resources.FindObjectsOfTypeAll<SceneObject>();
             foreach (SceneObject obj in objs)
             {
@@ -170,7 +173,10 @@ namespace MTM101BaldAPI
                 AssetManager.AssetManager.MidiFromBytes(kvp.Key, kvp.Value);
             }
             AssetManager.AssetManager.MidisToBeAdded = null;
-            LoadingEvents.OnAllAssetsLoadedPost.Invoke();
+            if (LoadingEvents.OnAllAssetsLoadedPost != null)
+            {
+                LoadingEvents.OnAllAssetsLoadedPost.Invoke();
+            }
         }
     }
 

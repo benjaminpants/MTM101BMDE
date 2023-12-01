@@ -63,7 +63,7 @@ namespace MTM101BaldAPI.AssetManager
             return ReplaceTexture(Resources.FindObjectsOfTypeAll<Texture2D>().Where(x => x.name == toReplace).First(), replacement);
         }
 
-        internal static Texture2D AttemptConvertTo(Texture2D toConvert, TextureFormat format)
+        public static Texture2D AttemptConvertTo(Texture2D toConvert, TextureFormat format)
         {
             if (toConvert.format == format) return toConvert;
             Texture2D n = new Texture2D(toConvert.width, toConvert.height, format, false);
