@@ -29,7 +29,9 @@ namespace MTM101BaldAPI
     {
         internal static ManualLogSource Log;
 
-        public const string VersionNumber = "2.2.0.0";
+        public const string VersionNumber = "2.3.0.0";
+
+        internal static bool CalledInitialize = false;
 
         internal static List<ScriptableObject> keepInMemory = new List<ScriptableObject>();
 
@@ -150,7 +152,10 @@ namespace MTM101BaldAPI
             TMPro.TMP_Text text = t.gameObject.GetComponent<TMPro.TMP_Text>();
             text.text += "API " + MTM101BaldiDevAPI.VersionNumber;
             t.localPosition += new Vector3(0f, 28f);
+            if (MTM101BaldiDevAPI.CalledInitialize) return;
+            MTM101BaldiDevAPI.CalledInitialize = true;
             //everything else
+            LoadingEvents.OnAllAssetsLoaded.Invoke();
             SceneObject[] objs = Resources.FindObjectsOfTypeAll<SceneObject>();
             foreach (SceneObject obj in objs)
             {
@@ -165,6 +170,7 @@ namespace MTM101BaldAPI
                 AssetManager.AssetManager.MidiFromBytes(kvp.Key, kvp.Value);
             }
             AssetManager.AssetManager.MidisToBeAdded = null;
+            LoadingEvents.OnAllAssetsLoadedPost.Invoke();
         }
     }
 
