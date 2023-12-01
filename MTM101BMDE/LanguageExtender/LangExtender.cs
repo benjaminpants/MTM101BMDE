@@ -40,50 +40,56 @@ namespace MTM101BaldAPI.LangExtender
 
 	[HarmonyPatch(typeof(LocalizationManager))]
 	[HarmonyPatch("LoadLocalizedText")]
-	class LoaderExtension
+	internal class LoaderExtension
 	{
 
 		public static Dictionary<string, string> OriginalText;
+
+		internal static Dictionary<string, string> LoadFolder(string moddedfolderpath, Dictionary<string, string> ___localizedText)
+		{
+            string[] dirs = Directory.GetFiles(moddedfolderpath, "*.json");
+            if (dirs.Length == 0)
+            {
+                return ___localizedText;
+            }
+            for (int i = 0; i < dirs.Length; i++)
+            {
+                LocalizationData localizationData = null;
+                try
+                {
+                    localizationData = JsonUtility.FromJson<LocalizationData>(File.ReadAllText(dirs[i])); //use the base localization data so if BB+ ever changes it this tool will automatically be up to date.
+                }
+                catch (Exception E)
+                {
+                    MTM101BaldiDevAPI.Log.LogError("Given JSON for file: " + Path.GetFileName(dirs[i]) + " is invalid!");
+                    MTM101BaldiDevAPI.Log.LogError(E.Message);
+                    continue;
+                }
+                for (int j = 0; j < localizationData.items.Length; j++)
+                {
+                    if (!___localizedText.ContainsKey(localizationData.items[j].key))
+                    {
+                        ___localizedText.Add(localizationData.items[j].key, localizationData.items[j].value);
+                    }
+                    else
+                    {
+                        ___localizedText[localizationData.items[j].key] = localizationData.items[j].value;
+                    }
+                }
+#if DEBUG
+                MTM101BaldiDevAPI.Log.LogInfo("Loaded all data from " + Path.GetFileName(dirs[i]));
+#endif
+            }
+			return ___localizedText;
+        }
 
 		private static void LoadMod(BaseUnityPlugin plug, Language language, ref Dictionary<string, string> ___localizedText)
 		{
 			string moddedfolderpath = Path.Combine(AssetManager.AssetManager.GetModPath(plug), "Language", language.ToString());
 			if (Directory.Exists(moddedfolderpath))
 			{
-				string[] dirs = Directory.GetFiles(moddedfolderpath, "*.json");
-				if (dirs.Length == 0)
-				{
-					return;
-				}
-				for (int i = 0; i < dirs.Length; i++)
-				{
-					LocalizationData localizationData = null;
-					try
-					{
-						localizationData = JsonUtility.FromJson<LocalizationData>(File.ReadAllText(dirs[i])); //use the base localization data so if BB+ ever changes it this tool will automatically be up to date.
-					}
-					catch (Exception E)
-					{
-                        MTM101BaldiDevAPI.Log.LogError("Given JSON for file: " + Path.GetFileName(dirs[i]) + " is invalid!");
-                        MTM101BaldiDevAPI.Log.LogError(E.Message);
-						continue;
-					}
-					for (int j = 0; j < localizationData.items.Length; j++)
-					{
-						if (!___localizedText.ContainsKey(localizationData.items[j].key))
-						{
-							___localizedText.Add(localizationData.items[j].key, localizationData.items[j].value);
-						}
-						else
-						{
-							___localizedText[localizationData.items[j].key] = localizationData.items[j].value;
-						}
-					}
-#if DEBUG
-					MTM101BaldiDevAPI.Log.LogInfo("Loaded all data from " + Path.GetFileName(dirs[i]));
-#endif
-				}
-			}
+                ___localizedText = LoadFolder(moddedfolderpath, ___localizedText);
+            }
 		}
 
 

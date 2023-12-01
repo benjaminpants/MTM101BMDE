@@ -10,6 +10,7 @@ using MidiPlayerTK;
 using MPTK.NAudio.Midi;
 using HarmonyLib;
 using MEC;
+using System.Reflection;
 
 namespace MTM101BaldAPI.AssetManager
 {
@@ -143,6 +144,12 @@ namespace MTM101BaldAPI.AssetManager
             return sprite;
         }
 
+        static FieldInfo localizedText = AccessTools.Field(typeof(LocalizationManager), "localizedText");
+        public static void LoadLanguageFolder(string path)
+        {
+            LangExtender.LoaderExtension.LoadFolder(path, (Dictionary<string, string>)localizedText.GetValue(Singleton<LocalizationManager>.Instance));
+        }
+
         public static Texture2D TextureFromMod(BaseUnityPlugin plug, params string[] paths)
         {
 			List<string> pathz = paths.ToList();
@@ -177,6 +184,13 @@ namespace MTM101BaldAPI.AssetManager
             }
             MidiFromBytes(idToUse, File.ReadAllBytes(path));
             return idToUse;
+        }
+
+        public static string MidiFromMod(string id, BaseUnityPlugin plug, params string[] args)
+        {
+            List<string> pathz = args.ToList();
+            pathz.Insert(0, GetModPath(plug));
+            return MidiFromFile(id, Path.Combine(pathz.ToArray()));
         }
 
         internal static void MidiFromBytes(string id, byte[] data)
