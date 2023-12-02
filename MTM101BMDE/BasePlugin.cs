@@ -141,9 +141,10 @@ namespace MTM101BaldAPI
 
 
     //Handle patching appropiate functions to allow for the version number to be patched
+    [ConditionalPatchBBPOnly]
     [HarmonyPatch(typeof(NameManager))]
     [HarmonyPatch("Awake")]
-    class InjectAPINameName
+    public class InjectAPINameName
     {
         static void Postfix(NameManager __instance)
         {
@@ -152,6 +153,11 @@ namespace MTM101BaldAPI
             TMPro.TMP_Text text = t.gameObject.GetComponent<TMPro.TMP_Text>();
             text.text += "API " + MTM101BaldiDevAPI.VersionNumber;
             t.localPosition += new Vector3(0f, 28f);
+            HooksAndStuff();
+        }
+
+        public static void HooksAndStuff()
+        {
             if (MTM101BaldiDevAPI.CalledInitialize) return;
             MTM101BaldiDevAPI.CalledInitialize = true;
             //everything else
