@@ -35,14 +35,6 @@ namespace MTM101BaldAPI
 
         internal static List<ScriptableObject> keepInMemory = new List<ScriptableObject>();
 
-        public static bool IsClassicRemastered
-        {
-            get
-            {
-                return Application.temporaryCachePath.Contains("Basically Games/Baldi's Basics Classic Remastered"); //thanks to fasguy
-            }
-        }
-
         public static bool SavesEnabled
         {
             get
@@ -141,7 +133,6 @@ namespace MTM101BaldAPI
 
 
     //Handle patching appropiate functions to allow for the version number to be patched
-    [ConditionalPatchBBPOnly]
     [HarmonyPatch(typeof(NameManager))]
     [HarmonyPatch("Awake")]
     public class InjectAPINameName

@@ -73,22 +73,6 @@ namespace MTM101BaldAPI
         }
     }
 
-    public class ConditionalPatchBBCROnly : ConditionalPatch
-    {
-        public override bool ShouldPatch()
-        {
-            return MTM101BaldiDevAPI.IsClassicRemastered;
-        }
-    }
-
-    public class ConditionalPatchBBPOnly : ConditionalPatch
-    {
-        public override bool ShouldPatch()
-        {
-            return !MTM101BaldiDevAPI.IsClassicRemastered;
-        }
-    }
-
     public class ConditionalPatchMod : ConditionalPatch
     {
         public string modKey;
