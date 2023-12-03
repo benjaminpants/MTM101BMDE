@@ -163,15 +163,16 @@ namespace MTM101BaldAPI
 #endif
                 GeneratorManagement.Invoke(obj.levelTitle, obj.levelNo, obj.levelObject);
             }
-            foreach (KeyValuePair<string, byte[]> kvp in AssetTools.AssetLoader.MidisToBeAdded)
+            foreach (KeyValuePair<string, byte[]> kvp in AssetLoader.MidisToBeAdded)
             {
-                AssetTools.AssetLoader.MidiFromBytes(kvp.Key, kvp.Value);
+                AssetLoader.MidiFromBytes(kvp.Key, kvp.Value);
             }
-            AssetTools.AssetLoader.MidisToBeAdded = null;
+            AssetLoader.MidisToBeAdded = null;
             if (LoadingEvents.OnAllAssetsLoadedPost != null)
             {
                 LoadingEvents.OnAllAssetsLoadedPost.Invoke();
             }
+
         }
     }
 

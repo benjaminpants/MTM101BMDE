@@ -2,7 +2,9 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
+using UnityEngine;
 
 namespace MTM101BaldAPI.AssetTools
 {
@@ -15,24 +17,62 @@ namespace MTM101BaldAPI.AssetTools
     public class AssetManager
     {
 
+        protected Type[] ignoreTypes;
+
+        protected static Type[] defaultIgnoreTypes = new Type[]
+        {
+            typeof(MonoBehaviour),
+            typeof(Behaviour),
+            typeof(ScriptableObject)
+        };
+
         protected Dictionary<Type, Dictionary<string, object>> data = new Dictionary<Type, Dictionary<string, object>>();
 
-        public int Count
+        public int GetUniqueCount()
         {
-            get
+            List<object> found = new List<object>();
+            int count = 0;
+            foreach (Dictionary<string, object> dict in data.Values)
             {
-                int count = 0;
-                foreach (Dictionary<string, object> item in data.Values)
+                foreach (KeyValuePair<string, object> kvp in dict)
                 {
-                    count += item.Count;
+                    if (!found.Contains(kvp.Value))
+                    {
+                        found.Add(kvp.Value);
+                        count++;
+                    }
                 }
-                return count;
             }
+            return count;
+        }
+
+        public AssetManager(Type[] ignoreTypes)
+        {
+            this.ignoreTypes = ignoreTypes;
+        }
+
+        public AssetManager()
+        {
+            ignoreTypes = defaultIgnoreTypes;
         }
 
         public void Add<T>(string key, T value)
         {
-            AddInternal(key, value, typeof(T));
+            AddInternal(key, value, value.GetType());
+        }
+
+        public void ClearAll<T>()
+        {
+            if (!data.ContainsKey(typeof(T))) return;
+            List<string> keysToRemove = new List<string>();
+            foreach (string key in data[typeof(T)].Keys)
+            {
+                keysToRemove.Add(key);
+            }
+            keysToRemove.Do(x =>
+            {
+                Remove<T>(x);
+            });
         }
 
         public void AddRange<T>(T[] range, Func<T, string> keyFunc)
@@ -43,12 +83,33 @@ namespace MTM101BaldAPI.AssetTools
             }
         }
 
+        public void AddFromResources<T>() where T : UnityEngine.Object
+        {
+            AddRange<T>(Resources.FindObjectsOfTypeAll<T>());
+        }
+
         public void AddRange<T>(T[] range) where T : UnityEngine.Object
         {
             AddRange(range, (obj) =>
             {
                 return obj.name;
             });
+        }
+
+        public void AddRange<T>(T[] range, string[] keys)
+        {
+            for (int i = 0; i < range.Length; i++)
+            {
+                Add(keys[i], range[i]);
+            }
+        }
+
+        public void AddRange<T>(Dictionary<string, T> range)
+        {
+            foreach (KeyValuePair<string, T> kvp in range)
+            {
+                Add(kvp.Key, kvp.Value);
+            }
         }
 
         public T[] GetAll<T>()
@@ -66,6 +127,7 @@ namespace MTM101BaldAPI.AssetTools
         {
             if (type == typeof(object)) return;
             if (type == typeof(UnityEngine.Object)) return;
+            if (ignoreTypes.Contains(type)) return;
             if (!data.ContainsKey(type))
             {
                 data[type] = new Dictionary<string, object>();
@@ -75,17 +137,33 @@ namespace MTM101BaldAPI.AssetTools
             AddInternal(key, value, type.BaseType);
         }
 
-        public bool Remove<T>(string key)
+        // todo: consider removing this?
+        public bool RemoveCheap<T>(string key)
         {
             return RemoveInternal(typeof(T), key);
         }
 
-        internal bool RemoveInternal(Type type, string key, bool found = false)
+        public bool Remove<T>(string key)
+        {
+            Type actType = Get<T>(key).GetType();
+            if (actType != typeof(T))
+            {
+                return RemoveInternal(actType, key);
+            }
+            return RemoveInternal(typeof(T), key);
+        }
+
+        protected bool RemoveInternal(Type type, string key, bool found = false)
         {
             if (type == typeof(object)) return found;
             if (type == typeof(UnityEngine.Object)) return found;
+            if (ignoreTypes.Contains(type)) return found;
             if (!data.ContainsKey(type)) return false;
-            found = found || data[type].Remove(key);
+            found = data[type].Remove(key) || found;
+            if (data[type].Count == 0)
+            {
+                data.Remove(type);
+            }
             return RemoveInternal(type.BaseType, key, found);
         }
 
