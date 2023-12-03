@@ -21,7 +21,10 @@ namespace MTM101BaldAPI.Registers
 
         public static void Register(BaseUnityPlugin plug, GenerationModType type, Action<string, int, LevelObject> action)
         {
-            generationStuff.Add(plug, new Dictionary<GenerationModType, Action<string, int, LevelObject>>());
+            if (!generationStuff.ContainsKey(plug))
+            {
+                generationStuff.Add(plug, new Dictionary<GenerationModType, Action<string, int, LevelObject>>());
+            }
             generationStuff[plug].Add(type, action);
         }
 

@@ -29,7 +29,7 @@ namespace MTM101BaldAPI
     {
         internal static ManualLogSource Log;
 
-        public const string VersionNumber = "2.3.0.0";
+        public const string VersionNumber = "2.3.0.1";
 
         internal static bool CalledInitialize = false;
 
@@ -125,7 +125,7 @@ namespace MTM101BaldAPI
 				Application.Quit();
 			}
 
-            harmony.PatchAll();
+            harmony.PatchAllConditionals();
 
             ModdedSaveSystem.AddSaveLoadAction(this, (bool isSave, string myPath) =>
             {
