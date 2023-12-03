@@ -12,7 +12,7 @@ using HarmonyLib;
 using MEC;
 using System.Reflection;
 
-namespace MTM101BaldAPI.AssetManager
+namespace MTM101BaldAPI.AssetTools
 {
     public static class AssetLoader
     {

@@ -85,7 +85,7 @@ namespace MTM101BaldAPI.LangExtender
 
 		private static void LoadMod(BaseUnityPlugin plug, Language language, ref Dictionary<string, string> ___localizedText)
 		{
-			string moddedfolderpath = Path.Combine(AssetManager.AssetLoader.GetModPath(plug), "Language", language.ToString());
+			string moddedfolderpath = Path.Combine(AssetTools.AssetLoader.GetModPath(plug), "Language", language.ToString());
 			if (Directory.Exists(moddedfolderpath))
 			{
                 ___localizedText = LoadFolder(moddedfolderpath, ___localizedText);

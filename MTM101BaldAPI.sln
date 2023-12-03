@@ -7,13 +7,10 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MTM101BaldAPI", "MTM101BMDE
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
-		BBCR|Any CPU = BBCR|Any CPU
 		Debug|Any CPU = Debug|Any CPU
 		Release|Any CPU = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{FC98ACAC-0B06-4BD7-B007-9A2F25DD61D4}.BBCR|Any CPU.ActiveCfg = BBCR|Any CPU
-		{FC98ACAC-0B06-4BD7-B007-9A2F25DD61D4}.BBCR|Any CPU.Build.0 = BBCR|Any CPU
 		{FC98ACAC-0B06-4BD7-B007-9A2F25DD61D4}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{FC98ACAC-0B06-4BD7-B007-9A2F25DD61D4}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{FC98ACAC-0B06-4BD7-B007-9A2F25DD61D4}.Release|Any CPU.ActiveCfg = Release|Any CPU

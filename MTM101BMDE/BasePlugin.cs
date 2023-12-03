@@ -16,7 +16,7 @@ using MTM101BaldAPI.OptionsAPI;
 using MTM101BaldAPI.SaveSystem;
 using System.IO;
 using MTM101BaldAPI.Registers;
-using MTM101BaldAPI.AssetManager;
+using MTM101BaldAPI.AssetTools;
 using UnityCipher;
 
 
@@ -29,11 +29,13 @@ namespace MTM101BaldAPI
     {
         internal static ManualLogSource Log;
 
-        public const string VersionNumber = "2.3.0.1";
+        public const string VersionNumber = "3.0.0.0";
 
         internal static bool CalledInitialize = false;
 
         internal static List<ScriptableObject> keepInMemory = new List<ScriptableObject>();
+
+        internal static AssetManager assetMan = new AssetManager();
 
         public static bool SavesEnabled
         {
@@ -144,11 +146,7 @@ namespace MTM101BaldAPI
             TMPro.TMP_Text text = t.gameObject.GetComponent<TMPro.TMP_Text>();
             text.text += "API " + MTM101BaldiDevAPI.VersionNumber;
             t.localPosition += new Vector3(0f, 28f);
-            HooksAndStuff();
-        }
 
-        public static void HooksAndStuff()
-        {
             if (MTM101BaldiDevAPI.CalledInitialize) return;
             MTM101BaldiDevAPI.CalledInitialize = true;
             //everything else
@@ -165,11 +163,11 @@ namespace MTM101BaldAPI
 #endif
                 GeneratorManagement.Invoke(obj.levelTitle, obj.levelNo, obj.levelObject);
             }
-            foreach (KeyValuePair<string, byte[]> kvp in AssetManager.AssetLoader.MidisToBeAdded)
+            foreach (KeyValuePair<string, byte[]> kvp in AssetTools.AssetLoader.MidisToBeAdded)
             {
-                AssetManager.AssetLoader.MidiFromBytes(kvp.Key, kvp.Value);
+                AssetTools.AssetLoader.MidiFromBytes(kvp.Key, kvp.Value);
             }
-            AssetManager.AssetLoader.MidisToBeAdded = null;
+            AssetTools.AssetLoader.MidisToBeAdded = null;
             if (LoadingEvents.OnAllAssetsLoadedPost != null)
             {
                 LoadingEvents.OnAllAssetsLoadedPost.Invoke();
