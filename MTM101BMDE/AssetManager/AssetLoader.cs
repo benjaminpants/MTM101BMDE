@@ -14,7 +14,7 @@ using System.Reflection;
 
 namespace MTM101BaldAPI.AssetManager
 {
-    public static class AssetManager
+    public static class AssetLoader
     {
 
 		public static Texture2D TextureFromFile(string path)
@@ -93,7 +93,7 @@ namespace MTM101BaldAPI.AssetManager
                 }
                 string targetName = Path.GetFileNameWithoutExtension(x);
                 Texture2D targetTex = foundTextures.Where(z => z.name == targetName).First();
-                Texture2D replacement = AssetManager.TextureFromFile(x, targetTex.format);
+                Texture2D replacement = AssetLoader.TextureFromFile(x, targetTex.format);
                 replacement = AttemptConvertTo(replacement, targetTex.format);
                 replacement.name = replacement.name + "_REPLACEMENT";
                 ReplaceTexture(targetTex, replacement);
@@ -220,7 +220,7 @@ namespace MTM101BaldAPI.AssetManager
 	{
         private static bool Prefix(MidiFilePlayer __instance)
         {
-            byte[] data = AssetManager.MidiDatas.GetValueSafe(__instance.MPTK_MidiName);
+            byte[] data = AssetLoader.MidiDatas.GetValueSafe(__instance.MPTK_MidiName);
             if (data == null || data.Length == 0)
             {
                 //we don't need to do anything here

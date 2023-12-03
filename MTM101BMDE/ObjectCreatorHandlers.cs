@@ -18,12 +18,6 @@ namespace MTM101BaldAPI
 	public static class ObjectCreatorHandlers
 	{
 
-		[Obsolete("Use CreateItemObject instead.")]
-		public static ItemObject CreateObject(string localizedtext, string desckey, Sprite smallicon, Sprite largeicon, Items type, int price, int generatorcost)
-		{
-			return CreateItemObject(localizedtext, desckey, smallicon, largeicon, type, price, generatorcost);
-        }
-
         public static ItemObject CreateItemObject(string localizedtext, string desckey, Sprite smallicon, Sprite largeicon, Items type, int price, int generatorcost)
 		{
 			ItemObject obj = ScriptableObject.CreateInstance<ItemObject>();
@@ -64,18 +58,6 @@ namespace MTM101BaldAPI
 			return obj;
 
 		}
-
-		[Obsolete]
-		public static PosterObject CreatePosterObject(Texture2D postertex, Material[] materials, PosterTextData[] text)
-        {
-			PosterObject obj = ScriptableObject.CreateInstance<PosterObject>();
-			obj.baseTexture = postertex;
-			obj.material = materials;
-			obj.textData = text;
-			obj.name = postertex.name + "Poster";
-
-			return obj;
-        }
 
         public static PosterObject CreatePosterObject(Texture2D postertex, PosterTextData[] text)
         {
