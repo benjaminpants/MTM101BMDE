@@ -175,7 +175,7 @@ namespace MTM101BaldAPI.AssetTools
             }
             set
             {
-                AddInternal(key, value, type);
+                AddInternal(key, value, value.GetType());
             }
         }
 
