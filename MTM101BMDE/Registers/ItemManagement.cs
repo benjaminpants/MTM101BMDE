@@ -22,7 +22,7 @@ namespace MTM101BaldAPI.Registers
     {
         public ItemObject[] itemObjects; // for things like the grappling hook, the highest use count should be stored first.
 
-        public ItemObject value => itemObjects[0];
+        public ItemObject value => itemObjects.Last();
 
         public PluginInfo info => _info;
         private PluginInfo _info;
@@ -36,21 +36,23 @@ namespace MTM101BaldAPI.Registers
         public List<string> tags => _tags;
         List<string> _tags = new List<string>();
 
-        public ItemMetaData(BaseUnityPlugin plug, ItemObject itmObj)
+        public ItemMetaData(PluginInfo info, ItemObject itmObj)
         {
             itemObjects = new ItemObject[1] { itmObj };
-            _info = plug.Info;
+            _info = info;
         }
 
-        public ItemMetaData(BaseUnityPlugin plug, ItemObject[] itmObjs)
+        public ItemMetaData(PluginInfo info, ItemObject[] itmObjs)
         {
             itemObjects = itmObjs;
-            _info = plug.Info;
+            _info = info;
         }
     }
 
     public class ItemMetaStorage : MetaStorage<ItemMetaData, ItemObject>
     {
+        public static ItemMetaStorage Instance => MTM101BaldiDevAPI.itemMetadata;
+
         public ItemMetaData FindByEnum(Items itm)
         {
             return Find(x =>
@@ -64,6 +66,14 @@ namespace MTM101BaldAPI.Registers
             return FindAll(x =>
             {
                 return x.flags.HasFlag(flag);
+            });
+        }
+
+        public ItemMetaData[] GetAllWithoutFlags(ItemFlags flag)
+        {
+            return FindAll(x =>
+            {
+                return !x.flags.HasFlag(flag);
             });
         }
     }

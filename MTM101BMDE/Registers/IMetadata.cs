@@ -16,7 +16,7 @@ namespace MTM101BaldAPI.Registers
         PluginInfo info { get; }
     }
 
-    public interface IMetadataStorage<T, T2> where T : IMetadata<T2>
+    public interface IMetadataStorage<T, T2, T3> where T : IMetadata<T3>
     {
         T Get(T2 key);
 
@@ -31,16 +31,16 @@ namespace MTM101BaldAPI.Registers
         T[] All();
     }
 
-    public class MetaStorage<T1, T2> : IMetadataStorage<T1, T2> where T1 : IMetadata<T2>
+    public class MetaStorage<T1, T2> : IMetadataStorage<T1, T2, T2> where T1 : IMetadata<T2>
     {
         private Dictionary<T2, T1> metas = new Dictionary<T2, T1>();
 
-        public void Add(T1 toAdd)
+        public virtual void Add(T1 toAdd)
         {
             Add(toAdd.value, toAdd);
         }
 
-        public void Add(T2 itm, T1 toAdd)
+        public virtual void Add(T2 itm, T1 toAdd)
         {
             metas.Add(itm, toAdd);
         }

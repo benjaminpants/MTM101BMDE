@@ -38,13 +38,13 @@ namespace MTM101BaldAPI.Registers
     {
         public static ItemMetaData AddMeta(this ItemObject me, BaseUnityPlugin plugin, ItemFlags flags)
         {
-            ItemMetaData meta = new ItemMetaData(plugin, me);
+            ItemMetaData meta = new ItemMetaData(plugin.Info, me);
             meta.flags = flags;
             MTM101BaldiDevAPI.itemMetadata.Add(me, meta);
             return meta;
         }
 
-        public static ItemMetaData AddMeta(this ItemObject me, BaseUnityPlugin plugin, ItemMetaData meta)
+        public static ItemMetaData AddMeta(this ItemObject me, ItemMetaData meta)
         {
             MTM101BaldiDevAPI.itemMetadata.Add(me, meta);
             return meta;
@@ -53,6 +53,16 @@ namespace MTM101BaldAPI.Registers
         public static ItemMetaData GetMeta(this ItemObject me)
         {
             return MTM101BaldiDevAPI.itemMetadata.Get(me);
+        }
+
+        public static NPCMetadata GetMeta(this NPC me)
+        {
+            return NPCMetaStorage.Instance.Get(me.Character);
+        }
+
+        public static bool AddMetaPrefab(this NPC me)
+        {
+            return NPCMetaStorage.Instance.AddPrefab(me);
         }
     }
 }

@@ -38,6 +38,7 @@ namespace MTM101BaldAPI
         internal static List<ScriptableObject> keepInMemory = new List<ScriptableObject>();
 
         public static ItemMetaStorage itemMetadata = new ItemMetaStorage();
+        public static NPCMetaStorage npcMetadata = new NPCMetaStorage();
 
         internal static AssetManager AssetMan = new AssetManager();
 
@@ -153,6 +154,8 @@ namespace MTM101BaldAPI
             t.localPosition += new Vector3(0f, 28f);
             if (MTM101BaldiDevAPI.CalledInitialize) return;
             // define all metadata before we call OnAllAssetsLoaded, so we can atleast be a bit more sure no other mods have activated and added their stuff yet.
+
+            // INITIALIZE ITEM METADATA
             ItemObject grapplingHook = null;
             Resources.FindObjectsOfTypeAll<ItemObject>().Do(x =>
             {
@@ -190,10 +193,12 @@ namespace MTM101BaldAPI
                     case Items.ZestyBar:
                         x.AddMeta(MTM101BaldiDevAPI.Instance, ItemFlags.None).tags.Add("food");
                         break;
+                    case Items.Quarter:
+                        x.AddMeta(MTM101BaldiDevAPI.Instance, ItemFlags.None).tags.Add("currency");
+                        break;
                     case Items.Wd40:
                     case Items.DetentionKey:
                     case Items.Tape:
-                    case Items.Quarter:
                     case Items.Scissors:
                     case Items.PrincipalWhistle:
                     case Items.DoorLock:
@@ -204,12 +209,26 @@ namespace MTM101BaldAPI
                         break;
                 }
             });
-            ItemMetaData grappleMeta = new ItemMetaData(MTM101BaldiDevAPI.Instance, (ItemObject[])((ITM_GrapplingHook)grapplingHook.item).ReflectionGetVariable("allVersions"));
+            ItemMetaData grappleMeta = new ItemMetaData(MTM101BaldiDevAPI.Instance.Info, (ItemObject[])((ITM_GrapplingHook)grapplingHook.item).ReflectionGetVariable("allVersions"));
             grappleMeta.flags = ItemFlags.Physical | ItemFlags.MultipleUse | ItemFlags.Persists;
             grappleMeta.itemObjects.Do(x =>
             {
-                x.AddMeta(MTM101BaldiDevAPI.Instance, grappleMeta);
+                x.AddMeta(grappleMeta);
             });
+            // INITIALIZE CHARACTER METADATA
+            NPC[] NPCs = Resources.FindObjectsOfTypeAll<NPC>();
+            NPCMetaStorage.Instance.Add(new NPCMetadata(MTM101BaldiDevAPI.Instance.Info, NPCs.Where(x => x.Character == Character.Baldi).ToArray(), "Baldi", NPCFlags.StandardAndHear));
+            NPCMetaStorage.Instance.Add(new NPCMetadata(MTM101BaldiDevAPI.Instance.Info, NPCs.Where(x => x.Character == Character.Principal).ToArray(), "Principal", NPCFlags.Standard));
+            NPCMetaStorage.Instance.Add(new NPCMetadata(MTM101BaldiDevAPI.Instance.Info, NPCs.Where(x => x.Character == Character.Beans).ToArray(), "Beans", NPCFlags.Standard));
+            NPCMetaStorage.Instance.Add(new NPCMetadata(MTM101BaldiDevAPI.Instance.Info, NPCs.Where(x => x.Character == Character.Chalkles).ToArray(), "ChalkFace", NPCFlags.StandardNoCollide | NPCFlags.MakeNoise));
+            NPCMetaStorage.Instance.Add(new NPCMetadata(MTM101BaldiDevAPI.Instance.Info, NPCs.Where(x => x.Character == Character.Cumulo).ToArray(), "CloudyCopter", NPCFlags.Standard)); // they do have a trigger it just doesn't do anything
+            NPCMetaStorage.Instance.Add(new NPCMetadata(MTM101BaldiDevAPI.Instance.Info, NPCs.Where(x => x.Character == Character.Bully).ToArray(), "Bully", NPCFlags.StandardNoCollide | NPCFlags.IsBlockade));
+            NPCMetaStorage.Instance.Add(new NPCMetadata(MTM101BaldiDevAPI.Instance.Info, NPCs.Where(x => x.Character == Character.Pomp).ToArray(), "Mrs Pomp", NPCFlags.Standard | NPCFlags.MakeNoise));
+            NPCMetaStorage.Instance.Add(new NPCMetadata(MTM101BaldiDevAPI.Instance.Info, NPCs.Where(x => x.Character == Character.Playtime).ToArray(), "Playtime", NPCFlags.Standard));
+            NPCMetaStorage.Instance.Add(new NPCMetadata(MTM101BaldiDevAPI.Instance.Info, NPCs.Where(x => x.Character == Character.Crafters).ToArray(), "Arts and Crafters", NPCFlags.Standard | NPCFlags.MakeNoise));
+            NPCMetaStorage.Instance.Add(new NPCMetadata(MTM101BaldiDevAPI.Instance.Info, NPCs.Where(x => x.Character == Character.Sweep).ToArray(), "Gotta Sweep", NPCFlags.Standard));
+            NPCMetaStorage.Instance.Add(new NPCMetadata(MTM101BaldiDevAPI.Instance.Info, NPCs.Where(x => x.Character == Character.LookAt).ToArray(), "LookAt", NPCFlags.Standard));
+            NPCMetaStorage.Instance.Add(new NPCMetadata(MTM101BaldiDevAPI.Instance.Info, NPCs.Where(x => x.Character == Character.Prize).ToArray(), "FirstPrize", NPCFlags.Standard | NPCFlags.MakeNoise));
 
 
             MTM101BaldiDevAPI.CalledInitialize = true;
