@@ -278,6 +278,7 @@ namespace MTM101BaldAPI
             Transform t = __instance.transform.Find("Reminder");
             TMPro.TMP_Text text = t.gameObject.GetComponent<TMPro.TMP_Text>();
             text.text = "Modding API " + MTM101BaldiDevAPI.VersionNumber;
+            text.gameObject.transform.position += new Vector3(-7f,0f, 0f);
         }
     }
 }
