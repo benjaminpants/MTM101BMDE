@@ -18,7 +18,7 @@ using System.IO;
 using MTM101BaldAPI.Registers;
 using MTM101BaldAPI.AssetTools;
 using UnityCipher;
-
+using MTM101BaldAPI.Reflection;
 
 namespace MTM101BaldAPI
 {
@@ -33,9 +33,13 @@ namespace MTM101BaldAPI
 
         internal static bool CalledInitialize = false;
 
+        public static MTM101BaldiDevAPI Instance;
+
         internal static List<ScriptableObject> keepInMemory = new List<ScriptableObject>();
 
-        internal static AssetManager assetMan = new AssetManager();
+        public static ItemMetaStorage itemMetadata = new ItemMetaStorage();
+
+        internal static AssetManager AssetMan = new AssetManager();
 
         public static bool SavesEnabled
         {
@@ -111,6 +115,7 @@ namespace MTM101BaldAPI
 #if DEBUG
             CustomOptionsCore.OnMenuInitialize += OnMen;
 #endif
+            Instance = this;
 
             Harmony harmony = new Harmony("mtm101.rulerp.bbplus.baldidevapi");
 			BaseUnityPlugin namemenu = GameObject.FindObjectsOfType<BaseUnityPlugin>().ToList().Find(x => x.Info.Metadata.Name == "BB+ Name Menu API");
@@ -146,8 +151,67 @@ namespace MTM101BaldAPI
             TMPro.TMP_Text text = t.gameObject.GetComponent<TMPro.TMP_Text>();
             text.text += "API " + MTM101BaldiDevAPI.VersionNumber;
             t.localPosition += new Vector3(0f, 28f);
-
             if (MTM101BaldiDevAPI.CalledInitialize) return;
+            // define all metadata before we call OnAllAssetsLoaded, so we can atleast be a bit more sure no other mods have activated and added their stuff yet.
+            ItemObject grapplingHook = null;
+            Resources.FindObjectsOfTypeAll<ItemObject>().Do(x =>
+            {
+                switch (x.itemType)
+                {
+                    case Items.PortalPoster:
+                        x.AddMeta(MTM101BaldiDevAPI.Instance, ItemFlags.Physical);
+                        break;
+                    case Items.GrapplingHook:
+                        if (grapplingHook == null)
+                        {
+                            grapplingHook = x;
+                        }
+                        break;
+                    case Items.Bsoda:
+                        ItemMetaData bm = x.AddMeta(MTM101BaldiDevAPI.Instance, ItemFlags.Persists | ItemFlags.Physical);
+                        bm.tags.Add("food");
+                        bm.tags.Add("drink");
+                        break;
+                    case Items.AlarmClock:
+                    case Items.ChalkEraser:
+                        x.AddMeta(MTM101BaldiDevAPI.Instance, ItemFlags.Persists | ItemFlags.Physical);
+                        break;
+                    case Items.Boots:
+                    case Items.Teleporter:
+                    case Items.Nametag:
+                        x.AddMeta(MTM101BaldiDevAPI.Instance, ItemFlags.Persists);
+                        break;
+                    case Items.Apple:
+                        x.AddMeta(MTM101BaldiDevAPI.Instance, ItemFlags.NoUses).tags.Add("food");
+                        break;
+                    case Items.None:
+                        x.AddMeta(MTM101BaldiDevAPI.Instance, ItemFlags.NoUses);
+                        break;
+                    case Items.ZestyBar:
+                        x.AddMeta(MTM101BaldiDevAPI.Instance, ItemFlags.None).tags.Add("food");
+                        break;
+                    case Items.Wd40:
+                    case Items.DetentionKey:
+                    case Items.Tape:
+                    case Items.Quarter:
+                    case Items.Scissors:
+                    case Items.PrincipalWhistle:
+                    case Items.DoorLock:
+                        x.AddMeta(MTM101BaldiDevAPI.Instance, ItemFlags.None);
+                        break;
+                    default:
+                        MTM101BaldiDevAPI.Log.LogWarning("Unknown core item: " + x.itemType.ToString() + "! Can't add metadata!");
+                        break;
+                }
+            });
+            ItemMetaData grappleMeta = new ItemMetaData(MTM101BaldiDevAPI.Instance, (ItemObject[])((ITM_GrapplingHook)grapplingHook.item).ReflectionGetVariable("allVersions"));
+            grappleMeta.flags = ItemFlags.Physical | ItemFlags.MultipleUse | ItemFlags.Persists;
+            grappleMeta.itemObjects.Do(x =>
+            {
+                x.AddMeta(MTM101BaldiDevAPI.Instance, grappleMeta);
+            });
+
+
             MTM101BaldiDevAPI.CalledInitialize = true;
             //everything else
             if (LoadingEvents.OnAllAssetsLoaded != null)

@@ -1,4 +1,5 @@
-﻿using System;
+﻿using BepInEx;
+using System;
 using System.Collections.Generic;
 using System.Text;
 using UnityEngine;
@@ -17,6 +18,41 @@ namespace MTM101BaldAPI
         public static void RemoveUnloadMark(this ScriptableObject me)
         {
             MTM101BaldiDevAPI.keepInMemory.Remove(me);
+        }
+
+        public static void SetMainTexture(this Material me, Texture texture)
+        {
+            me.SetTexture("_MainTex", texture);
+        }
+
+        public static void SetMaskTexture(this Material me, Texture texture)
+        {
+            me.SetTexture("_Mask", texture);
+        }
+    }
+}
+
+namespace MTM101BaldAPI.Registers
+{
+    public static class MetaExtensions
+    {
+        public static ItemMetaData AddMeta(this ItemObject me, BaseUnityPlugin plugin, ItemFlags flags)
+        {
+            ItemMetaData meta = new ItemMetaData(plugin, me);
+            meta.flags = flags;
+            MTM101BaldiDevAPI.itemMetadata.Add(me, meta);
+            return meta;
+        }
+
+        public static ItemMetaData AddMeta(this ItemObject me, BaseUnityPlugin plugin, ItemMetaData meta)
+        {
+            MTM101BaldiDevAPI.itemMetadata.Add(me, meta);
+            return meta;
+        }
+
+        public static ItemMetaData GetMeta(this ItemObject me)
+        {
+            return MTM101BaldiDevAPI.itemMetadata.Get(me);
         }
     }
 }

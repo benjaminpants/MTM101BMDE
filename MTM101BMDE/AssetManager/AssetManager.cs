@@ -21,6 +21,8 @@ namespace MTM101BaldAPI.AssetTools
 
         protected static Type[] defaultIgnoreTypes = new Type[]
         {
+            typeof(object),
+            typeof(UnityEngine.Object),
             typeof(MonoBehaviour),
             typeof(Behaviour),
             typeof(ScriptableObject)
@@ -125,8 +127,6 @@ namespace MTM101BaldAPI.AssetTools
 
         protected void AddInternal(string key, object value, Type type)
         {
-            if (type == typeof(object)) return;
-            if (type == typeof(UnityEngine.Object)) return;
             if (ignoreTypes.Contains(type)) return;
             if (!data.ContainsKey(type))
             {
@@ -155,8 +155,6 @@ namespace MTM101BaldAPI.AssetTools
 
         protected bool RemoveInternal(Type type, string key, bool found = false)
         {
-            if (type == typeof(object)) return found;
-            if (type == typeof(UnityEngine.Object)) return found;
             if (ignoreTypes.Contains(type)) return found;
             if (!data.ContainsKey(type)) return false;
             found = data[type].Remove(key) || found;
