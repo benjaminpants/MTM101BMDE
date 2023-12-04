@@ -29,6 +29,20 @@ namespace MTM101BaldAPI
         {
             me.SetTexture("_Mask", texture);
         }
+
+        public static void ApplyDoorMaterials(this StandardDoor me, StandardDoorMats materials, Material mask = null)
+        {
+            me.overlayShut[0] = materials.shut;
+            me.overlayShut[1] = materials.shut;
+            me.overlayOpen[0] = materials.open;
+            me.overlayOpen[1] = materials.open;
+            if (mask != null)
+            {
+                me.mask[0] = mask;
+                me.mask[1] = mask;
+            }
+            me.UpdateTextures();
+        }
     }
 }
 

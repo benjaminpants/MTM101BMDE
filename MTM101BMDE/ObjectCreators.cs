@@ -33,6 +33,37 @@ namespace MTM101BaldAPI
 			return obj;
 		}
 
+		public static StandardDoorMats CreateDoorDataObject(string name, Texture2D openTex, Texture2D closeTex, Texture2D mask = null)
+		{
+			throw new NotImplementedException();
+		}
+
+		public static WindowObject CreateWindowObject(string name, Texture2D texture, Texture2D brokenTexture, Texture2D mask = null)
+		{
+			WindowObject obj = ScriptableObject.CreateInstance<WindowObject>();
+			WindowObject template = MTM101BaldiDevAPI.AssetMan.Get<WindowObject>("WindowTemplate");
+			obj.name = name;
+			if (mask != null)
+			{
+				Material maskMat = new Material(template.mask);
+				maskMat.SetMaskTexture(mask);
+				obj.mask = maskMat;
+			}
+			else
+			{
+				obj.mask = template.mask;
+			}
+			Material standMat = new Material(template.overlay.First());
+			standMat.SetMainTexture(texture);
+			obj.overlay = new Material[] { standMat, standMat };
+            Material BrokeMat = new Material(template.open.First());
+            BrokeMat.SetMainTexture(texture);
+            obj.open = new Material[] { BrokeMat, BrokeMat };
+			obj.windowPre = template.windowPre;
+
+            return obj;
+		}
+
         public static SoundObject CreateSoundObject(AudioClip clip, string subtitle, SoundType type, Color color, float sublength = -1f)
 		{
 			SoundObject obj = ScriptableObject.CreateInstance<SoundObject>();

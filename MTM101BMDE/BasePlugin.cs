@@ -111,6 +111,11 @@ namespace MTM101BaldAPI
         }
 #endif
 
+        public void AssetsLoadPre()
+        {
+            AssetMan.Add("TemplateWindow", Resources.FindObjectsOfTypeAll<WindowObject>().First());
+        }
+
         void Awake()
         {
 #if DEBUG
@@ -232,6 +237,7 @@ namespace MTM101BaldAPI
 
 
             MTM101BaldiDevAPI.CalledInitialize = true;
+            MTM101BaldiDevAPI.Instance.AssetsLoadPre();
             //everything else
             if (LoadingEvents.OnAllAssetsLoaded != null)
             {
