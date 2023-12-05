@@ -237,6 +237,12 @@ namespace MTM101BaldAPI
 
 
             MTM101BaldiDevAPI.CalledInitialize = true;
+
+            SceneManager.LoadScene("Game",LoadSceneMode.Additive);
+#pragma warning disable CS0618 // Type or member is obsolete
+            SceneManager.UnloadScene("Game"); // we need it to be synced
+#pragma warning restore CS0618 // Type or member is obsolete
+
             MTM101BaldiDevAPI.Instance.AssetsLoadPre();
             //everything else
             if (LoadingEvents.OnAllAssetsLoaded != null)
