@@ -41,6 +41,7 @@ namespace MTM101BaldAPI
         public static NPCMetaStorage npcMetadata = new NPCMetaStorage();
         public static RandomEventMetaStorage rngEvStorage = new RandomEventMetaStorage();
         public static ObjectBuilderMetaStorage objBuilderMeta = new ObjectBuilderMetaStorage();
+        public static RoomBuilderMetaStorage roomBuilderStorage = new RoomBuilderMetaStorage();
 
         internal static AssetManager AssetMan = new AssetManager();
 
@@ -274,6 +275,38 @@ namespace MTM101BaldAPI
             {
                 ObjectBuilderMeta meta = new ObjectBuilderMeta(MTM101BaldiDevAPI.Instance.Info, x);
                 ObjectBuilderMetaStorage.Instance.Add(meta);
+            });
+            Resources.FindObjectsOfTypeAll<RoomBuilder>().Do(x =>
+            {
+                switch (x.name)
+                {
+                    case "ClassBuilder_Perfect":
+                        RoomBuilderMetaStorage.Instance.Add(new RoomBuilderMeta(MTM101BaldiDevAPI.Instance.Info, x, RoomCategory.Class));
+                        break;
+                    case "CB_MathMachineStandard":
+                        RoomBuilderMetaStorage.Instance.Add(new RoomBuilderMeta(MTM101BaldiDevAPI.Instance.Info, x, RoomCategory.Class));
+                        break;
+                    case "FacultyBuilder_Standard 1":
+                        RoomBuilderMetaStorage.Instance.Add(new RoomBuilderMeta(MTM101BaldiDevAPI.Instance.Info, x, RoomCategory.Faculty));
+                        break;
+                    case "FB_Locker":
+                        RoomBuilderMetaStorage.Instance.Add(new RoomBuilderMeta(MTM101BaldiDevAPI.Instance.Info, x, RoomCategory.Faculty));
+                        break;
+                    case "FacultyBuilder_Lunch":
+                        RoomBuilderMetaStorage.Instance.Add(new RoomBuilderMeta(MTM101BaldiDevAPI.Instance.Info, x, RoomCategory.Faculty));
+                        break;
+                    case "OfficeBuilder_Standard":
+                        RoomBuilderMetaStorage.Instance.Add(new RoomBuilderMeta(MTM101BaldiDevAPI.Instance.Info, x, RoomCategory.Office));
+                        break;
+                    case "Builder":
+                        RoomBuilderMeta rm = new RoomBuilderMeta(MTM101BaldiDevAPI.Instance.Info, x, RoomCategory.Null);
+                        rm.flags = RoomBuilderFlags.SpecialBuildersOnly;
+                        RoomBuilderMetaStorage.Instance.Add(rm);
+                        break;
+                    default:
+                        MTM101BaldiDevAPI.Log.LogWarning("Unknown RoomBuilder " + x.name + "! Can't add meta!");
+                        break;
+                }
             });
 
             MTM101BaldiDevAPI.CalledInitialize = true;
