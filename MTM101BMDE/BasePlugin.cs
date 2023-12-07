@@ -40,6 +40,7 @@ namespace MTM101BaldAPI
         public static ItemMetaStorage itemMetadata = new ItemMetaStorage();
         public static NPCMetaStorage npcMetadata = new NPCMetaStorage();
         public static RandomEventMetaStorage rngEvStorage = new RandomEventMetaStorage();
+        public static ObjectBuilderMetaStorage objBuilderMeta = new ObjectBuilderMetaStorage();
 
         internal static AssetManager AssetMan = new AssetManager();
 
@@ -161,6 +162,10 @@ namespace MTM101BaldAPI
             if (MTM101BaldiDevAPI.CalledInitialize) return;
             // define all metadata before we call OnAllAssetsLoaded, so we can atleast be a bit more sure no other mods have activated and added their stuff yet.
 
+            SceneManager.LoadScene("Game", LoadSceneMode.Additive);
+#pragma warning disable CS0618 // Type or member is obsolete
+            SceneManager.UnloadScene("Game"); // we need it to be synced
+#pragma warning restore CS0618 // Type or member is obsolete
             // INITIALIZE ITEM METADATA
             ItemObject grapplingHook = null;
             Resources.FindObjectsOfTypeAll<ItemObject>().Do(x =>
@@ -265,13 +270,13 @@ namespace MTM101BaldAPI
                         break;
                 }
             });
+            Resources.FindObjectsOfTypeAll<ObjectBuilder>().Do(x =>
+            {
+                ObjectBuilderMeta meta = new ObjectBuilderMeta(MTM101BaldiDevAPI.Instance.Info, x);
+                ObjectBuilderMetaStorage.Instance.Add(meta);
+            });
 
             MTM101BaldiDevAPI.CalledInitialize = true;
-
-            SceneManager.LoadScene("Game",LoadSceneMode.Additive);
-#pragma warning disable CS0618 // Type or member is obsolete
-            SceneManager.UnloadScene("Game"); // we need it to be synced
-#pragma warning restore CS0618 // Type or member is obsolete
 
             MTM101BaldiDevAPI.Instance.AssetsLoadPre();
             //everything else

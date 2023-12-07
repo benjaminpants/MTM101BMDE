@@ -17,19 +17,19 @@ namespace MTM101BaldAPI.Registers
         PluginInfo info { get; }
     }
 
-    public interface IMetadataStorage<T, T2, T3> where T : IMetadata<T3>
+    public interface IMetadataStorage<TMeta, TKey, TClass> where TMeta : IMetadata<TClass>
     {
-        T Get(T2 key);
+        TMeta Get(TKey key);
 
-        T[] FindAllWithTags(bool matchAll, params string[] tags);
+        TMeta[] FindAllWithTags(bool matchAll, params string[] tags);
 
-        T Find(Predicate<T> predicate);
+        TMeta Find(Predicate<TMeta> predicate);
 
-        T[] FindAll(Predicate<T> predicate);
+        TMeta[] FindAll(Predicate<TMeta> predicate);
 
-        void Add(T toAdd);
+        void Add(TMeta toAdd);
 
-        T[] All();
+        TMeta[] All();
     }
 
     public class BasicMetaStorage<T1, T2> : IMetadataStorage<T1, T2, T2> where T1 : IMetadata<T2>
