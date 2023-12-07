@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using UnityEngine;
 using static TMPro.SpriteAssetUtilities.TexturePacker_JsonArray;
 
 namespace MTM101BaldAPI.Registers
@@ -56,6 +57,26 @@ namespace MTM101BaldAPI.Registers
     public class NPCMetaStorage : MetaStorage<Character, NPCMetadata, NPC>
     {
         public static NPCMetaStorage Instance => MTM101BaldiDevAPI.npcMetadata;
+
+        /// <summary>
+        /// Replaces all references to a specific NPC with a script attached of the same type. Useful if you replace an NPC with a custom type.
+        /// </summary>
+        /// <typeparam name="TOld"></typeparam>
+        /// <typeparam name="TReplace"></typeparam>
+        /// <param name="character"></param>
+        public void ReplaceAllReferencesForCharacter<TOld, TReplace>(Character character) where TOld : NPC
+            where TReplace : TOld
+        {
+            string[] keys = metas[character].prefabs.Keys.ToArray();
+            for (int i = 0; i < keys.Length; i++)
+            {
+                NPC val = metas[character].prefabs[keys[i]];
+                TReplace neww = val.GetComponent<TReplace>();
+                if (neww == null) continue;
+                metas[character].prefabs[keys[i]] = neww;
+                GameObject.Destroy(val);
+            }
+        }
 
         public override void Add(NPCMetadata toAdd)
         {

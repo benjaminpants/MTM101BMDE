@@ -81,7 +81,7 @@ namespace MTM101BaldAPI.Registers
 
         public static RandomEventMetadata GetMeta(this RandomEvent randomEvent)
         {
-            return RandomEventMetaStorage.Instance.Get(randomEvent);
+            return RandomEventMetaStorage.Instance.Get(randomEvent.Type);
         }
     }
 }
