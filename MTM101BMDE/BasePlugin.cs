@@ -39,6 +39,7 @@ namespace MTM101BaldAPI
 
         public static ItemMetaStorage itemMetadata = new ItemMetaStorage();
         public static NPCMetaStorage npcMetadata = new NPCMetaStorage();
+        public static RandomEventMetaStorage rngEvStorage = new RandomEventMetaStorage();
 
         internal static AssetManager AssetMan = new AssetManager();
 
@@ -234,7 +235,36 @@ namespace MTM101BaldAPI
             NPCMetaStorage.Instance.Add(new NPCMetadata(MTM101BaldiDevAPI.Instance.Info, NPCs.Where(x => x.Character == Character.Sweep).ToArray(), "Gotta Sweep", NPCFlags.Standard));
             NPCMetaStorage.Instance.Add(new NPCMetadata(MTM101BaldiDevAPI.Instance.Info, NPCs.Where(x => x.Character == Character.LookAt).ToArray(), "LookAt", NPCFlags.Standard));
             NPCMetaStorage.Instance.Add(new NPCMetadata(MTM101BaldiDevAPI.Instance.Info, NPCs.Where(x => x.Character == Character.Prize).ToArray(), "FirstPrize", NPCFlags.Standard | NPCFlags.MakeNoise));
-
+            Resources.FindObjectsOfTypeAll<RandomEvent>().Do(x =>
+            {
+                switch (x.Type)
+                {
+                    default:
+                        MTM101BaldiDevAPI.Log.LogWarning("Unknown random event type: " + x.Type.ToStringExtended() + ". Unable to add meta!");
+                        break;
+                    case RandomEventType.Party:
+                        RandomEventMetaStorage.Instance.Add(new RandomEventMetadata(MTM101BaldiDevAPI.Instance.Info, x, new RoomCategory[1] { RoomCategory.Office }));
+                        break;
+                    case RandomEventType.Snap:
+                        RandomEventMetaStorage.Instance.Add(new RandomEventMetadata(MTM101BaldiDevAPI.Instance.Info, x, new Character[1] { Character.Baldi }));
+                        break;
+                    case RandomEventType.Fog:
+                        RandomEventMetaStorage.Instance.Add(new RandomEventMetadata(MTM101BaldiDevAPI.Instance.Info, x));
+                        break;
+                    case RandomEventType.Gravity:
+                        RandomEventMetaStorage.Instance.Add(new RandomEventMetadata(MTM101BaldiDevAPI.Instance.Info, x));
+                        break;
+                    case RandomEventType.MysteryRoom:
+                        RandomEventMetaStorage.Instance.Add(new RandomEventMetadata(MTM101BaldiDevAPI.Instance.Info, x));
+                        break;
+                    case RandomEventType.Flood:
+                        RandomEventMetaStorage.Instance.Add(new RandomEventMetadata(MTM101BaldiDevAPI.Instance.Info, x));
+                        break;
+                    case RandomEventType.Lockdown:
+                        RandomEventMetaStorage.Instance.Add(new RandomEventMetadata(MTM101BaldiDevAPI.Instance.Info, x, RandomEventFlags.Permanent));
+                        break;
+                }
+            });
 
             MTM101BaldiDevAPI.CalledInitialize = true;
 

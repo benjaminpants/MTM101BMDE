@@ -78,5 +78,10 @@ namespace MTM101BaldAPI.Registers
         {
             return NPCMetaStorage.Instance.AddPrefab(me);
         }
+
+        public static RandomEventMetadata GetMeta(this RandomEvent randomEvent)
+        {
+            return RandomEventMetaStorage.Instance.Get(randomEvent);
+        }
     }
 }

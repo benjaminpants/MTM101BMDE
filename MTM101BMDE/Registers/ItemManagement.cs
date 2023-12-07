@@ -20,6 +20,7 @@ namespace MTM101BaldAPI.Registers
 
     public class ItemMetaData : IMetadata<ItemObject>
     {
+
         public ItemObject[] itemObjects; // for things like the grappling hook, the highest use count should be stored first.
 
         public ItemObject value => itemObjects.Last();
@@ -49,7 +50,7 @@ namespace MTM101BaldAPI.Registers
         }
     }
 
-    public class ItemMetaStorage : MetaStorage<ItemMetaData, ItemObject>
+    public class ItemMetaStorage : BasicMetaStorage<ItemMetaData, ItemObject>
     {
         public static ItemMetaStorage Instance => MTM101BaldiDevAPI.itemMetadata;
 

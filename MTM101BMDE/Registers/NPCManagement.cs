@@ -53,15 +53,13 @@ namespace MTM101BaldAPI.Registers
         }
     }
 
-    public class NPCMetaStorage : IMetadataStorage<NPCMetadata, Character, NPC>
+    public class NPCMetaStorage : MetaStorage<Character, NPCMetadata, NPC>
     {
         public static NPCMetaStorage Instance => MTM101BaldiDevAPI.npcMetadata;
 
-        private Dictionary<Character, NPCMetadata> npcs = new Dictionary<Character, NPCMetadata>();
-
-        public void Add(NPCMetadata toAdd)
+        public override void Add(NPCMetadata toAdd)
         {
-            npcs.Add(toAdd.character, toAdd);
+            metas.Add(toAdd.character, toAdd);
         }
 
         public bool AddPrefab(NPC toAdd)
@@ -72,50 +70,9 @@ namespace MTM101BaldAPI.Registers
             return true;
         }
 
-        public NPCMetadata[] All()
-        {
-            return npcs.Values.ToArray();
-        }
-
-        public NPCMetadata Find(Predicate<NPCMetadata> predicate)
-        {
-            return FindAll(predicate).First();
-        }
-
-        public NPCMetadata[] FindAll(Predicate<NPCMetadata> predicate)
-        {
-            return npcs.Values.ToList().FindAll(predicate).ToArray();
-        }
-
-        public NPCMetadata[] FindAllWithTags(string[] tags, bool matchAll)
-        {
-            return FindAll(x =>
-            {
-                foreach (string tag in x.tags)
-                {
-                    // if it contains the tag and we don't need to match all, return true, otherwise continue past the return false
-                    if (tags.Contains(tag))
-                    {
-                        if (!matchAll)
-                        {
-                            return true;
-                        }
-                        continue;
-                    }
-                    return false;
-                }
-                return true;
-            });
-        }
-
-        public NPCMetadata Get(NPC npc)
+        public override NPCMetadata Get(NPC npc)
         {
             return Get(npc.Character);
-        }
-
-        public NPCMetadata Get(Character key)
-        {
-            return npcs.GetValueSafe(key);
         }
     }
 }

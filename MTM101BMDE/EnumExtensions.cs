@@ -31,6 +31,17 @@ namespace MTM101BaldAPI
 
 		private static Dictionary<Type, ExtendedEnumData> ExtendedData = new Dictionary<Type, ExtendedEnumData>();
 
+        /// <summary>
+        /// ToString but for Extended enums. Only use on enums that are ints.
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="en"></param>
+        /// <returns></returns>
+        public static string ToStringExtended<T>(this T en) where T : Enum
+        {
+            return GetExtendedName<T>(Convert.ToInt32(en));
+        }
+
 
         /// <summary>
         /// Extends an enum, same effect could be achieved by casting an int, however this has a system to keep track of multiple enum additions from different mods to prevent conflicts
