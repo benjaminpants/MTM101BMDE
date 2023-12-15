@@ -117,6 +117,7 @@ namespace MTM101BaldAPI
         public void AssetsLoadPre()
         {
             AssetMan.Add("TemplateWindow", Resources.FindObjectsOfTypeAll<WindowObject>().First());
+            MTM101BaldAPI.Registers.Buttons.ButtonColorManager.InitializeButtonColors();
         }
 
         void Awake()
