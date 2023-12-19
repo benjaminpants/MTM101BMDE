@@ -90,11 +90,36 @@ namespace MTM101BaldAPI.AssetTools
             AddRange<T>(Resources.FindObjectsOfTypeAll<T>());
         }
 
+        public bool ContainsKey(string t)
+        {
+            foreach (KeyValuePair<Type, Dictionary<string,object>> kvp in data)
+            {
+                if (kvp.Value.ContainsKey(t))
+                {
+                    return true;
+                }    
+            }
+            return false;
+        }
+
         public void AddRange<T>(T[] range) where T : UnityEngine.Object
         {
             AddRange(range, (obj) =>
             {
                 return obj.name;
+            });
+        }
+
+        public void AddRange<T>(List<T> range) where T : UnityEngine.Object
+        {
+            AddRange(range.ToArray());
+        }
+
+        public void AddRange<T>(Dictionary<T, string> range, string prefix = "")
+        {
+            AddRange<T>(range.Keys.ToArray(), (obj) =>
+            {
+                return prefix + range[obj];
             });
         }
 
