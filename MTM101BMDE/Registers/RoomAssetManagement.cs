@@ -28,12 +28,12 @@ namespace MTM101BaldAPI.Registers
             {
                 metas.Add(toAdd.category, new Dictionary<string, RoomAssetMeta>());
             }
-            if (metas[toAdd.category].ContainsKey(toAdd.name))
+            /*if (metas[toAdd.category].ContainsKey(toAdd.name))
             {
                 MTM101BaldiDevAPI.Log.LogWarning("Duplicate name (" + toAdd.name + ") found, defaulting to ScriptableObjectName...");
                 metas[toAdd.category].Add(((UnityEngine.ScriptableObject)toAdd.value).name, toAdd);
                 return;
-            }
+            }*/
             metas[toAdd.category].Add(toAdd.name, toAdd);
         }
 
@@ -106,7 +106,9 @@ namespace MTM101BaldAPI.Registers
 
         public RoomCategory category => rAsset.category;
 
-        public string name => rAsset.name;
+        public string name => ((UnityEngine.ScriptableObject)rAsset).name; //get the actual object name
+
+        public string plusName => rAsset.name; // todo: figure out the purpose of RoomAsset.name
 
         public IntVector2 size { private set; get; }
 
