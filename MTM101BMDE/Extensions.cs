@@ -20,6 +20,25 @@ namespace MTM101BaldAPI
             MTM101BaldiDevAPI.keepInMemory.Remove(me);
         }
 
+        public static int GetCellIndexAt(this RoomAsset me, int x, int y)
+        {
+            for (int i = 0; i < me.cells.Count; i++)
+            {
+                if ((me.cells[i].pos.x == x) && (me.cells[i].pos.z == y))
+                {
+                    return i;
+                }
+            }
+            return -1;
+        }
+
+        public static CellData GetCellAt(this RoomAsset me, int x, int y)
+        {
+            int index = me.GetCellIndexAt(x, y);
+            if (index == -1) return null;
+            return me.cells[index];
+        }
+
         public static void SetMainTexture(this Material me, Texture texture)
         {
             me.SetTexture("_MainTex", texture);

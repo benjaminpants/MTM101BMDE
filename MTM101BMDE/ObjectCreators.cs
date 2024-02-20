@@ -33,10 +33,20 @@ namespace MTM101BaldAPI
 			return obj;
 		}
 
-		public static StandardDoorMats CreateDoorDataObject(string name, Texture2D openTex, Texture2D closeTex, Texture2D mask = null)
+		public static StandardDoorMats CreateDoorDataObject(string name, Texture2D openTex, Texture2D closeTex)
 		{
-			throw new NotImplementedException();
-		}
+			StandardDoorMats template = MTM101BaldiDevAPI.AssetMan.Get<StandardDoorMats>("DoorTemplate");
+			StandardDoorMats mat = ScriptableObject.CreateInstance<StandardDoorMats>();
+            mat.open = new Material(template.open);
+            mat.open.SetMainTexture(openTex);
+            mat.shut = new Material(template.shut);
+            mat.shut.SetMainTexture(closeTex);
+			mat.name = name;
+
+
+            return mat;
+
+        }
 
 		public static WindowObject CreateWindowObject(string name, Texture2D texture, Texture2D brokenTexture, Texture2D mask = null)
 		{

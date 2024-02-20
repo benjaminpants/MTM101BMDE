@@ -14,6 +14,7 @@ namespace MTM101BaldAPI.Registers
         CharacterSpecific = 1, // This event requires a specific character to work
         RoomSpecific = 2, // This event requires a specific room to work
         Permanent = 4, // This event makes permanent changes to the level
+        AffectsGenerator = 8 // This event affects the generator in some way(adding a character or room)
     }
 
 

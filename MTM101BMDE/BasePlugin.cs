@@ -41,7 +41,8 @@ namespace MTM101BaldAPI
         public static NPCMetaStorage npcMetadata = new NPCMetaStorage();
         public static RandomEventMetaStorage rngEvStorage = new RandomEventMetaStorage();
         public static ObjectBuilderMetaStorage objBuilderMeta = new ObjectBuilderMetaStorage();
-        public static RoomBuilderMetaStorage roomBuilderStorage = new RoomBuilderMetaStorage();
+
+        public static RoomAssetMetaStorage roomAssetMeta = new RoomAssetMetaStorage();
 
         internal static AssetManager AssetMan = new AssetManager();
 
@@ -116,8 +117,9 @@ namespace MTM101BaldAPI
 
         public void AssetsLoadPre()
         {
-            AssetMan.Add("TemplateWindow", Resources.FindObjectsOfTypeAll<WindowObject>().First());
-            MTM101BaldAPI.Registers.Buttons.ButtonColorManager.InitializeButtonColors();
+            AssetMan.Add("WindowTemplate", Resources.FindObjectsOfTypeAll<WindowObject>().Where(x => x.name == "WoodWindow").First());
+            AssetMan.Add("DoorTemplate", Resources.FindObjectsOfTypeAll<StandardDoorMats>().Where(x => x.name == "ClassDoorSet").First());
+            //MTM101BaldAPI.Registers.Buttons.ButtonColorManager.InitializeButtonColors();
         }
 
         void Awake()
@@ -242,6 +244,12 @@ namespace MTM101BaldAPI
             NPCMetaStorage.Instance.Add(new NPCMetadata(MTM101BaldiDevAPI.Instance.Info, NPCs.Where(x => x.Character == Character.Sweep).ToArray(), "Gotta Sweep", NPCFlags.Standard));
             NPCMetaStorage.Instance.Add(new NPCMetadata(MTM101BaldiDevAPI.Instance.Info, NPCs.Where(x => x.Character == Character.LookAt).ToArray(), "LookAt", NPCFlags.Standard));
             NPCMetaStorage.Instance.Add(new NPCMetadata(MTM101BaldiDevAPI.Instance.Info, NPCs.Where(x => x.Character == Character.Prize).ToArray(), "FirstPrize", NPCFlags.Standard | NPCFlags.MakeNoise));
+            NPCMetaStorage.Instance.Add(new NPCMetadata(MTM101BaldiDevAPI.Instance.Info, NPCs.Where(x => x.Character == Character.DrReflex).ToArray(), "DrReflex", NPCFlags.Standard));
+            Resources.FindObjectsOfTypeAll<RoomAsset>().Do(x =>
+            {
+                RoomAssetMetaStorage.Instance.Add(new RoomAssetMeta(MTM101BaldiDevAPI.Instance.Info, x));
+            });
+
             Resources.FindObjectsOfTypeAll<RandomEvent>().Do(x =>
             {
                 switch (x.Type)
@@ -262,7 +270,7 @@ namespace MTM101BaldAPI
                         RandomEventMetaStorage.Instance.Add(new RandomEventMetadata(MTM101BaldiDevAPI.Instance.Info, x));
                         break;
                     case RandomEventType.MysteryRoom:
-                        RandomEventMetaStorage.Instance.Add(new RandomEventMetadata(MTM101BaldiDevAPI.Instance.Info, x));
+                        RandomEventMetaStorage.Instance.Add(new RandomEventMetadata(MTM101BaldiDevAPI.Instance.Info, x, RandomEventFlags.AffectsGenerator));
                         break;
                     case RandomEventType.Flood:
                         RandomEventMetaStorage.Instance.Add(new RandomEventMetadata(MTM101BaldiDevAPI.Instance.Info, x));
@@ -276,38 +284,6 @@ namespace MTM101BaldAPI
             {
                 ObjectBuilderMeta meta = new ObjectBuilderMeta(MTM101BaldiDevAPI.Instance.Info, x);
                 ObjectBuilderMetaStorage.Instance.Add(meta);
-            });
-            Resources.FindObjectsOfTypeAll<RoomBuilder>().Do(x =>
-            {
-                switch (x.name)
-                {
-                    case "ClassBuilder_Perfect":
-                        RoomBuilderMetaStorage.Instance.Add(new RoomBuilderMeta(MTM101BaldiDevAPI.Instance.Info, x, RoomCategory.Class));
-                        break;
-                    case "CB_MathMachineStandard":
-                        RoomBuilderMetaStorage.Instance.Add(new RoomBuilderMeta(MTM101BaldiDevAPI.Instance.Info, x, RoomCategory.Class));
-                        break;
-                    case "FacultyBuilder_Standard 1":
-                        RoomBuilderMetaStorage.Instance.Add(new RoomBuilderMeta(MTM101BaldiDevAPI.Instance.Info, x, RoomCategory.Faculty));
-                        break;
-                    case "FB_Locker":
-                        RoomBuilderMetaStorage.Instance.Add(new RoomBuilderMeta(MTM101BaldiDevAPI.Instance.Info, x, RoomCategory.Faculty));
-                        break;
-                    case "FacultyBuilder_Lunch":
-                        RoomBuilderMetaStorage.Instance.Add(new RoomBuilderMeta(MTM101BaldiDevAPI.Instance.Info, x, RoomCategory.Faculty));
-                        break;
-                    case "OfficeBuilder_Standard":
-                        RoomBuilderMetaStorage.Instance.Add(new RoomBuilderMeta(MTM101BaldiDevAPI.Instance.Info, x, RoomCategory.Office));
-                        break;
-                    case "Builder":
-                        RoomBuilderMeta rm = new RoomBuilderMeta(MTM101BaldiDevAPI.Instance.Info, x, RoomCategory.Null);
-                        rm.flags = RoomBuilderFlags.SpecialBuildersOnly;
-                        RoomBuilderMetaStorage.Instance.Add(rm);
-                        break;
-                    default:
-                        MTM101BaldiDevAPI.Log.LogWarning("Unknown RoomBuilder " + x.name + "! Can't add meta!");
-                        break;
-                }
             });
 
             MTM101BaldiDevAPI.CalledInitialize = true;
