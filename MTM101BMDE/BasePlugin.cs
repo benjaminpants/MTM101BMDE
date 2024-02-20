@@ -19,6 +19,7 @@ using MTM101BaldAPI.Registers;
 using MTM101BaldAPI.AssetTools;
 using UnityCipher;
 using MTM101BaldAPI.Reflection;
+using TMPro;
 
 namespace MTM101BaldAPI
 {
@@ -117,9 +118,39 @@ namespace MTM101BaldAPI
 
         public void AssetsLoadPre()
         {
+            AssetMan.Add("ErrorTemplate", Resources.FindObjectsOfTypeAll<Canvas>().Where(x => x.name == "EndingError").First());
             AssetMan.Add("WindowTemplate", Resources.FindObjectsOfTypeAll<WindowObject>().Where(x => x.name == "WoodWindow").First());
             AssetMan.Add("DoorTemplate", Resources.FindObjectsOfTypeAll<StandardDoorMats>().Where(x => x.name == "ClassDoorSet").First());
             MTM101BaldAPI.Registers.Buttons.ButtonColorManager.InitializeButtonColors();
+        }
+
+        // "GUYS IM GONNA USE THIS FOR MY CUSTOM ERROR SCREEN FOR MY FUNNY 4TH WALL BREAK IN MY MOD!"
+        // just dont. please. only use this function for actual errors.
+        public static void CauseCrash(PluginInfo plug, Exception e)
+        {
+            Canvas template = MTM101BaldiDevAPI.AssetMan.Get<Canvas>("ErrorTemplate");
+            if (template == null)
+            {
+                MTM101BaldiDevAPI.Log.LogError("Attempted to cause a crash before the ErrorTemplate was found!");
+            }
+            GameObject error = GameObject.Instantiate<Canvas>(template).gameObject;
+            TextMeshProUGUI text = error.GetComponentInChildren<TextMeshProUGUI>();
+            text.text = String.Format(@"
+{0} HAS ENCOUNTERED AN ERROR(S)
+{1} {2}
+PLEASE REPORT TO THE MOD DEVELOPER(S).
+PRESS ANY KEY TO EXIT THE GAME.
+", plug.Metadata.GUID.ToUpper(), e.Message, e.StackTrace);
+            if (Singleton<BaseGameManager>.Instance != null)
+            {
+                Singleton<BaseGameManager>.Instance.Ec.AddTimeScale(new TimeScaleModifier() { environmentTimeScale = 0, npcTimeScale = 0 });
+                Time.timeScale = 0f;
+            }
+            if (CursorController.Instance != null)
+            {
+                CursorController.Instance.enabled = false;
+            }
+            error.gameObject.SetActive(true);
         }
 
         void Awake()
