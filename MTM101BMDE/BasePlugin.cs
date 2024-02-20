@@ -119,7 +119,7 @@ namespace MTM101BaldAPI
         {
             AssetMan.Add("WindowTemplate", Resources.FindObjectsOfTypeAll<WindowObject>().Where(x => x.name == "WoodWindow").First());
             AssetMan.Add("DoorTemplate", Resources.FindObjectsOfTypeAll<StandardDoorMats>().Where(x => x.name == "ClassDoorSet").First());
-            //MTM101BaldAPI.Registers.Buttons.ButtonColorManager.InitializeButtonColors();
+            MTM101BaldAPI.Registers.Buttons.ButtonColorManager.InitializeButtonColors();
         }
 
         void Awake()
