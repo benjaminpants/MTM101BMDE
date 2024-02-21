@@ -1,8 +1,10 @@
 ﻿using BepInEx;
+using HarmonyLib;
 using System;
 using System.Collections.Generic;
 using System.Text;
 using UnityEngine;
+using UnityEngine.Profiling.Memory.Experimental;
 
 namespace MTM101BaldAPI
 {
@@ -81,6 +83,29 @@ namespace MTM101BaldAPI.Registers
         {
             MTM101BaldiDevAPI.itemMetadata.Add(me, meta);
             return meta;
+        }
+
+        public static List<T> ToValues<T>(this List<IMetadata<T>> me)
+        {
+            List<T> returnL = new List<T>();
+            me.Do(x =>
+            {
+                if (x.value != null)
+                {
+                    returnL.Add(x.value);
+                }
+            });
+            return returnL;
+        }
+
+        public static T[] ToValues<T>(this IMetadata<T>[] me)
+        {
+            T[] returnL = new T[me.Length];
+            for (int i = 0; i < me.Length; i++)
+            {
+                returnL[i] = me[i].value;
+            }
+            return returnL;
         }
 
         public static ItemMetaData GetMeta(this ItemObject me)
