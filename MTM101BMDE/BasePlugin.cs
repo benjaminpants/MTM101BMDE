@@ -134,10 +134,11 @@ namespace MTM101BaldAPI
                 MTM101BaldiDevAPI.Log.LogError("Attempted to cause a crash before the ErrorTemplate was found!");
             }
             GameObject error = GameObject.Instantiate<Canvas>(template).gameObject;
+            error.GetComponent<Canvas>().sortingOrder = 99; //make this appear above everything
             TextMeshProUGUI text = error.GetComponentInChildren<TextMeshProUGUI>();
             text.text = String.Format(@"
 {0} HAS ENCOUNTERED AN ERROR(S)
-{1} {2}
+{1} <size=60%>{2}<size=100%>
 PLEASE REPORT TO THE MOD DEVELOPER(S).
 PRESS ANY KEY TO EXIT THE GAME.
 ", plug.Metadata.GUID.ToUpper(), e.Message, e.StackTrace);
@@ -151,6 +152,7 @@ PRESS ANY KEY TO EXIT THE GAME.
                 CursorController.Instance.enabled = false;
             }
             error.gameObject.SetActive(true);
+            throw e; //rethrow the error
         }
 
         void Awake()
