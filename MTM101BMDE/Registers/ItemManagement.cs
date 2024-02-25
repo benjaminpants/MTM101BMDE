@@ -15,7 +15,7 @@ namespace MTM101BaldAPI.Registers
         NoInventory = 2, // This item should not appear in the players inventory. This is useful for stuff like presents or non-items that use the Pickup system.
         NoUses = 4, // This item doesn't do anything when used, regardless of circumstance. This is for items like the Apple, but not the quarter as it can be used in machines.
         Persists = 8, // This item's behavior doesn't instantly destroy itself when used. This is applicable for the BSODA or the Big Ol' Boots.
-        Physical = 16 // This item creates a physical object in the world, this is applicable for the BSODA but not the Big Ol' Boots.
+        CreatesEntity = 16 // This item creates a physical entity in the world, this is applicable for the BSODA but not the Big Ol' Boots.
     }
 
     public class ItemMetaData : IMetadata<ItemObject>

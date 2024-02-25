@@ -210,22 +210,23 @@ PRESS ANY KEY TO EXIT THE GAME.
                 switch (x.itemType)
                 {
                     case Items.PortalPoster:
-                        x.AddMeta(MTM101BaldiDevAPI.Instance, ItemFlags.Physical);
+                        x.AddMeta(MTM101BaldiDevAPI.Instance, ItemFlags.Persists); //todo: double check
                         break;
                     case Items.GrapplingHook:
-                        if (grapplingHook == null)
+                        if ((grapplingHook == null) && 
+                        (((ITM_GrapplingHook)x.item).uses == 4))
                         {
                             grapplingHook = x;
                         }
                         break;
                     case Items.Bsoda:
-                        ItemMetaData bm = x.AddMeta(MTM101BaldiDevAPI.Instance, ItemFlags.Persists | ItemFlags.Physical);
+                        ItemMetaData bm = x.AddMeta(MTM101BaldiDevAPI.Instance, ItemFlags.Persists | ItemFlags.CreatesEntity);
                         bm.tags.Add("food");
                         bm.tags.Add("drink");
                         break;
                     case Items.AlarmClock:
                     case Items.ChalkEraser:
-                        x.AddMeta(MTM101BaldiDevAPI.Instance, ItemFlags.Persists | ItemFlags.Physical);
+                        x.AddMeta(MTM101BaldiDevAPI.Instance, ItemFlags.Persists | ItemFlags.CreatesEntity);
                         break;
                     case Items.Boots:
                     case Items.Teleporter:
@@ -258,7 +259,8 @@ PRESS ANY KEY TO EXIT THE GAME.
                 }
             });
             ItemMetaData grappleMeta = new ItemMetaData(MTM101BaldiDevAPI.Instance.Info, (ItemObject[])((ITM_GrapplingHook)grapplingHook.item).ReflectionGetVariable("allVersions"));
-            grappleMeta.flags = ItemFlags.Physical | ItemFlags.MultipleUse | ItemFlags.Persists;
+            grappleMeta.itemObjects = grappleMeta.itemObjects.AddItem(grapplingHook).ToArray();
+            grappleMeta.flags = ItemFlags.CreatesEntity | ItemFlags.MultipleUse | ItemFlags.Persists;
             grappleMeta.itemObjects.Do(x =>
             {
                 x.AddMeta(grappleMeta);
