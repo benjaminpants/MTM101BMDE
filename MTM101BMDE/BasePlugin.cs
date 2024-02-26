@@ -45,7 +45,7 @@ namespace MTM101BaldAPI
 
         public static ItemMetaStorage itemMetadata = new ItemMetaStorage();
         public static NPCMetaStorage npcMetadata = new NPCMetaStorage();
-        public static RandomEventMetaStorage rngEvStorage = new RandomEventMetaStorage();
+        public static RandomEventMetaStorage randomEventStorage = new RandomEventMetaStorage();
         public static ObjectBuilderMetaStorage objBuilderMeta = new ObjectBuilderMetaStorage();
 
         public static RoomAssetMetaStorage roomAssetMeta = new RoomAssetMetaStorage();
@@ -224,6 +224,7 @@ PRESS ANY KEY TO EXIT THE GAME.
                             Singleton<ModdedFileManager>.Instance.saveData.saveAvailable = false;
                             break;
                         case ModdedSaveLoadStatus.MissingItems:
+                            if (itemMetadata.All().Length == 0) break; //item metadata hasnt loaded yet!
                             MTM101BaldiDevAPI.Log.LogWarning("Failed to load save because one or more items couldn't be found!");
                             Singleton<ModdedFileManager>.Instance.saveData.saveAvailable = false;
                             break;

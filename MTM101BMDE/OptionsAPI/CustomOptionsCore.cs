@@ -123,6 +123,8 @@ namespace MTM101BaldAPI.OptionsAPI
             OptM_categories.SetValue(m, categories);
             OptM_categoryKeys.SetValue(m, categoryKeys);
 
+            m.ChangeCategory(0); //refresh!
+
             return obj;
         }
 

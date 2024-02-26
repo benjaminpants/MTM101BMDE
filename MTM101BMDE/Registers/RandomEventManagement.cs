@@ -95,7 +95,7 @@ namespace MTM101BaldAPI.Registers
 
     public class RandomEventMetaStorage : MetaStorage<RandomEventType, RandomEventMetadata, RandomEvent>
     {
-        public static RandomEventMetaStorage Instance => MTM101BaldiDevAPI.rngEvStorage;
+        public static RandomEventMetaStorage Instance => MTM101BaldiDevAPI.randomEventStorage;
 
         public override void Add(RandomEventMetadata toAdd)
         {
