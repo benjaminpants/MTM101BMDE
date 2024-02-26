@@ -90,14 +90,7 @@ namespace MTM101BaldAPI.SaveSystem
         {
             writer.Write(writeWarning ? "Hey, YOU! Yeah, YOU! If you want to edit this file, use a hex editor, as this is not a text file!" : MTM101BaldiDevAPI.VersionNumber);
             writer.Write(saveAvailable);
-            if (!saveAvailable)
-            {
-                ModdedSaveGameHandlers.Do(x =>
-                {
-                    x.Value.Reset();
-                });
-                return;
-            }
+            if (!saveAvailable) return;
             writer.Write(version);
             writer.Write(ModdedSaveGameHandlers.Count);
             foreach (KeyValuePair<string, ModdedSaveGameIOBinary> kvp in ModdedSaveGameHandlers)
