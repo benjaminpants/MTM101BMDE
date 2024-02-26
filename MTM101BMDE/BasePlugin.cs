@@ -23,7 +23,12 @@ using TMPro;
 
 namespace MTM101BaldAPI
 {
-
+    public enum SavedGameDataHandler
+    {
+        Vanilla,
+        Modded,
+        None
+    }
 
     [BepInPlugin("mtm101.rulerp.bbplus.baldidevapi", "BB+ Dev API", VersionNumber)]
     public class MTM101BaldiDevAPI : BaseUnityPlugin
@@ -47,19 +52,44 @@ namespace MTM101BaldAPI
 
         internal static AssetManager AssetMan = new AssetManager();
 
-        public static bool SavesEnabled
+        public static bool SaveGamesEnabled
         {
             get
             {
-                return allowsaves;
+                return saveHandler != SavedGameDataHandler.None;
             }
             set
             {
-                allowsaves = value;
+                saveHandler = value ? (ModdedSaveGame.ModdedSaveGameHandlers.Count > 0 ? SavedGameDataHandler.Modded : SavedGameDataHandler.Vanilla) : SavedGameDataHandler.None;
             }
         }
 
-        private static bool allowsaves = true;
+        public static SavedGameDataHandler SaveGamesHandler
+        {
+            get
+            {
+                return saveHandler;
+            }
+            set
+            {
+                switch (saveHandler)
+                {
+                    case SavedGameDataHandler.Modded:
+                    case SavedGameDataHandler.None:
+                        saveHandler = value;
+                        break;
+                    case SavedGameDataHandler.Vanilla:
+                        if (ModdedSaveGame.ModdedSaveGameHandlers.Count == 0)
+                        {
+                            saveHandler = value;
+                        }
+                        saveHandler = SavedGameDataHandler.Modded;
+                        break;
+                }
+            }
+        }
+
+        internal static SavedGameDataHandler saveHandler = SavedGameDataHandler.Vanilla;
 
 #if DEBUG
         void OnMen(OptionsMenu __instance)
@@ -163,19 +193,47 @@ PRESS ANY KEY TO EXIT THE GAME.
             Instance = this;
 
             Harmony harmony = new Harmony("mtm101.rulerp.bbplus.baldidevapi");
-			BaseUnityPlugin namemenu = GameObject.FindObjectsOfType<BaseUnityPlugin>().ToList().Find(x => x.Info.Metadata.Name == "BB+ Name Menu API");
-			if (namemenu != null)
-			{
-				Application.Quit();
-			}
 
             harmony.PatchAllConditionals();
 
             ModdedSaveSystem.AddSaveLoadAction(this, (bool isSave, string myPath) =>
             {
+                if (MTM101BaldiDevAPI.SaveGamesHandler != SavedGameDataHandler.Modded) return;
                 if (isSave)
                 {
-                    File.WriteAllText(Path.Combine(myPath, "testData.txt"), "This data doesn't actually store anything (yet)!!");
+                    //File.WriteAllText(Path.Combine(myPath, "testData.txt"), "This data doesn't actually store anything (yet)!!");
+                    FileStream fs = File.OpenWrite(Path.Combine(myPath, "savedgame0.bbapi"));
+                    fs.SetLength(0); // make sure to clear the contents before writing to it!
+                    BinaryWriter writer = new BinaryWriter(fs);
+                    Singleton<ModdedFileManager>.Instance.saveData.Save(writer);
+                    writer.Close();
+                }
+                else
+                {
+                    if (!File.Exists(Path.Combine(myPath, "savedgame0.bbapi"))) return;
+                    FileStream fs = File.OpenRead(Path.Combine(myPath, "savedgame0.bbapi"));
+                    BinaryReader reader = new BinaryReader(fs);
+                    ModdedSaveLoadStatus status = Singleton<ModdedFileManager>.Instance.saveData.Load(reader);
+                    reader.Close();
+                    switch (status)
+                    {
+                        default:
+                            break;
+                        case ModdedSaveLoadStatus.MissingHandlers:
+                            MTM101BaldiDevAPI.Log.LogWarning("Failed to load save because one or more mod handlers were missing!");
+                            Singleton<ModdedFileManager>.Instance.saveData.saveAvailable = false;
+                            break;
+                        case ModdedSaveLoadStatus.MissingItems:
+                            MTM101BaldiDevAPI.Log.LogWarning("Failed to load save because one or more items couldn't be found!");
+                            Singleton<ModdedFileManager>.Instance.saveData.saveAvailable = false;
+                            break;
+                        case ModdedSaveLoadStatus.NoSave:
+                            MTM101BaldiDevAPI.Log.LogInfo("No save data was found.");
+                            break;
+                        case ModdedSaveLoadStatus.Success:
+                            MTM101BaldiDevAPI.Log.LogInfo("Modded Savedata was succesfully loaded!");
+                            break;
+                    }
                 }
             });
 
@@ -254,7 +312,11 @@ PRESS ANY KEY TO EXIT THE GAME.
                         x.AddMeta(MTM101BaldiDevAPI.Instance, ItemFlags.None);
                         break;
                     default:
-                        MTM101BaldiDevAPI.Log.LogWarning("Unknown core item: " + x.itemType.ToString() + "! Can't add metadata!");
+                        // modded items start at 256, so we somehow have initialized after the mod in question, ignore the data.
+                        if ((int)x.itemType < 256)
+                        {
+                            MTM101BaldiDevAPI.Log.LogWarning("Unknown core item: " + x.itemType.ToString() + "! Can't add metadata!");
+                        }
                         break;
                 }
             });
@@ -348,16 +410,6 @@ PRESS ANY KEY TO EXIT THE GAME.
                 LoadingEvents.OnAllAssetsLoadedPost.Invoke();
             }
 
-        }
-    }
-
-    [HarmonyPatch(typeof(GameLoader))]
-    [HarmonyPatch("SetSave")]
-    class DisableSave
-    {
-        static void Prefix(ref bool val)
-        {
-            val = val & MTM101BaldiDevAPI.SavesEnabled;
         }
     }
 
