@@ -15,14 +15,8 @@ using System.Collections.Generic;
 
 namespace MTM101BaldAPI
 {
-	public static class ObjectCreatorHandlers
+	public static class ObjectCreators
 	{
-
-		[Obsolete("Use CreateItemObject instead.")]
-		public static ItemObject CreateObject(string localizedtext, string desckey, Sprite smallicon, Sprite largeicon, Items type, int price, int generatorcost)
-		{
-			return CreateItemObject(localizedtext, desckey, smallicon, largeicon, type, price, generatorcost);
-        }
 
         public static ItemObject CreateItemObject(string localizedtext, string desckey, Sprite smallicon, Sprite largeicon, Items type, int price, int generatorcost)
 		{
@@ -37,6 +31,47 @@ namespace MTM101BaldAPI
 			obj.name = localizedtext;
 
 			return obj;
+		}
+
+		public static StandardDoorMats CreateDoorDataObject(string name, Texture2D openTex, Texture2D closeTex)
+		{
+			StandardDoorMats template = MTM101BaldiDevAPI.AssetMan.Get<StandardDoorMats>("DoorTemplate");
+			StandardDoorMats mat = ScriptableObject.CreateInstance<StandardDoorMats>();
+            mat.open = new Material(template.open);
+            mat.open.SetMainTexture(openTex);
+            mat.shut = new Material(template.shut);
+            mat.shut.SetMainTexture(closeTex);
+			mat.name = name;
+
+
+            return mat;
+
+        }
+
+		public static WindowObject CreateWindowObject(string name, Texture2D texture, Texture2D brokenTexture, Texture2D mask = null)
+		{
+			WindowObject obj = ScriptableObject.CreateInstance<WindowObject>();
+			WindowObject template = MTM101BaldiDevAPI.AssetMan.Get<WindowObject>("WindowTemplate");
+			obj.name = name;
+			if (mask != null)
+			{
+				Material maskMat = new Material(template.mask);
+				maskMat.SetMaskTexture(mask);
+				obj.mask = maskMat;
+			}
+			else
+			{
+				obj.mask = template.mask;
+			}
+			Material standMat = new Material(template.overlay.First());
+			standMat.SetMainTexture(texture);
+			obj.overlay = new Material[] { standMat, standMat };
+            Material BrokeMat = new Material(template.open.First());
+            BrokeMat.SetMainTexture(texture);
+            obj.open = new Material[] { BrokeMat, BrokeMat };
+			obj.windowPre = template.windowPre;
+
+            return obj;
 		}
 
         public static SoundObject CreateSoundObject(AudioClip clip, string subtitle, SoundType type, Color color, float sublength = -1f)
@@ -64,18 +99,6 @@ namespace MTM101BaldAPI
 			return obj;
 
 		}
-
-		[Obsolete]
-		public static PosterObject CreatePosterObject(Texture2D postertex, Material[] materials, PosterTextData[] text)
-        {
-			PosterObject obj = ScriptableObject.CreateInstance<PosterObject>();
-			obj.baseTexture = postertex;
-			obj.material = materials;
-			obj.textData = text;
-			obj.name = postertex.name + "Poster";
-
-			return obj;
-        }
 
         public static PosterObject CreatePosterObject(Texture2D postertex, PosterTextData[] text)
         {

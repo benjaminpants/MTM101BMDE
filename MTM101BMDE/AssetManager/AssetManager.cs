@@ -1,261 +1,245 @@
-﻿using System;
+﻿using HarmonyLib;
+using System;
+using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 using UnityEngine;
-using UnityEngine.Networking;
-using System.IO;
-using BepInEx;
-using System.Linq;
-using MidiPlayerTK;
-using MPTK.NAudio.Midi;
-using HarmonyLib;
-using MEC;
-using System.Reflection;
 
-namespace MTM101BaldAPI.AssetManager
+namespace MTM101BaldAPI.AssetTools
 {
-    public static class AssetManager
+    /// <summary>
+    /// This class provides an (optional) easy and convient way to store mass amounts of asset references.
+    /// This is useful for storing textures, SoundObjects, NPC references, and more.
+    /// This class is not meant to be the end all be all of storing and managing assets.
+    /// However, this is a good starting point for most mods.
+    /// </summary>
+    public class AssetManager
     {
 
-		public static Texture2D TextureFromFile(string path)
-		{
-            return TextureFromFile(path, TextureFormat.RGBA32);
-		}
+        protected Type[] ignoreTypes;
 
-        public static Texture2D TextureFromFile(string path, TextureFormat format)
+        protected static Type[] defaultIgnoreTypes = new Type[]
         {
-            byte[] array = File.ReadAllBytes(path);
-            Texture2D texture2D = new Texture2D(2, 2, format, false);
-            ImageConversion.LoadImage(texture2D, array);
-            texture2D.filterMode = FilterMode.Point;
-            texture2D.name = Path.GetFileNameWithoutExtension(path);
-            return texture2D;
-        }
+            typeof(object),
+            typeof(UnityEngine.Object),
+            typeof(MonoBehaviour),
+            typeof(Behaviour),
+            typeof(ScriptableObject)
+        };
 
-        public static bool ReplaceTexture(Texture2D toReplace, Texture2D replacement)
+        protected Dictionary<Type, Dictionary<string, object>> data = new Dictionary<Type, Dictionary<string, object>>();
+
+        public int GetUniqueCount()
         {
-            if (toReplace == null)
+            List<object> found = new List<object>();
+            int count = 0;
+            foreach (Dictionary<string, object> dict in data.Values)
             {
-                MTM101BaldiDevAPI.Log.LogError("toReplace is null!");
-                return false;
-            }
-            if (replacement == null)
-            {
-                MTM101BaldiDevAPI.Log.LogError("replacement is null!");
-                return false;
-            }
-            if ((toReplace.width != replacement.width) || (toReplace.height != replacement.height))
-            {
-                MTM101BaldiDevAPI.Log.LogWarning(String.Format("{0}({1}) and {2}({3}) have mismatched sizes!", toReplace.name, new Vector2Int(toReplace.width, toReplace.height).ToString(), replacement.name, new Vector2Int(replacement.width, replacement.height).ToString()));
-                return false;
-            }
-            if (toReplace.format != replacement.format)
-            {
-                MTM101BaldiDevAPI.Log.LogWarning(String.Format("{0}({1}) and {2}({3}) have mismatched formats!", toReplace.name, toReplace.format.ToString(), replacement.name, replacement.format.ToString()));
-                return false;
-            }
-            Graphics.CopyTexture(replacement, toReplace);
-            return true;
-        }
-
-        public static bool ReplaceTexture(string toReplace, Texture2D replacement)
-        {
-            return ReplaceTexture(Resources.FindObjectsOfTypeAll<Texture2D>().Where(x => x.name == toReplace).First(), replacement);
-        }
-
-        public static Texture2D AttemptConvertTo(Texture2D toConvert, TextureFormat format)
-        {
-            if (toConvert.format == format) return toConvert;
-            Texture2D n = new Texture2D(toConvert.width, toConvert.height, format, false);
-            n.SetPixels(toConvert.GetPixels());
-            n.Apply();
-            n.name = toConvert.name;
-            UnityEngine.Object.DestroyImmediate(toConvert); //bye bye!
-            return n;
-        }
-
-        internal static Texture2D ConvertToRGBA32(Texture2D toConvert)
-        {
-            return AttemptConvertTo(toConvert, TextureFormat.RGBA32);
-        }
-
-        public static bool ReplaceAllTexturesFromFolder(string path)
-        {
-            Texture2D[] foundTextures = Resources.FindObjectsOfTypeAll<Texture2D>();
-            string[] files = Directory.GetFiles(path);
-            bool allSucceeded = true;
-            files.Do(x =>
-            {
-                if (Path.GetExtension(x) != ".png")
+                foreach (KeyValuePair<string, object> kvp in dict)
                 {
-                    MTM101BaldiDevAPI.Log.LogWarning("Found non PNG while attempting bulk replace: " + x);
-                    return;
+                    if (!found.Contains(kvp.Value))
+                    {
+                        found.Add(kvp.Value);
+                        count++;
+                    }
                 }
-                string targetName = Path.GetFileNameWithoutExtension(x);
-                Texture2D targetTex = foundTextures.Where(z => z.name == targetName).First();
-                Texture2D replacement = AssetManager.TextureFromFile(x, targetTex.format);
-                replacement = AttemptConvertTo(replacement, targetTex.format);
-                replacement.name = replacement.name + "_REPLACEMENT";
-                ReplaceTexture(targetTex, replacement);
+            }
+            return count;
+        }
+
+        public AssetManager(Type[] ignoreTypes)
+        {
+            this.ignoreTypes = ignoreTypes;
+        }
+
+        public AssetManager()
+        {
+            ignoreTypes = defaultIgnoreTypes;
+        }
+
+        public void Add<T>(string key, T value)
+        {
+            AddInternal(key, value, value.GetType());
+        }
+
+        public void ClearAll<T>()
+        {
+            if (!data.ContainsKey(typeof(T))) return;
+            List<string> keysToRemove = new List<string>();
+            foreach (string key in data[typeof(T)].Keys)
+            {
+                keysToRemove.Add(key);
+            }
+            keysToRemove.Do(x =>
+            {
+                Remove<T>(x);
             });
-            return allSucceeded;
         }
 
-		public static AudioClip AudioClipFromFile(string path)
+        public void AddRange<T>(T[] range, Func<T, string> keyFunc)
         {
-			AudioType typeToUse;
-			string fileType = Path.GetExtension(path).ToLower().Remove(0,1).Trim(); //what the fuck WHY DOES GET EXTENSION ADD THE FUCKING PERIOD.
-            switch (fileType)
-			{
-				case "mp2":
-				case "mp3":
-					typeToUse = AudioType.MPEG;
-					break;
-				case "wav":
-					typeToUse = AudioType.WAV;
-					break;
-				case "ogg":
-					typeToUse = AudioType.OGGVORBIS;
-					break;
-				case "aiff":
-					typeToUse = AudioType.AIFF;
-					break;
-				default:
-					throw new NotImplementedException("Unknown audio file type:" + fileType + "!");
-			}
-			UnityWebRequest request = UnityWebRequestMultimedia.GetAudioClip(Path.Combine("File:///", path), typeToUse);
-			request.SendWebRequest();
-			while (!request.isDone) { };
-            AudioClip clip = DownloadHandlerAudioClip.GetContent(request);
-            clip.name = Path.GetFileNameWithoutExtension(path);
-            return clip;
-			//return WavDataUtility.ToAudioClip(File.ReadAllBytes(path),Path.GetFileNameWithoutExtension(path));
-        }
-
-		public static Sprite SpriteFromTexture2D(Texture2D tex)
-        {
-			return SpriteFromTexture2D(tex, new Vector2(0.5f, 0.5f));
-		}
-
-        public static Sprite SpriteFromTexture2D(Texture2D tex, Vector2 center, float pixelsPerUnit = 1)
-        {
-            Sprite sprite = Sprite.Create(tex, new Rect(0f, 0f, tex.width, tex.height), center, pixelsPerUnit);
-            sprite.name = "Spr" + tex.name;
-            return sprite;
-        }
-
-        static FieldInfo localizedText = AccessTools.Field(typeof(LocalizationManager), "localizedText");
-        public static void LoadLanguageFolder(string path)
-        {
-            LangExtender.LoaderExtension.LoadFolder(path, (Dictionary<string, string>)localizedText.GetValue(Singleton<LocalizationManager>.Instance));
-        }
-
-        public static Texture2D TextureFromMod(BaseUnityPlugin plug, params string[] paths)
-        {
-			List<string> pathz = paths.ToList();
-			pathz.Insert(0, GetModPath(plug));
-			return TextureFromFile(Path.Combine(pathz.ToArray()));
-        }
-
-		public static AudioClip AudioClipFromMod(BaseUnityPlugin plug, params string[] paths)
-		{
-			List<string> pathz = paths.ToList();
-			pathz.Insert(0, GetModPath(plug));
-			return AudioClipFromFile(Path.Combine(pathz.ToArray()));
-		}
-
-		public static string GetModPath(BaseUnityPlugin plug)
-        {
-			return Path.Combine(Application.streamingAssetsPath, "Modded", plug.Info.Metadata.GUID);
-		}
-
-		/// <summary>
-		/// Creates a midi from a file. It returns the id assigned to the midi, which is an altered version of the id you pass to avoid conflicts.
-		/// </summary>
-		
-		internal static Dictionary<string, byte[]> MidiDatas = new Dictionary<string, byte[]>();
-        public static Dictionary<string, byte[]> MidisToBeAdded = new Dictionary<string, byte[]>();
-		public static string MidiFromFile(string path, string id)
-		{
-			string idToUse = "custom_" + id;
-            while (MidiDatas.ContainsKey(idToUse))
+            for (int i = 0; i < range.Length; i++)
             {
-                idToUse += "_";
-            }
-            MidiFromBytes(idToUse, File.ReadAllBytes(path));
-            return idToUse;
-        }
-
-        public static string MidiFromMod(string id, BaseUnityPlugin plug, params string[] args)
-        {
-            List<string> pathz = args.ToList();
-            pathz.Insert(0, GetModPath(plug));
-            return MidiFromFile(id, Path.Combine(pathz.ToArray()));
-        }
-
-        internal static void MidiFromBytes(string id, byte[] data)
-        {
-            if (MidiPlayerGlobal.Instance == null)
-            {
-                //throw new Exception("Attempted to add Midi before MidiPlayerGlobal is created!");
-#if DEBUG
-                MTM101BaldiDevAPI.Log.LogInfo(String.Format("Midi with ID: {0} has been added to the midi queue.", id));
-#endif
-                MidisToBeAdded.Add(id, data);
-                return;
-            }
-            MTM101BaldiDevAPI.Log.LogInfo("Adding midi with ID: " + id);
-            if (!MidiPlayerGlobal.CurrentMidiSet.MidiFiles.Contains(id))
-            {
-                MidiPlayerGlobal.CurrentMidiSet.MidiFiles.Add(id);
-                MidiPlayerGlobal.BuildMidiList();
-                MidiDatas.Add(id, data);
+                Add(keyFunc.Invoke(range[i]), range[i]);
             }
         }
-    }
 
-    [HarmonyPatch(typeof(MidiFilePlayer))]
-    [HarmonyPatch("MPTK_Play", new Type[0] { })]
-    static class MusicPrefix
-	{
-        private static bool Prefix(MidiFilePlayer __instance)
+        public void AddFromResources<T>() where T : UnityEngine.Object
         {
-            byte[] data = AssetManager.MidiDatas.GetValueSafe(__instance.MPTK_MidiName);
-            if (data == null || data.Length == 0)
-            {
-                //we don't need to do anything here
-                return true;
-            }
+            AddRange<T>(Resources.FindObjectsOfTypeAll<T>());
+        }
 
-            try
+        public bool ContainsKey(string t)
+        {
+            foreach (KeyValuePair<Type, Dictionary<string,object>> kvp in data)
             {
-                if (MidiPlayerGlobal.MPTK_SoundFontLoaded)
+                if (kvp.Value.ContainsKey(t))
                 {
-                    if (__instance.MPTK_IsPaused)
-                    {
-                        __instance.MPTK_UnPause();
-                    }
-                    else if (!__instance.MPTK_IsPlaying)
-                    {
-                        __instance.MPTK_InitSynth(16);
-                        __instance.MPTK_StartSequencerMidi();
-                        if (__instance.MPTK_CorePlayer)
-                        {
-                            Routine.RunCoroutine(__instance.ThreadCorePlay(data, 0f, 0f).CancelWith(__instance.gameObject), Segment.RealtimeUpdate);
-                        }
-                        else
-                        {
-                            Routine.RunCoroutine(__instance.ThreadLegacyPlay(data, 0f, 0f).CancelWith(__instance.gameObject), Segment.RealtimeUpdate);
-                        }
-                    }
-                }
-            }
-            catch (Exception ex)
-            {
-                MidiPlayerGlobal.ErrorDetail(ex);
+                    return true;
+                }    
             }
             return false;
         }
-    }
 
+        public void AddRange<T>(T[] range) where T : UnityEngine.Object
+        {
+            AddRange(range, (obj) =>
+            {
+                return obj.name;
+            });
+        }
+
+        public void AddRange<T>(List<T> range) where T : UnityEngine.Object
+        {
+            AddRange(range.ToArray());
+        }
+
+        public void AddRange<T>(Dictionary<T, string> range, string prefix = "")
+        {
+            AddRange<T>(range.Keys.ToArray(), (obj) =>
+            {
+                return prefix + range[obj];
+            });
+        }
+
+        public void AddRange<T>(T[] range, string[] keys)
+        {
+            for (int i = 0; i < range.Length; i++)
+            {
+                Add(keys[i], range[i]);
+            }
+        }
+
+        public void AddRange<T>(Dictionary<string, T> range)
+        {
+            foreach (KeyValuePair<string, T> kvp in range)
+            {
+                Add(kvp.Key, kvp.Value);
+            }
+        }
+
+        public T[] GetAll<T>()
+        {
+            if (!data.ContainsKey(typeof(T))) return new T[0];
+            List<T> values = new List<T>();
+            data[typeof(T)].Values.Do(x =>
+            {
+                values.Add((T)x);
+            });
+            return values.ToArray();
+        }
+
+        protected void AddInternal(string key, object value, Type type)
+        {
+            if (ignoreTypes.Contains(type)) return;
+            if (!data.ContainsKey(type))
+            {
+                data[type] = new Dictionary<string, object>();
+            }
+            data[type][key] = value;
+
+            AddInternal(key, value, type.BaseType);
+        }
+
+        // todo: consider removing this?
+        public bool RemoveCheap<T>(string key)
+        {
+            return RemoveInternal(typeof(T), key);
+        }
+
+        public bool Remove<T>(string key)
+        {
+            Type actType = Get<T>(key).GetType();
+            if (actType != typeof(T))
+            {
+                return RemoveInternal(actType, key);
+            }
+            return RemoveInternal(typeof(T), key);
+        }
+
+        protected bool RemoveInternal(Type type, string key, bool found = false)
+        {
+            if (ignoreTypes.Contains(type)) return found;
+            if (!data.ContainsKey(type)) return false;
+            found = data[type].Remove(key) || found;
+            if (data[type].Count == 0)
+            {
+                data.Remove(type);
+            }
+            return RemoveInternal(type.BaseType, key, found);
+        }
+
+        public object this[Type type, string key]
+        {
+            get
+            {
+                return GetInternal(type, key);
+            }
+            set
+            {
+                AddInternal(key, value, value.GetType());
+            }
+        }
+
+        public object this[string key]
+        {
+            // It is suggested to avoid using the getter here, because its slow.
+            get
+            {
+                foreach (Type item in data.Keys)
+                {
+                    object returnV = GetInternal(item, key);
+                    if (returnV != null)
+                    {
+                        return returnV;
+                    }
+                }
+                return null;
+            }
+            set
+            {
+                AddInternal(key, value, value.GetType());
+            }
+        }
+
+        public T Get<T>(string key)
+        {
+            object value = GetInternal(typeof(T), key);
+            return value == null ? default : (T)value;
+        }
+
+        protected object GetInternal(Type type, string key)
+        {
+            if (!data.ContainsKey(type))
+            {
+                throw new KeyNotFoundException();
+            }
+            if (data[type].TryGetValue(key, out object value))
+            {
+                return value;
+            }
+            return null;
+        }
+    }
 }

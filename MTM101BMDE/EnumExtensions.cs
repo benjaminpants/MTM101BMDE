@@ -31,6 +31,17 @@ namespace MTM101BaldAPI
 
 		private static Dictionary<Type, ExtendedEnumData> ExtendedData = new Dictionary<Type, ExtendedEnumData>();
 
+        /// <summary>
+        /// ToString but for Extended enums. Only use on enums that are ints.
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="en"></param>
+        /// <returns></returns>
+        public static string ToStringExtended<T>(this T en) where T : Enum
+        {
+            return GetExtendedName<T>(Convert.ToInt32(en));
+        }
+
 
         /// <summary>
         /// Extends an enum, same effect could be achieved by casting an int, however this has a system to keep track of multiple enum additions from different mods to prevent conflicts
@@ -91,66 +102,6 @@ namespace MTM101BaldAPI
                 throw new KeyNotFoundException();
             }
             return (T)(object)(value.valueOffset + index);
-        }
-
-		[Obsolete("Please use ExtendEnum<Items>(string extendName) instead.")]
-		public static Items CreateItemEnum(string name)
-		{
-			return ExtendEnum<Items>(name);
-		}
-
-        [Obsolete("Please use GetExtendedName<Items>(int val) instead.")]
-        public static string GetItemName(Items num)
-		{
-			return GetExtendedName<Items>((int)num);
-		}
-
-        [Obsolete("Please use ExtendEnum<RoomCategory>(string extendName) instead.")]
-        public static RoomCategory CreateRoomCategoryEnum(string name)
-		{
-            return ExtendEnum<RoomCategory>(name);
-        }
-
-        [Obsolete("Please use GetExtendedName<RoomCategory>(int val) instead.")]
-        public static string GetRoomCategoryName(RoomCategory num)
-		{
-            return GetExtendedName<Items>((int)num);
-        }
-
-        [Obsolete("Please use ExtendEnum<RandomEventType>(string extendName) instead.")]
-        public static RandomEventType CreateEventEnum(string name)
-		{
-            return ExtendEnum<RandomEventType>(name);
-        }
-
-        [Obsolete("Please use GetExtendedName<RandomEventType>(int val) instead.")]
-        public static string GetEventName(RandomEventType num)
-		{
-            return GetExtendedName<RandomEventType>((int)num);
-        }
-
-        [Obsolete("Please use ExtendEnum<Character>(string extendName) instead.")]
-        public static Character CreateCharacterEnum(string name)
-		{
-            return ExtendEnum<Character>(name);
-        }
-
-        [Obsolete("Please use GetExtendedName<Character>(int val) instead.")]
-        public static string GetCharacterName(Character num)
-		{
-            return GetExtendedName<Character>((int)num);
-        }
-
-        [Obsolete("Please use ExtendEnum<Obstacle>(string extendName) instead.")]
-        public static Obstacle CreateObstacleEnum(string name)
-		{
-            return ExtendEnum<Obstacle>(name);
-        }
-
-        [Obsolete("Please use GetExtendedName<Obstacle>(int val) instead.")]
-        public static string GetObstacleName(Obstacle num)
-		{
-            return GetExtendedName<Character>((int)num);
         }
 
 	}

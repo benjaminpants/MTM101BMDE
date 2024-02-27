@@ -27,8 +27,6 @@ namespace MTM101BaldAPI.OptionsAPI
             if (OnMenuInitialize != null)
             {
                 OnMenuInitialize(m);
-                //re-calculate menu titles
-                RecalculateTitles(m);
             }
         }
 
@@ -43,6 +41,7 @@ namespace MTM101BaldAPI.OptionsAPI
 
         //reflection stuff
         static FieldInfo OptM_categories = AccessTools.Field(typeof(OptionsMenu), "categories");
+        static FieldInfo OptM_categoryKeys = AccessTools.Field(typeof(OptionsMenu), "categoryKeys");
 
         static FieldInfo MT_hotspot = AccessTools.Field(typeof(MenuToggle), "hotspot");
 
@@ -76,32 +75,6 @@ namespace MTM101BaldAPI.OptionsAPI
             PreviousTitle = previousTitle;
         }
 
-        public static string GetCategoryKey(GameObject obj)
-        {
-            if (obj.name == "Data")
-            {
-                obj = obj.transform.Find("Main").gameObject; //dear mystman12: what the fuck.
-            }
-
-            TMP_Text title = obj.transform.Find("Title").GetComponent<TMP_Text>();
-            return title.GetLocalizer().key;
-        }
-
-        public static void RecalculateTitles(OptionsMenu m)
-        {
-            GameObject[] categories = (GameObject[])OptM_categories.GetValue(m);
-            for (int i = 0; i < categories.Length; i++)
-            {
-                GetCategoryTexts(categories[i], out TMP_Text _, out TMP_Text nextTitle, out TMP_Text previousTitle);
-                int nextIndex = i + 1;
-                int prevIndex = i - 1;
-                if (nextIndex == categories.Length) nextIndex = 0;
-                if (prevIndex == -1) prevIndex = categories.Length - 1;
-                nextTitle.GetLocalizer().key = GetCategoryKey(categories[nextIndex]);
-                previousTitle.GetLocalizer().key = GetCategoryKey(categories[prevIndex]);
-            }
-        }
-
         public static GameObject CreateNewCategory(OptionsMenu m, string optName)
         {
             GameObject obj = new GameObject(optName, typeof(RectTransform));
@@ -110,10 +83,11 @@ namespace MTM101BaldAPI.OptionsAPI
             obj.layer = LayerMask.NameToLayer("UI");
 
             GameObject[] categories = (GameObject[])OptM_categories.GetValue(m);
+            string[] categoryKeys = (string[])OptM_categoryKeys.GetValue(m);
 
             obj.transform.position = categories[0].transform.position; //going insane
 
-
+            /*
             //get the title stuff and clone em
             TMP_Text Title = categories[0].transform.Find("Title").GetComponent<TMP_Text>();
             Title = GameObject.Instantiate(Title); //i hate stupidly long lines so I did this. Someone will kill me for it.
@@ -133,28 +107,23 @@ namespace MTM101BaldAPI.OptionsAPI
 
             NextTitle.GetLocalizer().key = "Next";
             PreviousTitle.GetLocalizer().key = "Previous";
-            /*GetCategoryStrings(categories[0], out TMP_Text nextT, out TMP_Text _, out TMP_Text nextPT);
-            GetCategoryStrings(categories[categories.Length - 1], out TMP_Text prevT, out TMP_Text prevNT, out TMP_Text _);
-
-
-            //set this categories text
-            NextTitle.GetLocalizer().key = nextT.text;
-            PreviousTitle.GetLocalizer().key = prevT.text;
-
-            //set the previous and next categories text
-            nextPT.GetLocalizer().key = optName;
-            prevNT.GetLocalizer().key = optName;*/
-
+            */
 
 
             Array.Resize(ref categories, categories.Length + 1);
             categories[categories.Length - 1] = obj;
             obj.transform.localScale = Vector3.one; //why do i even have to do this
 
+            Array.Resize(ref categoryKeys, categoryKeys.Length + 1);
+            categoryKeys[categoryKeys.Length - 1] = optName;
+
             obj.SetActive(false); //no.
 
             obj.transform.SetSiblingIndex(1); //fix layering issues
             OptM_categories.SetValue(m, categories);
+            OptM_categoryKeys.SetValue(m, categoryKeys);
+
+            m.ChangeCategory(0); //refresh!
 
             return obj;
         }
