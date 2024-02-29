@@ -28,7 +28,7 @@ namespace MTM101BaldAPI
             // initialize private fields for the npc
             _character.SetValue(newNpc,character);
             _navigator.SetValue(newNpc, nav);
-            _poster.SetValue(newNpc, Resources.FindObjectsOfTypeAll<PosterObject>().First());
+            _poster.SetValue(newNpc, Resources.FindObjectsOfTypeAll<PosterObject>().First()); // placeholder
             // set up proper sprite data
             newNpc.spriteBase = newNpc.transform.Find("SpriteBase").gameObject; //technically, yes, we could just use .GetChild(0), but I refer to it by name incase something changes to avoid grabbing the wrong thing
             newNpc.spriteRenderer = new SpriteRenderer[] { newNpc.spriteBase.transform.GetChild(0).GetComponent<SpriteRenderer>() };
