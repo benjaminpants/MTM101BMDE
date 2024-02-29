@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Text;
 using UnityEngine;
 using System.Linq;
+using MTM101BaldAPI.Registers;
 
 namespace MTM101BaldAPI
 {
@@ -10,12 +11,12 @@ namespace MTM101BaldAPI
     {
         public static ItemObject GetFirstInstance(this Items en)
         {
-            return Resources.FindObjectsOfTypeAll<ItemObject>().ToList().Find(x => x.itemType == en);
+            return ItemMetaStorage.Instance.FindByEnum(en).value;
         }
 
         public static NPC GetFirstInstance(this Character en)
         {
-            return Resources.FindObjectsOfTypeAll<NPC>().ToList().Find(x => x.Character == en);
+            return NPCMetaStorage.Instance.Get(en).value;
         }
     }
 }
