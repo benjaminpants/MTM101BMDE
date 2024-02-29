@@ -110,6 +110,16 @@ namespace MTM101BaldAPI
             return obj;
         }
 
+		public static PosterObject CreateCharacterPoster(Texture2D texture, string nameKey, string descKey)
+		{
+			PosterObject obj = ScriptableObject.Instantiate<PosterObject>(MTM101BaldiDevAPI.AssetMan.Get<PosterObject>("CharacterPosterTemplate"));
+			obj.name = nameKey + "Poster";
+			obj.baseTexture = texture;
+			obj.textData[0].textKey = nameKey;
+            obj.textData[1].textKey = descKey;
+            return obj;
+		}
+
         public static PosterObject CreatePosterObject(Texture2D[] postertexs)
         {
 			if (postertexs.Length == 0) throw new ArgumentNullException();

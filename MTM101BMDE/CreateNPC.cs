@@ -19,7 +19,7 @@ namespace MTM101BaldAPI
         static FieldInfo _entity = AccessTools.Field(typeof(Navigator), "entity");
         static FieldInfo _collider = AccessTools.Field(typeof(Navigator), "collider");
         static FieldInfo _npc = AccessTools.Field(typeof(Looker), "npc");
-        public static T CreateNPC<T>(string name, Character character, bool hasTrigger = true, float minAudioDistance = 10f, float maxAudioDistance = 250f, RoomCategory[] spawnableRooms = null) where T : NPC
+        public static T CreateNPC<T>(string name, Character character, PosterObject poster, bool hasTrigger = true, float minAudioDistance = 10f, float maxAudioDistance = 250f, RoomCategory[] spawnableRooms = null) where T : NPC
         {
             T newNpc = GameObject.Instantiate(MTM101BaldiDevAPI.AssetMan.Get<GameObject>("TemplateNPC")).AddComponent<T>();
             Entity npcEntity = newNpc.GetComponent<Entity>();
@@ -28,7 +28,7 @@ namespace MTM101BaldAPI
             // initialize private fields for the npc
             _character.SetValue(newNpc,character);
             _navigator.SetValue(newNpc, nav);
-            _poster.SetValue(newNpc, Resources.FindObjectsOfTypeAll<PosterObject>().First()); // placeholder
+            _poster.SetValue(newNpc, poster); // placeholder
             // set up proper sprite data
             newNpc.spriteBase = newNpc.transform.Find("SpriteBase").gameObject; //technically, yes, we could just use .GetChild(0), but I refer to it by name incase something changes to avoid grabbing the wrong thing
             newNpc.spriteRenderer = new SpriteRenderer[] { newNpc.spriteBase.transform.GetChild(0).GetComponent<SpriteRenderer>() };

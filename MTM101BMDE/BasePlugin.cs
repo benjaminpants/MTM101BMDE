@@ -151,6 +151,11 @@ namespace MTM101BaldAPI
             AssetMan.Add("ErrorTemplate", Resources.FindObjectsOfTypeAll<Canvas>().Where(x => x.name == "EndingError").First());
             AssetMan.Add("WindowTemplate", Resources.FindObjectsOfTypeAll<WindowObject>().Where(x => x.name == "WoodWindow").First());
             AssetMan.Add("DoorTemplate", Resources.FindObjectsOfTypeAll<StandardDoorMats>().Where(x => x.name == "ClassDoorSet").First());
+            PosterObject baldiposter = Resources.FindObjectsOfTypeAll<PosterObject>().Where(x => x.name == "BaldiPoster").First();
+            PosterObject posterTemplate = ScriptableObject.Instantiate<PosterObject>(baldiposter);
+            posterTemplate.name = "CharacterPosterTemplate";
+            posterTemplate.baseTexture = null;
+            AssetMan.Add<PosterObject>("CharacterPosterTemplate", posterTemplate);
             NPC templateNpc = GameObject.Instantiate<NPC>(Resources.FindObjectsOfTypeAll<Beans>().First());
             templateNpc.GetComponent<Entity>().SetActive(false); //disable the entity
             templateNpc.gameObject.SetActive(false);
@@ -165,6 +170,7 @@ namespace MTM101BaldAPI
             GameObject.DestroyImmediate(templateObject.GetComponent<Beans>());
             GameObject.DestroyImmediate(templateObject.GetComponent<Animator>());
             AssetMan.Add<GameObject>("TemplateNPC", templateObject);
+            templateObject.layer = LayerMask.NameToLayer("NPCs");
             MTM101BaldAPI.Registers.Buttons.ButtonColorManager.InitializeButtonColors();
         }
 
@@ -184,7 +190,7 @@ namespace MTM101BaldAPI
 {0} HAS ENCOUNTERED AN ERROR(S)
 {1} <size=60%>{2}<size=100%>
 PLEASE REPORT TO THE MOD DEVELOPER(S).
-PRESS ANY KEY TO EXIT THE GAME.
+PRESS ALT+F4 TO EXIT THE GAME.
 ", plug.Metadata.GUID.ToUpper(), e.Message, e.StackTrace);
             if (Singleton<BaseGameManager>.Instance != null)
             {
