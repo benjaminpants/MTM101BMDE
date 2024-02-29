@@ -151,6 +151,20 @@ namespace MTM101BaldAPI
             AssetMan.Add("ErrorTemplate", Resources.FindObjectsOfTypeAll<Canvas>().Where(x => x.name == "EndingError").First());
             AssetMan.Add("WindowTemplate", Resources.FindObjectsOfTypeAll<WindowObject>().Where(x => x.name == "WoodWindow").First());
             AssetMan.Add("DoorTemplate", Resources.FindObjectsOfTypeAll<StandardDoorMats>().Where(x => x.name == "ClassDoorSet").First());
+            NPC templateNpc = GameObject.Instantiate<NPC>(Resources.FindObjectsOfTypeAll<Beans>().First());
+            templateNpc.GetComponent<Entity>().SetActive(false); //disable the entity
+            templateNpc.gameObject.SetActive(false);
+            templateNpc.name = "TemplateNPC";
+            // handle audio manager stuff
+            PropagatedAudioManager audMan = templateNpc.GetComponent<PropagatedAudioManager>();
+            GameObject.Destroy(audMan.audioDevice.gameObject);
+            audMan.sourceId = 0; //reset source id
+            AudioManager.totalIds--; //decrement total ids
+            GameObject templateObject = templateNpc.gameObject;
+            GameObject.DontDestroyOnLoad(templateObject);
+            GameObject.DestroyImmediate(templateObject.GetComponent<Beans>());
+            GameObject.DestroyImmediate(templateObject.GetComponent<Animator>());
+            AssetMan.Add<GameObject>("TemplateNPC", templateObject);
             MTM101BaldAPI.Registers.Buttons.ButtonColorManager.InitializeButtonColors();
         }
 
@@ -410,6 +424,9 @@ PRESS ANY KEY TO EXIT THE GAME.
             {
                 LoadingEvents.OnAllAssetsLoadedPost.Invoke();
             }
+            // dumb dumb test code
+            /*LevelObject testObj = objs.Where(x => x.levelTitle == "F1").First().levelObject;
+            testObj.forcedNpcs = testObj.forcedNpcs.AddToArray(ObjectCreators.CreateNPC<TestNPC>("TestMan", Character.Null));*/
 
         }
     }

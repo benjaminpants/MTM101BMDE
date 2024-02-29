@@ -137,6 +137,11 @@ namespace MTM101BaldAPI.AssetTools
 			return SpriteFromTexture2D(tex, new Vector2(0.5f, 0.5f));
 		}
 
+        public static Sprite SpriteFromTexture2D(Texture2D tex, float pixelsPerUnit)
+        {
+            return SpriteFromTexture2D(tex, new Vector2(0.5f, 0.5f), pixelsPerUnit);
+        }
+
         public static Sprite SpriteFromTexture2D(Texture2D tex, Vector2 center, float pixelsPerUnit = 1)
         {
             Sprite sprite = Sprite.Create(tex, new Rect(0f, 0f, tex.width, tex.height), center, pixelsPerUnit);

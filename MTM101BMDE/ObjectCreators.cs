@@ -15,7 +15,7 @@ using System.Collections.Generic;
 
 namespace MTM101BaldAPI
 {
-	public static class ObjectCreators
+	public static partial class ObjectCreators
 	{
 
         public static ItemObject CreateItemObject(string localizedtext, string desckey, Sprite smallicon, Sprite largeicon, Items type, int price, int generatorcost)
