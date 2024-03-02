@@ -19,7 +19,8 @@ namespace MTM101BaldAPI
         static FieldInfo _entity = AccessTools.Field(typeof(Navigator), "entity");
         static FieldInfo _collider = AccessTools.Field(typeof(Navigator), "collider");
         static FieldInfo _npc = AccessTools.Field(typeof(Looker), "npc");
-        public static T CreateNPC<T>(string name, Character character, PosterObject poster, bool hasTrigger = true, float minAudioDistance = 10f, float maxAudioDistance = 250f, RoomCategory[] spawnableRooms = null) where T : NPC
+        static FieldInfo _useHeatMap = AccessTools.Field(typeof(Navigator), "useHeatMap");
+        public static T CreateNPC<T>(string name, Character character, PosterObject poster, bool hasLooker = false, bool usesHeatMap = false, bool hasTrigger = true, float minAudioDistance = 10f, float maxAudioDistance = 250f, RoomCategory[] spawnableRooms = null) where T : NPC
         {
             T newNpc = GameObject.Instantiate(MTM101BaldiDevAPI.AssetMan.Get<GameObject>("TemplateNPC")).AddComponent<T>();
             Entity npcEntity = newNpc.GetComponent<Entity>();
@@ -34,7 +35,8 @@ namespace MTM101BaldAPI
             newNpc.spriteRenderer = new SpriteRenderer[] { newNpc.spriteBase.transform.GetChild(0).GetComponent<SpriteRenderer>() };
             newNpc.baseTrigger = newNpc.GetComponents<CapsuleCollider>().Where(x => x.isTrigger).ToArray();
             newNpc.looker = newNpc.GetComponent<Looker>();
-            newNpc.looker.enabled = true;
+            newNpc.looker.enabled = hasLooker;
+            _useHeatMap.SetValue(nav, usesHeatMap);
             _npc.SetValue(newNpc.looker, newNpc);
             if (spawnableRooms == null)
             {
