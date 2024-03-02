@@ -35,7 +35,7 @@ namespace MTM101BaldAPI
     {
         internal static ManualLogSource Log;
 
-        public const string VersionNumber = "3.0.0.0";
+        public const string VersionNumber = "3.1.0.0";
 
         internal static bool CalledInitialize = false;
 
