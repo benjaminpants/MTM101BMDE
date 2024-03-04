@@ -35,7 +35,7 @@ namespace MTM101BaldAPI
     {
         internal static ManualLogSource Log;
 
-        public const string VersionNumber = "3.1.0.0";
+        public const string VersionNumber = "3.2.0.0";
 
         internal static bool CalledInitialize = false;
 
@@ -146,7 +146,7 @@ namespace MTM101BaldAPI
         }
 #endif
 
-        public void AssetsLoadPre()
+        internal void AssetsLoadPre()
         {
             AssetMan.Add("ErrorTemplate", Resources.FindObjectsOfTypeAll<Canvas>().Where(x => x.name == "EndingError").First());
             AssetMan.Add("WindowTemplate", Resources.FindObjectsOfTypeAll<WindowObject>().Where(x => x.name == "WoodWindow").First());

@@ -85,6 +85,18 @@ namespace MTM101BaldAPI.Registers
             return meta;
         }
 
+        public static NPCMetadata AddMeta(this NPC me, BaseUnityPlugin plugin, NPCFlags flags)
+        {
+            if (NPCMetaStorage.Instance.Find(x => x.character == me.Character) != null)
+            {
+                MTM101BaldiDevAPI.Log.LogInfo("NPC " + EnumExtensions.GetExtendedName<Character>((int)me.Character) + " already has meta! Adding prefab instead...");
+                return null;
+            }
+            NPCMetadata npcMeta = new NPCMetadata(plugin.Info, new NPC[1] { me }, me.name, flags);
+            NPCMetaStorage.Instance.Add(npcMeta);
+            return npcMeta;
+        }
+
         public static List<T> ToValues<T>(this List<IMetadata<T>> me)
         {
             List<T> returnL = new List<T>();
