@@ -149,6 +149,7 @@ namespace MTM101BaldAPI.AssetTools
             }
         }
 
+        [Obsolete("Please use SpriteFromTexture2D(Texture2D tex, float pixelsPerUnit) instead!")]
         public static Sprite SpriteFromTexture2D(Texture2D tex)
         {
             return SpriteFromTexture2D(tex, new Vector2(0.5f, 0.5f));
