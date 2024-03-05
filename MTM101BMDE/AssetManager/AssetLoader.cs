@@ -132,6 +132,7 @@ namespace MTM101BaldAPI.AssetTools
 			//return WavDataUtility.ToAudioClip(File.ReadAllBytes(path),Path.GetFileNameWithoutExtension(path));
         }
 
+        [Obsolete("Please use SpriteFromTexture2D(Texture2D tex, float pixelsPerUnit) instead!")]
 		public static Sprite SpriteFromTexture2D(Texture2D tex)
         {
 			return SpriteFromTexture2D(tex, new Vector2(0.5f, 0.5f));
@@ -191,9 +192,9 @@ namespace MTM101BaldAPI.AssetTools
             return idToUse;
         }
 
-        public static string MidiFromMod(string id, BaseUnityPlugin plug, params string[] args)
+        public static string MidiFromMod(string id, BaseUnityPlugin plug, params string[] paths)
         {
-            List<string> pathz = args.ToList();
+            List<string> pathz = paths.ToList();
             pathz.Insert(0, GetModPath(plug));
             return MidiFromFile(id, Path.Combine(pathz.ToArray()));
         }
