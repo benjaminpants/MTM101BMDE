@@ -17,10 +17,10 @@ namespace MTM101BaldAPI.AssetTools
     public static class AssetLoader
     {
 
-		public static Texture2D TextureFromFile(string path)
-		{
+        public static Texture2D TextureFromFile(string path)
+        {
             return TextureFromFile(path, TextureFormat.RGBA32);
-		}
+        }
 
         public static Texture2D TextureFromFile(string path, TextureFormat format)
         {
@@ -101,41 +101,58 @@ namespace MTM101BaldAPI.AssetTools
             return allSucceeded;
         }
 
-		public static AudioClip AudioClipFromFile(string path)
+        internal static Dictionary<AudioType, string[]> audioExtensions = new Dictionary<AudioType, string[]>
         {
-			AudioType typeToUse;
-			string fileType = Path.GetExtension(path).ToLower().Remove(0,1).Trim(); //what the fuck WHY DOES GET EXTENSION ADD THE FUCKING PERIOD.
-            switch (fileType)
-			{
-				case "mp2":
-				case "mp3":
-					typeToUse = AudioType.MPEG;
-					break;
-				case "wav":
-					typeToUse = AudioType.WAV;
-					break;
-				case "ogg":
-					typeToUse = AudioType.OGGVORBIS;
-					break;
-				case "aiff":
-					typeToUse = AudioType.AIFF;
-					break;
-				default:
-					throw new NotImplementedException("Unknown audio file type:" + fileType + "!");
-			}
-			UnityWebRequest request = UnityWebRequestMultimedia.GetAudioClip(Path.Combine("File:///", path), typeToUse);
-			request.SendWebRequest();
-			while (!request.isDone) { };
-            AudioClip clip = DownloadHandlerAudioClip.GetContent(request);
-            clip.name = Path.GetFileNameWithoutExtension(path);
-            return clip;
-			//return WavDataUtility.ToAudioClip(File.ReadAllBytes(path),Path.GetFileNameWithoutExtension(path));
+            { AudioType.MPEG, new string[] { "mp3", "mp2" } }, // Unsure if Unity supports MPEG, but it's there ig
+            { AudioType.OGGVORBIS, new string[] { "ogg" } },
+            { AudioType.WAV, new string[] { "wav" } },
+            { AudioType.AIFF, new string[] { "aif", "aiff" } },
+            { AudioType.MOD, new string[] { "mod" } },
+            { AudioType.IT, new string[] { "it" } },
+            { AudioType.S3M, new string[] { "s3m" } },
+            { AudioType.XM, new string[] { "xm" } },
+            { AudioType.XMA, new string[] { "xma" } }
+        };
+        
+        public static AudioType GetAudioType(string path)
+        {
+            string extension = Path.GetExtension(path).ToLower().Remove(0, 1).Trim(); // Remove the period provided by default
+
+            foreach (AudioType target in audioExtensions.Keys)
+                if (audioExtensions[target].Contains(extension))
+                {
+                    return target;
+                }
+
+            throw new NotImplementedException("Unknown audio file type:" + extension + "!");
         }
 
-		public static Sprite SpriteFromTexture2D(Texture2D tex)
+        public static AudioClip AudioClipFromFile(string path)
         {
-			return SpriteFromTexture2D(tex, new Vector2(0.5f, 0.5f));
-		}
+            return AudioClipFromFile(path, GetAudioType(path));
+        }
+
+        public static AudioClip AudioClipFromFile(string path, AudioType type)
+        {
+            AudioClip clip;
+            using (UnityWebRequest audioClip = UnityWebRequestMultimedia.GetAudioClip("file://" + path, type))
+            {
+                audioClip.SendWebRequest();
+                while (!audioClip.isDone) {}
+
+                if (audioClip.result != UnityWebRequest.Result.Success)
+                    throw new Exception(audioClip.responseCode.ToString() + ": " + audioClip.error);
+                
+                clip = DownloadHandlerAudioClip.GetContent(audioClip);
+                clip.name = Path.GetFileNameWithoutExtension(path);
+                return clip;
+            }
+        }
+
+        public static Sprite SpriteFromTexture2D(Texture2D tex)
+        {
+            return SpriteFromTexture2D(tex, new Vector2(0.5f, 0.5f));
+        }
 
         public static Sprite SpriteFromTexture2D(Texture2D tex, float pixelsPerUnit)
         {
@@ -157,32 +174,32 @@ namespace MTM101BaldAPI.AssetTools
 
         public static Texture2D TextureFromMod(BaseUnityPlugin plug, params string[] paths)
         {
-			List<string> pathz = paths.ToList();
-			pathz.Insert(0, GetModPath(plug));
-			return TextureFromFile(Path.Combine(pathz.ToArray()));
+            List<string> pathz = paths.ToList();
+            pathz.Insert(0, GetModPath(plug));
+            return TextureFromFile(Path.Combine(pathz.ToArray()));
         }
 
-		public static AudioClip AudioClipFromMod(BaseUnityPlugin plug, params string[] paths)
-		{
-			List<string> pathz = paths.ToList();
-			pathz.Insert(0, GetModPath(plug));
-			return AudioClipFromFile(Path.Combine(pathz.ToArray()));
-		}
-
-		public static string GetModPath(BaseUnityPlugin plug)
+        public static AudioClip AudioClipFromMod(BaseUnityPlugin plug, params string[] paths)
         {
-			return Path.Combine(Application.streamingAssetsPath, "Modded", plug.Info.Metadata.GUID);
-		}
+            List<string> pathz = paths.ToList();
+            pathz.Insert(0, GetModPath(plug));
+            return AudioClipFromFile(Path.Combine(pathz.ToArray()));
+        }
 
-		/// <summary>
-		/// Creates a midi from a file. It returns the id assigned to the midi, which is an altered version of the id you pass to avoid conflicts.
-		/// </summary>
-		
-		internal static Dictionary<string, byte[]> MidiDatas = new Dictionary<string, byte[]>();
+        public static string GetModPath(BaseUnityPlugin plug)
+        {
+            return Path.Combine(Application.streamingAssetsPath, "Modded", plug.Info.Metadata.GUID);
+        }
+
+        /// <summary>
+        /// Creates a midi from a file. It returns the id assigned to the midi, which is an altered version of the id you pass to avoid conflicts.
+        /// </summary>
+
+        internal static Dictionary<string, byte[]> MidiDatas = new Dictionary<string, byte[]>();
         public static Dictionary<string, byte[]> MidisToBeAdded = new Dictionary<string, byte[]>();
-		public static string MidiFromFile(string path, string id)
-		{
-			string idToUse = "custom_" + id;
+        public static string MidiFromFile(string path, string id)
+        {
+            string idToUse = "custom_" + id;
             while (MidiDatas.ContainsKey(idToUse))
             {
                 idToUse += "_";
@@ -222,7 +239,7 @@ namespace MTM101BaldAPI.AssetTools
     [HarmonyPatch(typeof(MidiFilePlayer))]
     [HarmonyPatch("MPTK_Play", new Type[0] { })]
     static class MusicPrefix
-	{
+    {
         private static bool Prefix(MidiFilePlayer __instance)
         {
             byte[] data = AssetLoader.MidiDatas.GetValueSafe(__instance.MPTK_MidiName);
