@@ -208,9 +208,9 @@ namespace MTM101BaldAPI.AssetTools
             return idToUse;
         }
 
-        public static string MidiFromMod(string id, BaseUnityPlugin plug, params string[] args)
+        public static string MidiFromMod(string id, BaseUnityPlugin plug, params string[] paths)
         {
-            List<string> pathz = args.ToList();
+            List<string> pathz = paths.ToList();
             pathz.Insert(0, GetModPath(plug));
             return MidiFromFile(id, Path.Combine(pathz.ToArray()));
         }

@@ -162,12 +162,6 @@ namespace MTM101BaldAPI.AssetTools
             AddInternal(key, value, type.BaseType);
         }
 
-        // todo: consider removing this?
-        public bool RemoveCheap<T>(string key)
-        {
-            return RemoveInternal(typeof(T), key);
-        }
-
         public bool Remove<T>(string key)
         {
             Type actType = Get<T>(key).GetType();
