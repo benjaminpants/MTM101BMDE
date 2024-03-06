@@ -20,6 +20,7 @@ using MTM101BaldAPI.AssetTools;
 using UnityCipher;
 using MTM101BaldAPI.Reflection;
 using TMPro;
+using System.Collections;
 
 namespace MTM101BaldAPI
 {
@@ -35,13 +36,13 @@ namespace MTM101BaldAPI
     {
         internal static ManualLogSource Log;
 
-        public const string VersionNumber = "3.2.0.0";
+        public const string VersionNumber = "3.2.1.0";
 
         internal static bool CalledInitialize = false;
 
         public static MTM101BaldiDevAPI Instance;
 
-        internal static List<ScriptableObject> keepInMemory = new List<ScriptableObject>();
+        internal static List<UnityEngine.Object> keepInMemory = new List<UnityEngine.Object>();
 
         public static ItemMetaStorage itemMetadata = new ItemMetaStorage();
         public static NPCMetaStorage npcMetadata = new NPCMetaStorage();
@@ -90,6 +91,177 @@ namespace MTM101BaldAPI
         }
 
         internal static SavedGameDataHandler saveHandler = SavedGameDataHandler.Vanilla;
+
+        internal IEnumerator ReloadScenes()
+        {
+            AsyncOperation waitForSceneLoad = SceneManager.LoadSceneAsync("Game", LoadSceneMode.Additive);
+            while (!waitForSceneLoad.isDone)
+            {
+                yield return null;
+            }
+            AsyncOperation waitForSceneUnload = SceneManager.UnloadSceneAsync("Game");
+            while (!waitForSceneUnload.isDone)
+            {
+                yield return null;
+            }
+            OnSceneUnload();
+            yield break;
+        }
+
+        internal void OnSceneUnload()
+        {
+            // INITIALIZE ITEM METADATA
+            ItemObject grapplingHook = null;
+            Resources.FindObjectsOfTypeAll<ItemObject>().Do(x =>
+            {
+                switch (x.itemType)
+                {
+                    case Items.PortalPoster:
+                        x.AddMeta(MTM101BaldiDevAPI.Instance, ItemFlags.Persists); //todo: double check
+                        break;
+                    case Items.GrapplingHook:
+                        if ((grapplingHook == null) &&
+                        (((ITM_GrapplingHook)x.item).uses == 4))
+                        {
+                            grapplingHook = x;
+                        }
+                        break;
+                    case Items.Bsoda:
+                        ItemMetaData bm = x.AddMeta(MTM101BaldiDevAPI.Instance, ItemFlags.Persists | ItemFlags.CreatesEntity);
+                        bm.tags.Add("food");
+                        bm.tags.Add("drink");
+                        break;
+                    case Items.AlarmClock:
+                    case Items.ChalkEraser:
+                        x.AddMeta(MTM101BaldiDevAPI.Instance, ItemFlags.Persists | ItemFlags.CreatesEntity);
+                        break;
+                    case Items.Boots:
+                    case Items.Teleporter:
+                    case Items.Nametag:
+                        x.AddMeta(MTM101BaldiDevAPI.Instance, ItemFlags.Persists);
+                        break;
+                    case Items.Apple:
+                        x.AddMeta(MTM101BaldiDevAPI.Instance, ItemFlags.NoUses).tags.Add("food");
+                        break;
+                    case Items.None:
+                        x.AddMeta(MTM101BaldiDevAPI.Instance, ItemFlags.NoUses);
+                        break;
+                    case Items.ZestyBar:
+                        x.AddMeta(MTM101BaldiDevAPI.Instance, ItemFlags.None).tags.Add("food");
+                        break;
+                    case Items.Quarter:
+                        x.AddMeta(MTM101BaldiDevAPI.Instance, ItemFlags.None).tags.Add("currency");
+                        break;
+                    case Items.Wd40:
+                    case Items.DetentionKey:
+                    case Items.Tape:
+                    case Items.Scissors:
+                    case Items.PrincipalWhistle:
+                    case Items.DoorLock:
+                        x.AddMeta(MTM101BaldiDevAPI.Instance, ItemFlags.None);
+                        break;
+                    default:
+                        // modded items start at 256, so we somehow have initialized after the mod in question, ignore the data.
+                        if ((int)x.itemType < 256)
+                        {
+                            MTM101BaldiDevAPI.Log.LogWarning("Unknown core item: " + x.itemType.ToString() + "! Can't add metadata!");
+                        }
+                        break;
+                }
+            });
+            ItemMetaData grappleMeta = new ItemMetaData(MTM101BaldiDevAPI.Instance.Info, (ItemObject[])((ITM_GrapplingHook)grapplingHook.item).ReflectionGetVariable("allVersions"));
+            grappleMeta.itemObjects = grappleMeta.itemObjects.AddItem(grapplingHook).ToArray();
+            grappleMeta.flags = ItemFlags.CreatesEntity | ItemFlags.MultipleUse | ItemFlags.Persists;
+            grappleMeta.itemObjects.Do(x =>
+            {
+                x.AddMeta(grappleMeta);
+            });
+            // INITIALIZE CHARACTER METADATA
+            NPC[] NPCs = Resources.FindObjectsOfTypeAll<NPC>();
+            NPCMetaStorage.Instance.Add(new NPCMetadata(MTM101BaldiDevAPI.Instance.Info, NPCs.Where(x => x.Character == Character.Baldi).ToArray(), "Baldi", NPCFlags.StandardAndHear));
+            NPCMetaStorage.Instance.Add(new NPCMetadata(MTM101BaldiDevAPI.Instance.Info, NPCs.Where(x => x.Character == Character.Principal).ToArray(), "Principal", NPCFlags.Standard));
+            NPCMetaStorage.Instance.Add(new NPCMetadata(MTM101BaldiDevAPI.Instance.Info, NPCs.Where(x => x.Character == Character.Beans).ToArray(), "Beans", NPCFlags.Standard));
+            NPCMetaStorage.Instance.Add(new NPCMetadata(MTM101BaldiDevAPI.Instance.Info, NPCs.Where(x => x.Character == Character.Chalkles).ToArray(), "ChalkFace", NPCFlags.StandardNoCollide | NPCFlags.MakeNoise));
+            NPCMetaStorage.Instance.Add(new NPCMetadata(MTM101BaldiDevAPI.Instance.Info, NPCs.Where(x => x.Character == Character.Cumulo).ToArray(), "CloudyCopter", NPCFlags.Standard)); // they do have a trigger it just doesn't do anything
+            NPCMetaStorage.Instance.Add(new NPCMetadata(MTM101BaldiDevAPI.Instance.Info, NPCs.Where(x => x.Character == Character.Bully).ToArray(), "Bully", NPCFlags.Standard | NPCFlags.IsBlockade));
+            NPCMetaStorage.Instance.Add(new NPCMetadata(MTM101BaldiDevAPI.Instance.Info, NPCs.Where(x => x.Character == Character.Pomp).ToArray(), "Mrs Pomp", NPCFlags.Standard | NPCFlags.MakeNoise));
+            NPCMetaStorage.Instance.Add(new NPCMetadata(MTM101BaldiDevAPI.Instance.Info, NPCs.Where(x => x.Character == Character.Playtime).ToArray(), "Playtime", NPCFlags.Standard));
+            NPCMetaStorage.Instance.Add(new NPCMetadata(MTM101BaldiDevAPI.Instance.Info, NPCs.Where(x => x.Character == Character.Crafters).ToArray(), "Arts and Crafters", NPCFlags.Standard | NPCFlags.MakeNoise));
+            NPCMetaStorage.Instance.Add(new NPCMetadata(MTM101BaldiDevAPI.Instance.Info, NPCs.Where(x => x.Character == Character.Sweep).ToArray(), "Gotta Sweep", NPCFlags.Standard));
+            NPCMetaStorage.Instance.Add(new NPCMetadata(MTM101BaldiDevAPI.Instance.Info, NPCs.Where(x => x.Character == Character.LookAt).ToArray(), "LookAt", NPCFlags.Standard));
+            NPCMetaStorage.Instance.Add(new NPCMetadata(MTM101BaldiDevAPI.Instance.Info, NPCs.Where(x => x.Character == Character.Prize).ToArray(), "FirstPrize", NPCFlags.Standard | NPCFlags.MakeNoise));
+            NPCMetaStorage.Instance.Add(new NPCMetadata(MTM101BaldiDevAPI.Instance.Info, NPCs.Where(x => x.Character == Character.DrReflex).ToArray(), "DrReflex", NPCFlags.Standard));
+            Resources.FindObjectsOfTypeAll<RoomAsset>().Do(x =>
+            {
+                RoomAssetMetaStorage.Instance.Add(new RoomAssetMeta(MTM101BaldiDevAPI.Instance.Info, x));
+            });
+
+            Resources.FindObjectsOfTypeAll<RandomEvent>().Do(x =>
+            {
+                switch (x.Type)
+                {
+                    default:
+                        MTM101BaldiDevAPI.Log.LogWarning("Unknown random event type: " + x.Type.ToStringExtended() + ". Unable to add meta!");
+                        break;
+                    case RandomEventType.Party:
+                        RandomEventMetaStorage.Instance.Add(new RandomEventMetadata(MTM101BaldiDevAPI.Instance.Info, x, new RoomCategory[1] { RoomCategory.Office }));
+                        break;
+                    case RandomEventType.Snap:
+                        RandomEventMetaStorage.Instance.Add(new RandomEventMetadata(MTM101BaldiDevAPI.Instance.Info, x, new Character[1] { Character.Baldi }));
+                        break;
+                    case RandomEventType.Fog:
+                        RandomEventMetaStorage.Instance.Add(new RandomEventMetadata(MTM101BaldiDevAPI.Instance.Info, x));
+                        break;
+                    case RandomEventType.Gravity:
+                        RandomEventMetaStorage.Instance.Add(new RandomEventMetadata(MTM101BaldiDevAPI.Instance.Info, x));
+                        break;
+                    case RandomEventType.MysteryRoom:
+                        RandomEventMetaStorage.Instance.Add(new RandomEventMetadata(MTM101BaldiDevAPI.Instance.Info, x, RandomEventFlags.AffectsGenerator));
+                        break;
+                    case RandomEventType.Flood:
+                        RandomEventMetaStorage.Instance.Add(new RandomEventMetadata(MTM101BaldiDevAPI.Instance.Info, x));
+                        break;
+                    case RandomEventType.Lockdown:
+                        RandomEventMetaStorage.Instance.Add(new RandomEventMetadata(MTM101BaldiDevAPI.Instance.Info, x, RandomEventFlags.Permanent));
+                        break;
+                }
+            });
+            Resources.FindObjectsOfTypeAll<ObjectBuilder>().Do(x =>
+            {
+                ObjectBuilderMeta meta = new ObjectBuilderMeta(MTM101BaldiDevAPI.Instance.Info, x);
+                ObjectBuilderMetaStorage.Instance.Add(meta);
+            });
+
+            MTM101BaldiDevAPI.CalledInitialize = true;
+
+            MTM101BaldiDevAPI.Instance.AssetsLoadPre();
+            //everything else
+            if (LoadingEvents.OnAllAssetsLoaded != null)
+            {
+                LoadingEvents.OnAllAssetsLoaded.Invoke();
+            }
+            SceneObject[] objs = Resources.FindObjectsOfTypeAll<SceneObject>();
+            foreach (SceneObject obj in objs)
+            {
+                if (obj.levelObject == null) continue;
+#if DEBUG
+                MTM101BaldiDevAPI.Log.LogInfo(String.Format("Invoking SceneObject({0})({2}) Generation Changes for {1}!", obj.levelTitle, obj.levelObject.ToString(), obj.levelNo.ToString()));
+#endif
+                GeneratorManagement.Invoke(obj.levelTitle, obj.levelNo, obj.levelObject);
+            }
+            foreach (KeyValuePair<string, byte[]> kvp in AssetLoader.MidisToBeAdded)
+            {
+                AssetLoader.MidiFromBytes(kvp.Key, kvp.Value);
+            }
+            AssetLoader.MidisToBeAdded = null;
+            if (LoadingEvents.OnAllAssetsLoadedPost != null)
+            {
+                LoadingEvents.OnAllAssetsLoadedPost.Invoke();
+            }
+            // dumb dumb test code
+            /*LevelObject testObj = objs.Where(x => x.levelTitle == "F1").First().levelObject;
+            testObj.forcedNpcs = testObj.forcedNpcs.AddToArray(ObjectCreators.CreateNPC<TestNPC>("TestMan", Character.Null));*/
+        }
 
 #if DEBUG
         void OnMen(OptionsMenu __instance)
@@ -278,161 +450,13 @@ PRESS ALT+F4 TO EXIT THE GAME.
             if (MTM101BaldiDevAPI.CalledInitialize) return;
             // define all metadata before we call OnAllAssetsLoaded, so we can atleast be a bit more sure no other mods have activated and added their stuff yet.
 
+            MTM101BaldiDevAPI.Instance.StartCoroutine(MTM101BaldiDevAPI.Instance.ReloadScenes());
+            /*
             SceneManager.LoadScene("Game", LoadSceneMode.Additive);
 #pragma warning disable CS0618 // Type or member is obsolete
             SceneManager.UnloadScene("Game"); // we need it to be synced
 #pragma warning restore CS0618 // Type or member is obsolete
-            // INITIALIZE ITEM METADATA
-            ItemObject grapplingHook = null;
-            Resources.FindObjectsOfTypeAll<ItemObject>().Do(x =>
-            {
-                switch (x.itemType)
-                {
-                    case Items.PortalPoster:
-                        x.AddMeta(MTM101BaldiDevAPI.Instance, ItemFlags.Persists); //todo: double check
-                        break;
-                    case Items.GrapplingHook:
-                        if ((grapplingHook == null) && 
-                        (((ITM_GrapplingHook)x.item).uses == 4))
-                        {
-                            grapplingHook = x;
-                        }
-                        break;
-                    case Items.Bsoda:
-                        ItemMetaData bm = x.AddMeta(MTM101BaldiDevAPI.Instance, ItemFlags.Persists | ItemFlags.CreatesEntity);
-                        bm.tags.Add("food");
-                        bm.tags.Add("drink");
-                        break;
-                    case Items.AlarmClock:
-                    case Items.ChalkEraser:
-                        x.AddMeta(MTM101BaldiDevAPI.Instance, ItemFlags.Persists | ItemFlags.CreatesEntity);
-                        break;
-                    case Items.Boots:
-                    case Items.Teleporter:
-                    case Items.Nametag:
-                        x.AddMeta(MTM101BaldiDevAPI.Instance, ItemFlags.Persists);
-                        break;
-                    case Items.Apple:
-                        x.AddMeta(MTM101BaldiDevAPI.Instance, ItemFlags.NoUses).tags.Add("food");
-                        break;
-                    case Items.None:
-                        x.AddMeta(MTM101BaldiDevAPI.Instance, ItemFlags.NoUses);
-                        break;
-                    case Items.ZestyBar:
-                        x.AddMeta(MTM101BaldiDevAPI.Instance, ItemFlags.None).tags.Add("food");
-                        break;
-                    case Items.Quarter:
-                        x.AddMeta(MTM101BaldiDevAPI.Instance, ItemFlags.None).tags.Add("currency");
-                        break;
-                    case Items.Wd40:
-                    case Items.DetentionKey:
-                    case Items.Tape:
-                    case Items.Scissors:
-                    case Items.PrincipalWhistle:
-                    case Items.DoorLock:
-                        x.AddMeta(MTM101BaldiDevAPI.Instance, ItemFlags.None);
-                        break;
-                    default:
-                        // modded items start at 256, so we somehow have initialized after the mod in question, ignore the data.
-                        if ((int)x.itemType < 256)
-                        {
-                            MTM101BaldiDevAPI.Log.LogWarning("Unknown core item: " + x.itemType.ToString() + "! Can't add metadata!");
-                        }
-                        break;
-                }
-            });
-            ItemMetaData grappleMeta = new ItemMetaData(MTM101BaldiDevAPI.Instance.Info, (ItemObject[])((ITM_GrapplingHook)grapplingHook.item).ReflectionGetVariable("allVersions"));
-            grappleMeta.itemObjects = grappleMeta.itemObjects.AddItem(grapplingHook).ToArray();
-            grappleMeta.flags = ItemFlags.CreatesEntity | ItemFlags.MultipleUse | ItemFlags.Persists;
-            grappleMeta.itemObjects.Do(x =>
-            {
-                x.AddMeta(grappleMeta);
-            });
-            // INITIALIZE CHARACTER METADATA
-            NPC[] NPCs = Resources.FindObjectsOfTypeAll<NPC>();
-            NPCMetaStorage.Instance.Add(new NPCMetadata(MTM101BaldiDevAPI.Instance.Info, NPCs.Where(x => x.Character == Character.Baldi).ToArray(), "Baldi", NPCFlags.StandardAndHear));
-            NPCMetaStorage.Instance.Add(new NPCMetadata(MTM101BaldiDevAPI.Instance.Info, NPCs.Where(x => x.Character == Character.Principal).ToArray(), "Principal", NPCFlags.Standard));
-            NPCMetaStorage.Instance.Add(new NPCMetadata(MTM101BaldiDevAPI.Instance.Info, NPCs.Where(x => x.Character == Character.Beans).ToArray(), "Beans", NPCFlags.Standard));
-            NPCMetaStorage.Instance.Add(new NPCMetadata(MTM101BaldiDevAPI.Instance.Info, NPCs.Where(x => x.Character == Character.Chalkles).ToArray(), "ChalkFace", NPCFlags.StandardNoCollide | NPCFlags.MakeNoise));
-            NPCMetaStorage.Instance.Add(new NPCMetadata(MTM101BaldiDevAPI.Instance.Info, NPCs.Where(x => x.Character == Character.Cumulo).ToArray(), "CloudyCopter", NPCFlags.Standard)); // they do have a trigger it just doesn't do anything
-            NPCMetaStorage.Instance.Add(new NPCMetadata(MTM101BaldiDevAPI.Instance.Info, NPCs.Where(x => x.Character == Character.Bully).ToArray(), "Bully", NPCFlags.Standard | NPCFlags.IsBlockade));
-            NPCMetaStorage.Instance.Add(new NPCMetadata(MTM101BaldiDevAPI.Instance.Info, NPCs.Where(x => x.Character == Character.Pomp).ToArray(), "Mrs Pomp", NPCFlags.Standard | NPCFlags.MakeNoise));
-            NPCMetaStorage.Instance.Add(new NPCMetadata(MTM101BaldiDevAPI.Instance.Info, NPCs.Where(x => x.Character == Character.Playtime).ToArray(), "Playtime", NPCFlags.Standard));
-            NPCMetaStorage.Instance.Add(new NPCMetadata(MTM101BaldiDevAPI.Instance.Info, NPCs.Where(x => x.Character == Character.Crafters).ToArray(), "Arts and Crafters", NPCFlags.Standard | NPCFlags.MakeNoise));
-            NPCMetaStorage.Instance.Add(new NPCMetadata(MTM101BaldiDevAPI.Instance.Info, NPCs.Where(x => x.Character == Character.Sweep).ToArray(), "Gotta Sweep", NPCFlags.Standard));
-            NPCMetaStorage.Instance.Add(new NPCMetadata(MTM101BaldiDevAPI.Instance.Info, NPCs.Where(x => x.Character == Character.LookAt).ToArray(), "LookAt", NPCFlags.Standard));
-            NPCMetaStorage.Instance.Add(new NPCMetadata(MTM101BaldiDevAPI.Instance.Info, NPCs.Where(x => x.Character == Character.Prize).ToArray(), "FirstPrize", NPCFlags.Standard | NPCFlags.MakeNoise));
-            NPCMetaStorage.Instance.Add(new NPCMetadata(MTM101BaldiDevAPI.Instance.Info, NPCs.Where(x => x.Character == Character.DrReflex).ToArray(), "DrReflex", NPCFlags.Standard));
-            Resources.FindObjectsOfTypeAll<RoomAsset>().Do(x =>
-            {
-                RoomAssetMetaStorage.Instance.Add(new RoomAssetMeta(MTM101BaldiDevAPI.Instance.Info, x));
-            });
-
-            Resources.FindObjectsOfTypeAll<RandomEvent>().Do(x =>
-            {
-                switch (x.Type)
-                {
-                    default:
-                        MTM101BaldiDevAPI.Log.LogWarning("Unknown random event type: " + x.Type.ToStringExtended() + ". Unable to add meta!");
-                        break;
-                    case RandomEventType.Party:
-                        RandomEventMetaStorage.Instance.Add(new RandomEventMetadata(MTM101BaldiDevAPI.Instance.Info, x, new RoomCategory[1] { RoomCategory.Office }));
-                        break;
-                    case RandomEventType.Snap:
-                        RandomEventMetaStorage.Instance.Add(new RandomEventMetadata(MTM101BaldiDevAPI.Instance.Info, x, new Character[1] { Character.Baldi }));
-                        break;
-                    case RandomEventType.Fog:
-                        RandomEventMetaStorage.Instance.Add(new RandomEventMetadata(MTM101BaldiDevAPI.Instance.Info, x));
-                        break;
-                    case RandomEventType.Gravity:
-                        RandomEventMetaStorage.Instance.Add(new RandomEventMetadata(MTM101BaldiDevAPI.Instance.Info, x));
-                        break;
-                    case RandomEventType.MysteryRoom:
-                        RandomEventMetaStorage.Instance.Add(new RandomEventMetadata(MTM101BaldiDevAPI.Instance.Info, x, RandomEventFlags.AffectsGenerator));
-                        break;
-                    case RandomEventType.Flood:
-                        RandomEventMetaStorage.Instance.Add(new RandomEventMetadata(MTM101BaldiDevAPI.Instance.Info, x));
-                        break;
-                    case RandomEventType.Lockdown:
-                        RandomEventMetaStorage.Instance.Add(new RandomEventMetadata(MTM101BaldiDevAPI.Instance.Info, x, RandomEventFlags.Permanent));
-                        break;
-                }
-            });
-            Resources.FindObjectsOfTypeAll<ObjectBuilder>().Do(x =>
-            {
-                ObjectBuilderMeta meta = new ObjectBuilderMeta(MTM101BaldiDevAPI.Instance.Info, x);
-                ObjectBuilderMetaStorage.Instance.Add(meta);
-            });
-
-            MTM101BaldiDevAPI.CalledInitialize = true;
-
-            MTM101BaldiDevAPI.Instance.AssetsLoadPre();
-            //everything else
-            if (LoadingEvents.OnAllAssetsLoaded != null)
-            {
-                LoadingEvents.OnAllAssetsLoaded.Invoke();
-            }
-            SceneObject[] objs = Resources.FindObjectsOfTypeAll<SceneObject>();
-            foreach (SceneObject obj in objs)
-            {
-                if (obj.levelObject == null) continue;
-#if DEBUG
-                MTM101BaldiDevAPI.Log.LogInfo(String.Format("Invoking SceneObject({0})({2}) Generation Changes for {1}!", obj.levelTitle, obj.levelObject.ToString(), obj.levelNo.ToString()));
-#endif
-                GeneratorManagement.Invoke(obj.levelTitle, obj.levelNo, obj.levelObject);
-            }
-            foreach (KeyValuePair<string, byte[]> kvp in AssetLoader.MidisToBeAdded)
-            {
-                AssetLoader.MidiFromBytes(kvp.Key, kvp.Value);
-            }
-            AssetLoader.MidisToBeAdded = null;
-            if (LoadingEvents.OnAllAssetsLoadedPost != null)
-            {
-                LoadingEvents.OnAllAssetsLoadedPost.Invoke();
-            }
-            // dumb dumb test code
-            /*LevelObject testObj = objs.Where(x => x.levelTitle == "F1").First().levelObject;
-            testObj.forcedNpcs = testObj.forcedNpcs.AddToArray(ObjectCreators.CreateNPC<TestNPC>("TestMan", Character.Null));*/
+            */
 
         }
     }

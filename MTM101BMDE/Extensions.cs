@@ -10,14 +10,14 @@ namespace MTM101BaldAPI
 {
     public static class Extensions
     {
-        public static void MarkAsNeverUnload(this ScriptableObject me)
+        public static void MarkAsNeverUnload(this UnityEngine.Object me)
         {
             if (!MTM101BaldiDevAPI.keepInMemory.Contains(me))
             {
                 MTM101BaldiDevAPI.keepInMemory.Add(me);
             }
         }
-        public static void RemoveUnloadMark(this ScriptableObject me)
+        public static void RemoveUnloadMark(this UnityEngine.Object me)
         {
             MTM101BaldiDevAPI.keepInMemory.Remove(me);
         }
