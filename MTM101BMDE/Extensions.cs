@@ -22,6 +22,18 @@ namespace MTM101BaldAPI
             MTM101BaldiDevAPI.keepInMemory.Remove(me);
         }
 
+        public static void MarkAsNeverUnload(this ScriptableObject me)
+        {
+            if (!MTM101BaldiDevAPI.keepInMemory.Contains(me))
+            {
+                MTM101BaldiDevAPI.keepInMemory.Add(me);
+            }
+        }
+        public static void RemoveUnloadMark(this ScriptableObject me)
+        {
+            MTM101BaldiDevAPI.keepInMemory.Remove(me);
+        }
+
         public static int GetCellIndexAt(this RoomAsset me, int x, int y)
         {
             for (int i = 0; i < me.cells.Count; i++)
