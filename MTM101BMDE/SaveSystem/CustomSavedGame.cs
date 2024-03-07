@@ -9,6 +9,31 @@ using System.Linq;
 
 namespace MTM101BaldAPI.SaveSystem
 {
+    public class PartialModdedSavedGame
+    {
+        public int seed;
+        public string[] mods;
+        public bool hasFile;
+        public bool canBeMoved;
+
+        public PartialModdedSavedGame(int seed, string[] mods)
+        {
+            this.seed = seed;
+            this.mods = mods;
+            hasFile = true;
+            canBeMoved = false;
+        }
+
+        public PartialModdedSavedGame(bool hasFile)
+        {
+            this.seed = 0;
+            this.mods = new string[0];
+            this.hasFile = hasFile;
+            canBeMoved = false;
+        }
+    }
+
+
     // stores the name of a few parts of an item to make sure it can be found again if, for one reason or another it gets changed.
     [Serializable]
     public struct ModdedItemIdentifier
@@ -71,7 +96,7 @@ namespace MTM101BaldAPI.SaveSystem
         public int ytps = 0;
         public int lives = 2;
         public int seed = 0;
-        public int version = 0;
+        public const int version = 1;
         public bool saveAvailable = false;
         public bool fieldTripPlayed = false;
         public bool[] foundMapTiles = new bool[0];
@@ -84,6 +109,11 @@ namespace MTM101BaldAPI.SaveSystem
             if (handler.pluginInfo == null) throw new ArgumentNullException("You need to create a class that inherits from the ModdedSaveGameIOBinary class!");
             MTM101BaldiDevAPI.saveHandler = SavedGameDataHandler.Modded;
             ModdedSaveGameHandlers.Add(handler.pluginInfo.Metadata.GUID, handler);
+        }
+
+        public static void AddSaveHandler(PluginInfo info)
+        {
+            AddSaveHandler(new ModdedSaveGameIODummy(info));
         }
 
         public void Save(BinaryWriter writer, bool writeWarning = true)
@@ -120,12 +150,29 @@ namespace MTM101BaldAPI.SaveSystem
             }
         }
 
+        public static PartialModdedSavedGame PartialLoad(BinaryReader reader)
+        {
+            reader.ReadString();
+            bool saveAvailable = reader.ReadBoolean();
+            if (!saveAvailable) return new PartialModdedSavedGame(false);
+            int version = reader.ReadInt32();
+            int modCount = reader.ReadInt32();
+            List<string> modHandlers = new List<string>();
+            for (int i = 0; i < modCount; i++)
+            {
+                modHandlers.Add(reader.ReadString());
+            }
+            reader.ReadInt32();
+            int seed = reader.ReadInt32();
+            return new PartialModdedSavedGame(seed, modHandlers.ToArray());
+        }
+
         public ModdedSaveLoadStatus Load(BinaryReader reader)
         {
             reader.ReadString();
             saveAvailable = reader.ReadBoolean();
             if (!saveAvailable) return ModdedSaveLoadStatus.NoSave;
-            version = reader.ReadInt32();
+            int version = reader.ReadInt32();
             int modCount = reader.ReadInt32();
             List<string> modHandlers = new List<string>();
             for (int i = 0; i < modCount; i++)

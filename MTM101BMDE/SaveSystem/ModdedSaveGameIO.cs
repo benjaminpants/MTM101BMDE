@@ -57,4 +57,31 @@ namespace MTM101BaldAPI.SaveSystem
             OnObjectLoaded(JsonUtility.FromJson<T>(toLoad));
         }
     }
+
+    // A dummy ModdedSaveGameIO used for changing the save type to modded
+    internal class ModdedSaveGameIODummy : ModdedSaveGameIOBinary
+    {
+        private PluginInfo _info;
+        public override PluginInfo pluginInfo => _info;
+
+        internal ModdedSaveGameIODummy(PluginInfo info)
+        {
+            _info = info;
+        }
+
+        public override void Save(BinaryWriter writer)
+        {
+            writer.Write((byte)0);
+        }
+
+        public override void Load(BinaryReader reader)
+        {
+            reader.ReadByte();
+        }
+
+        public override void Reset()
+        {
+
+        }
+    }
 }

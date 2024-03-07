@@ -1,6 +1,10 @@
 ﻿using HarmonyLib;
+using MTM101BaldAPI.Registers;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
+using System.IO;
+using System.Linq;
 using System.Reflection;
 using System.Text;
 
@@ -9,7 +13,9 @@ namespace MTM101BaldAPI.SaveSystem
     public class ModdedFileManager : Singleton<ModdedFileManager>
     {
         public ModdedSaveGame saveData = new ModdedSaveGame();
-
+        public Dictionary<int, PartialModdedSavedGame> saveDatas = new Dictionary<int, PartialModdedSavedGame>();
+        public int saveIndex { get; internal set; }
+        public List<int> saveIndexes = new List<int>();
         static FieldInfo _cgmbackupItems = AccessTools.Field(typeof(CoreGameManager), "backupItems"); 
         static FieldInfo _cgmrestoreItemsOnSpawn = AccessTools.Field(typeof(CoreGameManager), "restoreItemsOnSpawn");
 
@@ -31,6 +37,128 @@ namespace MTM101BaldAPI.SaveSystem
             }
             _cgmbackupItems.SetValue(Singleton<CoreGameManager>.Instance,backupItems); //not sure if necessary.
             _cgmrestoreItemsOnSpawn.SetValue(Singleton<CoreGameManager>.Instance, true);
+        }
+
+        public int FindAppropiateSaveGame(string myPath, bool ignoreAlready = false)
+        {
+            if ((!ignoreAlready) && (saveIndex != 0))
+            {
+                return saveIndex;
+            }
+            saveIndexes.Clear();
+            saveDatas.Clear();
+            if (File.Exists(Path.Combine(myPath, "availableSlots.txt")))
+            {
+                saveIndexes.AddRange(File.ReadAllLines(Path.Combine(myPath, "availableSlots.txt")).Select(x => int.Parse(x)));
+            }
+            else
+            {
+                if (File.Exists(Path.Combine(myPath, "savedgame0.bbapi")))
+                {
+                    File.Move(Path.Combine(myPath, "savedgame0.bbapi"), Path.Combine(myPath, "savedgame1.bbapi"));
+                }
+                saveIndexes.Add(1);
+                FileStream fs = File.OpenRead(Path.Combine(myPath, "savedgame1.bbapi"));
+                BinaryReader reader = new BinaryReader(fs);
+                saveDatas.Add(1, ModdedSaveGame.PartialLoad(reader));
+                reader.Close();
+                return 1;
+            }
+            for (int i = 0; i < saveIndexes.Count; i++)
+            {
+                if (!File.Exists(Path.Combine(myPath, "savedgame" + saveIndexes[i] + ".bbapi"))) continue;
+                FileStream fs = File.OpenRead(Path.Combine(myPath, "savedgame" + saveIndexes[i] + ".bbapi"));
+                BinaryReader reader = new BinaryReader(fs);
+                saveDatas.Add(saveIndexes[i], ModdedSaveGame.PartialLoad(reader));
+                reader.Close();
+            }
+            // a list of kvps that has every file that shares the same mods, might include files with less mods
+            KeyValuePair<int, PartialModdedSavedGame>[] containsAllMods = saveDatas.Where(x =>
+            {
+                for (int i = 0; i < x.Value.mods.Length; i++)
+                {
+                    if (!ModdedSaveGame.ModdedSaveGameHandlers.ContainsKey(x.Value.mods[i]))
+                    {
+                        return false;
+                    }
+                }
+                return true;
+            }).ToArray();
+            containsAllMods.Select(x => x.Value).Do(x => x.canBeMoved = true);
+            KeyValuePair<int, PartialModdedSavedGame>[] containsExactMods = containsAllMods.Where(x =>
+            {
+                int mods = 0;
+                for (int i = 0; i < x.Value.mods.Length; i++)
+                {
+                    if (ModdedSaveGame.ModdedSaveGameHandlers.ContainsKey(x.Value.mods[i]))
+                    {
+                        mods++;
+                    }
+                }
+                return mods == ModdedSaveGame.ModdedSaveGameHandlers.Count;
+            }).ToArray();
+            if (containsExactMods.Length > 1)
+            {
+                MTM101BaldiDevAPI.Log.LogError("Dirty hacker! Found duplicate files with same mods!");
+                int key = containsExactMods.Last().Key;
+                saveDatas.Remove(key);
+                saveIndexes.Remove(key);
+            }
+            if (containsExactMods.Length == 0)
+            {
+                int validIndex = 1;
+                while (saveDatas.ContainsKey(validIndex)) validIndex++;
+                saveIndexes.Add(validIndex);
+                saveDatas.Add(validIndex, new PartialModdedSavedGame(false));
+                return validIndex;
+            }
+            return containsExactMods[0].Key;
+        }
+
+        public void SaveFileList(string myPath)
+        {
+            string toPrint = "";
+            saveIndexes.Do(x => toPrint += (x + "\n"));
+            toPrint = toPrint.Trim();
+            File.WriteAllText(Path.Combine(myPath, "availableSlots.txt"), toPrint);
+        }
+
+        public void SaveGameWithIndex(string path, int index)
+        {
+            FileStream fs = File.OpenWrite(Path.Combine(path, "savedgame" + index + ".bbapi"));
+            fs.SetLength(0); // make sure to clear the contents before writing to it!
+            BinaryWriter writer = new BinaryWriter(fs);
+            saveData.Save(writer);
+            writer.Close();
+        }
+
+        public void LoadGameWithIndex(string path, int index)
+        {
+            if (!File.Exists(Path.Combine(path, "savedgame" + index + ".bbapi"))) return;
+            FileStream fs = File.OpenRead(Path.Combine(path, "savedgame" + index + ".bbapi"));
+            BinaryReader reader = new BinaryReader(fs);
+            ModdedSaveLoadStatus status = Singleton<ModdedFileManager>.Instance.saveData.Load(reader);
+            reader.Close();
+            switch (status)
+            {
+                default:
+                    break;
+                case ModdedSaveLoadStatus.MissingHandlers:
+                    MTM101BaldiDevAPI.Log.LogWarning("Failed to load save because one or more mod handlers were missing!");
+                    Singleton<ModdedFileManager>.Instance.saveData.saveAvailable = false;
+                    break;
+                case ModdedSaveLoadStatus.MissingItems:
+                    if (ItemMetaStorage.Instance.All().Length == 0) break; //item metadata hasnt loaded yet!
+                    MTM101BaldiDevAPI.Log.LogWarning("Failed to load save because one or more items couldn't be found!");
+                    Singleton<ModdedFileManager>.Instance.saveData.saveAvailable = false;
+                    break;
+                case ModdedSaveLoadStatus.NoSave:
+                    MTM101BaldiDevAPI.Log.LogInfo("No save data was found.");
+                    break;
+                case ModdedSaveLoadStatus.Success:
+                    MTM101BaldiDevAPI.Log.LogInfo("Modded Savedata was succesfully loaded!");
+                    break;
+            }
         }
 
         public void DeleteSavedGame()

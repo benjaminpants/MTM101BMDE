@@ -21,6 +21,8 @@ using UnityCipher;
 using MTM101BaldAPI.Reflection;
 using TMPro;
 using System.Collections;
+using MTM101BaldAPI.UI;
+using UnityEngine.UI;
 
 namespace MTM101BaldAPI
 {
@@ -71,7 +73,7 @@ namespace MTM101BaldAPI
             {
                 return saveHandler;
             }
-            set
+            /*set
             {
                 switch (saveHandler)
                 {
@@ -87,7 +89,7 @@ namespace MTM101BaldAPI
                         saveHandler = SavedGameDataHandler.Modded;
                         break;
                 }
-            }
+            }*/
         }
 
         internal static SavedGameDataHandler saveHandler = SavedGameDataHandler.Vanilla;
@@ -344,6 +346,9 @@ namespace MTM101BaldAPI
             AssetMan.Add<GameObject>("TemplateNPC", templateObject);
             templateObject.layer = LayerMask.NameToLayer("NPCs");
             MTM101BaldAPI.Registers.Buttons.ButtonColorManager.InitializeButtonColors();
+            Sprite[] allSprites = Resources.FindObjectsOfTypeAll<Sprite>();
+            AssetMan.Add<Sprite>("MenuArrow",allSprites.Where(x => x.name == "MenuArrowSheet_2").First());
+            AssetMan.Add<Sprite>("MenuArrowHighlight", allSprites.Where(x => x.name == "MenuArrowSheet_0").First());
         }
 
         // "GUYS IM GONNA USE THIS FOR MY CUSTOM ERROR SCREEN FOR MY FUNNY 4TH WALL BREAK IN MY MOD!"
@@ -382,6 +387,7 @@ PRESS ALT+F4 TO EXIT THE GAME.
 #if DEBUG
             CustomOptionsCore.OnMenuInitialize += OnMen;
 #endif
+            CustomOptionsCore.OnMenuInitialize += SaveManagerMenu.MenuHook;
             Instance = this;
 
             Harmony harmony = new Harmony("mtm101.rulerp.bbplus.baldidevapi");
@@ -391,42 +397,16 @@ PRESS ALT+F4 TO EXIT THE GAME.
             ModdedSaveSystem.AddSaveLoadAction(this, (bool isSave, string myPath) =>
             {
                 if (MTM101BaldiDevAPI.SaveGamesHandler != SavedGameDataHandler.Modded) return;
+                int appropiateId = Singleton<ModdedFileManager>.Instance.FindAppropiateSaveGame(myPath);
+                Singleton<ModdedFileManager>.Instance.saveIndex = appropiateId;
                 if (isSave)
                 {
-                    //File.WriteAllText(Path.Combine(myPath, "testData.txt"), "This data doesn't actually store anything (yet)!!");
-                    FileStream fs = File.OpenWrite(Path.Combine(myPath, "savedgame0.bbapi"));
-                    fs.SetLength(0); // make sure to clear the contents before writing to it!
-                    BinaryWriter writer = new BinaryWriter(fs);
-                    Singleton<ModdedFileManager>.Instance.saveData.Save(writer);
-                    writer.Close();
+                    Singleton<ModdedFileManager>.Instance.SaveGameWithIndex(myPath, Singleton<ModdedFileManager>.Instance.saveIndex);
+                    Singleton<ModdedFileManager>.Instance.SaveFileList(myPath);
                 }
                 else
                 {
-                    if (!File.Exists(Path.Combine(myPath, "savedgame0.bbapi"))) return;
-                    FileStream fs = File.OpenRead(Path.Combine(myPath, "savedgame0.bbapi"));
-                    BinaryReader reader = new BinaryReader(fs);
-                    ModdedSaveLoadStatus status = Singleton<ModdedFileManager>.Instance.saveData.Load(reader);
-                    reader.Close();
-                    switch (status)
-                    {
-                        default:
-                            break;
-                        case ModdedSaveLoadStatus.MissingHandlers:
-                            MTM101BaldiDevAPI.Log.LogWarning("Failed to load save because one or more mod handlers were missing!");
-                            Singleton<ModdedFileManager>.Instance.saveData.saveAvailable = false;
-                            break;
-                        case ModdedSaveLoadStatus.MissingItems:
-                            if (itemMetadata.All().Length == 0) break; //item metadata hasnt loaded yet!
-                            MTM101BaldiDevAPI.Log.LogWarning("Failed to load save because one or more items couldn't be found!");
-                            Singleton<ModdedFileManager>.Instance.saveData.saveAvailable = false;
-                            break;
-                        case ModdedSaveLoadStatus.NoSave:
-                            MTM101BaldiDevAPI.Log.LogInfo("No save data was found.");
-                            break;
-                        case ModdedSaveLoadStatus.Success:
-                            MTM101BaldiDevAPI.Log.LogInfo("Modded Savedata was succesfully loaded!");
-                            break;
-                    }
+                    Singleton<ModdedFileManager>.Instance.LoadGameWithIndex(myPath, Singleton<ModdedFileManager>.Instance.saveIndex);
                 }
             });
 
