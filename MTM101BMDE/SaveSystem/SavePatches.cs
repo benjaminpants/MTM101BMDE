@@ -69,9 +69,11 @@ namespace MTM101BaldAPI.SaveSystem
             return true;
         }
 
-        static void Finalizer(Exception __exception)
+        // TODO: figure out what. the fuck. is happening
+        static Exception Finalizer()
         {
-            MTM101BaldiDevAPI.Log.LogError("Somehow, an exception has occured in Player.Find: " + __exception.Message);
+            //MTM101BaldiDevAPI.Log.LogWarning("Why is PlayerFileManager.Find STILL BEING CALLED??? I DONT KNOW.");
+            return null;
         }
     }
 

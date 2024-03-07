@@ -56,13 +56,18 @@ namespace MTM101BaldAPI.SaveSystem
                 if (File.Exists(Path.Combine(myPath, "savedgame0.bbapi")))
                 {
                     File.Move(Path.Combine(myPath, "savedgame0.bbapi"), Path.Combine(myPath, "savedgame1.bbapi"));
+                    saveIndexes.Add(1);
+                    FileStream fs = File.OpenRead(Path.Combine(myPath, "savedgame1.bbapi"));
+                    BinaryReader reader = new BinaryReader(fs);
+                    saveDatas.Add(1, ModdedSaveGame.PartialLoad(reader));
+                    reader.Close();
+                    return 1;
                 }
-                saveIndexes.Add(1);
-                FileStream fs = File.OpenRead(Path.Combine(myPath, "savedgame1.bbapi"));
-                BinaryReader reader = new BinaryReader(fs);
-                saveDatas.Add(1, ModdedSaveGame.PartialLoad(reader));
-                reader.Close();
-                return 1;
+                int validIndex = 1;
+                saveIndexes.Add(validIndex);
+                saveDatas.Add(validIndex, new PartialModdedSavedGame());
+                saveIndexes.Sort();
+                return validIndex;
             }
             for (int i = 0; i < saveIndexes.Count; i++)
             {
