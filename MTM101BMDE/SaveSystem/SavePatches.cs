@@ -10,8 +10,6 @@ namespace MTM101BaldAPI.SaveSystem
 {
     public static class ModdedSaveSystem
     {
-        public static event Action<bool[], int> OnOOBFind;
-
         private static Dictionary<BaseUnityPlugin, Action<bool, string>> saveLoadActions = new Dictionary<BaseUnityPlugin, Action<bool, string>>();
 
         /// <summary>
@@ -58,29 +56,22 @@ namespace MTM101BaldAPI.SaveSystem
             saveLoadActions[p].Invoke(saveLoad,path);
         }
 
-        public static void CallOOBFind(bool[] type, int value)
-        {
-            if (OnOOBFind != null)
-            {
-                OnOOBFind(type, value);
-            }
-        }
-
     }
 
 
     [HarmonyPatch(typeof(PlayerFileManager))]
     [HarmonyPatch("Find")]
-    class CallOOBFindOnOOBFind
+    class DisableFindingOnModdedGames
     {
-        static bool Prefix(PlayerFileManager __instance, bool[] type, int value)
+        static bool Prefix()
         {
-            if (type.Length >= value || (value < 0))
-            {
-                ModdedSaveSystem.CallOOBFind(type, value);
-                return false;
-            }
+            if (MTM101BaldiDevAPI.saveHandler != SavedGameDataHandler.Vanilla) return false;
             return true;
+        }
+
+        static void Finalizer(Exception __exception)
+        {
+            MTM101BaldiDevAPI.Log.LogError("Somehow, an exception has occured in Player.Find: " + __exception.Message);
         }
     }
 

@@ -133,6 +133,7 @@ namespace MTM101BaldAPI.OptionsAPI
             //TODO: Find a better way of doing this.
             TooltipController t = (TooltipController)smb.OnHighlight.GetPersistentTarget(0);
             smb.OnHighlight = new UnityEvent();
+            if (tooltipText == "") return;
             smb.OnHighlight.AddListener(() =>
             {
                 t.UpdateTooltip(tooltipText);

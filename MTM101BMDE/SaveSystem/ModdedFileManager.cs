@@ -99,19 +99,18 @@ namespace MTM101BaldAPI.SaveSystem
             }).ToArray();
             if (containsExactMods.Length > 1)
             {
-                MTM101BaldiDevAPI.Log.LogError("Dirty hacker! Found duplicate files with same mods!");
-                int key = containsExactMods.Last().Key;
-                saveDatas.Remove(key);
-                saveIndexes.Remove(key);
+                MTM101BaldiDevAPI.Log.LogError("Dirty hacker! Found duplicate files with same mods! Unfortunately, can't do anything about this, but SHAME! SHAMMEEE!");
             }
             if (containsExactMods.Length == 0)
             {
                 int validIndex = 1;
                 while (saveDatas.ContainsKey(validIndex)) validIndex++;
                 saveIndexes.Add(validIndex);
-                saveDatas.Add(validIndex, new PartialModdedSavedGame(false));
+                saveDatas.Add(validIndex, new PartialModdedSavedGame());
+                saveIndexes.Sort();
                 return validIndex;
             }
+            containsExactMods[0].Value.canBeMoved = false;
             return containsExactMods[0].Key;
         }
 
@@ -121,6 +120,20 @@ namespace MTM101BaldAPI.SaveSystem
             saveIndexes.Do(x => toPrint += (x + "\n"));
             toPrint = toPrint.Trim();
             File.WriteAllText(Path.Combine(myPath, "availableSlots.txt"), toPrint);
+        }
+
+        public void UpdateCurrentPartialSave()
+        {
+            saveDatas[saveIndex] = new PartialModdedSavedGame(saveData);
+        }
+
+        public void DeleteIndexedGame(int index)
+        {
+            string myPath = ModdedSaveSystem.GetSaveFolder(MTM101BaldiDevAPI.Instance, Singleton<PlayerFileManager>.Instance.fileName);
+            File.Delete(Path.Combine(myPath, "savedgame" + index + ".bbapi"));
+            saveDatas.Remove(index);
+            saveIndexes.Remove(index);
+            SaveFileList(myPath);
         }
 
         public void SaveGameWithIndex(string path, int index)
@@ -242,6 +255,7 @@ namespace MTM101BaldAPI.SaveSystem
             {
                 x.Value.Reset();
             });
+            Singleton<ModdedFileManager>.Instance.saveIndex = 0; //force a reload next time we try to grab data
         }
     }
 

@@ -58,7 +58,8 @@ namespace MTM101BaldAPI.SaveSystem
         }
     }
 
-    // A dummy ModdedSaveGameIO used for changing the save type to modded
+    // A dummy ModdedSaveGameIO used for changing the save type to Modded.
+    // Writes a 0 so if they want to add data in the future all they have to do is check if the first byte is zero to see if they already have data
     internal class ModdedSaveGameIODummy : ModdedSaveGameIOBinary
     {
         private PluginInfo _info;

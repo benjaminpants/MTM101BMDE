@@ -38,7 +38,7 @@ namespace MTM101BaldAPI
     {
         internal static ManualLogSource Log;
 
-        public const string VersionNumber = "3.2.1.0";
+        public const string VersionNumber = "3.3.0.0";
 
         internal static bool CalledInitialize = false;
 
@@ -349,6 +349,9 @@ namespace MTM101BaldAPI
             Sprite[] allSprites = Resources.FindObjectsOfTypeAll<Sprite>();
             AssetMan.Add<Sprite>("MenuArrow",allSprites.Where(x => x.name == "MenuArrowSheet_2").First());
             AssetMan.Add<Sprite>("MenuArrowHighlight", allSprites.Where(x => x.name == "MenuArrowSheet_0").First());
+            SoundObject[] allSoundObjects = Resources.FindObjectsOfTypeAll<SoundObject>();
+            AssetMan.Add<SoundObject>("Xylophone", allSoundObjects.Where(x => x.name == "Xylophone").First());
+            AssetMan.Add<SoundObject>("Explosion", allSoundObjects.Where(x => x.name == "Explosion").First());
         }
 
         // "GUYS IM GONNA USE THIS FOR MY CUSTOM ERROR SCREEN FOR MY FUNNY 4TH WALL BREAK IN MY MOD!"
@@ -408,6 +411,7 @@ PRESS ALT+F4 TO EXIT THE GAME.
                 {
                     Singleton<ModdedFileManager>.Instance.LoadGameWithIndex(myPath, Singleton<ModdedFileManager>.Instance.saveIndex);
                 }
+                Singleton<ModdedFileManager>.Instance.UpdateCurrentPartialSave();
             });
 
             Log = base.Logger;

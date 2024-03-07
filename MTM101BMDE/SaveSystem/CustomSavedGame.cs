@@ -23,12 +23,28 @@ namespace MTM101BaldAPI.SaveSystem
             hasFile = true;
             canBeMoved = false;
         }
+        
+        public PartialModdedSavedGame(ModdedSaveGame saveGame)
+        {
+            seed = saveGame.seed;
+            mods = ModdedSaveGame.ModdedSaveGameHandlers.Keys.ToArray();
+            hasFile = saveGame.saveAvailable;
+            canBeMoved = false;
+        }
 
-        public PartialModdedSavedGame(bool hasFile)
+        public PartialModdedSavedGame(string[] mods)
+        {
+            seed = 0;
+            this.mods = mods;
+            hasFile = false;
+            canBeMoved = false;
+        }
+
+        public PartialModdedSavedGame()
         {
             this.seed = 0;
             this.mods = new string[0];
-            this.hasFile = hasFile;
+            this.hasFile = false;
             canBeMoved = false;
         }
     }
@@ -120,13 +136,13 @@ namespace MTM101BaldAPI.SaveSystem
         {
             writer.Write(writeWarning ? "Hey, YOU! Yeah, YOU! If you want to edit this file, use a hex editor, as this is not a text file!" : MTM101BaldiDevAPI.VersionNumber);
             writer.Write(saveAvailable);
-            if (!saveAvailable) return;
             writer.Write(version);
             writer.Write(ModdedSaveGameHandlers.Count);
             foreach (KeyValuePair<string, ModdedSaveGameIOBinary> kvp in ModdedSaveGameHandlers)
             {
                 writer.Write(kvp.Key);
             }
+            if (!saveAvailable) return;
             writer.Write(levelId);
             writer.Write(seed);
             writer.Write(ytps);
@@ -154,13 +170,23 @@ namespace MTM101BaldAPI.SaveSystem
         {
             reader.ReadString();
             bool saveAvailable = reader.ReadBoolean();
-            if (!saveAvailable) return new PartialModdedSavedGame(false);
+            if (!saveAvailable)
+            {
+                if (reader.BaseStream.Position >= reader.BaseStream.Length) //we must be in an older version, return early.
+                {
+                    return new PartialModdedSavedGame();
+                }
+            }
             int version = reader.ReadInt32();
             int modCount = reader.ReadInt32();
             List<string> modHandlers = new List<string>();
             for (int i = 0; i < modCount; i++)
             {
                 modHandlers.Add(reader.ReadString());
+            }
+            if (!saveAvailable)
+            {
+                return new PartialModdedSavedGame(modHandlers.ToArray());
             }
             reader.ReadInt32();
             int seed = reader.ReadInt32();
@@ -171,7 +197,13 @@ namespace MTM101BaldAPI.SaveSystem
         {
             reader.ReadString();
             saveAvailable = reader.ReadBoolean();
-            if (!saveAvailable) return ModdedSaveLoadStatus.NoSave;
+            if (!saveAvailable)
+            {
+                if (reader.BaseStream.Position >= reader.BaseStream.Length) //we must be in an older version
+                {
+                    return ModdedSaveLoadStatus.NoSave;
+                }
+            }
             int version = reader.ReadInt32();
             int modCount = reader.ReadInt32();
             List<string> modHandlers = new List<string>();
@@ -179,6 +211,7 @@ namespace MTM101BaldAPI.SaveSystem
             {
                 modHandlers.Add(reader.ReadString());
             }
+            if (!saveAvailable) return ModdedSaveLoadStatus.NoSave;
             levelId = reader.ReadInt32();
             seed = reader.ReadInt32();
             ytps = reader.ReadInt32();
