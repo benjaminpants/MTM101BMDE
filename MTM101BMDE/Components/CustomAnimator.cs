@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Text;
 using UnityEngine;
 using UnityEngine.Events;
+using UnityEngine.UI;
 
 namespace MTM101BaldAPI.Components
 {
@@ -47,7 +48,7 @@ namespace MTM101BaldAPI.Components
 
     public interface ICustomAnimator<TType, TAnimation, TFrame> where TAnimation : CustomAnimation<TFrame>
     {
-        TType affectedObject { get; }
+        TType affectedObject { get; set; }
 
         void Play(string name, float speed);
 
@@ -58,33 +59,26 @@ namespace MTM101BaldAPI.Components
         void Stop();
 
     }
+
     /// <summary>
-    /// A custom sprite animator, please note that currently, this does not properly save the animations property, so if you are using this in an NPC,
-    /// I advise defining the animations in its Initialization function, as putting them in the prefab won't work.
+    /// A base for a monobehavior implementation of ICustomAnimator, including setting a default animation
     /// </summary>
-    public class CustomSpriteAnimator : MonoBehaviour, ICustomAnimator<SpriteRenderer, CustomAnimation<Sprite>, Sprite>
+    /// <typeparam name="TType"></typeparam>
+    /// <typeparam name="TAnimation"></typeparam>
+    /// <typeparam name="TFrame"></typeparam>
+    public abstract class CustomAnimatorMono<TType, TAnimation, TFrame> : MonoBehaviour, ICustomAnimator<TType, TAnimation, TFrame> where TAnimation : CustomAnimation<TFrame>
     {
-        public SpriteRenderer affectedObject { 
-            get 
-            {
-                return this.spriteRenderer;
-            }
-            set
-            {
-                this.spriteRenderer = value;
-            }
-        }
-        public SpriteRenderer spriteRenderer;
-        public Dictionary<string, CustomAnimation<Sprite>> animations = new Dictionary<string, CustomAnimation<Sprite>>();
-        private float currentFrameTime = 0f;
-        private float currentAnimTime = 0f;
-        private int currentFrameIndex = 0;
-        private string currentAnim = "";
-        private string defaultAnim = "";
-        private float defaultAnimSpeed = 1f;
-        private bool paused = false;
-        
-        private CustomAnimation<Sprite> currentAnimation { 
+        public Dictionary<string, TAnimation> animations = new Dictionary<string, TAnimation>();
+        protected float currentFrameTime = 0f;
+        protected float currentAnimTime = 0f;
+        protected int currentFrameIndex = 0;
+        protected string currentAnim = "";
+        protected string defaultAnim = "";
+        protected float defaultAnimSpeed = 1f;
+        protected bool paused = false;
+
+        protected TAnimation currentAnimation
+        {
             get
             {
                 if (currentAnim == "") return null;
@@ -92,7 +86,7 @@ namespace MTM101BaldAPI.Components
             }
         }
 
-        private CustomAnimationFrame<Sprite> currentFrame
+        protected CustomAnimationFrame<TFrame> currentFrame
         {
             get
             {
@@ -100,12 +94,13 @@ namespace MTM101BaldAPI.Components
             }
         }
 
-        private float _currentSpeed = 1f;
-        public float Speed { 
-            get 
+        protected float _currentSpeed = 1f;
+        public float Speed
+        {
+            get
             {
-                return paused ? 0f : _currentSpeed; 
-            } 
+                return paused ? 0f : _currentSpeed;
+            }
         }
 
         public float CurrentAnimationTime
@@ -116,17 +111,19 @@ namespace MTM101BaldAPI.Components
             }
         }
 
-        public void ChangeSpeed(float speed)
+        public abstract TType affectedObject { get; set; }
+
+        public virtual void ChangeSpeed(float speed)
         {
             _currentSpeed = speed;
         }
 
-        public void SetPause(bool pause)
+        public virtual void SetPause(bool pause)
         {
             paused = pause;
         }
 
-        public void SetDefaultAnimation(string newDef, float newDefSpeed)
+        public virtual void SetDefaultAnimation(string newDef, float newDefSpeed)
         {
             defaultAnim = newDef;
             defaultAnimSpeed = newDefSpeed;
@@ -137,6 +134,11 @@ namespace MTM101BaldAPI.Components
         }
 
         void Update()
+        {
+            VirtualUpdate();
+        }
+
+        protected virtual void VirtualUpdate()
         {
             if (currentAnim == "") return;
             float delta = Time.deltaTime * Speed;
@@ -154,12 +156,9 @@ namespace MTM101BaldAPI.Components
             }
         }
 
-        private void UpdateFrame()
-        {
-            affectedObject.sprite = currentFrame.value;
-        }
+        protected abstract void UpdateFrame();
 
-        public void Play(string name, float speed)
+        public virtual void Play(string name, float speed)
         {
             if (animations.ContainsKey(name))
             {
@@ -170,10 +169,10 @@ namespace MTM101BaldAPI.Components
                 UpdateFrame();
                 return;
             }
-            Debug.LogError("Attempted to play non-existant animation " + name + "!");
+            Debug.LogError("Attempted to play non-existant animation " + name + "! (" + gameObject.name + ")");
         }
 
-        public void Stop()
+        public virtual void Stop()
         {
             currentAnim = defaultAnim;
             if (defaultAnim != "")
@@ -181,5 +180,57 @@ namespace MTM101BaldAPI.Components
                 Play(defaultAnim, defaultAnimSpeed);
             }
         }
+    }
+
+    /// <summary>
+    /// A custom sprite animator, please note that currently, this does not properly save the animations property, so if you are using this in an NPC,
+    /// I advise defining the animations in its Initialization function, as putting them in the prefab won't work.
+    /// </summary>
+    public class CustomSpriteAnimator : CustomAnimatorMono<SpriteRenderer, CustomAnimation<Sprite>, Sprite>
+    {
+        public override SpriteRenderer affectedObject
+        {
+            get
+            {
+                return this.spriteRenderer;
+            }
+            set
+            {
+                this.spriteRenderer = value;
+            }
+        }
+        public SpriteRenderer spriteRenderer;
+
+        protected override void UpdateFrame()
+        {
+            affectedObject.sprite = currentFrame.value;
+        }
+
+    }
+
+    /// <summary>
+    /// A custom image animator, please note that currently, this does not properly save the animations property, so if you are using this in an NPC,
+    /// I advise defining the animations in its Initialization function, as putting them in the prefab won't work.
+    /// </summary>
+    public class CustomImageAnimator : CustomAnimatorMono<Image, CustomAnimation<Sprite>, Sprite>
+    {
+        public override Image affectedObject
+        {
+            get
+            {
+                return this.image;
+            }
+            set
+            {
+                this.image = value;
+            }
+        }
+        public Image image;
+
+        protected override void UpdateFrame()
+        {
+            affectedObject.sprite = currentFrame.value;
+        }
+
     }
 }

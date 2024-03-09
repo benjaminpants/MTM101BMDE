@@ -1,4 +1,5 @@
-﻿using MTM101BaldAPI.OptionsAPI;
+﻿using HarmonyLib;
+using MTM101BaldAPI.OptionsAPI;
 using MTM101BaldAPI.SaveSystem;
 using MTM101BaldAPI.UI;
 using System;
@@ -158,6 +159,7 @@ namespace MTM101BaldAPI
                 me.SwitchToWarning("This will transfer the game to this save, not duplicate it! If you transfer, you won't be able to load this save with the old mods! Are you sure?", () =>
                 {
                     // load the saved game
+                    ModdedSaveGame.ModdedSaveGameHandlers.Do(x => x.Value.Reset()); //reset all
                     Singleton<ModdedFileManager>.Instance.LoadGameWithIndex(ModdedSaveSystem.GetSaveFolder(MTM101BaldiDevAPI.Instance, Singleton<PlayerFileManager>.Instance.fileName), me.externalIndex);
                     Singleton<ModdedFileManager>.Instance.DeleteIndexedGame(me.externalIndex);
                     Singleton<ModdedFileManager>.Instance.UpdateCurrentPartialSave();

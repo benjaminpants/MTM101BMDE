@@ -27,6 +27,28 @@ namespace MTM101BaldAPI
         }
     }
 
+    public class WaitForSecondsMoveMod : CustomYieldInstruction
+    {
+        public ActivityModifier actM;
+        public float timeRemaining;
+
+        public WaitForSecondsMoveMod(ActivityModifier actMod, float seconds)
+        {
+            timeRemaining = seconds;
+            actM = actMod;
+        }
+
+        public override bool keepWaiting
+        {
+            get
+            {
+                if (!actM) return false; // actM somehow null
+                timeRemaining -= Time.deltaTime * actM.Multiplier;
+                return (timeRemaining >= 0);
+            }
+        }
+    }
+
     public class WaitForSecondsEnviromentTimescale : CustomYieldInstruction
     {
         public EnvironmentController ec;

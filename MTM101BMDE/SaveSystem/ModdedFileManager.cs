@@ -234,7 +234,25 @@ namespace MTM101BaldAPI.SaveSystem
             __instance.SetMode(0);
             __instance.LoadLevel(__instance.list.scenes[Singleton<ModdedFileManager>.Instance.saveData.levelId]);
             Singleton<ModdedFileManager>.Instance.DeleteSavedGame();
+            ModdedSaveGame.ModdedSaveGameHandlers.Do(x =>
+            {
+                x.Value.OnCGMCreated(Singleton<CoreGameManager>.Instance, true);
+            });
             return false;
+        }
+    }
+
+    [HarmonyPatch(typeof(GameLoader))]
+    [HarmonyPatch("Initialize")]
+    class LoadStandardGame
+    {
+        static void Postfix(GameLoader __instance)
+        {
+            if (MTM101BaldiDevAPI.SaveGamesHandler != SavedGameDataHandler.Modded) return;
+            ModdedSaveGame.ModdedSaveGameHandlers.Do(x =>
+            {
+                x.Value.OnCGMCreated(Singleton<CoreGameManager>.Instance, false);
+            });
         }
     }
 

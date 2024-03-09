@@ -5,6 +5,10 @@ using System.IO;
 using System.Text;
 using UnityEngine;
 
+// TODO: rewrite this whole thing(possibly for BB+ 0.5..?) to better encourage the following structure:
+// a static variable with a class
+// a monobehavior attached to CoreGameManager that stores the actual data while you are playing
+// the save function transferring data to the static class
 namespace MTM101BaldAPI.SaveSystem
 {
     // The main ModdedSaveGameIO class, these are to be inherited.
@@ -17,7 +21,13 @@ namespace MTM101BaldAPI.SaveSystem
 
         public abstract void Load(BinaryReader reader);
 
+        public virtual void OnCGMCreated(CoreGameManager instance, bool isFromSavedGame)
+        {
+            // do nothing
+        }
+
         public abstract void Reset();
+
     }
 
     // A version of ModdedSaveGameIOBinary, but for saving/loading plaintext.
@@ -82,7 +92,7 @@ namespace MTM101BaldAPI.SaveSystem
 
         public override void Reset()
         {
-
+            // do nothing
         }
     }
 }
