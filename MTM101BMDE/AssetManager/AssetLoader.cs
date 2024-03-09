@@ -129,6 +129,7 @@ namespace MTM101BaldAPI.AssetTools
 
         public static AudioClip AudioClipFromFile(string path)
         {
+            if (MTM101BaldiDevAPI.Instance.useOldAudioLoad.Value) return AudioClipFromFileLegacy(path);
             return AudioClipFromFile(path, GetAudioType(path));
         }
 
@@ -147,6 +148,36 @@ namespace MTM101BaldAPI.AssetTools
                 clip.name = Path.GetFileNameWithoutExtension(path);
                 return clip;
             }
+        }
+
+        private static AudioClip AudioClipFromFileLegacy(string path)
+        {
+            AudioType typeToUse;
+            string fileType = Path.GetExtension(path).ToLower().Remove(0, 1).Trim(); //what the fuck WHY DOES GET EXTENSION ADD THE FUCKING PERIOD.
+            switch (fileType)
+            {
+                case "mp2":
+                case "mp3":
+                    typeToUse = AudioType.MPEG;
+                    break;
+                case "wav":
+                    typeToUse = AudioType.WAV;
+                    break;
+                case "ogg":
+                    typeToUse = AudioType.OGGVORBIS;
+                    break;
+                case "aiff":
+                    typeToUse = AudioType.AIFF;
+                    break;
+                default:
+                    throw new NotImplementedException("Unknown audio file type:" + fileType + "!");
+            }
+            UnityWebRequest request = UnityWebRequestMultimedia.GetAudioClip(Path.Combine("File:///", path), typeToUse);
+            request.SendWebRequest();
+            while (!request.isDone) { };
+            AudioClip clip = DownloadHandlerAudioClip.GetContent(request);
+            clip.name = Path.GetFileNameWithoutExtension(path);
+            return clip;
         }
 
         [Obsolete("Please use SpriteFromTexture2D(Texture2D tex, float pixelsPerUnit) instead!")]

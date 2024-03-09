@@ -67,7 +67,7 @@ namespace MTM101BaldAPI
 			standMat.SetMainTexture(texture);
 			obj.overlay = new Material[] { standMat, standMat };
             Material BrokeMat = new Material(template.open.First());
-            BrokeMat.SetMainTexture(texture);
+            BrokeMat.SetMainTexture(brokenTexture);
             obj.open = new Material[] { BrokeMat, BrokeMat };
 			obj.windowPre = template.windowPre;
 

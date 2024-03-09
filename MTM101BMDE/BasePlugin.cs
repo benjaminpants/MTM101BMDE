@@ -38,7 +38,7 @@ namespace MTM101BaldAPI
     {
         internal static ManualLogSource Log;
 
-        public const string VersionNumber = "3.3.0.0";
+        public const string VersionNumber = "3.3.0.1";
 
         internal static bool CalledInitialize = false;
 
@@ -52,6 +52,8 @@ namespace MTM101BaldAPI
         public static ObjectBuilderMetaStorage objBuilderMeta = new ObjectBuilderMetaStorage();
 
         public static RoomAssetMetaStorage roomAssetMeta = new RoomAssetMetaStorage();
+
+        internal ConfigEntry<bool> useOldAudioLoad;
 
         internal static AssetManager AssetMan = new AssetManager();
 
@@ -246,9 +248,7 @@ namespace MTM101BaldAPI
             foreach (SceneObject obj in objs)
             {
                 if (obj.levelObject == null) continue;
-#if DEBUG
                 MTM101BaldiDevAPI.Log.LogInfo(String.Format("Invoking SceneObject({0})({2}) Generation Changes for {1}!", obj.levelTitle, obj.levelObject.ToString(), obj.levelNo.ToString()));
-#endif
                 GeneratorManagement.Invoke(obj.levelTitle, obj.levelNo, obj.levelObject);
             }
             foreach (KeyValuePair<string, byte[]> kvp in AssetLoader.MidisToBeAdded)
@@ -413,6 +413,11 @@ PRESS ALT+F4 TO EXIT THE GAME.
                 }
                 Singleton<ModdedFileManager>.Instance.UpdateCurrentPartialSave();
             });
+
+            useOldAudioLoad = Config.Bind("Technical",
+                "Use Old Audio Loading Method",
+                false,
+                "Whether or not the old, legacy method of loading audio should be used. (ONLY TURN ON IF YOU GET MENTIONS OF AN AUDIO LOADING ERROR!)");
 
             Log = base.Logger;
         }
