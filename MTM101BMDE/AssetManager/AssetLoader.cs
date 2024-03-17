@@ -129,7 +129,7 @@ namespace MTM101BaldAPI.AssetTools
 
         public static AudioClip AudioClipFromFile(string path)
         {
-            if (MTM101BaldiDevAPI.Instance.useOldAudioLoad == null)
+            if (MTM101BaldiDevAPI.Instance == null)
             {
                 MTM101BaldiDevAPI.Log.LogInfo("useOldAudioLoad not working properly, todo: FIX! For now, HACK HACK HACK!");
                 return AudioClipFromFile(path, GetAudioType(path));
