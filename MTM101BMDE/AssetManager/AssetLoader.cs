@@ -129,6 +129,11 @@ namespace MTM101BaldAPI.AssetTools
 
         public static AudioClip AudioClipFromFile(string path)
         {
+            if (MTM101BaldiDevAPI.Instance.useOldAudioLoad == null)
+            {
+                MTM101BaldiDevAPI.Log.LogInfo("useOldAudioLoad not working properly, todo: FIX! For now, HACK HACK HACK!");
+                return AudioClipFromFile(path, GetAudioType(path));
+            }
             if (MTM101BaldiDevAPI.Instance.useOldAudioLoad.Value) return AudioClipFromFileLegacy(path);
             return AudioClipFromFile(path, GetAudioType(path));
         }
@@ -244,7 +249,7 @@ namespace MTM101BaldAPI.AssetTools
         {
             List<string> pathz = paths.ToList();
             pathz.Insert(0, GetModPath(plug));
-            return MidiFromFile(id, Path.Combine(pathz.ToArray()));
+            return MidiFromFile(Path.Combine(pathz.ToArray()), id);
         }
 
         internal static void MidiFromBytes(string id, byte[] data)

@@ -38,7 +38,7 @@ namespace MTM101BaldAPI
     {
         internal static ManualLogSource Log;
 
-        public const string VersionNumber = "3.4.0.0";
+        public const string VersionNumber = "3.4.0.1";
 
         internal static bool CalledInitialize = false;
 
@@ -352,6 +352,7 @@ namespace MTM101BaldAPI
             SoundObject[] allSoundObjects = Resources.FindObjectsOfTypeAll<SoundObject>();
             AssetMan.Add<SoundObject>("Xylophone", allSoundObjects.Where(x => x.name == "Xylophone").First());
             AssetMan.Add<SoundObject>("Explosion", allSoundObjects.Where(x => x.name == "Explosion").First());
+            AssetMan.AddFromResources<TMPro.TMP_FontAsset>();
         }
 
         // "GUYS IM GONNA USE THIS FOR MY CUSTOM ERROR SCREEN FOR MY FUNNY 4TH WALL BREAK IN MY MOD!"
