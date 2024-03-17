@@ -36,7 +36,7 @@ namespace MTM101BaldAPI
     [BepInPlugin("mtm101.rulerp.bbplus.baldidevapi", "BB+ Dev API", VersionNumber)]
     public class MTM101BaldiDevAPI : BaseUnityPlugin
     {
-        internal static ManualLogSource Log;
+        internal static ManualLogSource Log = new ManualLogSource("BB+ Dev API Pre Initialization");
 
         public const string VersionNumber = "3.4.0.1";
 

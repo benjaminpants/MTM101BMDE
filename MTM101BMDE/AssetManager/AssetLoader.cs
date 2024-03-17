@@ -119,10 +119,12 @@ namespace MTM101BaldAPI.AssetTools
             string extension = Path.GetExtension(path).ToLower().Remove(0, 1).Trim(); // Remove the period provided by default
 
             foreach (AudioType target in audioExtensions.Keys)
+            {
                 if (audioExtensions[target].Contains(extension))
                 {
                     return target;
                 }
+            }
 
             throw new NotImplementedException("Unknown audio file type:" + extension + "!");
         }
@@ -131,7 +133,7 @@ namespace MTM101BaldAPI.AssetTools
         {
             if (MTM101BaldiDevAPI.Instance == null)
             {
-                MTM101BaldiDevAPI.Log.LogInfo("useOldAudioLoad not working properly, todo: FIX! For now, HACK HACK HACK!");
+                MTM101BaldiDevAPI.Log.LogWarning("useOldAudioLoad not working properly, todo: FIX! For now, HACK HACK HACK!"); //this message doesnt even work lol
                 return AudioClipFromFile(path, GetAudioType(path));
             }
             if (MTM101BaldiDevAPI.Instance.useOldAudioLoad.Value) return AudioClipFromFileLegacy(path);
