@@ -7,7 +7,7 @@ using UnityEngine.UI;
 
 namespace MTM101BaldAPI.UI
 {
-    /*public enum BaldiFonts
+    public enum BaldiFonts
     {
         ComicSans12,
         BoldComicSans12,
@@ -19,7 +19,7 @@ namespace MTM101BaldAPI.UI
         SmoothComicSans18,
         SmoothComicSans24,
         SmoothComicSans36
-    }*/
+    }
 
     public static class UIExtensions
     {
@@ -99,7 +99,7 @@ namespace MTM101BaldAPI.UI
             return CreateImage(spr, parent, position, correctPosition, 1f);
         }
 
-        /*public static T CreateText<T>(BaldiFonts font, string text, Transform parent, Vector3 position, bool correctPosition = false) where T : TMP_Text
+        public static T CreateText<T>(BaldiFonts font, string text, Transform parent, Vector3 position, bool correctPosition = false) where T : TMP_Text
         {
             T tmp = new GameObject().AddComponent<T>();
             tmp.name = "Text";
@@ -161,7 +161,7 @@ namespace MTM101BaldAPI.UI
             }
             tmp.text = text;
             return tmp;
-        }*/
+        }
 
 
     }
