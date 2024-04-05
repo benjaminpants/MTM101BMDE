@@ -50,6 +50,8 @@ namespace MTM101BaldAPI.Components
     {
         TType affectedObject { get; set; }
 
+        int currentFrameIndex { get; set; }
+
         void Play(string name, float speed);
 
         void SetPause(bool paused);
@@ -71,13 +73,13 @@ namespace MTM101BaldAPI.Components
         public Dictionary<string, TAnimation> animations = new Dictionary<string, TAnimation>();
         protected float currentFrameTime = 0f;
         protected float currentAnimTime = 0f;
-        protected int currentFrameIndex = 0;
+        protected int _currentFrameIndex = 0;
         protected string currentAnim = "";
         protected string defaultAnim = "";
         protected float defaultAnimSpeed = 1f;
         protected bool paused = false;
 
-        protected TAnimation currentAnimation
+        public TAnimation currentAnimation
         {
             get
             {
@@ -86,11 +88,11 @@ namespace MTM101BaldAPI.Components
             }
         }
 
-        protected CustomAnimationFrame<TFrame> currentFrame
+        public CustomAnimationFrame<TFrame> currentFrame
         {
             get
             {
-                return currentAnimation.frames[Mathf.Min(currentFrameIndex, currentAnimation.frames.Length - 1)];
+                return currentAnimation.frames[Mathf.Min(_currentFrameIndex, currentAnimation.frames.Length - 1)];
             }
         }
 
@@ -112,6 +114,18 @@ namespace MTM101BaldAPI.Components
         }
 
         public abstract TType affectedObject { get; set; }
+        public int currentFrameIndex
+        {
+            get
+            {
+                return _currentFrameIndex;
+            }
+            set
+            {
+                _currentFrameIndex = value;
+                currentFrameTime = 0f;
+            }
+        }
 
         public virtual void ChangeSpeed(float speed)
         {
@@ -146,7 +160,7 @@ namespace MTM101BaldAPI.Components
             currentFrameTime += delta;
             if (currentFrameTime >= currentFrame.frameTime)
             {
-                currentFrameIndex++;
+                _currentFrameIndex++;
                 currentFrameTime = 0f;
                 UpdateFrame();
             }
@@ -165,7 +179,7 @@ namespace MTM101BaldAPI.Components
                 currentAnim = name;
                 currentAnimTime = 0f;
                 currentFrameTime = 0f;
-                currentFrameIndex = 0;
+                _currentFrameIndex = 0;
                 UpdateFrame();
                 return;
             }

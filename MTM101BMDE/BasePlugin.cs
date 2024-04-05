@@ -401,7 +401,7 @@ PRESS ALT+F4 TO EXIT THE GAME.
             ModdedSaveSystem.AddSaveLoadAction(this, (bool isSave, string myPath) =>
             {
                 if (MTM101BaldiDevAPI.SaveGamesHandler != SavedGameDataHandler.Modded) return;
-                int appropiateId = Singleton<ModdedFileManager>.Instance.FindAppropiateSaveGame(myPath);
+                int appropiateId = Singleton<ModdedFileManager>.Instance.FindAppropiateSaveGame(myPath, false, Singleton<PlayerFileManager>.Instance.fileName);
                 Singleton<ModdedFileManager>.Instance.saveIndex = appropiateId;
                 if (isSave)
                 {
