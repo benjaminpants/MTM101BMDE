@@ -363,6 +363,7 @@ namespace MTM101BaldAPI
             if (template == null)
             {
                 MTM101BaldiDevAPI.Log.LogError("Attempted to cause a crash before the ErrorTemplate was found!");
+                return;
             }
             GameObject error = GameObject.Instantiate<Canvas>(template).gameObject;
             error.GetComponent<Canvas>().sortingOrder = 99; //make this appear above everything
