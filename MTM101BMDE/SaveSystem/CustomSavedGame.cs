@@ -132,9 +132,9 @@ namespace MTM101BaldAPI.SaveSystem
             AddSaveHandler(new ModdedSaveGameIODummy(info));
         }
 
-        public void Save(BinaryWriter writer, bool writeWarning = true)
+        public void Save(BinaryWriter writer)
         {
-            writer.Write(writeWarning ? "Hey, YOU! Yeah, YOU! If you want to edit this file, use a hex editor, as this is not a text file!" : MTM101BaldiDevAPI.VersionNumber);
+            writer.Write(MTM101BaldiDevAPI.VersionNumber);
             writer.Write(saveAvailable);
             writer.Write(version);
             writer.Write(ModdedSaveGameHandlers.Count);

@@ -15,7 +15,7 @@ namespace MTM101BaldAPI.SaveSystem
         public ModdedSaveGame saveData = new ModdedSaveGame();
         public Dictionary<int, PartialModdedSavedGame> saveDatas = new Dictionary<int, PartialModdedSavedGame>();
         public int saveIndex { get; internal set; }
-        public string saveName { get; internal set; }
+        public string savePath { get; internal set; }
         public List<int> saveIndexes = new List<int>();
         static FieldInfo _cgmbackupItems = AccessTools.Field(typeof(CoreGameManager), "backupItems"); 
         static FieldInfo _cgmrestoreItemsOnSpawn = AccessTools.Field(typeof(CoreGameManager), "restoreItemsOnSpawn");
@@ -40,9 +40,10 @@ namespace MTM101BaldAPI.SaveSystem
             _cgmrestoreItemsOnSpawn.SetValue(Singleton<CoreGameManager>.Instance, true);
         }
 
-        public int FindAppropiateSaveGame(string myPath, bool ignoreAlready, string name)
+        public int FindAppropiateSaveGame(string myPath, bool ignoreAlready)
         {
-            if (name != saveName)
+            // compare the currently cached path to the new path, if they aren't the same, then reset the save index
+            if (myPath != savePath)
             {
                 saveIndex = 0;
             }
@@ -50,7 +51,7 @@ namespace MTM101BaldAPI.SaveSystem
             {
                 return saveIndex;
             }
-            saveName = name;
+            savePath = myPath;
             saveIndexes.Clear();
             saveDatas.Clear();
             if (File.Exists(Path.Combine(myPath, "availableSlots.txt")))
@@ -284,7 +285,7 @@ namespace MTM101BaldAPI.SaveSystem
             {
                 x.Value.Reset();
             });
-            Singleton<ModdedFileManager>.Instance.saveName = "";
+            Singleton<ModdedFileManager>.Instance.savePath = "";
             Singleton<ModdedFileManager>.Instance.saveIndex = 0; //force a reload next time we try to grab data
         }
     }
