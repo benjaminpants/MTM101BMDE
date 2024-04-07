@@ -13,6 +13,17 @@ namespace MTM101BaldAPI.Components
 
         public float animationLength { private set; get; }
 
+        public CustomAnimation(int fps, T[] frames)
+        {
+            this.frames = new CustomAnimationFrame<T>[frames.Length];
+            float timePerFrame = ((1000f / (float)fps) / 1000f);
+            for (int i = 0; i < this.frames.Length; i++)
+            {
+                this.frames[i] = new CustomAnimationFrame<T>(frames[i], timePerFrame);
+            }
+            animationLength = ((float)frames.Length / (float)fps);
+        }
+
         public CustomAnimation(T[] frames, float totalTime)
         {
             this.frames = new CustomAnimationFrame<T>[frames.Length];

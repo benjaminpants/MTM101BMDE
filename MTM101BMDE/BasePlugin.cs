@@ -23,6 +23,7 @@ using TMPro;
 using System.Collections;
 using MTM101BaldAPI.UI;
 using UnityEngine.UI;
+using MidiPlayerTK;
 
 namespace MTM101BaldAPI
 {
@@ -238,6 +239,16 @@ namespace MTM101BaldAPI
 
             MTM101BaldiDevAPI.CalledInitialize = true;
 
+            Assembly assembly = Assembly.GetExecutingAssembly();
+            Stream stream = assembly.GetManifestResourceStream("MTM101BaldAPI.gm.sf2");
+            if (stream == null)
+            {
+                throw new Exception("Stream Is Null!");
+            }
+            File.WriteAllBytes(Path.Combine(Application.temporaryCachePath, "gm.sf2"), stream.ToByteArray());
+            MidiPlayerGlobal.MPTK_LoadLiveSF("file://" + Path.Combine(Application.temporaryCachePath, "gm.sf2"));
+            stream.Dispose();
+
             MTM101BaldiDevAPI.Instance.AssetsLoadPre();
             //everything else
             if (LoadingEvents.OnAllAssetsLoaded != null)
@@ -442,12 +453,6 @@ PRESS ALT+F4 TO EXIT THE GAME.
             // define all metadata before we call OnAllAssetsLoaded, so we can atleast be a bit more sure no other mods have activated and added their stuff yet.
 
             MTM101BaldiDevAPI.Instance.StartCoroutine(MTM101BaldiDevAPI.Instance.ReloadScenes());
-            /*
-            SceneManager.LoadScene("Game", LoadSceneMode.Additive);
-#pragma warning disable CS0618 // Type or member is obsolete
-            SceneManager.UnloadScene("Game"); // we need it to be synced
-#pragma warning restore CS0618 // Type or member is obsolete
-            */
 
         }
     }

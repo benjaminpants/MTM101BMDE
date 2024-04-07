@@ -220,6 +220,17 @@ namespace MTM101BaldAPI.AssetTools
             return SpriteFromTexture2D(tex, new Vector2(0.5f, 0.5f), pixelsPerUnit);
         }
 
+        public static byte[] ToByteArray(this Stream stream)
+        {
+            if (!stream.CanRead) throw new InvalidOperationException("Can't convert stream that we can't read!");
+            byte[] bytes = new byte[stream.Length];
+            long oldPos = stream.Position;
+            stream.Position = 0;
+            stream.Read(bytes, 0, bytes.Length);
+            stream.Position = oldPos;
+            return bytes;
+        }
+
         public static Sprite SpriteFromTexture2D(Texture2D tex, Vector2 center, float pixelsPerUnit = 1)
         {
             Sprite sprite = Sprite.Create(tex, new Rect(0f, 0f, tex.width, tex.height), center, pixelsPerUnit);

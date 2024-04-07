@@ -6,6 +6,8 @@
   </PropertyGroup>
 
   <ItemGroup>
+	<EmbeddedResource Include="..\Embedded\gm.sf2">
+	</EmbeddedResource>
     <Reference Include="0Harmony">
       <HintPath>..\Dependencies\0Harmony.dll</HintPath>
     </Reference>
