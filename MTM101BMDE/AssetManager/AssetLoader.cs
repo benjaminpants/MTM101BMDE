@@ -32,28 +32,6 @@ namespace MTM101BaldAPI.AssetTools
             return texture2D;
         }
 
-        private static string AbsoluteFilePathToUri(string absolutePath)
-        {
-            if (absolutePath.StartsWith(@"\\"))
-            {
-                // This is a network path.
-                // MUST prefix it with the file:// scheme AND an additional slash for Unity API to work.
-                // See https://forum.unity.com/threads/unitywebrequest-and-local-area-network.714353/
-                return "file:///" + absolutePath;
-            }
-
-            if (absolutePath.StartsWith("//"))
-            {
-                // This also is a network path. But because forward slashes are used, MUST prefix it with the file:// scheme ONLY for Unity API to work.
-                return "file://" + absolutePath;
-            }
-
-            // This is a local path. MUST NOT prefix it with the file:// scheme.
-            // Otherwise some paths may not work, e.g., when it contains a space AND a plus character.
-            // See https://forum.unity.com/threads/unitywebrequest-file-protocol-not-working-with-plus-character-in-path-how-to-escape-the-uri.1364499/#post-8655012
-            return absolutePath;
-        }
-
         public static bool ReplaceTexture(Texture2D toReplace, Texture2D replacement)
         {
             if (toReplace == null)
@@ -162,21 +140,40 @@ namespace MTM101BaldAPI.AssetTools
             return AudioClipFromFile(path, GetAudioType(path));
         }
 
+        private static string[] fallbacks = new string[]
+        {
+            "",
+            "file://",
+            "file:///",
+            Path.Combine("File:///","")
+        };
+
         public static AudioClip AudioClipFromFile(string path, AudioType type)
         {
             AudioClip clip;
-            using (UnityWebRequest audioClip = UnityWebRequestMultimedia.GetAudioClip(AbsoluteFilePathToUri(path), type))
-            {
-                audioClip.SendWebRequest();
-                while (!audioClip.isDone) {}
+            UnityWebRequest audioClip;
+            string errorMessage = "";
 
-                if (audioClip.result != UnityWebRequest.Result.Success)
-                    throw new Exception(audioClip.responseCode.ToString() + ": " + audioClip.error);
-                
-                clip = DownloadHandlerAudioClip.GetContent(audioClip);
-                clip.name = Path.GetFileNameWithoutExtension(path);
-                return clip;
+            foreach (string fallback in fallbacks)
+            {
+                using (audioClip = UnityWebRequestMultimedia.GetAudioClip(fallback + path, type))
+                {
+                    audioClip.SendWebRequest();
+                    while (!audioClip.isDone) { }
+
+                    if (audioClip.result != UnityWebRequest.Result.Success)
+                    {
+                        errorMessage = audioClip.responseCode.ToString() + ": " + audioClip.error;
+                        continue;
+                    }
+
+                    clip = DownloadHandlerAudioClip.GetContent(audioClip);
+                    clip.name = Path.GetFileNameWithoutExtension(path);
+                    return clip;
+                }
             }
+
+            throw new Exception(errorMessage);
         }
 
         private static AudioClip AudioClipFromFileLegacy(string path)
