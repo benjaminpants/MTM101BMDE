@@ -16,7 +16,25 @@ namespace MTM101BaldAPI.AssetTools
 {
     public static class AssetLoader
     {
+        /// <summary>
+        /// Will show a warning screen telling the user to install the mod correctly
+        /// if the folder for the specified plugin is not found in Modded.
+        /// </summary>
+        public static void AssertAssetsFolder(BaseUnityPlugin plug)
+        {
+            string assetsPath = GetModPath(plug);
+            if (!Directory.Exists(assetsPath))
+            {
+                MTM101BaldiDevAPI.ShowWarningScreen(String.Format(@"
+The mod <color=blue>{0}</color> must have the assets file in <color=red>StreamingAssets/Modded</color>!</color>
 
+The name of the assets folder must be <color=red>{1}</color>.
+
+
+<alpha=#AA>PRESS ALT + F4 TO CLOSE THIS GAME
+", Path.GetFileName(plug.Info.Location), plug.Info.Metadata.GUID));
+            }
+        }
         public static Texture2D TextureFromFile(string path)
         {
             return TextureFromFile(path, TextureFormat.RGBA32);

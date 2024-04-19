@@ -24,6 +24,7 @@ using System.Collections;
 using MTM101BaldAPI.UI;
 using UnityEngine.UI;
 using MidiPlayerTK;
+using MTM101BaldAPI.Patches;
 
 namespace MTM101BaldAPI
 {
@@ -364,6 +365,27 @@ namespace MTM101BaldAPI
             AssetMan.Add<SoundObject>("Xylophone", allSoundObjects.Where(x => x.name == "Xylophone").First());
             AssetMan.Add<SoundObject>("Explosion", allSoundObjects.Where(x => x.name == "Explosion").First());
             AssetMan.AddFromResources<TMPro.TMP_FontAsset>();
+        }
+
+        /// <summary>
+        /// <para>
+        /// Switch the scene to Warnings and changes its text to the one defined in the arguments.
+        /// Useful for showing critical errors that originates from an end user mistake and providing instructions to fix it.
+        /// </para>
+        /// 
+        /// <para>
+        /// If you want to check if the assets directory of your mod is correctly placed,
+        /// use <seealso cref="AssetLoader.AssertAssetsFolder(BaseUnityPlugin)"/> instead.
+        /// </para>
+        /// 
+        /// </summary>
+        /// <remarks>
+        /// The Warning Screen can't be advanced.
+        /// </remarks>
+        /// <param name="text"></param>
+        public static void ShowWarningScreen(string text)
+        {
+            WarningScreenCustomText.ShowWarningScreen(text);
         }
 
         // "GUYS IM GONNA USE THIS FOR MY CUSTOM ERROR SCREEN FOR MY FUNNY 4TH WALL BREAK IN MY MOD!"
