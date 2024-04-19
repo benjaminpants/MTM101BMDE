@@ -4,6 +4,7 @@ using UnityEngine.SceneManagement;
 namespace MTM101BaldAPI.Patches
 {
     [HarmonyPatch(typeof(WarningScreen), "Start")]
+    [HarmonyPriority(800)]
     internal class WarningScreenCustomText
     {
         internal static bool preventAdvance = false;
@@ -30,6 +31,7 @@ namespace MTM101BaldAPI.Patches
         }
     }
     [HarmonyPatch(typeof(WarningScreen), "Advance")]
+    [HarmonyPriority(800)]
     internal class WarningScreenPreventAdvance
     {
         internal static bool Prefix() => !WarningScreenCustomText.preventAdvance;
