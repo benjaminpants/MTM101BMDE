@@ -39,13 +39,15 @@ namespace MTM101BaldAPI
     {
         internal static ManualLogSource Log = new ManualLogSource("BB+ Dev API Pre Initialization");
 
-        public const string VersionNumber = "3.5.0.0";
+        public const string VersionNumber = "3.6.0.0";
 
         internal static bool CalledInitialize = false;
 
         public static MTM101BaldiDevAPI Instance;
 
         internal static List<UnityEngine.Object> keepInMemory = new List<UnityEngine.Object>();
+
+        internal ConfigEntry<bool> usingMidiFix;
 
         public static ItemMetaStorage itemMetadata = new ItemMetaStorage();
         public static NPCMetaStorage npcMetadata = new NPCMetaStorage();
@@ -239,15 +241,18 @@ namespace MTM101BaldAPI
 
             MTM101BaldiDevAPI.CalledInitialize = true;
 
-            Assembly assembly = Assembly.GetExecutingAssembly();
-            Stream stream = assembly.GetManifestResourceStream("MTM101BaldAPI.gm.sf2");
-            if (stream == null)
+            if (usingMidiFix.Value)
             {
-                throw new Exception("Stream Is Null!");
+                Assembly assembly = Assembly.GetExecutingAssembly();
+                Stream stream = assembly.GetManifestResourceStream("MTM101BaldAPI.gm.sf2");
+                if (stream == null)
+                {
+                    throw new Exception("Midifix stream Is null! Turn off the midifix in BepInEx/config!");
+                }
+                File.WriteAllBytes(Path.Combine(Application.temporaryCachePath, "gm.sf2"), stream.ToByteArray());
+                MidiPlayerGlobal.MPTK_LoadLiveSF("file://" + Path.Combine(Application.temporaryCachePath, "gm.sf2"));
+                stream.Dispose();
             }
-            File.WriteAllBytes(Path.Combine(Application.temporaryCachePath, "gm.sf2"), stream.ToByteArray());
-            MidiPlayerGlobal.MPTK_LoadLiveSF("file://" + Path.Combine(Application.temporaryCachePath, "gm.sf2"));
-            stream.Dispose();
 
             MTM101BaldiDevAPI.Instance.AssetsLoadPre();
             //everything else
@@ -431,6 +436,11 @@ PRESS ALT+F4 TO EXIT THE GAME.
                 "Use Old Audio Loading Method",
                 false,
                 "Whether or not the old, legacy method of loading audio should be used. (ONLY TURN ON IF YOU GET MENTIONS OF AN AUDIO LOADING ERROR!)");
+
+            usingMidiFix = Config.Bind("General",
+                "Use Midi Fix",
+                true,
+                "Whether or not the midi fix should be used to increase instrument counts, there should be reason for you to disable this.");
 
             Log = base.Logger;
         }
