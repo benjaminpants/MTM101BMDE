@@ -39,7 +39,7 @@ namespace MTM101BaldAPI
     {
         internal static ManualLogSource Log = new ManualLogSource("BB+ Dev API Pre Initialization");
 
-        public const string VersionNumber = "3.5.0.0";
+        public const string VersionNumber = "3.6.0.0";
 
         internal static bool CalledInitialize = false;
 
