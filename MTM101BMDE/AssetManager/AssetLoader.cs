@@ -35,6 +35,43 @@ The name of the assets folder must be <color=red>{1}</color>.
 ", Path.GetFileName(plug.Info.Location), plug.Info.Metadata.GUID));
             }
         }
+
+        /// <summary>
+        /// Load textures from a pattern, used to easily load texture animations.
+        /// <para>
+        /// <code>
+        /// // Example : 
+        /// AssetLoader
+        ///     .TexturesFromMod(FoxoPlugin.Instance, "foxo/slap{0}.png", (1, 4))
+        ///     .ToSprites(PIXELS_PER_UNIT)
+        /// </code>
+        /// </para>
+        /// </summary>
+        /// <param name="mod">The plugin instance</param>
+        /// <param name="pattern">A pattern that will go through String.Format(pattern, i)</param>
+        /// <param name="range">Inclusive minimum and maximum range (start, end)</param>
+        /// <returns></returns>
+        public static Texture2D[] TexturesFromMod(BaseUnityPlugin mod, string pattern, (int, int) range)
+        {
+            var textures = new List<Texture2D>();
+            for (int i = range.Item1; i <= range.Item2; i++)
+            {
+                textures.Add(TextureFromMod(mod, string.Format(pattern, i)));
+            }
+            return textures.ToArray();
+        }
+
+        /// <summary>
+        /// Convert an array of texture into sprites
+        /// </summary>
+        /// <param name="textures"></param>
+        /// <param name="pixelsPerUnit"></param>
+        /// <returns></returns>
+        public static Sprite[] ToSprites(this Texture2D[] textures, float pixelsPerUnit)
+        {
+            return (from tex in textures select SpriteFromTexture2D(tex, pixelsPerUnit)).ToArray();
+        }
+
         public static Texture2D TextureFromFile(string path)
         {
             return TextureFromFile(path, TextureFormat.RGBA32);
