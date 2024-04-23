@@ -67,7 +67,7 @@ namespace MTM101BaldAPI.Registers
             return FindAll(x =>
             {
                 return x.flags.HasFlag(flag);
-            });
+            }).Distinct().ToArray();
         }
 
         public ItemMetaData[] GetAllWithoutFlags(ItemFlags flag)
@@ -75,7 +75,7 @@ namespace MTM101BaldAPI.Registers
             return FindAll(x =>
             {
                 return !x.flags.HasFlag(flag);
-            });
+            }).Distinct().ToArray();
         }
     }
 }

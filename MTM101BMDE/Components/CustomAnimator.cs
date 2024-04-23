@@ -63,6 +63,8 @@ namespace MTM101BaldAPI.Components
 
         int currentFrameIndex { get; set; }
 
+        string currentAnimationName { get; }
+
         void Play(string name, float speed);
 
         void SetPause(bool paused);
@@ -98,6 +100,8 @@ namespace MTM101BaldAPI.Components
                 return animations[currentAnim];
             }
         }
+
+        public string currentAnimationName => currentAnim;
 
         public CustomAnimationFrame<TFrame> currentFrame
         {
