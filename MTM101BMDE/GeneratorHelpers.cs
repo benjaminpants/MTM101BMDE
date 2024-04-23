@@ -10,6 +10,7 @@ namespace MTM101BaldAPI
     {
         public static GameLever leverPrefab;
 
+        /*
         public static GameLever BuildLeverInArea(EnvironmentController ec, IntVector2 posA, IntVector2 posB, int buttonRange, GameObject receiver, GameLever leverPre, System.Random cRng)
         {
             GameLever lever;
@@ -23,7 +24,7 @@ namespace MTM101BaldAPI
             GameObject.Destroy(gb.gameObject);
             return lever;
 
-        }
+        }*/
 
         public static GameButton BuildInAreaWithColor(EnvironmentController ec, IntVector2 posA, IntVector2 posB, int buttonRange, GameObject receiver, GameButton buttonPre, string colorKey, System.Random cRng)
         {
@@ -32,4 +33,5 @@ namespace MTM101BaldAPI
             return gb;
         }
     }
+    
 }

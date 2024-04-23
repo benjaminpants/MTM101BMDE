@@ -300,10 +300,13 @@ namespace MTM101BaldAPI.SaveSystem
             if (MTM101BaldiDevAPI.SaveGamesHandler != SavedGameDataHandler.Modded) return true;
             ModdedSaveGame newSave = new ModdedSaveGame();
             newSave.saveAvailable = true;
-            ItemObject[] itms = __instance.GetPlayer(0).itm.items;
-            for (int i = 0; i < itms.Length; i++)
+            if (__instance.GetPlayer(0) != null)
             {
-                newSave.items.Add(new ModdedItemIdentifier(itms[i]));
+                ItemObject[] itms = __instance.GetPlayer(0).itm.items;
+                for (int i = 0; i < itms.Length; i++)
+                {
+                    newSave.items.Add(new ModdedItemIdentifier(itms[i]));
+                }
             }
             newSave.levelId = __instance.sceneObject.levelNo;
             newSave.ytps = __instance.GetPoints(0);
