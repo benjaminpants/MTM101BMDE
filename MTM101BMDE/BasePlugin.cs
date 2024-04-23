@@ -481,11 +481,17 @@ PRESS ALT+F4 TO EXIT THE GAME.
             TMPro.TMP_Text text = t.gameObject.GetComponent<TMPro.TMP_Text>();
             text.text += "API " + MTM101BaldiDevAPI.VersionNumber;
             t.localPosition += new Vector3(0f, 28f);
-            if (MTM101BaldiDevAPI.CalledInitialize) return;
+        }
+    }
+
+    [HarmonyPatch(typeof(MenuInitializer))]
+    [HarmonyPatch("Start")]
+    public class ReloadScenes
+    {
+        static void Postfix()
+        {
             // define all metadata before we call OnAllAssetsLoaded, so we can atleast be a bit more sure no other mods have activated and added their stuff yet.
-
             MTM101BaldiDevAPI.Instance.StartCoroutine(MTM101BaldiDevAPI.Instance.ReloadScenes());
-
         }
     }
 
