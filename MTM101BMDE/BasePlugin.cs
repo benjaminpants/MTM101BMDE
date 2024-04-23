@@ -39,7 +39,7 @@ namespace MTM101BaldAPI
     {
         internal static ManualLogSource Log = new ManualLogSource("BB+ Dev API Pre Initialization");
 
-        public const string VersionNumber = "3.6.0.0";
+        public const string VersionNumber = "4.0.0.0";
 
         internal static bool CalledInitialize = false;
 
@@ -440,7 +440,7 @@ PRESS ALT+F4 TO EXIT THE GAME.
             usingMidiFix = Config.Bind("General",
                 "Use Midi Fix",
                 true,
-                "Whether or not the midi fix should be used to increase instrument counts, there should be reason for you to disable this.");
+                "Whether or not the midi fix should be used to increase the amount of instruments available to the midi player, there shouldn't be a reason for you to disable this.");
 
             Log = base.Logger;
         }
@@ -459,11 +459,20 @@ PRESS ALT+F4 TO EXIT THE GAME.
             TMPro.TMP_Text text = t.gameObject.GetComponent<TMPro.TMP_Text>();
             text.text += "API " + MTM101BaldiDevAPI.VersionNumber;
             t.localPosition += new Vector3(0f, 28f);
+
+        }
+    }
+
+    [HarmonyPatch(typeof(MenuInitializer))]
+    [HarmonyPatch("Start")]
+    public class CallAPIInitializationFunctions
+    {
+        static void Prefix()
+        {
             if (MTM101BaldiDevAPI.CalledInitialize) return;
             // define all metadata before we call OnAllAssetsLoaded, so we can atleast be a bit more sure no other mods have activated and added their stuff yet.
 
             MTM101BaldiDevAPI.Instance.StartCoroutine(MTM101BaldiDevAPI.Instance.ReloadScenes());
-
         }
     }
 
