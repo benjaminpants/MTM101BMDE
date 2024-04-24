@@ -46,7 +46,7 @@ namespace MTM101BaldAPI.ObjectCreation
         bool useHeatmap = false;
         float minAudioDistance = 10f;
         float maxAudioDistance = 250f;
-        NPCFlags flags = NPCFlags.HasPhysicalAppearence;
+        NPCFlags flags = NPCFlags.HasPhysicalAppearence | NPCFlags.CanMove;
         string[] tags = new string[0];
         List<RoomCategory> spawnableRooms = new List<RoomCategory>();
         List<WeightedRoomAsset> potentialRoomAssets = new List<WeightedRoomAsset>();
