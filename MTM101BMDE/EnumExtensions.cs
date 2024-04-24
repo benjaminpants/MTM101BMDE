@@ -57,6 +57,11 @@ namespace MTM101BaldAPI
                 //dat.valueOffset = Enum.GetNames(typeof(T)).Length - 1;
                 ExtendedData.Add(typeof(T),dat);
             }
+            if (dat.Enums.Contains(extendName))
+            {
+                MTM101BaldiDevAPI.Log.LogWarning("Attempted to register duplicate extended enum:" + extendName + "!");
+                return GetFromExtendedName<T>(extendName);
+            }
             dat.Enums.Add(extendName);
             return (T)(object)(dat.valueOffset + (dat.Enums.Count - 1));
         }
