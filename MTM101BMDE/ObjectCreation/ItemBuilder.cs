@@ -1,4 +1,5 @@
 ﻿using BepInEx;
+using HarmonyLib;
 using MTM101BaldAPI.Registers;
 using System;
 using System.Collections.Generic;
@@ -22,6 +23,7 @@ namespace MTM101BaldAPI.ObjectCreation
         private string[] tags = new string[0];
         private ItemFlags flags = ItemFlags.None;
         private PluginInfo info;
+        private ItemMetaData metaDataToAddTo;
 
 
         public ItemBuilder(PluginInfo info)
@@ -56,6 +58,11 @@ namespace MTM101BaldAPI.ObjectCreation
                 item.item = comp;
                 GameObject.DontDestroyOnLoad(obj);
             }
+            if (metaDataToAddTo != null)
+            {
+                metaDataToAddTo.itemObjects = metaDataToAddTo.itemObjects.AddToArray(item);
+                return item;
+            }
             ItemMetaData itemMeta = new ItemMetaData(info, item);
             itemMeta.tags.AddRange(tags);
             itemMeta.flags = flags;
@@ -66,6 +73,12 @@ namespace MTM101BaldAPI.ObjectCreation
         {
             this.flags = flags;
             this.tags = tags;
+            return this;
+        }
+
+        public ItemBuilder SetMeta(ItemMetaData existingMeta)
+        {
+            metaDataToAddTo = existingMeta;
             return this;
         }
 
