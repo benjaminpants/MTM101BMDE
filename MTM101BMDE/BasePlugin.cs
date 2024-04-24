@@ -369,6 +369,7 @@ namespace MTM101BaldAPI
             AssetMan.Add<SoundObject>("Xylophone", allSoundObjects.Where(x => x.name == "Xylophone").First());
             AssetMan.Add<SoundObject>("Explosion", allSoundObjects.Where(x => x.name == "Explosion").First());
             AssetMan.AddFromResources<TMPro.TMP_FontAsset>();
+            AssetMan.AddFromResources<Material>();
         }
 
         // "GUYS IM GONNA USE THIS FOR MY CUSTOM ERROR SCREEN FOR MY FUNNY 4TH WALL BREAK IN MY MOD!"

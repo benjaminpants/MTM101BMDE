@@ -48,6 +48,7 @@ namespace MTM101BaldAPI.ObjectCreation
         bool useHeatmap = false;
         bool ignorePlayerOnSpawn = false;
         bool ignoreBelts = false;
+        bool grounded = true;
         float minAudioDistance = 10f;
         float maxAudioDistance = 250f;
         NPCFlags flags = NPCFlags.HasPhysicalAppearence | NPCFlags.CanMove;
@@ -120,6 +121,7 @@ namespace MTM101BaldAPI.ObjectCreation
             _collider.SetValue(nav, newNpc.baseTrigger[0]);
             _ignoreBelts.SetValue(newNpc, ignoreBelts);
             _ignorePlayerOnSpawn.SetValue(newNpc, ignorePlayerOnSpawn);
+            npcEntity.SetGrounded(grounded);
 
             GameObject.DontDestroyOnLoad(newNpc.gameObject);
 
@@ -207,6 +209,12 @@ namespace MTM101BaldAPI.ObjectCreation
         public NPCBuilder<T> IgnoreBelts()
         {
             ignoreBelts = true;
+            return this;
+        }
+
+        public NPCBuilder<T> SetAirborne()
+        {
+            grounded = false;
             return this;
         }
 
