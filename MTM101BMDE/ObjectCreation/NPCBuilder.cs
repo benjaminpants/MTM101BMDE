@@ -10,7 +10,7 @@ using UnityEngine;
 
 namespace MTM101BaldAPI.ObjectCreation
 {
-    public class NPCBuilder
+    public class NPCBuilder<T> where T : NPC
     {
         PluginInfo info;
         public NPCBuilder(PluginInfo info)
@@ -20,6 +20,8 @@ namespace MTM101BaldAPI.ObjectCreation
 
 
         static FieldInfo _character = AccessTools.Field(typeof(NPC), "character");
+        static FieldInfo _ignorePlayerOnSpawn = AccessTools.Field(typeof(NPC), "ignorePlayerOnSpawn");
+        static FieldInfo _ignoreBelts = AccessTools.Field(typeof(NPC), "ignoreBelts");
         static FieldInfo _navigator = AccessTools.Field(typeof(NPC), "navigator");
         static FieldInfo _iEntityTrigger = AccessTools.Field(typeof(Entity), "iEntityTrigger");
         static FieldInfo _minDistance = AccessTools.Field(typeof(PropagatedAudioManager), "minDistance");
@@ -31,8 +33,8 @@ namespace MTM101BaldAPI.ObjectCreation
         static FieldInfo _useHeatMap = AccessTools.Field(typeof(Navigator), "useHeatMap");
 
 
-        string objectName;
-        Character characterEnum;
+        string objectName = "Unnamed Character";
+        Character characterEnum = Character.Null;
         string characterEnumName = "";
         PosterObject poster;
         Texture2D posterTexture = MTM101BaldiDevAPI.AssetMan.Get<PosterObject>("CharacterPosterTemplate").baseTexture;
@@ -44,17 +46,18 @@ namespace MTM101BaldAPI.ObjectCreation
         bool hasLooker = false;
         bool hasTrigger = false;
         bool useHeatmap = false;
+        bool ignorePlayerOnSpawn = false;
+        bool ignoreBelts = false;
         float minAudioDistance = 10f;
         float maxAudioDistance = 250f;
         NPCFlags flags = NPCFlags.HasPhysicalAppearence | NPCFlags.CanMove;
         string[] tags = new string[0];
         List<RoomCategory> spawnableRooms = new List<RoomCategory>();
         List<WeightedRoomAsset> potentialRoomAssets = new List<WeightedRoomAsset>();
-        Type npcType = null;
 
-        public NPC Build()
+        public T Build()
         {
-            NPC newNpc = (NPC)GameObject.Instantiate(MTM101BaldiDevAPI.AssetMan.Get<GameObject>("TemplateNPC")).AddComponent(npcType);
+            T newNpc = GameObject.Instantiate(MTM101BaldiDevAPI.AssetMan.Get<GameObject>("TemplateNPC")).AddComponent<T>();
             Entity npcEntity = newNpc.GetComponent<Entity>();
             newNpc.name = objectName;
             Navigator nav = newNpc.GetComponent<Navigator>();
@@ -66,6 +69,10 @@ namespace MTM101BaldAPI.ObjectCreation
             }
             _character.SetValue(newNpc, character);
             _navigator.SetValue(newNpc, nav);
+            if (!flags.HasFlag(NPCFlags.CanMove))
+            {
+                nav.enabled = false;
+            }
             if (poster == null)
             {
                 poster = ObjectCreators.CreateCharacterPoster(posterTexture, posterData[0], posterData[1]);
@@ -111,6 +118,8 @@ namespace MTM101BaldAPI.ObjectCreation
             nav.npc = newNpc;
             _entity.SetValue(nav, npcEntity);
             _collider.SetValue(nav, newNpc.baseTrigger[0]);
+            _ignoreBelts.SetValue(newNpc, ignoreBelts);
+            _ignorePlayerOnSpawn.SetValue(newNpc, ignorePlayerOnSpawn);
 
             GameObject.DontDestroyOnLoad(newNpc.gameObject);
 
@@ -120,55 +129,56 @@ namespace MTM101BaldAPI.ObjectCreation
             return newNpc;
         }
 
-        public NPCBuilder SetName(string name)
+        public NPCBuilder<T> SetName(string name)
         {
             objectName = name;
             return this;
         }
 
-        public NPCBuilder SetEnum(Character character)
+        public NPCBuilder<T> SetEnum(Character character)
         {
             characterEnum = character;
             return this;
         }
 
-        public NPCBuilder SetType<T>() where T : NPC
+        public NPCBuilder<T> SetEnum(string enumName)
         {
-            npcType = typeof(T);
-            return this;
-        }
-
-        public NPCBuilder SetEnum(string enumName)
-        {
+            characterEnum = Character.Null;
             characterEnumName = enumName;
             return this;
         }
 
-        public NPCBuilder SetPoster(PosterObject poster)
+        public NPCBuilder<T> SetPoster(PosterObject poster)
         {
             this.poster = poster;
             return this;
         }
 
-        public NPCBuilder AddMetaFlag(NPCFlags flag)
+        public NPCBuilder<T> AddMetaFlag(NPCFlags flag)
         {
             flags |= flag;
             return this;
         }
 
-        public NPCBuilder SetMetaTags(string[] tags)
+        public NPCBuilder<T> SetStationary()
+        {
+            flags &= NPCFlags.CanMove;
+            return this;
+        }
+
+        public NPCBuilder<T> SetMetaTags(string[] tags)
         {
             this.tags = tags;
             return this;
         }
 
-        public NPCBuilder RemoveSprite()
+        public NPCBuilder<T> RemoveSprite()
         {
             flags &= NPCFlags.HasPhysicalAppearence;
             return this;
         }
 
-        public NPCBuilder SetPoster(Texture2D texture, string posterTitle, string posterDescription)
+        public NPCBuilder<T> SetPoster(Texture2D texture, string posterTitle, string posterDescription)
         {
             poster = null;
             posterTexture = texture;
@@ -176,38 +186,50 @@ namespace MTM101BaldAPI.ObjectCreation
             return this;
         }
 
-        public NPCBuilder AddLooker()
+        public NPCBuilder<T> AddLooker()
         {
             hasLooker = true;
             return this;
         }
 
-        public NPCBuilder AddTrigger()
+        public NPCBuilder<T> AddTrigger()
         {
             hasTrigger = true;
             return this;
         }
 
-        public NPCBuilder AddHeatmap()
+        public NPCBuilder<T> IgnorePlayerOnSpawn()
+        {
+            ignorePlayerOnSpawn = true;
+            return this;
+        }
+
+        public NPCBuilder<T> IgnoreBelts()
+        {
+            ignoreBelts = true;
+            return this;
+        }
+
+        public NPCBuilder<T> AddHeatmap()
         {
             useHeatmap = true;
             return this;
         }
 
-        public NPCBuilder AddSpawnableRoomCategories(params RoomCategory[] categories)
+        public NPCBuilder<T> AddSpawnableRoomCategories(params RoomCategory[] categories)
         {
             spawnableRooms.AddRange(categories);
             return this;
         }
 
-        public NPCBuilder SetMinMaxAudioDistance(float min, float max)
+        public NPCBuilder<T> SetMinMaxAudioDistance(float min, float max)
         {
             minAudioDistance = min;
             maxAudioDistance = max;
             return this;
         }
 
-        public NPCBuilder AddPotentialRoomAsset(RoomAsset asset, int weight)
+        public NPCBuilder<T> AddPotentialRoomAsset(RoomAsset asset, int weight)
         {
             potentialRoomAssets.Add(new WeightedRoomAsset()
             {
@@ -217,7 +239,7 @@ namespace MTM101BaldAPI.ObjectCreation
             return this;
         }
 
-        public NPCBuilder AddPotentialRoomAssets(params WeightedRoomAsset[] assets)
+        public NPCBuilder<T> AddPotentialRoomAssets(params WeightedRoomAsset[] assets)
         {
             potentialRoomAssets.AddRange(assets);
             return this;
