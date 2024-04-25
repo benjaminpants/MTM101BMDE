@@ -1,4 +1,5 @@
 ﻿using BepInEx.Bootstrap;
+using BepInEx.Configuration;
 using HarmonyLib;
 using System;
 using System.Collections.Generic;
@@ -62,6 +63,26 @@ namespace MTM101BaldAPI
         public override bool ShouldPatch()
         {
             return true;
+        }
+    }
+
+    public class ConditionalPatchConfig : ConditionalPatch
+    {
+        string _mod;
+        string _category;
+        string _name;
+        public ConditionalPatchConfig(string mod, string category, string name)
+        {
+            _mod = mod;
+            _category = category;
+            _name = name;
+        }
+
+        public override bool ShouldPatch()
+        {
+            if (!Chainloader.PluginInfos.ContainsKey(_mod)) return false;
+            throw new NotImplementedException();
+            //return Chainloader.PluginInfos[_mod].Instance.Config;
         }
     }
 

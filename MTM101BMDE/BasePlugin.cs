@@ -53,10 +53,13 @@ namespace MTM101BaldAPI
         public static NPCMetaStorage npcMetadata = new NPCMetaStorage();
         public static RandomEventMetaStorage randomEventStorage = new RandomEventMetaStorage();
         public static ObjectBuilderMetaStorage objBuilderMeta = new ObjectBuilderMetaStorage();
+        public static SkyboxMetaStorage skyboxMeta = new SkyboxMetaStorage();
 
         public static RoomAssetMetaStorage roomAssetMeta = new RoomAssetMetaStorage();
 
         internal ConfigEntry<bool> useOldAudioLoad;
+
+        static internal ConfigEntry<bool> enableSkyboxPatch;
 
         internal static AssetManager AssetMan = new AssetManager();
 
@@ -239,6 +242,10 @@ namespace MTM101BaldAPI
                 ObjectBuilderMetaStorage.Instance.Add(meta);
             });
 
+            Cubemap[] cubemaps = Resources.FindObjectsOfTypeAll<Cubemap>();
+            skyboxMeta.Add(new SkyboxMetadata(Info, cubemaps.Where(x => x.name == "Cubemap_DayStandard").First(), Color.white));
+            skyboxMeta.Add(new SkyboxMetadata(Info, cubemaps.Where(x => x.name == "Cubemap_Twilight").First(), new Color(239f / 255f, 188f / 255f, 162f / 255f)));
+
             MTM101BaldiDevAPI.CalledInitialize = true;
 
             if (usingMidiFix.Value)
@@ -414,8 +421,6 @@ PRESS ALT+F4 TO EXIT THE GAME.
 
             Harmony harmony = new Harmony("mtm101.rulerp.bbplus.baldidevapi");
 
-            harmony.PatchAllConditionals();
-
             ModdedSaveSystem.AddSaveLoadAction(this, (bool isSave, string myPath) =>
             {
                 if (MTM101BaldiDevAPI.SaveGamesHandler != SavedGameDataHandler.Modded) return;
@@ -442,6 +447,12 @@ PRESS ALT+F4 TO EXIT THE GAME.
                 "Use Midi Fix",
                 true,
                 "Whether or not the midi fix should be used to increase the amount of instruments available to the midi player, there shouldn't be a reason for you to disable this.");
+
+            enableSkyboxPatch = Config.Bind("General",
+                "Enable Skybox Patches",
+                true,
+                "Whether or not outdoors areas will have different light colors depending on the skybox used. Only disable for legacy mods.");
+            harmony.PatchAllConditionals();
 
             Log = base.Logger;
         }
