@@ -43,6 +43,64 @@ namespace MTM101BaldAPI.UI
             return smb;
         }
 
+        public static float FontSize(this BaldiFonts font)
+        {
+            switch (font)
+            {
+                case BaldiFonts.ComicSans12:
+                    return 12f;
+                case BaldiFonts.BoldComicSans12:
+                    return 12f;
+                case BaldiFonts.ComicSans18:
+                    return 18f;
+                case BaldiFonts.ComicSans24:
+                    return 24f;
+                case BaldiFonts.BoldComicSans24:
+                    return 24f;
+                case BaldiFonts.ComicSans36:
+                    return 36f;
+                case BaldiFonts.SmoothComicSans12:
+                    return 12f;
+                case BaldiFonts.SmoothComicSans18:
+                    return 18f;
+                case BaldiFonts.SmoothComicSans24:
+                    return 24f;
+                case BaldiFonts.SmoothComicSans36:
+                    return 36f;
+                default:
+                    throw new NotImplementedException();
+            }
+        }
+
+        public static TMP_FontAsset FontAsset(this BaldiFonts font)
+        {
+            switch (font)
+            {
+                case BaldiFonts.ComicSans12:
+                    return MTM101BaldiDevAPI.AssetMan.Get<TMP_FontAsset>("COMIC_12_Pro");
+                case BaldiFonts.BoldComicSans12:
+                    return MTM101BaldiDevAPI.AssetMan.Get<TMP_FontAsset>("COMIC_BOLD_12_Pro");
+                case BaldiFonts.ComicSans18:
+                    return MTM101BaldiDevAPI.AssetMan.Get<TMP_FontAsset>("COMIC_18_Pro");
+                case BaldiFonts.ComicSans24:
+                    return MTM101BaldiDevAPI.AssetMan.Get<TMP_FontAsset>("COMIC_24_Pro");
+                case BaldiFonts.BoldComicSans24:
+                    return MTM101BaldiDevAPI.AssetMan.Get<TMP_FontAsset>("COMIC_BOLD_24_Pro");
+                case BaldiFonts.ComicSans36:
+                    return MTM101BaldiDevAPI.AssetMan.Get<TMP_FontAsset>("COMIC_36_Pro");
+                case BaldiFonts.SmoothComicSans12:
+                    return MTM101BaldiDevAPI.AssetMan.Get<TMP_FontAsset>("COMIC_12_Smooth_Pro");
+                case BaldiFonts.SmoothComicSans18:
+                    return MTM101BaldiDevAPI.AssetMan.Get<TMP_FontAsset>("COMIC_18_Smooth_Pro");
+                case BaldiFonts.SmoothComicSans24:
+                    return MTM101BaldiDevAPI.AssetMan.Get<TMP_FontAsset>("COMIC_24_Smooth_Pro");
+                case BaldiFonts.SmoothComicSans36:
+                    return MTM101BaldiDevAPI.AssetMan.Get<TMP_FontAsset>("COMIC_36_Smooth_Pro");
+                default:
+                    throw new NotImplementedException();
+            }
+        }
+
         public static StandardMenuButton InitializeAllEvents(this StandardMenuButton smb)
         {
             smb.OnPress = new UnityEngine.Events.UnityEvent();
@@ -106,51 +164,8 @@ namespace MTM101BaldAPI.UI
             tmp.gameObject.layer = LayerMask.NameToLayer("UI");
             tmp.transform.SetParent(parent);
             tmp.gameObject.transform.localScale = Vector3.one;
-            switch (font)
-            {
-                case BaldiFonts.ComicSans12:
-                    tmp.fontSize = 12f;
-                    tmp.font = MTM101BaldiDevAPI.AssetMan.Get<TMP_FontAsset>("COMIC_12_Pro");
-                    break;
-                case BaldiFonts.BoldComicSans12:
-                    tmp.fontSize = 12f;
-                    tmp.font = MTM101BaldiDevAPI.AssetMan.Get<TMP_FontAsset>("COMIC_BOLD_12_Pro");
-                    break;
-                case BaldiFonts.ComicSans18:
-                    tmp.fontSize = 18f;
-                    tmp.font = MTM101BaldiDevAPI.AssetMan.Get<TMP_FontAsset>("COMIC_18_Pro");
-                    break;
-                case BaldiFonts.ComicSans24:
-                    tmp.fontSize = 24f;
-                    tmp.font = MTM101BaldiDevAPI.AssetMan.Get<TMP_FontAsset>("COMIC_24_Pro");
-                    break;
-                case BaldiFonts.BoldComicSans24:
-                    tmp.fontSize = 24f;
-                    tmp.font = MTM101BaldiDevAPI.AssetMan.Get<TMP_FontAsset>("COMIC_BOLD_24_Pro");
-                    break;
-                case BaldiFonts.ComicSans36:
-                    tmp.fontSize = 36f;
-                    tmp.font = MTM101BaldiDevAPI.AssetMan.Get<TMP_FontAsset>("COMIC_36_Pro");
-                    break;
-                case BaldiFonts.SmoothComicSans12:
-                    tmp.fontSize = 12f;
-                    tmp.font = MTM101BaldiDevAPI.AssetMan.Get<TMP_FontAsset>("COMIC_12_Smooth_Pro");
-                    break;
-                case BaldiFonts.SmoothComicSans18:
-                    tmp.fontSize = 18f;
-                    tmp.font = MTM101BaldiDevAPI.AssetMan.Get<TMP_FontAsset>("COMIC_18_Smooth_Pro");
-                    break;
-                case BaldiFonts.SmoothComicSans24:
-                    tmp.fontSize = 24f;
-                    tmp.font = MTM101BaldiDevAPI.AssetMan.Get<TMP_FontAsset>("COMIC_24_Smooth_Pro");
-                    break;
-                case BaldiFonts.SmoothComicSans36:
-                    tmp.fontSize = 36f;
-                    tmp.font = MTM101BaldiDevAPI.AssetMan.Get<TMP_FontAsset>("COMIC_36_Smooth_Pro");
-                    break;
-                default:
-                    throw new NotImplementedException();
-            }
+            tmp.fontSize = font.FontSize();
+            tmp.font = font.FontAsset();
             if (correctPosition)
             {
                 tmp.transform.localPosition = new Vector3(-240f, 180f) + (new Vector3(position.x, position.y * -1f));

@@ -26,6 +26,11 @@ namespace MTM101BaldAPI.PlusExtensions
             modifiers.Add(name, new List<ValueModifier>());
         }
 
+        public void AddModifier(string stat, ValueModifier vm)
+        {
+            modifiers[stat].Add(vm);
+        }
+
         public override void AbstractUpdate()
         {
             pm.staminaRise = GetModifiedStat("staminaRise");
