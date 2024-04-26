@@ -3,6 +3,7 @@ using HarmonyLib;
 using MTM101BaldAPI.Registers;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Reflection;
 using System.Text;
 using UnityEngine;
@@ -18,7 +19,8 @@ namespace MTM101BaldAPI.ObjectCreation
         string _description = "Uh oh! Some event happened, but a description wasn't assigned!";
         float _minTime = 60f;
         float _maxTime = 60f;
-        string[] _tags = new string[0];
+        List<string> _tags = new List<string>();
+        List<string> characters = new List<string>();
         RandomEventFlags _flags = RandomEventFlags.None;
         List<WeightedRoomAsset> potentialRoomAssets = new List<WeightedRoomAsset>();
 
@@ -44,7 +46,10 @@ namespace MTM101BaldAPI.ObjectCreation
             _maxEventTime.SetValue(evnt, _maxTime);
             _potentialRoomAssets.SetValue(evnt, potentialRoomAssets.ToArray());
             eventObject.name = _eventName;
-            RandomEventMetaStorage.Instance.Add(new RandomEventMetadata(_info, evnt, _flags));
+            RandomEventMetadata meta = new RandomEventMetadata(_info, evnt, _flags);
+            meta.tags.AddRange(_tags);
+            meta.tags.AddRange(characters);
+            RandomEventMetaStorage.Instance.Add(meta);
             UnityEngine.Object.DontDestroyOnLoad(evnt);
             return evnt;
         }
@@ -54,10 +59,21 @@ namespace MTM101BaldAPI.ObjectCreation
             _info = info;
         }
 
+        public RandomEventBuilder<T> AddRequiredCharacter(Character character)
+        {
+            _flags |= RandomEventFlags.CharacterSpecific;
+            characters.Add("requiredC_" + EnumExtensions.GetExtendedName<Character>((int)character));
+            return this;
+        }
+
         public RandomEventBuilder<T> SetMeta(RandomEventFlags flags, params string[] tags)
         {
             _flags = flags;
-            _tags = tags;
+            if (characters.Count > 0)
+            {
+                _flags |= RandomEventFlags.CharacterSpecific;
+            }
+            _tags = tags.ToList();
             return this;
         }
 
