@@ -29,28 +29,6 @@ namespace MTM101BaldAPI.Components
         }
     }
 
-    public abstract class ValueModifierManager<T> : MonoBehaviour
-    {
-
-        void Awake()
-        {
-            Initialize();
-        }
-
-        public abstract void Initialize();
-
-        public abstract ValueModifier[] Modifiers { get; }
-
-        public abstract void RemoveModifier(ValueModifier vm);
-
-        public abstract void AbstractUpdate();
-
-        void Update()
-        {
-            AbstractUpdate();
-        }
-    }
-
     public class ValueModifier
     {
 

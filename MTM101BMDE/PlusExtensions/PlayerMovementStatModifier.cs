@@ -3,17 +3,17 @@ using MTM101BaldAPI.Components;
 using System;
 using System.Collections.Generic;
 using System.Text;
+using UnityEngine;
 
 namespace MTM101BaldAPI.PlusExtensions
 {
-    public class PlayerMovementStatModifier : ValueModifierManager<PlayerMovement>
+    public class PlayerMovementStatModifier : MonoBehaviour
     {
         PlayerMovement pm;
 
         Dictionary<string, List<ValueModifier>> modifiers = new Dictionary<string, List<ValueModifier>>();
 
         Dictionary<string, float> baseStats = new Dictionary<string, float>();
-        public override ValueModifier[] Modifiers => throw new NotImplementedException();
 
         float GetModifiedStat(string name)
         {
@@ -31,7 +31,7 @@ namespace MTM101BaldAPI.PlusExtensions
             modifiers[stat].Add(vm);
         }
 
-        public override void AbstractUpdate()
+        void Update()
         {
             pm.staminaRise = GetModifiedStat("staminaRise");
             pm.staminaMax = GetModifiedStat("staminaMax");
@@ -45,7 +45,7 @@ namespace MTM101BaldAPI.PlusExtensions
             baseStats[statToChange] = value;
         }
 
-        public override void Initialize()
+        void Awake()
         {
             pm = GetComponent<PlayerMovement>();
             AddBaseStat("staminaRise", pm.staminaRise);
@@ -55,7 +55,7 @@ namespace MTM101BaldAPI.PlusExtensions
             AddBaseStat("runSpeed", pm.runSpeed);
         }
 
-        public override void RemoveModifier(ValueModifier vm)
+        public void RemoveModifier(ValueModifier vm)
         {
             modifiers.Do(x =>
             {
