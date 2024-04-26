@@ -244,7 +244,7 @@ namespace MTM101BaldAPI
 
             Cubemap[] cubemaps = Resources.FindObjectsOfTypeAll<Cubemap>();
             skyboxMeta.Add(new SkyboxMetadata(Info, cubemaps.Where(x => x.name == "Cubemap_DayStandard").First(), Color.white));
-            skyboxMeta.Add(new SkyboxMetadata(Info, cubemaps.Where(x => x.name == "Cubemap_Twilight").First(), new Color(239f / 255f, 188f / 255f, 162f / 255f)));
+            skyboxMeta.Add(new SkyboxMetadata(Info, cubemaps.Where(x => x.name == "Cubemap_Twilight").First(), Color.white /*new Color(239f / 255f, 188f / 255f, 162f / 255f)*/));
 
             MTM101BaldiDevAPI.CalledInitialize = true;
 
