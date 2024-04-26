@@ -1,4 +1,6 @@
-﻿using HarmonyLib;
+﻿using BepInEx;
+using HarmonyLib;
+using MTM101BaldAPI.Registers;
 using System;
 using System.Collections.Generic;
 using System.Reflection;
@@ -9,12 +11,15 @@ namespace MTM101BaldAPI.ObjectCreation
 {
     public class RandomEventBuilder<T> where T : RandomEvent
     {
+        PluginInfo _info;
         RandomEventType _type;
         string _enumName = "";
         string _eventName = null;
         string _description = "Uh oh! Some event happened, but a description wasn't assigned!";
         float _minTime = 60f;
         float _maxTime = 60f;
+        string[] _tags = new string[0];
+        RandomEventFlags _flags = RandomEventFlags.None;
         List<WeightedRoomAsset> potentialRoomAssets = new List<WeightedRoomAsset>();
 
 
@@ -39,8 +44,21 @@ namespace MTM101BaldAPI.ObjectCreation
             _maxEventTime.SetValue(evnt, _maxTime);
             _potentialRoomAssets.SetValue(evnt, potentialRoomAssets.ToArray());
             eventObject.name = _eventName;
+            RandomEventMetaStorage.Instance.Add(new RandomEventMetadata(_info, evnt, _flags));
             UnityEngine.Object.DontDestroyOnLoad(evnt);
             return evnt;
+        }
+
+        public RandomEventBuilder(PluginInfo info)
+        {
+            _info = info;
+        }
+
+        public RandomEventBuilder<T> SetMeta(RandomEventFlags flags, params string[] tags)
+        {
+            _flags = flags;
+            _tags = tags;
+            return this;
         }
 
         public RandomEventBuilder<T> SetDescription(string desc)
