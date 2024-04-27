@@ -20,6 +20,8 @@ namespace MTM101BaldAPI
         static FieldInfo _collider = AccessTools.Field(typeof(Navigator), "collider");
         static FieldInfo _npc = AccessTools.Field(typeof(Looker), "npc");
         static FieldInfo _useHeatMap = AccessTools.Field(typeof(Navigator), "useHeatMap");
+
+        [Obsolete("This has been obsoleted by ObjectCreation.NPCBuilder<T>! Please use that instead!")]
         public static T CreateNPC<T>(string name, Character character, PosterObject poster, bool hasLooker = true, bool usesHeatMap = false, bool hasTrigger = true, float minAudioDistance = 10f, float maxAudioDistance = 250f, RoomCategory[] spawnableRooms = null) where T : NPC
         {
             T newNpc = GameObject.Instantiate(MTM101BaldiDevAPI.AssetMan.Get<GameObject>("TemplateNPC")).AddComponent<T>();

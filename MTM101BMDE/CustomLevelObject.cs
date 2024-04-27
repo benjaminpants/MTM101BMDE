@@ -7,10 +7,10 @@ namespace MTM101BaldAPI
 {
     public class CustomLevelObject : LevelObject
     {
-        public List<RoomTypeList> additionalRoomTypes = new List<RoomTypeList>();
+        public List<RoomTypeGroup> additionalRoomTypes = new List<RoomTypeGroup>();
     }
 
-    public enum RoomTypeListSpawnMethod
+    public enum RoomGroupSpawnMethod
     {
         /// <summary>
         /// The standard room spawning method used by classrooms, offices, and faculty rooms.
@@ -21,14 +21,39 @@ namespace MTM101BaldAPI
         /// </summary>
         Exits,
         /// <summary>
-        /// Uses the standard room spawning method for the first room, then every room after is attached to the previous.
+        /// Uses the standard room spawning method for the first room of the group, then every room after is attached to the previous.
+        /// Note that it is not guranteed that all rooms will spawn or that there won't be duplicate directions, but it will try to be avoided.
+        /// This generation method is also a lot slower.
         /// </summary>
-        Chain
+        Chain,
+        /// <summary>
+        /// Uses the same logic that special rooms use to spawn.
+        /// The priority will be ignored and these will spawn after special rooms.
+        /// stickToHallChance will be treated as stickToEdgeChance.
+        /// </summary>
+        SpecialRooms
     }
 
-    public class RoomTypeList : ScriptableObject
+    public enum RoomGroupPriority
     {
-        public List<WeightedRoomAsset> potentialAssets = new List<WeightedRoomAsset>();
+        BeforeOffice,
+        BeforeClassroom,
+        BeforeFaculty,
+        BeforeExtraRooms,
+        AfterAll
+    }
+
+    [Serializable]
+    public class RoomTypeGroup
+    {
+        public int minRooms = 1;
+        public int maxRooms = 1;
+
+        public RoomGroupPriority priority = RoomGroupPriority.AfterAll;
+        
+        public RoomGroupSpawnMethod spawnMethod = RoomGroupSpawnMethod.Standard;
+
+        public WeightedRoomAsset[] potentialAssets = new WeightedRoomAsset[0];
 
         public float stickToHallChance = 1f;
     }
