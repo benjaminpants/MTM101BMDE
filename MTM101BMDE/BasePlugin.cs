@@ -271,8 +271,13 @@ namespace MTM101BaldAPI
             foreach (SceneObject obj in objs)
             {
                 if (obj.levelObject == null) continue;
+                if (!(obj.levelObject is CustomLevelObject))
+                {
+                    MTM101BaldiDevAPI.Log.LogWarning(String.Format("Can't invoke SceneObject({0})({2}) Generation Changes for {1}! Not a CustomLevelObject!", obj.levelTitle, obj.levelObject.ToString(), obj.levelNo.ToString()));
+                    continue;
+                }
                 MTM101BaldiDevAPI.Log.LogInfo(String.Format("Invoking SceneObject({0})({2}) Generation Changes for {1}!", obj.levelTitle, obj.levelObject.ToString(), obj.levelNo.ToString()));
-                GeneratorManagement.Invoke(obj.levelTitle, obj.levelNo, obj.levelObject);
+                GeneratorManagement.Invoke(obj.levelTitle, obj.levelNo, (CustomLevelObject)obj.levelObject);
             }
             foreach (KeyValuePair<string, byte[]> kvp in AssetLoader.MidisToBeAdded)
             {
@@ -377,6 +382,28 @@ namespace MTM101BaldAPI
             AssetMan.Add<SoundObject>("Explosion", allSoundObjects.Where(x => x.name == "Explosion").First());
             AssetMan.AddFromResources<TMPro.TMP_FontAsset>();
             AssetMan.AddFromResources<Material>();
+            ConvertAllLevelObjects();
+        }
+
+        internal void ConvertAllLevelObjects()
+        {
+            SceneObject[] sceneObjects = Resources.FindObjectsOfTypeAll<SceneObject>();
+            foreach (SceneObject objct in sceneObjects)
+            {
+                if (objct.levelObject == null) continue;
+                CustomLevelObject customizedObject = ScriptableObject.CreateInstance<CustomLevelObject>();
+                // transfer the data
+                FieldInfo[] foes = typeof(LevelObject).GetFields();
+                foreach (FieldInfo fo in foes)
+                {
+                    fo.SetValue(customizedObject, fo.GetValue(objct.levelObject));
+                }
+                customizedObject.name = objct.levelObject.name;
+                Destroy(objct.levelObject);
+                objct.levelObject = customizedObject;
+                objct.levelObject.MarkAsNeverUnload();
+                objct.MarkAsNeverUnload();
+            }
         }
 
         // "GUYS IM GONNA USE THIS FOR MY CUSTOM ERROR SCREEN FOR MY FUNNY 4TH WALL BREAK IN MY MOD!"
