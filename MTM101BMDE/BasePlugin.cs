@@ -405,7 +405,7 @@ namespace MTM101BaldAPI
                 objct.MarkAsNeverUnload();
             }
 
-
+#if DEBUG
             RoomTypeGroup dummy = new RoomTypeGroup()
             {
                 potentialAssets = new WeightedRoomAsset[]
@@ -426,6 +426,7 @@ namespace MTM101BaldAPI
             {
                 data.additionalRoomTypes.Add(dummy);
             });
+#endif
         }
 
         // "GUYS IM GONNA USE THIS FOR MY CUSTOM ERROR SCREEN FOR MY FUNNY 4TH WALL BREAK IN MY MOD!"

@@ -59,10 +59,10 @@ namespace MTM101BaldAPI.Patches
 
         static FieldInfo _potentialRoomSpawns = AccessTools.Field(typeof(LevelBuilder), "potentialRoomSpawns");
 
-        static void GenerateGroup(LevelGenerator generator, RoomTypeGroup group)
+        static void GenerateExitGroup(LevelGenerator generator, RoomTypeGroup group)
         {
             bool stickingToHalls = generator.controlledRNG.NextDouble() < (double)group.stickToHallChance; //store as a variable so RoomGroupSpawnMethod.Exits can flip it
-            bool triedCurrentDirection = false; // bool only used by RoomGroupSpawnMethod.Exits
+            bool triedCurrentDirection = false;
             generator.UpdatePotentialSpawnsForRooms(stickingToHalls);
             List<WeightedRoomAsset> potentialRoomsList = new List<WeightedRoomAsset>(group.potentialAssets);
             int roomCount = Mathf.Max(generator.controlledRNG.Next(group.minRooms, group.maxRooms + 1), 0);
@@ -70,49 +70,43 @@ namespace MTM101BaldAPI.Patches
             for (int i = 0; i < roomCount; i++)
             {
                 if (potentialRoomsList.Count == 0) break;
-                if (group.spawnMethod == RoomGroupSpawnMethod.Exits) //handle the direction stuff for the exit type
+                // exit specific logic, todo: rewrite this
+                isolate_all_to_exits:
+                int dirIndex = generator.controlledRNG.Next(0, directions.Count);
+                List<WeightedRoomSpawn> weightedRoomSpawns = (List<WeightedRoomSpawn>)_potentialRoomSpawns.GetValue(generator);
+                Direction triedDirection = directions[dirIndex]; //store this so that if we fail, we can attempt it with the opposite parity
+                weightedRoomSpawns.RemoveAll(x => x.selection.direction != triedDirection);
+                directions.RemoveAt(dirIndex);
+                if (weightedRoomSpawns.Count == 0)
                 {
-                    // todo: remove goto. like. i dont think its necessary here i just cant be bothered rn
-                    // like i could make this function but also it seems kind of pointless? and i think the codes still pretty readable.
-                    // maybe a while loop would work but like..?
-                    isolate_all_to_exits:
-                    int dirIndex = generator.controlledRNG.Next(0, directions.Count);
-                    List<WeightedRoomSpawn> weightedRoomSpawns = (List<WeightedRoomSpawn>)_potentialRoomSpawns.GetValue(generator);
-                    Direction triedDirection = directions[dirIndex]; //store this so that if we fail, we can attempt it with the opposite parity
-                    weightedRoomSpawns.RemoveAll(x => x.selection.direction != triedDirection);
-                    directions.RemoveAt(dirIndex);
-                    if (weightedRoomSpawns.Count == 0)
+                    UnityEngine.Debug.Log("Removed all valid spawns when spawning RoomGroupSpawnMethod.Exits type room, trying again...");
+                    if (group.stickToHallChance < 1f && !triedCurrentDirection) //if we have the possibility of doing the opposite of what we tried, flip and try again.
                     {
-                        UnityEngine.Debug.Log("Removed all valid spawns when spawning RoomGroupSpawnMethod.Exits type room, trying again...");
-                        if (group.stickToHallChance < 1f && !triedCurrentDirection) //if we have the possibility of doing the opposite of what we tried, flip and try again.
-                        {
-                            triedCurrentDirection = true;
-                            directions.Clear();
-                            directions.Add(triedDirection);
-                            generator.UpdatePotentialSpawnsForRooms(!stickingToHalls);
-                            UnityEngine.Debug.Log("Trying the opposite inversion!");
-                            goto isolate_all_to_exits;
-                        }
-                        generator.UpdatePotentialSpawnsForRooms(generator.controlledRNG.NextDouble() < (double)group.stickToHallChance);
-                        if (directions.Count == 0)
-                        {
-                            directions = Directions.All();
-                        }
+                        triedCurrentDirection = true;
+                        directions.Clear();
+                        directions.Add(triedDirection);
+                        generator.UpdatePotentialSpawnsForRooms(!stickingToHalls);
+                        UnityEngine.Debug.Log("Trying the opposite inversion!");
                         goto isolate_all_to_exits;
                     }
-
+                    generator.UpdatePotentialSpawnsForRooms(generator.controlledRNG.NextDouble() < (double)group.stickToHallChance);
+                    if (directions.Count == 0)
+                    {
+                        directions = Directions.All();
+                    }
+                    goto isolate_all_to_exits;
                 }
                 triedCurrentDirection = false;
                 // do the typical spawn behavior code, select an asset, try it, and then remove it if it fails.
                 WeightedSelection<RoomAsset>[] potentialAssets = group.potentialAssets.ToArray();
                 int index = WeightedSelection<RoomAsset>.ControlledRandomIndex(potentialAssets, generator.controlledRNG);
-                object[] parameters = new object[] { potentialAssets[index].selection, true, null};
+                object[] parameters = new object[] { potentialAssets[index].selection, true, null };
                 bool result = (bool)_RandomlyPlaceRoom.Invoke(generator, parameters);
                 RoomController rm = (RoomController)parameters[2]; // what the fuck?
                 _FrameShouldEnd.Invoke(generator, null);
                 if (!result)
                 {
-                    if (directions.Count == 0 || group.spawnMethod != RoomGroupSpawnMethod.Exits) // if we are an exit type room and we still have directions to try, do not give up yet.
+                    if (directions.Count == 0) // if we still have directions to try, do not give up yet.
                     {
                         potentialRoomsList.RemoveAt(index);
                     }
@@ -127,6 +121,41 @@ namespace MTM101BaldAPI.Patches
                 if (directions.Count == 0)
                 {
                     directions = Directions.All();
+                }
+            }
+        }
+
+        static void GenerateGroup(LevelGenerator generator, RoomTypeGroup group)
+        {
+            if (group.spawnMethod == RoomGroupSpawnMethod.Exits)
+            {
+                GenerateExitGroup(generator, group);
+                return;
+            }
+            bool stickingToHalls = generator.controlledRNG.NextDouble() < (double)group.stickToHallChance; //store as a variable so RoomGroupSpawnMethod.Exits can flip it
+            generator.UpdatePotentialSpawnsForRooms(stickingToHalls);
+            List<WeightedRoomAsset> potentialRoomsList = new List<WeightedRoomAsset>(group.potentialAssets);
+            int roomCount = Mathf.Max(generator.controlledRNG.Next(group.minRooms, group.maxRooms + 1), 0);
+            for (int i = 0; i < roomCount; i++)
+            {
+                if (potentialRoomsList.Count == 0) break;
+                // do the typical spawn behavior code, select an asset, try it, and then remove it if it fails.
+                WeightedSelection<RoomAsset>[] potentialAssets = group.potentialAssets.ToArray();
+                int index = WeightedSelection<RoomAsset>.ControlledRandomIndex(potentialAssets, generator.controlledRNG);
+                object[] parameters = new object[] { potentialAssets[index].selection, true, null};
+                bool result = (bool)_RandomlyPlaceRoom.Invoke(generator, parameters);
+                RoomController rm = (RoomController)parameters[2]; // what the fuck?
+                _FrameShouldEnd.Invoke(generator, null);
+                if (!result)
+                {
+                    potentialRoomsList.RemoveAt(index);
+                    i--;
+                }
+                else
+                {
+                    ((List<RoomController>)_standardRooms.GetValue(generator)).Add(rm);
+                    stickingToHalls = generator.controlledRNG.NextDouble() < (double)group.stickToHallChance;
+                    generator.UpdatePotentialSpawnsForRooms(stickingToHalls);
                 }
             }
         }
