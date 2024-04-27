@@ -18,18 +18,20 @@ namespace MTM101BaldAPI
         Standard,
         /// <summary>
         /// A modified room spawning method that priotizes having one room in each direction, similar to exits.
+        /// Note that it is not guranteed that all rooms will spawn or that there won't be duplicate directions, but it will try to be avoided.
+        /// This generation method is also a lot slower.
         /// </summary>
         Exits,
         /// <summary>
-        /// Uses the standard room spawning method for the first room of the group, then every room after is attached to the previous.
-        /// Note that it is not guranteed that all rooms will spawn or that there won't be duplicate directions, but it will try to be avoided.
-        /// This generation method is also a lot slower.
+        /// A modified room spawning method that spawns a room normally, then every room after has to be connected to the previous rooms.
+        /// Requires atleast one potentialDoorPosition in each room asset, but more are recommended to ensure no OOB rooms generate.
         /// </summary>
         Chain,
         /// <summary>
         /// Uses the same logic that special rooms use to spawn.
         /// The priority will be ignored and these will spawn after special rooms.
         /// stickToHallChance will be treated as stickToEdgeChance.
+        /// Doors will NOT be generated, you will have to use a RoomFunction(special rooms use SpecialRoomSwingingDoorsBuilder) assigned to the room for those.
         /// </summary>
         SpecialRooms
     }

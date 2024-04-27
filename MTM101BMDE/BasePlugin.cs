@@ -405,28 +405,6 @@ namespace MTM101BaldAPI
                 objct.MarkAsNeverUnload();
             }
 
-#if DEBUG
-            RoomTypeGroup dummy = new RoomTypeGroup()
-            {
-                potentialAssets = new WeightedRoomAsset[]
-                {
-                    new WeightedRoomAsset()
-                    {
-                        selection = roomAssetMeta.Get("Room_ReflexOffice_0").value,
-                        weight = 100
-                    }
-                },
-                minRooms = 4,
-                maxRooms = 4,
-                stickToHallChance = 0.5f,
-                priority = RoomGroupPriority.BeforeOffice,
-                spawnMethod = RoomGroupSpawnMethod.Exits
-            };
-            GeneratorManagement.Register(this, GenerationModType.Addend, (name, id, data) =>
-            {
-                data.additionalRoomTypes.Add(dummy);
-            });
-#endif
         }
 
         // "GUYS IM GONNA USE THIS FOR MY CUSTOM ERROR SCREEN FOR MY FUNNY 4TH WALL BREAK IN MY MOD!"
