@@ -8,6 +8,7 @@ namespace MTM101BaldAPI
     public class CustomLevelObject : LevelObject
     {
         public List<RoomTypeGroup> additionalRoomTypes = new List<RoomTypeGroup>();
+        public List<RoomTextureGroup> additionalTextureGroups = new List<RoomTextureGroup>();
     }
 
     public enum RoomGroupSpawnMethod
@@ -46,17 +47,33 @@ namespace MTM101BaldAPI
     }
 
     [Serializable]
+    public class RoomTextureGroup
+    {
+        public string name;
+        public WeightedTexture2D[] potentialFloorTextures;
+        public WeightedTexture2D[] potentialWallTextures;
+        public WeightedTexture2D[] potentialCeilTextures;
+    }
+
+    [Serializable]
     public class RoomTypeGroup
     {
         public int minRooms = 1;
         public int maxRooms = 1;
 
+        public bool generateDoors = true;
+
         public RoomGroupPriority priority = RoomGroupPriority.AfterAll;
-        
+       
         public RoomGroupSpawnMethod spawnMethod = RoomGroupSpawnMethod.Standard;
 
         public WeightedRoomAsset[] potentialAssets = new WeightedRoomAsset[0];
-
         public float stickToHallChance = 1f;
+
+        /// <summary>
+        /// The name of the RoomTextureGroup to use.
+        /// "hall", "class", and "faculty" are always valid.
+        /// </summary>
+        public string textureGroupName = "";
     }
 }

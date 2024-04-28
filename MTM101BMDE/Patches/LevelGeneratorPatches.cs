@@ -14,47 +14,103 @@ namespace MTM101BaldAPI.Patches
     class LevelGeneratorPatches
     {
 
+        struct SelectedGenTextures
+        {
+            public Texture2D wall;
+            public Texture2D floor;
+            public Texture2D ceiling;
+        }
+
+        static FieldInfo _GhallWallTex = AccessTools.Field(Type.GetType("LevelGenerator+<Generate>d__2, Assembly-CSharp, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null"), "<hallWallTex>5__11");
+        static FieldInfo _GhallFloorTex = AccessTools.Field(Type.GetType("LevelGenerator+<Generate>d__2, Assembly-CSharp, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null"), "<hallFloorTex>5__12");
+        static FieldInfo _GhallCeilTex = AccessTools.Field(Type.GetType("LevelGenerator+<Generate>d__2, Assembly-CSharp, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null"), "<hallCeilingTex>5__13");
+        static FieldInfo _GclassWallTex = AccessTools.Field(Type.GetType("LevelGenerator+<Generate>d__2, Assembly-CSharp, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null"), "<classWallTex>5__15");
+        static FieldInfo _GclassFloorTex = AccessTools.Field(Type.GetType("LevelGenerator+<Generate>d__2, Assembly-CSharp, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null"), "<classFloorTex>5__16");
+        static FieldInfo _GclassCeilTex = AccessTools.Field(Type.GetType("LevelGenerator+<Generate>d__2, Assembly-CSharp, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null"), "<classCeilingTex>5__17");
+        static FieldInfo _GfacultyWallTex = AccessTools.Field(Type.GetType("LevelGenerator+<Generate>d__2, Assembly-CSharp, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null"), "<facultyWallTex>5__18");
+        static FieldInfo _GfacultyFloorTex = AccessTools.Field(Type.GetType("LevelGenerator+<Generate>d__2, Assembly-CSharp, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null"), "<facultyFloorTex>5__19");
+        static FieldInfo _GfacultyCeilTex = AccessTools.Field(Type.GetType("LevelGenerator+<Generate>d__2, Assembly-CSharp, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null"), "<facultyCeilingTex>5__20");
+
         static MethodInfo _FrameShouldEnd = AccessTools.Method(typeof(LevelBuilder), "FrameShouldEnd");
 
-        static void CallPreOffice(LevelGenerator generator)
+        static FieldInfo _levelInProgress = AccessTools.Field(typeof(LevelBuilder), "levelInProgress");
+
+        static Dictionary<string, SelectedGenTextures> currentRoomTextureGroup = new Dictionary<string, SelectedGenTextures>();
+
+        static void ResetExtraData()
+        {
+            currentRoomTextureGroup = new Dictionary<string, SelectedGenTextures>();
+            // note: actually loading in the custom data happens in callPostSpecial since that is the earliest that any room generation code is done.
+        }
+
+        static void CallPreOffice(LevelGenerator generator, object weirdGenInstance)
         {
             if (!(generator.ld is CustomLevelObject)) return;
             _FrameShouldEnd.Invoke(generator, null);
             CallGenerateGroups(generator, RoomGroupPriority.BeforeOffice);
         }
 
-        static void CallPreClassroom(LevelGenerator generator)
+        static void CallPreClassroom(LevelGenerator generator, object weirdGenInstance)
         {
             if (!(generator.ld is CustomLevelObject)) return;
             _FrameShouldEnd.Invoke(generator, null);
             CallGenerateGroups(generator, RoomGroupPriority.BeforeClassroom);
         }
 
-        static void CallPreFaculty(LevelGenerator generator)
+        static void CallPreFaculty(LevelGenerator generator, object weirdGenInstance)
         {
             if (!(generator.ld is CustomLevelObject)) return;
             _FrameShouldEnd.Invoke(generator, null);
             CallGenerateGroups(generator, RoomGroupPriority.BeforeFaculty);
         }
 
-        static void CallPreExtra(LevelGenerator generator)
+        static void CallPreExtra(LevelGenerator generator, object weirdGenInstance)
         {
             if (!(generator.ld is CustomLevelObject)) return;
             _FrameShouldEnd.Invoke(generator, null);
             CallGenerateGroups(generator, RoomGroupPriority.BeforeExtraRooms);
         }
 
-        static void CallPostAll(LevelGenerator generator)
+        static void CallPostAll(LevelGenerator generator, object weirdGenInstance)
         {
             if (!(generator.ld is CustomLevelObject)) return;
             _FrameShouldEnd.Invoke(generator, null);
             CallGenerateGroups(generator, RoomGroupPriority.AfterAll);
         }
 
-        static void CallPostSpecial(LevelGenerator generator)
+        static void CallPostSpecial(LevelGenerator generator, object weirdGenInstance)
         {
             if (!(generator.ld is CustomLevelObject)) return;
             _FrameShouldEnd.Invoke(generator, null);
+            // add all the texture stuff
+            foreach (RoomTextureGroup group in ((CustomLevelObject)generator.ld).additionalTextureGroups)
+            {
+                if (group.name == "hall" || group.name == "faculty" || group.name == "class") return;
+                currentRoomTextureGroup.Add(group.name, new SelectedGenTextures()
+                {
+                    wall=WeightedTexture2D.ControlledRandomSelection(group.potentialWallTextures, generator.controlledRNG),
+                    ceiling = WeightedTexture2D.ControlledRandomSelection(group.potentialCeilTextures, generator.controlledRNG),
+                    floor = WeightedTexture2D.ControlledRandomSelection(group.potentialFloorTextures, generator.controlledRNG)
+                });
+            }
+            currentRoomTextureGroup.Add("hall", new SelectedGenTextures()
+            {
+                wall=(Texture2D)_GhallWallTex.GetValue(weirdGenInstance),
+                ceiling=(Texture2D)_GhallCeilTex.GetValue(weirdGenInstance),
+                floor=(Texture2D)_GhallFloorTex.GetValue(weirdGenInstance)
+            });
+            currentRoomTextureGroup.Add("class", new SelectedGenTextures()
+            {
+                wall = (Texture2D)_GclassWallTex.GetValue(weirdGenInstance),
+                ceiling = (Texture2D)_GclassCeilTex.GetValue(weirdGenInstance),
+                floor = (Texture2D)_GclassFloorTex.GetValue(weirdGenInstance)
+            });
+            currentRoomTextureGroup.Add("faculty", new SelectedGenTextures()
+            {
+                wall = (Texture2D)_GfacultyWallTex.GetValue(weirdGenInstance),
+                ceiling = (Texture2D)_GfacultyCeilTex.GetValue(weirdGenInstance),
+                floor = (Texture2D)_GfacultyFloorTex.GetValue(weirdGenInstance)
+            });
             ((CustomLevelObject)generator.ld).additionalRoomTypes.Where(x => x.spawnMethod == RoomGroupSpawnMethod.SpecialRooms).Do(x => GenerateSpecialRoomGroup(generator, x));
         }
 
@@ -110,7 +166,7 @@ namespace MTM101BaldAPI.Patches
                 int num14 = WeightedSelection<RoomAsset>.ControlledRandomIndex(assets.ToArray(), generator.controlledRNG);
                 RoomController roomcontrol = null;
 
-                var parameters = new object[] { assets[num14].selection, true, roomcontrol }; // An interesting workaround for out parameters
+                var parameters = new object[] { assets[num14].selection, group.generateDoors, roomcontrol }; // An interesting workaround for out parameters
                 var potentialRooms = (List<WeightedRoomSpawn>)_potentialRoomSpawns.GetValue(generator);
                 if (!isFirstRoom)
                 {
@@ -161,14 +217,14 @@ namespace MTM101BaldAPI.Patches
             List<Direction> availableDirs = Directions.All(); // All dirs
 
             int count = generator.controlledRNG.Next(group.minRooms, group.maxRooms + 1); // Get the room count
-            var assets = new List<WeightedRoomAsset>(group.potentialAssets); // Get the room potential assets
+            List<WeightedRoomAsset> potentialAssets = new List<WeightedRoomAsset>(group.potentialAssets); // Get the room potential assets
             bool usedDir = false;
             bool stick = generator.controlledRNG.NextDouble() < group.stickToHallChance;
             generator.UpdatePotentialSpawnsForRooms(stick);
             for (int i = 0; i < count; i++)
             {
                 // Elevator stuff
-                if (assets.Count == 0 || availableDirs.Count == 0)
+                if (potentialAssets.Count == 0 || availableDirs.Count == 0)
                     break;
 
 
@@ -176,10 +232,10 @@ namespace MTM101BaldAPI.Patches
                 Direction dir = availableDirs[dIdx];
 
                 // Generate rooms here
-                int num14 = WeightedSelection<RoomAsset>.ControlledRandomIndex(assets.ToArray(), generator.controlledRNG);
+                int index = WeightedSelection<RoomAsset>.ControlledRandomIndex(potentialAssets.ToArray(), generator.controlledRNG);
                 RoomController roomcontrol = null;
 
-                var parameters = new object[] { assets[num14].selection, true, roomcontrol }; // An interesting workaround for out parameters
+                var parameters = new object[] { potentialAssets[index].selection, group.generateDoors, roomcontrol }; // An interesting workaround for out parameters
 
             repeatExitProcess: // repeat the exit with the same dir
                 ((List<WeightedRoomSpawn>)_potentialRoomSpawns.GetValue(generator)).RemoveAll(x => x.selection.direction != dir);
@@ -187,7 +243,14 @@ namespace MTM101BaldAPI.Patches
                 {
                     stick = generator.controlledRNG.NextDouble() < group.stickToHallChance;
                     generator.UpdatePotentialSpawnsForRooms(stick);
-                    ((List<RoomController>)_standardRooms.GetValue(generator)).Add((RoomController)parameters[2]);
+                    RoomController rm = (RoomController)parameters[2];
+                    ((List<RoomController>)_standardRooms.GetValue(generator)).Add(rm);
+                    if (currentRoomTextureGroup.ContainsKey(group.textureGroupName) && !potentialAssets[index].selection.keepTextures)
+                    {
+                        rm.florTex = currentRoomTextureGroup[group.textureGroupName].floor;
+                        rm.wallTex = currentRoomTextureGroup[group.textureGroupName].wall;
+                        rm.ceilTex = currentRoomTextureGroup[group.textureGroupName].ceiling;
+                    }
                     availableDirs.RemoveAt(dIdx); // ONLY remove the direction when successfully spawn the room
                     usedDir = false;
                 }
@@ -195,7 +258,7 @@ namespace MTM101BaldAPI.Patches
                 {
                     if (usedDir || group.stickToHallChance >= 1f)
                     {
-                        assets.RemoveAt(num14);
+                        potentialAssets.RemoveAt(index);
                         usedDir = false;
                     }
                     else
@@ -232,7 +295,7 @@ namespace MTM101BaldAPI.Patches
                 // do the typical spawn behavior code, select an asset, try it, and then remove it if it fails.
                 WeightedSelection<RoomAsset>[] potentialAssets = group.potentialAssets.ToArray();
                 int index = WeightedSelection<RoomAsset>.ControlledRandomIndex(potentialAssets, generator.controlledRNG);
-                object[] parameters = new object[] { potentialAssets[index].selection, true, null};
+                object[] parameters = new object[] { potentialAssets[index].selection, group.generateDoors, null};
                 bool result = (bool)_RandomlyPlaceRoom.Invoke(generator, parameters);
                 RoomController rm = (RoomController)parameters[2]; // what the fuck?
                 _FrameShouldEnd.Invoke(generator, null);
@@ -244,6 +307,12 @@ namespace MTM101BaldAPI.Patches
                 else
                 {
                     ((List<RoomController>)_standardRooms.GetValue(generator)).Add(rm);
+                    if (currentRoomTextureGroup.ContainsKey(group.textureGroupName) && !potentialAssets[index].selection.keepTextures)
+                    {
+                        rm.florTex = currentRoomTextureGroup[group.textureGroupName].floor;
+                        rm.wallTex = currentRoomTextureGroup[group.textureGroupName].wall;
+                        rm.ceilTex = currentRoomTextureGroup[group.textureGroupName].ceiling;
+                    }
                     generator.UpdatePotentialSpawnsForRooms(generator.controlledRNG.NextDouble() < (double)group.stickToHallChance);
                 }
             }
@@ -252,6 +321,7 @@ namespace MTM101BaldAPI.Patches
         static MethodInfo _CallPostAll = AccessTools.Method(typeof(LevelGeneratorPatches), "CallPostAll");
 
         static MethodInfo _CallPostSpecial = AccessTools.Method(typeof(LevelGeneratorPatches), "CallPostSpecial");
+        static MethodInfo _ResetExtraData = AccessTools.Method(typeof(LevelGeneratorPatches), "ResetExtraData");
 
         static FieldInfo _standardRooms = AccessTools.Field(typeof(LevelGenerator), "standardRooms");
         static FieldInfo _halls = AccessTools.Field(typeof(LevelBuilder), "halls");
@@ -274,16 +344,30 @@ namespace MTM101BaldAPI.Patches
 
             bool patchedLast = false;
             bool patchedSpecialPostgen = false;
+            bool patchedTextureReset = false;
 
             for (int i = 0; i < codeInstructions.Length; i++)
             {
                 CodeInstruction instruction = codeInstructions[i];
                 yield return instruction;
+                if (!patchedTextureReset)
+                {
+                    if (i + 3 > codeInstructions.Length - 1) continue;
+                    if (
+                        (codeInstructions[i + 0].opcode == OpCodes.Ldloc_2) &&
+                        (codeInstructions[i + 1].opcode == OpCodes.Ldc_I4_1) &&
+                        (codeInstructions[i + 2].opcode == OpCodes.Stfld) &&
+                        ((FieldInfo)codeInstructions[i + 2].operand == _levelInProgress)
+                        )
+                    {
+                        yield return new CodeInstruction(OpCodes.Call, _ResetExtraData); //yeah
+                        patchedTextureReset = true;
+                    }
+                }
                 if (!patchedSpecialPostgen)
                 {
                     if (i + 4 > codeInstructions.Length - 1) continue;
                     if (
-                        // using (List<RoomController>.Enumerator enumerator9 = this.standardRooms.GetEnumerator())
                         (codeInstructions[i + 0].opcode == OpCodes.Ldloc_2) &&
                         (codeInstructions[i + 1].opcode == OpCodes.Ldfld) &&
                         (codeInstructions[i + 2].opcode == OpCodes.Ldnull) &&
@@ -292,6 +376,7 @@ namespace MTM101BaldAPI.Patches
                         )
                     {
                         yield return new CodeInstruction(OpCodes.Ldloc_2); //this
+                        yield return new CodeInstruction(OpCodes.Ldarg_0); //weird generator subclass
                         yield return new CodeInstruction(OpCodes.Call, _CallPostSpecial);
                         patchedSpecialPostgen = true;
                     }
@@ -312,6 +397,7 @@ namespace MTM101BaldAPI.Patches
                         )
                     {
                         yield return new CodeInstruction(OpCodes.Ldloc_2); //this
+                        yield return new CodeInstruction(OpCodes.Ldarg_0); //weird generator subclass
                         yield return new CodeInstruction(OpCodes.Call, _CallPostAll);
                         patchedLast = true;
                     }
@@ -331,6 +417,7 @@ namespace MTM101BaldAPI.Patches
                         )
                     {
                         yield return new CodeInstruction(OpCodes.Ldloc_2); //this
+                        yield return new CodeInstruction(OpCodes.Ldarg_0); //weird generator subclass
                         yield return new CodeInstruction(OpCodes.Call, preGenDict[notPatched[z]]);
                         notPatched.RemoveAt(z);
                     }
@@ -339,6 +426,7 @@ namespace MTM101BaldAPI.Patches
             if (notPatched.Count != 0) throw new Exception("Unable to patch LevelGenerator.Generate preGenDict!");
             if (!patchedLast) throw new Exception("Unable to patch LevelGenerator.Generate CallPostAll");
             if (!patchedSpecialPostgen) throw new Exception("Unable to patch LevelGenerator.Generate CallPostSpecial");
+            if (!patchedTextureReset) throw new Exception("Unable to patch LevelGenerator.Generate ResetExtraData");
             yield break;
         }
     }

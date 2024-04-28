@@ -404,7 +404,6 @@ namespace MTM101BaldAPI
                 objct.levelObject.MarkAsNeverUnload();
                 objct.MarkAsNeverUnload();
             }
-
         }
 
         // "GUYS IM GONNA USE THIS FOR MY CUSTOM ERROR SCREEN FOR MY FUNNY 4TH WALL BREAK IN MY MOD!"
