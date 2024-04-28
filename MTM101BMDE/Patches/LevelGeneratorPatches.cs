@@ -21,15 +21,17 @@ namespace MTM101BaldAPI.Patches
             public Texture2D ceiling;
         }
 
-        static FieldInfo _GhallWallTex = AccessTools.Field(Type.GetType("LevelGenerator+<Generate>d__2, Assembly-CSharp, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null"), "<hallWallTex>5__11");
-        static FieldInfo _GhallFloorTex = AccessTools.Field(Type.GetType("LevelGenerator+<Generate>d__2, Assembly-CSharp, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null"), "<hallFloorTex>5__12");
-        static FieldInfo _GhallCeilTex = AccessTools.Field(Type.GetType("LevelGenerator+<Generate>d__2, Assembly-CSharp, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null"), "<hallCeilingTex>5__13");
-        static FieldInfo _GclassWallTex = AccessTools.Field(Type.GetType("LevelGenerator+<Generate>d__2, Assembly-CSharp, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null"), "<classWallTex>5__15");
-        static FieldInfo _GclassFloorTex = AccessTools.Field(Type.GetType("LevelGenerator+<Generate>d__2, Assembly-CSharp, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null"), "<classFloorTex>5__16");
-        static FieldInfo _GclassCeilTex = AccessTools.Field(Type.GetType("LevelGenerator+<Generate>d__2, Assembly-CSharp, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null"), "<classCeilingTex>5__17");
-        static FieldInfo _GfacultyWallTex = AccessTools.Field(Type.GetType("LevelGenerator+<Generate>d__2, Assembly-CSharp, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null"), "<facultyWallTex>5__18");
-        static FieldInfo _GfacultyFloorTex = AccessTools.Field(Type.GetType("LevelGenerator+<Generate>d__2, Assembly-CSharp, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null"), "<facultyFloorTex>5__19");
-        static FieldInfo _GfacultyCeilTex = AccessTools.Field(Type.GetType("LevelGenerator+<Generate>d__2, Assembly-CSharp, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null"), "<facultyCeilingTex>5__20");
+        const string generateSubclassName = "LevelGenerator+<Generate>d__2, Assembly-CSharp, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null";
+
+        static FieldInfo _GhallWallTex = AccessTools.Field(Type.GetType(generateSubclassName), "<hallWallTex>5__11");
+        static FieldInfo _GhallFloorTex = AccessTools.Field(Type.GetType(generateSubclassName), "<hallFloorTex>5__12");
+        static FieldInfo _GhallCeilTex = AccessTools.Field(Type.GetType(generateSubclassName), "<hallCeilingTex>5__13");
+        static FieldInfo _GclassWallTex = AccessTools.Field(Type.GetType(generateSubclassName), "<classWallTex>5__15");
+        static FieldInfo _GclassFloorTex = AccessTools.Field(Type.GetType(generateSubclassName), "<classFloorTex>5__16");
+        static FieldInfo _GclassCeilTex = AccessTools.Field(Type.GetType(generateSubclassName), "<classCeilingTex>5__17");
+        static FieldInfo _GfacultyWallTex = AccessTools.Field(Type.GetType(generateSubclassName), "<facultyWallTex>5__18");
+        static FieldInfo _GfacultyFloorTex = AccessTools.Field(Type.GetType(generateSubclassName), "<facultyFloorTex>5__19");
+        static FieldInfo _GfacultyCeilTex = AccessTools.Field(Type.GetType(generateSubclassName), "<facultyCeilingTex>5__20");
 
         static MethodInfo _FrameShouldEnd = AccessTools.Method(typeof(LevelBuilder), "FrameShouldEnd");
 
