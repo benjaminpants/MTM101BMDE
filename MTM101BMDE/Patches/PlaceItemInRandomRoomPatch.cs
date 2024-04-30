@@ -8,6 +8,7 @@ using HarmonyLib;
 
 namespace MTM101BaldAPI.Patches
 {
+    [ConditionalPatchConfig("mtm101.rulerp.bbplus.baldidevapi", "Generator", "Fix Vanilla Crashes")]
     [HarmonyPatch(typeof(LevelBuilder))]
     [HarmonyPatch("PlaceItemInRandomRoom")]
     static class PlaceItemInRandomRoomPatch

@@ -44,7 +44,10 @@ namespace MTM101BaldAPI.Patches
                     yield return new CodeInstruction(OpCodes.Call, fo); //BaseGameMangerSetActive.SetActive
                 }
             }
-            if (!didPatch) throw new Exception("Unable to patch GameInitializer.Initialize!");
+            if (!didPatch)
+            {
+                throw new Exception("Unable to patch GameInitializer.Initialize!");
+            }
             yield break;
         }
     }

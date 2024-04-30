@@ -453,5 +453,12 @@ namespace MTM101BaldAPI.Patches
             if (!patchedTextureReset) throw new Exception("Unable to patch LevelGenerator.Generate ResetExtraData");
             yield break;
         }
+
+        static Exception Finalizer(Exception __exception)
+        {
+            UnityEngine.Debug.Log("Caught error, printing in console so it doesn't just silently crash!");
+            UnityEngine.Debug.LogError(__exception.ToString());
+            return __exception;
+        }
     }
 }

@@ -518,7 +518,6 @@ PRESS ALT+F4 TO EXIT THE GAME.
                 "Enable Custom Room Support",
                 true,
                 "Enables/Disables the support for Custom Rooms provided by the CustomLevelData class. ONLY TURN OFF IF YOU ABSOLUTELY HAVE TO! THIS WILL BREAK MODS!");
-            harmony.PatchAllConditionals();
 
             Config.Bind("Generator",
                 "Fix Vanilla Crashes",
