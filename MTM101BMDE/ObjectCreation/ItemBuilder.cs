@@ -24,6 +24,7 @@ namespace MTM101BaldAPI.ObjectCreation
         private ItemFlags flags = ItemFlags.None;
         private PluginInfo info;
         private ItemMetaData metaDataToAddTo;
+        private bool instantUse = false;
 
 
         public ItemBuilder(PluginInfo info)
@@ -57,6 +58,11 @@ namespace MTM101BaldAPI.ObjectCreation
                 comp.name = "Obj" + item.name;
                 item.item = comp;
                 GameObject.DontDestroyOnLoad(obj);
+            }
+            if (instantUse)
+            {
+                flags |= ItemFlags.InstantUse;
+                item.addToInventory = false;
             }
             if (metaDataToAddTo != null)
             {

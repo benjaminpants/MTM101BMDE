@@ -17,14 +17,13 @@ namespace MTM101BaldAPI.Registers
         public PluginInfo info => _info;
         private PluginInfo _info;
 
-        private Color _lightColor;
-        public Color lightColor => _lightColor;
+        public Color lightColor;
 
         public SkyboxMetadata(PluginInfo info, Cubemap cubemap, Color lightColor)
         {
             _info = info;
             _cubemap = cubemap;
-            _lightColor = lightColor;
+            this.lightColor = lightColor;
         }
     }
 

@@ -86,7 +86,6 @@ namespace MTM101BaldAPI.Patches
             if (!(generator.ld is CustomLevelObject)) return;
             _FrameShouldEnd.Invoke(generator, null);
             // add all the texture stuff
-            currentRoomTextureGroup.Clear();
             foreach (RoomTextureGroup group in ((CustomLevelObject)generator.ld).additionalTextureGroups)
             {
                 if (group.name == "hall" || group.name == "faculty" || group.name == "class") return;
