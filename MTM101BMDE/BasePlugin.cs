@@ -24,6 +24,7 @@ using System.Collections;
 using MTM101BaldAPI.UI;
 using UnityEngine.UI;
 using MidiPlayerTK;
+using MTM101BaldAPI.Patches;
 
 namespace MTM101BaldAPI
 {
@@ -58,8 +59,6 @@ namespace MTM101BaldAPI
         public static RoomAssetMetaStorage roomAssetMeta = new RoomAssetMetaStorage();
 
         internal ConfigEntry<bool> useOldAudioLoad;
-
-        static internal ConfigEntry<bool> enableSkyboxPatch;
 
         internal static AssetManager AssetMan = new AssetManager();
 
@@ -122,12 +121,13 @@ namespace MTM101BaldAPI
         {
             // INITIALIZE ITEM METADATA
             ItemObject grapplingHook = null;
+            List<ItemObject> pointObjects = new List<ItemObject>();
             Resources.FindObjectsOfTypeAll<ItemObject>().Do(x =>
             {
                 switch (x.itemType)
                 {
                     case Items.PortalPoster:
-                        x.AddMeta(MTM101BaldiDevAPI.Instance, ItemFlags.Persists); //todo: double check
+                        x.AddMeta(MTM101BaldiDevAPI.Instance, ItemFlags.None);
                         break;
                     case Items.GrapplingHook:
                         if ((grapplingHook == null) &&
@@ -170,6 +170,13 @@ namespace MTM101BaldAPI
                     case Items.DoorLock:
                         x.AddMeta(MTM101BaldiDevAPI.Instance, ItemFlags.None);
                         break;
+                    case Items.NanaPeel:
+                        ItemMetaData bana = x.AddMeta(MTM101BaldiDevAPI.Instance, ItemFlags.Persists | ItemFlags.CreatesEntity);
+                        bana.tags.Add("food");
+                        break;
+                    case Items.Points:
+                        pointObjects.Add(x);
+                        break;
                     default:
                         // modded items start at 256, so we somehow have initialized after the mod in question, ignore the data.
                         if ((int)x.itemType < 256)
@@ -185,6 +192,17 @@ namespace MTM101BaldAPI
             grappleMeta.itemObjects.Do(x =>
             {
                 x.AddMeta(grappleMeta);
+            });
+            // handle point metadata
+            pointObjects.Sort((a, b) =>
+            {
+                return ((int)a.ReflectionGetVariable("value")).CompareTo((int)b.ReflectionGetVariable("value"));
+            });
+            ItemMetaData pointItemData = new ItemMetaData(MTM101BaldiDevAPI.Instance.Info, pointObjects.ToArray());
+            pointItemData.flags = ItemFlags.InstantUse;
+            pointObjects.ForEach(x =>
+            {
+                x.AddMeta(pointItemData);
             });
             // INITIALIZE CHARACTER METADATA
             NPC[] NPCs = Resources.FindObjectsOfTypeAll<NPC>();
@@ -288,9 +306,6 @@ namespace MTM101BaldAPI
             {
                 LoadingEvents.OnAllAssetsLoadedPost.Invoke();
             }
-            // dumb dumb test code
-            /*LevelObject testObj = objs.Where(x => x.levelTitle == "F1").First().levelObject;
-            testObj.forcedNpcs = testObj.forcedNpcs.AddToArray(ObjectCreators.CreateNPC<TestNPC>("TestMan", Character.Null));*/
         }
 
 #if DEBUG
@@ -341,10 +356,6 @@ namespace MTM101BaldAPI
             });
 
             b.transform.SetParent(ob.transform, false);
-
-            //CustomOptionsCore.CreateNewCategory(__instance, "Empty Menu");
-
-            //CustomOptionsCore.CreateNewCategory(__instance, "Still Empty");
         }
 #endif
 
@@ -404,6 +415,28 @@ namespace MTM101BaldAPI
                 objct.levelObject.MarkAsNeverUnload();
                 objct.MarkAsNeverUnload();
             }
+
+            RoomTypeGroup dummy = new RoomTypeGroup()
+            {
+                potentialAssets = new WeightedRoomAsset[]
+                {
+                    new WeightedRoomAsset()
+                    {
+                        selection = roomAssetMeta.Get("Room_Faculty_School_1").value,
+                        weight = 100
+                    }
+                },
+                minRooms = 4,
+                maxRooms = 4,
+                stickToHallChance = 0.5f,
+                priority = RoomGroupPriority.BeforeOffice,
+                spawnMethod = RoomGroupSpawnMethod.Chain,
+                textureGroupName="hall"
+            };
+            GeneratorManagement.Register(this, GenerationModType.Addend, (name, id, data) =>
+            {
+                data.additionalRoomTypes.Add(dummy);
+            });
         }
 
         // "GUYS IM GONNA USE THIS FOR MY CUSTOM ERROR SCREEN FOR MY FUNNY 4TH WALL BREAK IN MY MOD!"
@@ -470,15 +503,27 @@ PRESS ALT+F4 TO EXIT THE GAME.
                 false,
                 "Whether or not the old, legacy method of loading audio should be used. (ONLY TURN ON IF YOU GET MENTIONS OF AN AUDIO LOADING ERROR!)");
 
-            usingMidiFix = Config.Bind("General",
+            usingMidiFix = Config.Bind("Technical",
                 "Use Midi Fix",
                 true,
                 "Whether or not the midi fix should be used to increase the amount of instruments available to the midi player, there shouldn't be a reason for you to disable this.");
 
-            enableSkyboxPatch = Config.Bind("General",
+            //handled by the patch system so i do not need to check it
+            Config.Bind("Generator",
                 "Enable Skybox Patches",
                 true,
                 "Whether or not outdoors areas will have different light colors depending on the skybox used. Only disable for legacy mods.");
+
+            Config.Bind("Generator",
+                "Enable Custom Room Support",
+                true,
+                "Enables/Disables the support for Custom Rooms provided by the CustomLevelData class. ONLY TURN OFF IF YOU ABSOLUTELY HAVE TO! THIS WILL BREAK MODS!");
+            harmony.PatchAllConditionals();
+
+            Config.Bind("Generator",
+                "Fix Vanilla Crashes",
+                true,
+                "Controls if the fixes for vanilla generator crashes is enabled. This will not fix any other bugs with the generator, turn off to make seeds match with vanilla.");
             harmony.PatchAllConditionals();
 
             Log = base.Logger;

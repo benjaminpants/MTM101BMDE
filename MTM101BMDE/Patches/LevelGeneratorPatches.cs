@@ -9,6 +9,7 @@ using UnityEngine;
 
 namespace MTM101BaldAPI.Patches
 {
+    [ConditionalPatchConfig("mtm101.rulerp.bbplus.baldidevapi", "Generator", "Enable Custom Room Support")]
     [HarmonyPatch(typeof(LevelGenerator))]
     [HarmonyPatch("Generate", MethodType.Enumerator)]
     class LevelGeneratorPatches
@@ -21,17 +22,17 @@ namespace MTM101BaldAPI.Patches
             public Texture2D ceiling;
         }
 
-        const string generateSubclassName = "LevelGenerator+<Generate>d__2, Assembly-CSharp, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null";
+        internal const string generateSubclassName = "LevelGenerator+<Generate>d__2, Assembly-CSharp, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null";
 
-        static FieldInfo _GhallWallTex = AccessTools.Field(Type.GetType(generateSubclassName), "<hallWallTex>5__11");
-        static FieldInfo _GhallFloorTex = AccessTools.Field(Type.GetType(generateSubclassName), "<hallFloorTex>5__12");
-        static FieldInfo _GhallCeilTex = AccessTools.Field(Type.GetType(generateSubclassName), "<hallCeilingTex>5__13");
-        static FieldInfo _GclassWallTex = AccessTools.Field(Type.GetType(generateSubclassName), "<classWallTex>5__15");
-        static FieldInfo _GclassFloorTex = AccessTools.Field(Type.GetType(generateSubclassName), "<classFloorTex>5__16");
-        static FieldInfo _GclassCeilTex = AccessTools.Field(Type.GetType(generateSubclassName), "<classCeilingTex>5__17");
-        static FieldInfo _GfacultyWallTex = AccessTools.Field(Type.GetType(generateSubclassName), "<facultyWallTex>5__18");
-        static FieldInfo _GfacultyFloorTex = AccessTools.Field(Type.GetType(generateSubclassName), "<facultyFloorTex>5__19");
-        static FieldInfo _GfacultyCeilTex = AccessTools.Field(Type.GetType(generateSubclassName), "<facultyCeilingTex>5__20");
+        static FieldInfo _GhallWallTex = null;//AccessTools.Field(Type.GetType(generateSubclassName), "<hallWallTex>5__11");
+        static FieldInfo _GhallFloorTex = null;//AccessTools.Field(Type.GetType(generateSubclassName), "<hallFloorTex>5__12");
+        static FieldInfo _GhallCeilTex = null;//AccessTools.Field(Type.GetType(generateSubclassName), "<hallCeilingTex>5__13");
+        static FieldInfo _GclassWallTex = null;//AccessTools.Field(Type.GetType(generateSubclassName), "<classWallTex>5__15");
+        static FieldInfo _GclassFloorTex = null;//AccessTools.Field(Type.GetType(generateSubclassName), "<classFloorTex>5__16");
+        static FieldInfo _GclassCeilTex = null;//AccessTools.Field(Type.GetType(generateSubclassName), "<classCeilingTex>5__17");
+        static FieldInfo _GfacultyWallTex = null;//AccessTools.Field(Type.GetType(generateSubclassName), "<facultyWallTex>5__18");
+        static FieldInfo _GfacultyFloorTex = null;//AccessTools.Field(Type.GetType(generateSubclassName), "<facultyFloorTex>5__19");
+        static FieldInfo _GfacultyCeilTex = null;//AccessTools.Field(Type.GetType(generateSubclassName), "<facultyCeilingTex>5__20");
 
         static MethodInfo _FrameShouldEnd = AccessTools.Method(typeof(LevelBuilder), "FrameShouldEnd");
 
@@ -85,6 +86,7 @@ namespace MTM101BaldAPI.Patches
             if (!(generator.ld is CustomLevelObject)) return;
             _FrameShouldEnd.Invoke(generator, null);
             // add all the texture stuff
+            currentRoomTextureGroup.Clear();
             foreach (RoomTextureGroup group in ((CustomLevelObject)generator.ld).additionalTextureGroups)
             {
                 if (group.name == "hall" || group.name == "faculty" || group.name == "class") return;
@@ -156,19 +158,19 @@ namespace MTM101BaldAPI.Patches
 
             generator.UpdatePotentialSpawnsForRooms(generator.controlledRNG.NextDouble() < group.stickToHallChance);
             int count = generator.controlledRNG.Next(group.minRooms, group.maxRooms + 1); // Get the room count
-            var assets = new List<WeightedRoomAsset>(group.potentialAssets); // Get the room potential assets
+            var potentialAssets = new List<WeightedRoomAsset>(group.potentialAssets); // Get the room potential assets
             bool isFirstRoom = true;
             var rooms = new List<RoomController>();
 
             for (int i = 0; i < count; i++)
             {
-                if (assets.Count == 0) break;
+                if (potentialAssets.Count == 0) break;
 
 
-                int num14 = WeightedSelection<RoomAsset>.ControlledRandomIndex(assets.ToArray(), generator.controlledRNG);
+                int index = WeightedSelection<RoomAsset>.ControlledRandomIndex(potentialAssets.ToArray(), generator.controlledRNG);
                 RoomController roomcontrol = null;
 
-                var parameters = new object[] { assets[num14].selection, group.generateDoors, roomcontrol }; // An interesting workaround for out parameters
+                var parameters = new object[] { potentialAssets[index].selection, group.generateDoors, roomcontrol }; // An interesting workaround for out parameters
                 var potentialRooms = (List<WeightedRoomSpawn>)_potentialRoomSpawns.GetValue(generator);
                 if (!isFirstRoom)
                 {
@@ -200,12 +202,18 @@ namespace MTM101BaldAPI.Patches
                 {
                     roomcontrol = (RoomController)parameters[2];
                     ((List<RoomController>)_standardRooms.GetValue(generator)).Add(roomcontrol);
+                    if (currentRoomTextureGroup.ContainsKey(group.textureGroupName) && !potentialAssets[index].selection.keepTextures)
+                    {
+                        roomcontrol.florTex = currentRoomTextureGroup[group.textureGroupName].floor;
+                        roomcontrol.wallTex = currentRoomTextureGroup[group.textureGroupName].wall;
+                        roomcontrol.ceilTex = currentRoomTextureGroup[group.textureGroupName].ceiling;
+                    }
                     isFirstRoom = false;
                     rooms.Add(roomcontrol);
                 }
                 else
                 {
-                    assets.RemoveAt(num14);
+                    potentialAssets.RemoveAt(index);
                     i--;
                 }
                 _FrameShouldEnd.Invoke(generator, null);
@@ -328,9 +336,23 @@ namespace MTM101BaldAPI.Patches
         static FieldInfo _standardRooms = AccessTools.Field(typeof(LevelGenerator), "standardRooms");
         static FieldInfo _halls = AccessTools.Field(typeof(LevelBuilder), "halls");
 
+        static void SetupReflection()
+        {
+            FieldInfo[] infos = Type.GetType(generateSubclassName).GetFields(BindingFlags.Instance | BindingFlags.NonPublic);
+            _GhallWallTex = infos.First(x => x.Name.Contains("hallWallTex"));
+            _GhallCeilTex = infos.First(x => x.Name.Contains("hallCeilingTex"));
+            _GhallFloorTex = infos.First(x => x.Name.Contains("hallFloorTex"));
+            _GclassWallTex = infos.First(x => x.Name.Contains("classWallTex"));
+            _GclassCeilTex = infos.First(x => x.Name.Contains("classCeilingTex"));
+            _GclassFloorTex = infos.First(x => x.Name.Contains("classFloorTex"));
+            _GfacultyWallTex = infos.First(x => x.Name.Contains("facultyWallTex"));
+            _GfacultyCeilTex = infos.First(x => x.Name.Contains("facultyCeilingTex"));
+            _GfacultyFloorTex = infos.First(x => x.Name.Contains("facultyFloorTex"));
+        }
+
         static IEnumerable<CodeInstruction> Transpiler(IEnumerable<CodeInstruction> instructions)
         {
-
+            SetupReflection();
             // initialize the dictionary
             Dictionary<FieldInfo, MethodInfo> preGenDict = new Dictionary<FieldInfo, MethodInfo>
             {

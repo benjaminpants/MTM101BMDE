@@ -27,7 +27,7 @@ namespace MTM101BaldAPI
 			obj.itemSpriteLarge = largeicon;
 			obj.itemType = type;
 			obj.descKey = desckey;
-			obj.cost = generatorcost;
+			obj.value = generatorcost;
 			obj.price = price;
 			obj.name = localizedtext;
 

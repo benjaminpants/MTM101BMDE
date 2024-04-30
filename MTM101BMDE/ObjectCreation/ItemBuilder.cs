@@ -45,7 +45,7 @@ namespace MTM101BaldAPI.ObjectCreation
             item.itemSpriteSmall = smallSprite;
             item.itemSpriteLarge = largeSprite;
             item.price = price;
-            item.cost = generatorCost;
+            item.value = generatorCost;
             if (itemObjectType != null)
             {
                 GameObject obj = new GameObject();

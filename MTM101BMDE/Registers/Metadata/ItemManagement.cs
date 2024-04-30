@@ -12,7 +12,9 @@ namespace MTM101BaldAPI.Registers
     {
         None = 0, // This item has no necessary flags.
         MultipleUse = 1, // This item has multiple uses like the grappling hook.
+        [Obsolete("Please use InstantUse instead!")]
         NoInventory = 2, // This item should not appear in the players inventory. This is useful for stuff like presents or non-items that use the Pickup system.
+        InstantUse = 2, // This item should not appear in the players inventory and is used instantly upon pickup.
         NoUses = 4, // This item doesn't do anything when used, regardless of circumstance. This is for items like the Apple, but not the quarter as it can be used in machines.
         Persists = 8, // This item's behavior doesn't instantly destroy itself when used. This is applicable for the BSODA or the Big Ol' Boots.
         CreatesEntity = 16 // This item creates a physical entity in the world, this is applicable for the BSODA but not the Big Ol' Boots.
@@ -28,7 +30,7 @@ namespace MTM101BaldAPI.Registers
         public PluginInfo info => _info;
         private PluginInfo _info;
 
-        public int generatorCost => value.cost;
+        public int generatorCost => value.value;
         public string nameKey => value.nameKey;
 
         public ItemFlags flags;

@@ -7,7 +7,7 @@ using UnityEngine;
 
 namespace MTM101BaldAPI.Patches
 {
-    //[ConditionalPatchConfigTrue(MTM101BaldiDevAPI.enableSkyboxPatch)]
+    [ConditionalPatchConfig("mtm101.rulerp.bbplus.baldidevapi", "Generator", "Enable Skybox Patches")]
     [HarmonyPatch(typeof(SunlightRoomFunction))]
     [HarmonyPatch("Initialize")]
     class SunlightRoomFunctionCustomSkybox
