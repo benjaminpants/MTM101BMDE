@@ -6,6 +6,7 @@ using System.Reflection.Emit;
 using System.Text;
 using HarmonyLib;
 using UnityEngine;
+using UnityEngine.Assertions;
 
 namespace MTM101BaldAPI.Patches
 {
@@ -347,6 +348,15 @@ namespace MTM101BaldAPI.Patches
             _GfacultyWallTex = infos.First(x => x.Name.Contains("facultyWallTex"));
             _GfacultyCeilTex = infos.First(x => x.Name.Contains("facultyCeilingTex"));
             _GfacultyFloorTex = infos.First(x => x.Name.Contains("facultyFloorTex"));
+            Assert.IsNotNull(_GhallWallTex);
+            Assert.IsNotNull(_GhallCeilTex);
+            Assert.IsNotNull(_GhallFloorTex);
+            Assert.IsNotNull(_GclassWallTex);
+            Assert.IsNotNull(_GclassCeilTex);
+            Assert.IsNotNull(_GclassFloorTex);
+            Assert.IsNotNull(_GfacultyWallTex);
+            Assert.IsNotNull(_GfacultyCeilTex);
+            Assert.IsNotNull(_GfacultyFloorTex);
         }
 
         static IEnumerable<CodeInstruction> Transpiler(IEnumerable<CodeInstruction> instructions)
@@ -455,6 +465,8 @@ namespace MTM101BaldAPI.Patches
 
         static Exception Finalizer(Exception __exception)
         {
+            // no exception if it is null.
+            if (__exception == null) return __exception;
             UnityEngine.Debug.Log("Caught error, printing in console so it doesn't just silently crash!");
             UnityEngine.Debug.LogError(__exception.ToString());
             return __exception;

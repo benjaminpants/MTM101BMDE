@@ -9,6 +9,9 @@ namespace MTM101BaldAPI
     {
         public List<RoomTypeGroup> additionalRoomTypes = new List<RoomTypeGroup>();
         public List<RoomTextureGroup> additionalTextureGroups = new List<RoomTextureGroup>();
+
+        [Obsolete("BB+ no longer uses .items, use .forcedItems or .potentialItems instead!", true)]
+        public new WeightedItemObject[] items; //hacky way of adding the Obsolete tag, but it works?
     }
 
     public enum RoomGroupSpawnMethod
