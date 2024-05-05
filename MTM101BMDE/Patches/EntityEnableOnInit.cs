@@ -1,5 +1,4 @@
 ﻿using HarmonyLib;
-using MTM101BaldAPI.PlusExtensions;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -7,13 +6,18 @@ using UnityEngine;
 
 namespace MTM101BaldAPI.Patches
 {
-    [HarmonyPatch(typeof(PlayerManager))]
-    [HarmonyPatch("Start")]
-    internal class PlayerManagerStartPatch
+    [ConditionalPatchNever]
+    [HarmonyPatch(typeof(Entity))]
+    [HarmonyPatch("Initialize")]
+    internal class EntityPatch
     {
-        private static void Postfix(PlayerManager __instance)
+        private static void Prefix(Entity __instance, ref Transform ___transform, bool ___active)
         {
-            __instance.GetMovementStatModifier();
+            ___transform = __instance.transform;
+            if (___active) //so if someone creates an object with a disabled entity we dont fuck shit up
+            {
+                __instance.SetActive(true);
+            }
         }
     }
 }

@@ -468,7 +468,7 @@ namespace MTM101BaldAPI.Patches
             // no exception if it is null.
             if (__exception == null) return __exception;
             UnityEngine.Debug.Log("Caught error, printing in console so it doesn't just silently crash!");
-            UnityEngine.Debug.LogError(__exception.ToString());
+            UnityEngine.Debug.LogException(__exception);
             return __exception;
         }
     }

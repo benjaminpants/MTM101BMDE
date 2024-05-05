@@ -4,12 +4,26 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 using UnityEngine;
-using UnityEngine.Profiling.Memory.Experimental;
 
 namespace MTM101BaldAPI
 {
     public static class Extensions
     {
+
+        public static void ConvertToPrefab(this GameObject me, bool setActive)
+        {
+            if (MTM101BaldiDevAPI.PrefabSubObject == null)
+            {
+                throw new NullReferenceException("Attempted to ConvertToPrefab before AssetsLoaded!");
+            }
+            me.MarkAsNeverUnload();
+            me.transform.SetParent(MTM101BaldiDevAPI.PrefabSubObject.transform);
+            if (setActive)
+            {
+                me.SetActive(true);
+            }
+        }
+
         public static void MarkAsNeverUnload(this UnityEngine.Object me)
         {
             if (!MTM101BaldiDevAPI.keepInMemory.Contains(me))

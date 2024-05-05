@@ -25,6 +25,7 @@ using MTM101BaldAPI.UI;
 using UnityEngine.UI;
 using MidiPlayerTK;
 using MTM101BaldAPI.Patches;
+using MTM101BaldAPI.Components;
 
 namespace MTM101BaldAPI
 {
@@ -359,8 +360,17 @@ namespace MTM101BaldAPI
         }
 #endif
 
+        internal static GameObject PrefabSubObject;
+
+
+        static FieldInfo _allEntities = AccessTools.Field(typeof(Entity), "allEntities");
         internal void AssetsLoadPre()
         {
+            GameObject internalIdentity = Resources.FindObjectsOfTypeAll<GameObject>().First(x => x.name == "InternalIdentityTransform");
+            GameObject subChild = new GameObject("SubObject");
+            subChild.transform.SetParent(internalIdentity.transform, false);
+            subChild.AddComponent<DestroyOnAwakeInstantWithWarning>();
+            PrefabSubObject = subChild;
             AssetMan.Add("ErrorTemplate", Resources.FindObjectsOfTypeAll<Canvas>().Where(x => x.name == "EndingError").First());
             AssetMan.Add("WindowTemplate", Resources.FindObjectsOfTypeAll<WindowObject>().Where(x => x.name == "WoodWindow").First());
             AssetMan.Add("DoorTemplate", Resources.FindObjectsOfTypeAll<StandardDoorMats>().Where(x => x.name == "ClassDoorSet").First());
@@ -379,11 +389,12 @@ namespace MTM101BaldAPI
             audMan.sourceId = 0; //reset source id
             AudioManager.totalIds--; //decrement total ids
             GameObject templateObject = templateNpc.gameObject;
-            GameObject.DontDestroyOnLoad(templateObject);
             GameObject.DestroyImmediate(templateObject.GetComponent<Beans>());
             GameObject.DestroyImmediate(templateObject.GetComponent<Animator>());
-            AssetMan.Add<GameObject>("TemplateNPC", templateObject);
             templateObject.layer = LayerMask.NameToLayer("NPCs");
+            ((List<Entity>)_allEntities.GetValue(null)).Remove(templateObject.GetComponent<Entity>());
+            templateObject.ConvertToPrefab(true);
+            AssetMan.Add<GameObject>("TemplateNPC", templateObject);
             MTM101BaldAPI.Registers.Buttons.ButtonColorManager.InitializeButtonColors();
             Sprite[] allSprites = Resources.FindObjectsOfTypeAll<Sprite>();
             AssetMan.Add<Sprite>("MenuArrow",allSprites.Where(x => x.name == "MenuArrowSheet_2").First());
@@ -449,6 +460,18 @@ PRESS ALT+F4 TO EXIT THE GAME.
             throw e; //rethrow the error
         }
 
+        public static void AddWarningScreen(string text, bool fatal)
+        {
+            if (fatal)
+            {
+                WarningScreenContainer.criticalScreens.Add(text);
+            }
+            else
+            {
+                WarningScreenContainer.nonCriticalScreens.Add(text);
+            }
+        }
+
         void Awake()
         {
 #if DEBUG
@@ -492,10 +515,15 @@ PRESS ALT+F4 TO EXIT THE GAME.
                 true,
                 "Whether or not outdoors areas will have different light colors depending on the skybox used. Only disable for legacy mods.");
 
-            Config.Bind("Generator",
+            ConfigEntry<bool> genConfig = Config.Bind("Generator",
                 "Enable Custom Room Support",
                 true,
                 "Enables/Disables the support for Custom Rooms provided by the CustomLevelData class. ONLY TURN OFF IF YOU ABSOLUTELY HAVE TO! THIS WILL BREAK MODS!");
+
+            if (!genConfig.Value)
+            {
+                AddWarningScreen("Custom Room Support is <b>off</b>!\nCertain mods may break or otherwise not function!",false);
+            }
 
             Config.Bind("Generator",
                 "Fix Vanilla Crashes",

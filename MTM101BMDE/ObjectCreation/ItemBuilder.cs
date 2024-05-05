@@ -19,12 +19,12 @@ namespace MTM101BaldAPI.ObjectCreation
         private int price = 100;
         private int generatorCost = 10;
         private Type itemObjectType = null;
-        private bool deactiveObject;
         private string[] tags = new string[0];
         private ItemFlags flags = ItemFlags.None;
         private PluginInfo info;
         private ItemMetaData metaDataToAddTo;
         private bool instantUse = false;
+        private Item objectReference;
 
 
         public ItemBuilder(PluginInfo info)
@@ -50,14 +50,15 @@ namespace MTM101BaldAPI.ObjectCreation
             if (itemObjectType != null)
             {
                 GameObject obj = new GameObject();
-                if (deactiveObject)
-                {
-                    obj.SetActive(false);
-                }
+                obj.SetActive(false);
                 Item comp = (Item)obj.AddComponent(itemObjectType);
                 comp.name = "Obj" + item.name;
                 item.item = comp;
-                GameObject.DontDestroyOnLoad(obj);
+                obj.ConvertToPrefab(true);
+            }
+            if (objectReference != null)
+            {
+                item.item = objectReference;
             }
             if (instantUse)
             {
@@ -88,10 +89,17 @@ namespace MTM101BaldAPI.ObjectCreation
             return this;
         }
 
-        public ItemBuilder SetItemComponent<T>(bool startActive = true) where T : Item
+        public ItemBuilder SetItemComponent<T>() where T : Item
         {
             itemObjectType = typeof(T);
-            deactiveObject = !startActive;
+            objectReference = null;
+            return this;
+        }
+
+        public ItemBuilder SetItemComponent<T>(T gameObject) where T : Item
+        {
+            itemObjectType = null;
+            objectReference = gameObject;
             return this;
         }
 
@@ -99,6 +107,12 @@ namespace MTM101BaldAPI.ObjectCreation
         {
             localizedText = name;
             localizedDescription = description;
+            return this;
+        }
+
+        public ItemBuilder SetAsInstantUse()
+        {
+            instantUse = true;
             return this;
         }
 
