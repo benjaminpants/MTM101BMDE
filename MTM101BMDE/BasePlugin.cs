@@ -294,7 +294,16 @@ namespace MTM101BaldAPI
             }
             whiteTexture.SetPixels(pixels.ToArray());
             whiteTexture.Apply();
-            Image whiteBG = UIHelpers.CreateImage(AssetLoader.SpriteFromTexture2D(whiteTexture, 1f), GameObject.Find("NameEntry").transform, Vector3.zero, false);
+            Transform transformToTry = null;
+            if (GameObject.Find("NameEntry"))
+            {
+                transformToTry = GameObject.Find("NameEntry").transform;
+            }
+            else
+            {
+                transformToTry = GameObject.Find("Menu").transform;
+            }
+            Image whiteBG = UIHelpers.CreateImage(AssetLoader.SpriteFromTexture2D(whiteTexture, 1f), transformToTry, Vector3.zero, false);
             whiteBG.gameObject.AddComponent<ModLoadingScreenManager>();
         }
 
