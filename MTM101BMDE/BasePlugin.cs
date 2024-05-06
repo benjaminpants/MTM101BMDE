@@ -528,11 +528,6 @@ PRESS ALT+F4 TO EXIT THE GAME.
             {
                 AddWarningScreen("Custom Room Support is <b>off</b>!\nCertain mods may break or otherwise not function!",false);
             }
-
-            Config.Bind("Generator",
-                "Fix Vanilla Crashes",
-                true,
-                "Controls if the fixes for vanilla generator crashes is enabled. This will not fix any other bugs with the generator, turn off to make seeds match with vanilla.");
             harmony.PatchAllConditionals();
 
             Log = base.Logger;
