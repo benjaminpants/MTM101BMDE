@@ -33,28 +33,28 @@ namespace MTM101BaldAPI.Registers
 
     public static class GeneratorManagement
     {
-        private static Dictionary<BaseUnityPlugin, Dictionary<GenerationModType, Action<string, int, LevelObject>>> generationStuff = new Dictionary<BaseUnityPlugin, Dictionary<GenerationModType, Action<string, int, LevelObject>>>();
+        private static Dictionary<BaseUnityPlugin, Dictionary<GenerationModType, Action<string, int, CustomLevelObject>>> generationStuff = new Dictionary<BaseUnityPlugin, Dictionary<GenerationModType, Action<string, int, CustomLevelObject>>>();
 
-        public static void Register(BaseUnityPlugin plug, GenerationModType type, Action<string, int, LevelObject> action)
+        public static void Register(BaseUnityPlugin plug, GenerationModType type, Action<string, int, CustomLevelObject> action)
         {
             if (!generationStuff.ContainsKey(plug))
             {
-                generationStuff.Add(plug, new Dictionary<GenerationModType, Action<string, int, LevelObject>>());
+                generationStuff.Add(plug, new Dictionary<GenerationModType, Action<string, int, CustomLevelObject>>());
             }
             generationStuff[plug].Add(type, action);
         }
 
-        public static void Invoke(string name, int floorNumber, LevelObject obj)
+        public static void Invoke(string name, int floorNumber, CustomLevelObject obj)
         {
-            Dictionary<GenerationModType, List<Action<string, int, LevelObject>>> actionsList = new Dictionary<GenerationModType, List<Action<string, int, LevelObject>>>();
+            Dictionary<GenerationModType, List<Action<string, int, CustomLevelObject>>> actionsList = new Dictionary<GenerationModType, List<Action<string, int, CustomLevelObject>>>();
             foreach (var kvp in generationStuff) //i hate using var but i also dont want to type this out
             {
-                Dictionary<GenerationModType, Action<string, int, LevelObject>> kvp2 = kvp.Value;
+                Dictionary<GenerationModType, Action<string, int, CustomLevelObject>> kvp2 = kvp.Value;
                 foreach (var kvp3 in kvp2)
                 {
                     if (!actionsList.ContainsKey(kvp3.Key))
                     {
-                        actionsList.Add(kvp3.Key, new List<Action<string, int, LevelObject>>());
+                        actionsList.Add(kvp3.Key, new List<Action<string, int, CustomLevelObject>>());
                     }
                     actionsList[kvp3.Key].Add(kvp3.Value);
                 }

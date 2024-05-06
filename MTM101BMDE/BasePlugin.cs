@@ -24,6 +24,8 @@ using System.Collections;
 using MTM101BaldAPI.UI;
 using UnityEngine.UI;
 using MidiPlayerTK;
+using MTM101BaldAPI.Patches;
+using MTM101BaldAPI.Components;
 
 namespace MTM101BaldAPI
 {
@@ -39,7 +41,7 @@ namespace MTM101BaldAPI
     {
         internal static ManualLogSource Log = new ManualLogSource("BB+ Dev API Pre Initialization");
 
-        public const string VersionNumber = "3.6.0.0";
+        public const string VersionNumber = "4.0.0.0";
 
         internal static bool CalledInitialize = false;
 
@@ -53,6 +55,7 @@ namespace MTM101BaldAPI
         public static NPCMetaStorage npcMetadata = new NPCMetaStorage();
         public static RandomEventMetaStorage randomEventStorage = new RandomEventMetaStorage();
         public static ObjectBuilderMetaStorage objBuilderMeta = new ObjectBuilderMetaStorage();
+        public static SkyboxMetaStorage skyboxMeta = new SkyboxMetaStorage();
 
         public static RoomAssetMetaStorage roomAssetMeta = new RoomAssetMetaStorage();
 
@@ -117,14 +120,16 @@ namespace MTM101BaldAPI
 
         internal void OnSceneUnload()
         {
+            Singleton<GlobalCam>.Instance.StopCurrentTransition();
             // INITIALIZE ITEM METADATA
             ItemObject grapplingHook = null;
+            List<ItemObject> pointObjects = new List<ItemObject>();
             Resources.FindObjectsOfTypeAll<ItemObject>().Do(x =>
             {
                 switch (x.itemType)
                 {
                     case Items.PortalPoster:
-                        x.AddMeta(MTM101BaldiDevAPI.Instance, ItemFlags.Persists); //todo: double check
+                        x.AddMeta(MTM101BaldiDevAPI.Instance, ItemFlags.None);
                         break;
                     case Items.GrapplingHook:
                         if ((grapplingHook == null) &&
@@ -167,6 +172,13 @@ namespace MTM101BaldAPI
                     case Items.DoorLock:
                         x.AddMeta(MTM101BaldiDevAPI.Instance, ItemFlags.None);
                         break;
+                    case Items.NanaPeel:
+                        ItemMetaData bana = x.AddMeta(MTM101BaldiDevAPI.Instance, ItemFlags.Persists | ItemFlags.CreatesEntity);
+                        bana.tags.Add("food");
+                        break;
+                    case Items.Points:
+                        pointObjects.Add(x);
+                        break;
                     default:
                         // modded items start at 256, so we somehow have initialized after the mod in question, ignore the data.
                         if ((int)x.itemType < 256)
@@ -182,6 +194,17 @@ namespace MTM101BaldAPI
             grappleMeta.itemObjects.Do(x =>
             {
                 x.AddMeta(grappleMeta);
+            });
+            // handle point metadata
+            pointObjects.Sort((a, b) =>
+            {
+                return ((int)a.ReflectionGetVariable("value")).CompareTo((int)b.ReflectionGetVariable("value"));
+            });
+            ItemMetaData pointItemData = new ItemMetaData(MTM101BaldiDevAPI.Instance.Info, pointObjects.ToArray());
+            pointItemData.flags = ItemFlags.InstantUse;
+            pointObjects.ForEach(x =>
+            {
+                x.AddMeta(pointItemData);
             });
             // INITIALIZE CHARACTER METADATA
             NPC[] NPCs = Resources.FindObjectsOfTypeAll<NPC>();
@@ -239,6 +262,10 @@ namespace MTM101BaldAPI
                 ObjectBuilderMetaStorage.Instance.Add(meta);
             });
 
+            Cubemap[] cubemaps = Resources.FindObjectsOfTypeAll<Cubemap>();
+            skyboxMeta.Add(new SkyboxMetadata(Info, cubemaps.Where(x => x.name == "Cubemap_DayStandard").First(), Color.white));
+            skyboxMeta.Add(new SkyboxMetadata(Info, cubemaps.Where(x => x.name == "Cubemap_Twilight").First(), Color.white /*new Color(239f / 255f, 188f / 255f, 162f / 255f)*/));
+
             MTM101BaldiDevAPI.CalledInitialize = true;
 
             if (usingMidiFix.Value)
@@ -255,30 +282,29 @@ namespace MTM101BaldAPI
             }
 
             MTM101BaldiDevAPI.Instance.AssetsLoadPre();
-            //everything else
-            if (LoadingEvents.OnAllAssetsLoaded != null)
+
+            // loading screen
+            CursorController.Instance.DisableClick(true);
+            Texture2D whiteTexture = new Texture2D(480, 360);
+            whiteTexture.name = "WhiteBG";
+            List<Color> pixels = new List<Color>();
+            for (int i = 0; i < 480 * 360; i++)
             {
-                LoadingEvents.OnAllAssetsLoaded.Invoke();
+                pixels.Add(Color.white);
             }
-            SceneObject[] objs = Resources.FindObjectsOfTypeAll<SceneObject>();
-            foreach (SceneObject obj in objs)
+            whiteTexture.SetPixels(pixels.ToArray());
+            whiteTexture.Apply();
+            Transform transformToTry = null;
+            if (GameObject.Find("NameEntry"))
             {
-                if (obj.levelObject == null) continue;
-                MTM101BaldiDevAPI.Log.LogInfo(String.Format("Invoking SceneObject({0})({2}) Generation Changes for {1}!", obj.levelTitle, obj.levelObject.ToString(), obj.levelNo.ToString()));
-                GeneratorManagement.Invoke(obj.levelTitle, obj.levelNo, obj.levelObject);
+                transformToTry = GameObject.Find("NameEntry").transform;
             }
-            foreach (KeyValuePair<string, byte[]> kvp in AssetLoader.MidisToBeAdded)
+            else
             {
-                AssetLoader.MidiFromBytes(kvp.Key, kvp.Value);
+                transformToTry = GameObject.Find("Menu").transform;
             }
-            AssetLoader.MidisToBeAdded = null;
-            if (LoadingEvents.OnAllAssetsLoadedPost != null)
-            {
-                LoadingEvents.OnAllAssetsLoadedPost.Invoke();
-            }
-            // dumb dumb test code
-            /*LevelObject testObj = objs.Where(x => x.levelTitle == "F1").First().levelObject;
-            testObj.forcedNpcs = testObj.forcedNpcs.AddToArray(ObjectCreators.CreateNPC<TestNPC>("TestMan", Character.Null));*/
+            Image whiteBG = UIHelpers.CreateImage(AssetLoader.SpriteFromTexture2D(whiteTexture, 1f), transformToTry, Vector3.zero, false);
+            whiteBG.gameObject.AddComponent<ModLoadingScreenManager>();
         }
 
 #if DEBUG
@@ -329,15 +355,20 @@ namespace MTM101BaldAPI
             });
 
             b.transform.SetParent(ob.transform, false);
-
-            //CustomOptionsCore.CreateNewCategory(__instance, "Empty Menu");
-
-            //CustomOptionsCore.CreateNewCategory(__instance, "Still Empty");
         }
 #endif
 
+        internal static GameObject PrefabSubObject;
+
+
+        static FieldInfo _allEntities = AccessTools.Field(typeof(Entity), "allEntities");
         internal void AssetsLoadPre()
         {
+            GameObject internalIdentity = Resources.FindObjectsOfTypeAll<GameObject>().First(x => x.name == "InternalIdentityTransform");
+            GameObject subChild = new GameObject("SubObject");
+            subChild.transform.SetParent(internalIdentity.transform, false);
+            subChild.AddComponent<DestroyOnAwakeInstantWithWarning>();
+            PrefabSubObject = subChild;
             AssetMan.Add("ErrorTemplate", Resources.FindObjectsOfTypeAll<Canvas>().Where(x => x.name == "EndingError").First());
             AssetMan.Add("WindowTemplate", Resources.FindObjectsOfTypeAll<WindowObject>().Where(x => x.name == "WoodWindow").First());
             AssetMan.Add("DoorTemplate", Resources.FindObjectsOfTypeAll<StandardDoorMats>().Where(x => x.name == "ClassDoorSet").First());
@@ -356,19 +387,44 @@ namespace MTM101BaldAPI
             audMan.sourceId = 0; //reset source id
             AudioManager.totalIds--; //decrement total ids
             GameObject templateObject = templateNpc.gameObject;
-            GameObject.DontDestroyOnLoad(templateObject);
             GameObject.DestroyImmediate(templateObject.GetComponent<Beans>());
             GameObject.DestroyImmediate(templateObject.GetComponent<Animator>());
-            AssetMan.Add<GameObject>("TemplateNPC", templateObject);
             templateObject.layer = LayerMask.NameToLayer("NPCs");
+            ((List<Entity>)_allEntities.GetValue(null)).Remove(templateObject.GetComponent<Entity>());
+            templateObject.ConvertToPrefab(false);
+            AssetMan.Add<GameObject>("TemplateNPC", templateObject);
             MTM101BaldAPI.Registers.Buttons.ButtonColorManager.InitializeButtonColors();
             Sprite[] allSprites = Resources.FindObjectsOfTypeAll<Sprite>();
             AssetMan.Add<Sprite>("MenuArrow",allSprites.Where(x => x.name == "MenuArrowSheet_2").First());
             AssetMan.Add<Sprite>("MenuArrowHighlight", allSprites.Where(x => x.name == "MenuArrowSheet_0").First());
+            AssetMan.Add<Sprite>("Bar", allSprites.Where(x => x.name == "MenuBarSheet_0").First());
+            AssetMan.Add<Sprite>("BarTransparent", allSprites.Where(x => x.name == "MenuBarSheet_1").First());
             SoundObject[] allSoundObjects = Resources.FindObjectsOfTypeAll<SoundObject>();
             AssetMan.Add<SoundObject>("Xylophone", allSoundObjects.Where(x => x.name == "Xylophone").First());
             AssetMan.Add<SoundObject>("Explosion", allSoundObjects.Where(x => x.name == "Explosion").First());
             AssetMan.AddFromResources<TMPro.TMP_FontAsset>();
+            AssetMan.AddFromResources<Material>();
+        }
+
+        internal void ConvertAllLevelObjects()
+        {
+            SceneObject[] sceneObjects = Resources.FindObjectsOfTypeAll<SceneObject>();
+            foreach (SceneObject objct in sceneObjects)
+            {
+                if (objct.levelObject == null) continue;
+                CustomLevelObject customizedObject = ScriptableObject.CreateInstance<CustomLevelObject>();
+                // transfer the data
+                FieldInfo[] foes = typeof(LevelObject).GetFields();
+                foreach (FieldInfo fo in foes)
+                {
+                    fo.SetValue(customizedObject, fo.GetValue(objct.levelObject));
+                }
+                customizedObject.name = objct.levelObject.name;
+                Destroy(objct.levelObject);
+                objct.levelObject = customizedObject;
+                objct.levelObject.MarkAsNeverUnload();
+                objct.MarkAsNeverUnload();
+            }
         }
 
         // "GUYS IM GONNA USE THIS FOR MY CUSTOM ERROR SCREEN FOR MY FUNNY 4TH WALL BREAK IN MY MOD!"
@@ -403,6 +459,18 @@ PRESS ALT+F4 TO EXIT THE GAME.
             throw e; //rethrow the error
         }
 
+        public static void AddWarningScreen(string text, bool fatal)
+        {
+            if (fatal)
+            {
+                WarningScreenContainer.criticalScreens.Add(text);
+            }
+            else
+            {
+                WarningScreenContainer.nonCriticalScreens.Add(text);
+            }
+        }
+
         void Awake()
         {
 #if DEBUG
@@ -412,8 +480,6 @@ PRESS ALT+F4 TO EXIT THE GAME.
             Instance = this;
 
             Harmony harmony = new Harmony("mtm101.rulerp.bbplus.baldidevapi");
-
-            harmony.PatchAllConditionals();
 
             ModdedSaveSystem.AddSaveLoadAction(this, (bool isSave, string myPath) =>
             {
@@ -437,10 +503,32 @@ PRESS ALT+F4 TO EXIT THE GAME.
                 false,
                 "Whether or not the old, legacy method of loading audio should be used. (ONLY TURN ON IF YOU GET MENTIONS OF AN AUDIO LOADING ERROR!)");
 
-            usingMidiFix = Config.Bind("General",
+            usingMidiFix = Config.Bind("Technical",
                 "Use Midi Fix",
                 true,
-                "Whether or not the midi fix should be used to increase instrument counts, there should be reason for you to disable this.");
+                "Whether or not the midi fix should be used to increase the amount of instruments available to the midi player, there shouldn't be a reason for you to disable this.");
+
+            if (useOldAudioLoad.Value)
+            {
+                AddWarningScreen("Old Audio Loading is <b>on!</b>\nYou should not need this anymore as of API 4.0!\nTurn it off, and if mods are still broken, report it to MTM101!", false);
+            }
+
+            //handled by the patch system so i do not need to check it
+            Config.Bind("Generator",
+                "Enable Skybox Patches",
+                true,
+                "Whether or not outdoors areas will have different light colors depending on the skybox used. Only disable for legacy mods.");
+
+            ConfigEntry<bool> genConfig = Config.Bind("Generator",
+                "Enable Custom Room Support",
+                true,
+                "Enables/Disables the support for Custom Rooms provided by the CustomLevelData class. ONLY TURN OFF IF YOU ABSOLUTELY HAVE TO! THIS WILL BREAK MODS!");
+
+            if (!genConfig.Value)
+            {
+                AddWarningScreen("Custom Room Support is <b>off</b>!\nCertain mods may break or otherwise not function!",false);
+            }
+            harmony.PatchAllConditionals();
 
             Log = base.Logger;
         }
@@ -460,10 +548,20 @@ PRESS ALT+F4 TO EXIT THE GAME.
             text.text += "API " + MTM101BaldiDevAPI.VersionNumber;
             t.localPosition += new Vector3(0f, 28f);
             if (MTM101BaldiDevAPI.CalledInitialize) return;
+            if (GameObject.Find("NameList")) { GameObject.Find("NameList").GetComponent<AudioSource>().enabled = false; }
+
+        }
+    }
+
+    [HarmonyPatch(typeof(MenuInitializer))]
+    [HarmonyPatch("Start")]
+    public class CallAPIInitializationFunctions
+    {
+        static void Prefix()
+        {
+            if (MTM101BaldiDevAPI.CalledInitialize) return;
             // define all metadata before we call OnAllAssetsLoaded, so we can atleast be a bit more sure no other mods have activated and added their stuff yet.
-
             MTM101BaldiDevAPI.Instance.StartCoroutine(MTM101BaldiDevAPI.Instance.ReloadScenes());
-
         }
     }
 

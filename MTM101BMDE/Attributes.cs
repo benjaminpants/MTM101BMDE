@@ -1,4 +1,6 @@
-﻿using BepInEx.Bootstrap;
+﻿using BepInEx;
+using BepInEx.Bootstrap;
+using BepInEx.Configuration;
 using HarmonyLib;
 using System;
 using System.Collections.Generic;
@@ -6,6 +8,7 @@ using System.Diagnostics;
 using System.Linq;
 using System.Reflection;
 using System.Text;
+using UnityEngine;
 
 namespace MTM101BaldAPI
 {
@@ -62,6 +65,36 @@ namespace MTM101BaldAPI
         public override bool ShouldPatch()
         {
             return true;
+        }
+    }
+
+    public class ConditionalPatchConfig : ConditionalPatch
+    {
+        string _mod;
+        string _category;
+        string _name;
+        public ConditionalPatchConfig(string mod, string category, string name)
+        {
+            _mod = mod;
+            _category = category;
+            _name = name;
+        }
+
+        public override bool ShouldPatch()
+        {
+            if (!Chainloader.PluginInfos.ContainsKey(_mod))
+            {
+                UnityEngine.Debug.LogWarning("ConditionalPatchConfig can NOT find mod with name:" + _mod);
+                return false;
+            }
+            BaseUnityPlugin instance = Resources.FindObjectsOfTypeAll<BaseUnityPlugin>().First(x => x.Info == Chainloader.PluginInfos[_mod]);
+            instance.Config.TryGetEntry(new ConfigDefinition(_category, _name), out ConfigEntry<bool> entry);
+            if (entry == null)
+            {
+                UnityEngine.Debug.LogWarning(String.Format("Cannot find config with: ({0}) {1}, {2}",_mod, _category, _name));
+                return false;
+            }
+            return entry.Value;
         }
     }
 

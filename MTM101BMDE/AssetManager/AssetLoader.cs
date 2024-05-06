@@ -16,29 +16,22 @@ namespace MTM101BaldAPI.AssetTools
 {
     public static class AssetLoader
     {
-        /// <summary>
-        /// Load textures from a pattern, used to easily load texture animations.
-        /// <para>
-        /// <code>
-        /// // Example : 
-        /// AssetLoader
-        ///     .TexturesFromMod(FoxoPlugin.Instance, "foxo/slap{0}.png", (1, 4))
-        ///     .ToSprites(PIXELS_PER_UNIT)
-        /// </code>
-        /// </para>
-        /// </summary>
-        /// <param name="mod">The plugin instance</param>
-        /// <param name="pattern">A pattern that will go through String.Format(pattern, i)</param>
-        /// <param name="range">Inclusive minimum and maximum range (start, end)</param>
-        /// <returns></returns>
-        public static Texture2D[] TexturesFromMod(BaseUnityPlugin mod, string pattern, (int, int) range)
+        public static Texture2D[] TexturesFromFolder(string path, string search = "*.png")
         {
-            var textures = new List<Texture2D>();
-            for (int i = range.Item1; i <= range.Item2; i++)
+            string[] paths = Directory.GetFiles(Path.Combine(path), search);
+            Texture2D[] textures = new Texture2D[paths.Length];
+            for (int i = 0; i < paths.Length; i++)
             {
-                textures.Add(TextureFromMod(mod, string.Format(pattern, i)));
+                textures[i] = AssetLoader.TextureFromFile(paths[i]);
             }
-            return textures.ToArray();
+            return textures;
+        }
+
+        public static Texture2D[] TexturesFromMod(BaseUnityPlugin plugin, string search, params string[] paths)
+        {
+            List<string> pathz = paths.ToList();
+            pathz.Insert(0, GetModPath(plugin));
+            return TexturesFromFolder(Path.Combine(pathz.ToArray()), search);
         }
 
         /// <summary>
@@ -337,6 +330,74 @@ namespace MTM101BaldAPI.AssetTools
                 MidiPlayerGlobal.BuildMidiList();
                 MidiDatas.Add(id, data);
             }
+        }
+
+        // FlipX, FlipY, and CubemapFromTexture2D were all taken from FADE
+        static Texture2D FlipX(Texture2D texture)
+        {
+            Texture2D flipped = new Texture2D(texture.width, texture.height);
+
+            int width = texture.width;
+            int height = texture.height;
+
+            for (int i = 0; i < width; i++)
+            {
+                for (int j = 0; j < height; j++)
+                {
+                    flipped.SetPixel(width - i - 1, j, texture.GetPixel(i, j));
+                }
+            }
+            flipped.Apply();
+
+            return flipped;
+        }
+
+        static Texture2D FlipY(Texture2D texture)
+        {
+            Texture2D flipped = new Texture2D(texture.width, texture.height, TextureFormat.RGBA32, false);
+
+            int width = texture.width;
+            int height = texture.height;
+
+            for (int i = 0; i < width; i++)
+            {
+                for (int j = 0; j < height; j++)
+                {
+                    flipped.SetPixel(i, height - j - 1, texture.GetPixel(i, j));
+                }
+            }
+            flipped.Apply();
+
+            return flipped;
+        }
+
+        public static Cubemap CubemapFromMod(BaseUnityPlugin plugin, params string[] paths)
+        {
+            List<string> pathz = paths.ToList();
+            pathz.Insert(0, GetModPath(plugin));
+            return CubemapFromFile(Path.Combine(pathz.ToArray()));
+        }
+
+        public static Cubemap CubemapFromFile(string path)
+        {
+            return CubemapFromTexture(TextureFromFile(path));
+        }
+
+        public static Cubemap CubemapFromTexture(Texture2D texture)
+        {
+            texture = FlipX(texture);
+            texture = FlipY(texture);
+
+            int cubemapWidth = texture.width / 6;
+            Cubemap cubemap = new Cubemap(cubemapWidth, TextureFormat.ARGB32, false);
+            cubemap.SetPixels(texture.GetPixels(0 * cubemapWidth, 0, cubemapWidth, cubemapWidth), CubemapFace.NegativeZ);
+            cubemap.SetPixels(texture.GetPixels(1 * cubemapWidth, 0, cubemapWidth, cubemapWidth), CubemapFace.PositiveZ);
+            cubemap.SetPixels(texture.GetPixels(2 * cubemapWidth, 0, cubemapWidth, cubemapWidth), CubemapFace.NegativeY);
+            cubemap.SetPixels(texture.GetPixels(3 * cubemapWidth, 0, cubemapWidth, cubemapWidth), CubemapFace.PositiveY);
+            cubemap.SetPixels(texture.GetPixels(4 * cubemapWidth, 0, cubemapWidth, cubemapWidth), CubemapFace.NegativeX);
+            cubemap.SetPixels(texture.GetPixels(5 * cubemapWidth, 0, cubemapWidth, cubemapWidth), CubemapFace.PositiveX);
+            cubemap.Apply();
+            return cubemap;
         }
     }
 

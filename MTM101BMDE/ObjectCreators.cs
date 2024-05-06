@@ -18,6 +18,7 @@ namespace MTM101BaldAPI
 	public static partial class ObjectCreators
 	{
 
+		[Obsolete("Please use MTM101BaldAPI.ObjectCreation.ItemBuilder instead! It provides more features and is significantly cleaner to use!")]
         public static ItemObject CreateItemObject(string localizedtext, string desckey, Sprite smallicon, Sprite largeicon, Items type, int price, int generatorcost)
 		{
 			ItemObject obj = ScriptableObject.CreateInstance<ItemObject>();
@@ -26,7 +27,7 @@ namespace MTM101BaldAPI
 			obj.itemSpriteLarge = largeicon;
 			obj.itemType = type;
 			obj.descKey = desckey;
-			obj.cost = generatorcost;
+			obj.value = generatorcost;
 			obj.price = price;
 			obj.name = localizedtext;
 
@@ -78,6 +79,10 @@ namespace MTM101BaldAPI
 		{
 			SoundObject obj = ScriptableObject.CreateInstance<SoundObject>();
 			obj.soundClip = clip;
+			if (sublength == 0f)
+			{
+				obj.subtitle = false;
+			}
 			obj.subDuration = sublength == -1 ? clip.length + 1f : sublength;
 			obj.soundType = type;
 			obj.soundKey = subtitle;
