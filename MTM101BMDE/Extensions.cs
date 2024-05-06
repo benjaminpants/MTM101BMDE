@@ -139,10 +139,11 @@ namespace MTM101BaldAPI.Registers
 
         public static NPCMetadata AddMeta(this NPC me, BaseUnityPlugin plugin, NPCFlags flags)
         {
-            if (NPCMetaStorage.Instance.Find(x => x.character == me.Character) != null)
+            NPCMetadata existingMeta = NPCMetaStorage.Instance.Find(x => x.character == me.Character);
+            if (existingMeta != null)
             {
                 MTM101BaldiDevAPI.Log.LogInfo("NPC " + EnumExtensions.GetExtendedName<Character>((int)me.Character) + " already has meta! Adding prefab instead...");
-                return null;
+                return existingMeta;
             }
             NPCMetadata npcMeta = new NPCMetadata(plugin.Info, new NPC[1] { me }, me.name, flags);
             NPCMetaStorage.Instance.Add(npcMeta);

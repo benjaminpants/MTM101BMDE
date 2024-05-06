@@ -50,7 +50,7 @@ namespace MTM101BaldAPI.ObjectCreation
             meta.tags.AddRange(_tags);
             meta.tags.AddRange(characters);
             RandomEventMetaStorage.Instance.Add(meta);
-            UnityEngine.Object.DontDestroyOnLoad(evnt);
+            evnt.gameObject.ConvertToPrefab(true);
             return evnt;
         }
 

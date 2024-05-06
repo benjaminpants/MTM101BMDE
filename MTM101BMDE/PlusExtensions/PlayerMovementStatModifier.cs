@@ -11,9 +11,9 @@ namespace MTM101BaldAPI.PlusExtensions
     {
         PlayerMovement pm;
 
-        Dictionary<string, List<ValueModifier>> modifiers = new Dictionary<string, List<ValueModifier>>();
+        public Dictionary<string, List<ValueModifier>> modifiers = new Dictionary<string, List<ValueModifier>>();
 
-        Dictionary<string, float> baseStats = new Dictionary<string, float>();
+        public Dictionary<string, float> baseStats = new Dictionary<string, float>();
 
         float GetModifiedStat(string name)
         {
