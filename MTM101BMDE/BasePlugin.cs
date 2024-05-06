@@ -120,6 +120,7 @@ namespace MTM101BaldAPI
 
         internal void OnSceneUnload()
         {
+            Singleton<GlobalCam>.Instance.StopCurrentTransition();
             // INITIALIZE ITEM METADATA
             ItemObject grapplingHook = null;
             List<ItemObject> pointObjects = new List<ItemObject>();
@@ -281,6 +282,23 @@ namespace MTM101BaldAPI
             }
 
             MTM101BaldiDevAPI.Instance.AssetsLoadPre();
+
+            // loading screen
+            CursorController.Instance.DisableClick(true);
+            GameObject.Find("NameList").GetComponent<AudioSource>().enabled = false;
+            Texture2D whiteTexture = new Texture2D(480, 360);
+            whiteTexture.name = "WhiteBG";
+            List<Color> pixels = new List<Color>();
+            for (int i = 0; i < 480 * 360; i++)
+            {
+                pixels.Add(Color.white);
+            }
+            whiteTexture.SetPixels(pixels.ToArray());
+            whiteTexture.Apply();
+            Image whiteBG = UIHelpers.CreateImage(AssetLoader.SpriteFromTexture2D(whiteTexture, 1f), GameObject.Find("NameEntry").transform, Vector3.zero, false);
+            whiteBG.gameObject.AddComponent<ModLoadingScreenManager>();
+
+            return;
             //everything else
             if (LoadingEvents.OnAllAssetsLoaded != null)
             {
@@ -393,18 +411,19 @@ namespace MTM101BaldAPI
             GameObject.DestroyImmediate(templateObject.GetComponent<Animator>());
             templateObject.layer = LayerMask.NameToLayer("NPCs");
             ((List<Entity>)_allEntities.GetValue(null)).Remove(templateObject.GetComponent<Entity>());
-            templateObject.ConvertToPrefab(true);
+            templateObject.ConvertToPrefab(false);
             AssetMan.Add<GameObject>("TemplateNPC", templateObject);
             MTM101BaldAPI.Registers.Buttons.ButtonColorManager.InitializeButtonColors();
             Sprite[] allSprites = Resources.FindObjectsOfTypeAll<Sprite>();
             AssetMan.Add<Sprite>("MenuArrow",allSprites.Where(x => x.name == "MenuArrowSheet_2").First());
             AssetMan.Add<Sprite>("MenuArrowHighlight", allSprites.Where(x => x.name == "MenuArrowSheet_0").First());
+            AssetMan.Add<Sprite>("Bar", allSprites.Where(x => x.name == "MenuBarSheet_0").First());
+            AssetMan.Add<Sprite>("BarTransparent", allSprites.Where(x => x.name == "MenuBarSheet_1").First());
             SoundObject[] allSoundObjects = Resources.FindObjectsOfTypeAll<SoundObject>();
             AssetMan.Add<SoundObject>("Xylophone", allSoundObjects.Where(x => x.name == "Xylophone").First());
             AssetMan.Add<SoundObject>("Explosion", allSoundObjects.Where(x => x.name == "Explosion").First());
             AssetMan.AddFromResources<TMPro.TMP_FontAsset>();
             AssetMan.AddFromResources<Material>();
-            ConvertAllLevelObjects();
         }
 
         internal void ConvertAllLevelObjects()
@@ -509,6 +528,11 @@ PRESS ALT+F4 TO EXIT THE GAME.
                 true,
                 "Whether or not the midi fix should be used to increase the amount of instruments available to the midi player, there shouldn't be a reason for you to disable this.");
 
+            if (useOldAudioLoad.Value)
+            {
+                AddWarningScreen("Old Audio Loading is <b>on!</b>\nYou should not need this anymore as of API 4.0!\nTurn it off, and if mods are still broken, report it to MTM101!", false);
+            }
+
             //handled by the patch system so i do not need to check it
             Config.Bind("Generator",
                 "Enable Skybox Patches",
@@ -560,7 +584,6 @@ PRESS ALT+F4 TO EXIT THE GAME.
         {
             if (MTM101BaldiDevAPI.CalledInitialize) return;
             // define all metadata before we call OnAllAssetsLoaded, so we can atleast be a bit more sure no other mods have activated and added their stuff yet.
-
             MTM101BaldiDevAPI.Instance.StartCoroutine(MTM101BaldiDevAPI.Instance.ReloadScenes());
         }
     }

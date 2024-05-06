@@ -28,6 +28,7 @@ namespace MTM101BaldAPI.Patches
 
     [HarmonyPatch(typeof(WarningScreen))]
     [HarmonyPatch("Start")]
+    [HarmonyPriority(800)]
     static class WarningScreenStartPatch
     {
         static bool Prefix(WarningScreen __instance)
@@ -50,10 +51,15 @@ namespace MTM101BaldAPI.Patches
     }
     [HarmonyPatch(typeof(WarningScreen))]
     [HarmonyPatch("Advance")]
+    [HarmonyPriority(800)]
     static class WarningScreenAdvancePatch
     {
         static bool Prefix(WarningScreen __instance)
         {
+            if (WarningScreenContainer.currentPage >= WarningScreenContainer.screens.Length)
+            {
+                return true;
+            }
             if ((WarningScreenContainer.screens[WarningScreenContainer.currentPage].Item2) && ((WarningScreenContainer.currentPage + 1) >= WarningScreenContainer.screens.Length))
             {
                 return false; //dont allow passing a critical screen

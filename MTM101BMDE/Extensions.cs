@@ -1,7 +1,9 @@
 ﻿using BepInEx;
 using HarmonyLib;
 using System;
+using System.Collections;
 using System.Collections.Generic;
+using System.Reflection;
 using System.Text;
 using UnityEngine;
 
@@ -22,6 +24,30 @@ namespace MTM101BaldAPI
             {
                 me.SetActive(true);
             }
+        }
+
+        static MethodInfo _EndTransition = AccessTools.Method(typeof(GlobalCam), "EndTransition");
+        static FieldInfo _transitioner = AccessTools.Field(typeof(GlobalCam), "transitioner");
+        public static void StopCurrentTransition(this GlobalCam me)
+        {
+            IEnumerator transitioner = (IEnumerator)_transitioner.GetValue(me);
+            me.StopCoroutine(transitioner);
+            _EndTransition.Invoke(me, null);
+        }
+
+        /// <summary>
+        /// Repeatedly calls MoveNext until the IEnumerator is empty
+        /// </summary>
+        /// <param name="numerator"></param>
+        /// <returns>All the things returned by the IEnumerator</returns>
+        public static List<object> MoveUntilDone(this IEnumerator numerator)
+        {
+            List<object> returnValue = new List<object>();
+            while (numerator.MoveNext())
+            {
+                returnValue.Add(numerator.Current);
+            }
+            return returnValue;
         }
 
         public static void MarkAsNeverUnload(this UnityEngine.Object me)

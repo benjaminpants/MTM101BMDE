@@ -140,8 +140,7 @@ namespace MTM101BaldAPI.ObjectCreation
             _preciseTarget.SetValue(newNpc.Navigator, preciseTarget);
             newNpc.looker.distance = maxSightDistance;
 
-            GameObject.DontDestroyOnLoad(newNpc.gameObject);
-
+            newNpc.gameObject.ConvertToPrefab(true);
             NPCMetadata meta = newNpc.AddMeta(info.Instance, flags);
             meta.tags.AddRange(tags);
 

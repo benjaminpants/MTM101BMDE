@@ -128,8 +128,8 @@ namespace MTM101BaldAPI.UI
             img.transform.SetParent(parent);
             img.sprite = spr;
             img.gameObject.transform.localScale = Vector3.one;
-            img.rectTransform.offsetMin = new Vector2(-spr.texture.width / 2f, -spr.texture.height / 2f);
-            img.rectTransform.offsetMax = new Vector2(spr.texture.width / 2f, spr.texture.height / 2f);
+            img.rectTransform.offsetMin = new Vector2(-spr.rect.width / 2f, -spr.rect.height / 2f);
+            img.rectTransform.offsetMax = new Vector2(spr.rect.width / 2f, spr.rect.height / 2f);
             img.rectTransform.anchorMin = new Vector2(0f, 1f);
             img.rectTransform.anchorMax = new Vector2(0f, 1f);
             if (correctPosition)
