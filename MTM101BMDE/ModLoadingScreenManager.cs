@@ -83,7 +83,7 @@ namespace MTM101BaldAPI
             modIdText.text = "";
             modLoadText.text = "";
             Singleton<GlobalCam>.Instance.Transition(UiTransition.Dither, 0.01666667f * 2.5f);
-            GameObject.Find("NameList").GetComponent<AudioSource>().enabled = true;
+            if (GameObject.Find("NameList")) { GameObject.Find("NameList").GetComponent<AudioSource>().enabled = true; }
             CursorController.Instance.DisableClick(false);
             Destroy(this.gameObject);
             yield break;

@@ -285,7 +285,6 @@ namespace MTM101BaldAPI
 
             // loading screen
             CursorController.Instance.DisableClick(true);
-            GameObject.Find("NameList").GetComponent<AudioSource>().enabled = false;
             Texture2D whiteTexture = new Texture2D(480, 360);
             whiteTexture.name = "WhiteBG";
             List<Color> pixels = new List<Color>();
@@ -297,34 +296,6 @@ namespace MTM101BaldAPI
             whiteTexture.Apply();
             Image whiteBG = UIHelpers.CreateImage(AssetLoader.SpriteFromTexture2D(whiteTexture, 1f), GameObject.Find("NameEntry").transform, Vector3.zero, false);
             whiteBG.gameObject.AddComponent<ModLoadingScreenManager>();
-
-            return;
-            //everything else
-            if (LoadingEvents.OnAllAssetsLoaded != null)
-            {
-                LoadingEvents.OnAllAssetsLoaded.Invoke();
-            }
-            SceneObject[] objs = Resources.FindObjectsOfTypeAll<SceneObject>();
-            foreach (SceneObject obj in objs)
-            {
-                if (obj.levelObject == null) continue;
-                if (!(obj.levelObject is CustomLevelObject))
-                {
-                    MTM101BaldiDevAPI.Log.LogWarning(String.Format("Can't invoke SceneObject({0})({2}) Generation Changes for {1}! Not a CustomLevelObject!", obj.levelTitle, obj.levelObject.ToString(), obj.levelNo.ToString()));
-                    continue;
-                }
-                MTM101BaldiDevAPI.Log.LogInfo(String.Format("Invoking SceneObject({0})({2}) Generation Changes for {1}!", obj.levelTitle, obj.levelObject.ToString(), obj.levelNo.ToString()));
-                GeneratorManagement.Invoke(obj.levelTitle, obj.levelNo, (CustomLevelObject)obj.levelObject);
-            }
-            foreach (KeyValuePair<string, byte[]> kvp in AssetLoader.MidisToBeAdded)
-            {
-                AssetLoader.MidiFromBytes(kvp.Key, kvp.Value);
-            }
-            AssetLoader.MidisToBeAdded = null;
-            if (LoadingEvents.OnAllAssetsLoadedPost != null)
-            {
-                LoadingEvents.OnAllAssetsLoadedPost.Invoke();
-            }
         }
 
 #if DEBUG
@@ -572,6 +543,8 @@ PRESS ALT+F4 TO EXIT THE GAME.
             TMPro.TMP_Text text = t.gameObject.GetComponent<TMPro.TMP_Text>();
             text.text += "API " + MTM101BaldiDevAPI.VersionNumber;
             t.localPosition += new Vector3(0f, 28f);
+            if (MTM101BaldiDevAPI.CalledInitialize) return;
+            if (GameObject.Find("NameList")) { GameObject.Find("NameList").GetComponent<AudioSource>().enabled = false; }
 
         }
     }

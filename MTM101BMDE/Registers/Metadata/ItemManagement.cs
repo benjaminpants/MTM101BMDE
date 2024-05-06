@@ -1,7 +1,9 @@
 ﻿using BepInEx;
+using HarmonyLib;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using System.Text;
 
 namespace MTM101BaldAPI.Registers
@@ -55,6 +57,33 @@ namespace MTM101BaldAPI.Registers
     public class ItemMetaStorage : BasicMetaStorage<ItemMetaData, ItemObject>
     {
         public static ItemMetaStorage Instance => MTM101BaldiDevAPI.itemMetadata;
+
+        static FieldInfo _value = AccessTools.Field(typeof(ITM_YTPs), "value");
+
+        /// <summary>
+        /// Get the metadata for the points item with the specified(or closest) value.
+        /// </summary>
+        /// <param name="points">The amount of points to try to search for</param>
+        /// <param name="mustBeExact">If true, the point count must be exact, otherwise it will return null</param>
+        /// <returns></returns>
+        public ItemObject GetPointsObject(int points, bool mustBeExact)
+        {
+            ItemObject[] pointItems = FindByEnum(Items.Points).itemObjects;
+            int[] pointValues = pointItems.Select(x => (int)_value.GetValue(x.item)).ToArray();
+            ItemObject closestMatch = null;
+            int closestMatchDiff = int.MaxValue;
+            for (int i = 0; i < pointValues.Length; i++)
+            {
+                int diff = Math.Abs(pointValues[i] - points);
+                if (diff < closestMatchDiff)
+                {
+                    closestMatch = pointItems[i];
+                    closestMatchDiff = diff;
+                }
+            }
+            if (mustBeExact && (closestMatchDiff != 0)) return null;
+            return closestMatch;
+        }
 
         public ItemMetaData FindByEnum(Items itm)
         {
