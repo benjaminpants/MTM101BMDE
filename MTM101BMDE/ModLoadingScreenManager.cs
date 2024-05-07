@@ -22,6 +22,8 @@ namespace MTM101BaldAPI
         TextMeshProUGUI modLoadText;
         TextMeshProUGUI modIdText;
 
+        public static bool doneLoading = false;
+
         void SetBarValueRaw(LoadingBar bar, int amount)
         {
             for (int i = 0; i < bar.bars.Length; i++)
@@ -85,6 +87,7 @@ namespace MTM101BaldAPI
             Singleton<GlobalCam>.Instance.Transition(UiTransition.Dither, 0.01666667f * 2.5f);
             if (GameObject.Find("NameList")) { GameObject.Find("NameList").GetComponent<AudioSource>().enabled = true; }
             CursorController.Instance.DisableClick(false);
+            doneLoading = true;
             Destroy(this.gameObject);
             yield break;
         }

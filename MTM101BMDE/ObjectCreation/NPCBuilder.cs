@@ -35,6 +35,7 @@ namespace MTM101BaldAPI.ObjectCreation
         readonly static FieldInfo _fieldOfView = AccessTools.Field(typeof(Looker), "fieldOfView");
         readonly static FieldInfo _autoRotate = AccessTools.Field(typeof(Navigator), "autoRotate");
         readonly static FieldInfo _preciseTarget = AccessTools.Field(typeof(Navigator), "preciseTarget");
+        readonly static FieldInfo _decelerate = AccessTools.Field(typeof(Navigator), "decelerate");
 
 
         string objectName = "Unnamed Character";
@@ -63,6 +64,7 @@ namespace MTM101BaldAPI.ObjectCreation
         float maxSightDistance = 10000f;
         bool autoRotate = true;
         bool preciseTarget = true;
+        bool decelerate = false;
 
         public T Build()
         {
@@ -138,6 +140,7 @@ namespace MTM101BaldAPI.ObjectCreation
             }
             _autoRotate.SetValue(newNpc.Navigator, autoRotate);
             _preciseTarget.SetValue(newNpc.Navigator, preciseTarget);
+            _decelerate.SetValue(newNpc.Navigator, decelerate);
             newNpc.looker.distance = maxSightDistance;
 
             newNpc.gameObject.ConvertToPrefab(true);
@@ -242,6 +245,16 @@ namespace MTM101BaldAPI.ObjectCreation
         public NPCBuilder<T> AddMetaFlag(NPCFlags flag)
         {
             flags |= flag;
+            return this;
+        }
+
+        /// <summary>
+        /// Changes the NPC's navigator to use acceleration.
+        /// </summary>
+        /// <returns></returns>
+        public NPCBuilder<T> EnableAcceleration()
+        {
+            decelerate = true;
             return this;
         }
 
