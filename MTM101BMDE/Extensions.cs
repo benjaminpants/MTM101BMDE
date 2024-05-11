@@ -133,6 +133,13 @@ namespace MTM101BaldAPI.Registers
 
         public static ItemMetaData AddMeta(this ItemObject me, ItemMetaData meta)
         {
+            ItemMetaData existingMeta = ItemMetaStorage.Instance.Find(x => x.id == me.itemType);
+            if (existingMeta != null)
+            {
+                MTM101BaldiDevAPI.Log.LogInfo("ITEM " + EnumExtensions.GetExtendedName<Items>((int)me.itemType) + " already has meta! Appending ItemObject instead...");
+                existingMeta.itemObjects = meta.itemObjects.AddToArray(me);
+                return existingMeta;
+            }
             MTM101BaldiDevAPI.itemMetadata.Add(me, meta);
             return meta;
         }
@@ -143,6 +150,7 @@ namespace MTM101BaldAPI.Registers
             if (existingMeta != null)
             {
                 MTM101BaldiDevAPI.Log.LogInfo("NPC " + EnumExtensions.GetExtendedName<Character>((int)me.Character) + " already has meta! Adding prefab instead...");
+                existingMeta.prefabs.Add(me.name, me);
                 return existingMeta;
             }
             NPCMetadata npcMeta = new NPCMetadata(plugin.Info, new NPC[1] { me }, me.name, flags);

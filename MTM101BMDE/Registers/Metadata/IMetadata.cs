@@ -53,7 +53,7 @@ namespace MTM101BaldAPI.Registers
 
         public T1 Find(Predicate<T1> predicate)
         {
-            return FindAll(predicate).First();
+            return FindAll(predicate).FirstOrDefault();
         }
 
         public T1[] FindAll(Predicate<T1> predicate)

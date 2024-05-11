@@ -90,7 +90,6 @@ namespace MTM101BaldAPI
             // define the main screen
             Vector3 topBarOffset = new Vector3(-30f, 0f);
             StandardMenuButton arrowLeft = UIHelpers.CreateImage(MTM101BaldiDevAPI.AssetMan.Get<Sprite>("MenuArrow"), me.mainScreen.transform, new Vector3(120, 136) + topBarOffset, true).gameObject.ConvertToButton<StandardMenuButton>(); ;
-            arrowLeft.transform.localScale /= 2;
             arrowLeft.highlightedSprite = MTM101BaldiDevAPI.AssetMan.Get<Sprite>("MenuArrowHighlight");
             arrowLeft.swapOnHigh = true;
             arrowLeft.unhighlightedSprite = MTM101BaldiDevAPI.AssetMan.Get<Sprite>("MenuArrow");
@@ -100,7 +99,6 @@ namespace MTM101BaldAPI
             });
 
             StandardMenuButton arrowRight = UIHelpers.CreateImage(MTM101BaldiDevAPI.AssetMan.Get<Sprite>("MenuArrow"), me.mainScreen.transform, new Vector3(185, 136) + topBarOffset, true).gameObject.ConvertToButton<StandardMenuButton>(); ;
-            arrowRight.transform.localScale /= 2;
             arrowRight.transform.localScale = new Vector3(-arrowRight.transform.localScale.x, arrowRight.transform.localScale.y, arrowRight.transform.localScale.z);
             arrowRight.highlightedSprite = MTM101BaldiDevAPI.AssetMan.Get<Sprite>("MenuArrowHighlight");
             arrowRight.swapOnHigh = true;
