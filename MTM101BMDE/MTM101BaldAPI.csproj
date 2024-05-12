@@ -3,11 +3,28 @@
   <PropertyGroup>
     <TargetFramework>netstandard2.0</TargetFramework>
     <Configurations>Debug;Release;</Configurations>
+
+	<!-- Packaging for Nuget -->
+	<GenerateDocumentationFile>True</GenerateDocumentationFile>
+	<GeneratePackageOnBuild>True</GeneratePackageOnBuild>
+	<PackageId>MTM.BaldiDevAPI</PackageId>
+	<Title>MissingTextureMan101's Baldi Modding Dev API</Title>
+	<Version>4.1.1.1</Version>
+	<Description>An API primarily for general purpose development for Baldi's Basics Plus mods.</Description>
+	<Copyright>MIT License</Copyright>
+	<PackageProjectUrl>https://gamebanana.com/mods/383711</PackageProjectUrl>
+	<RepositoryUrl>https://github.com/Sakyce/MTM101BMDE.NuGet.git</RepositoryUrl>
+	<PackageTags>baldi baldiplus bepinex api</PackageTags>
+	<PackageLicenseExpression>MIT</PackageLicenseExpression>
+	<PackageReadmeFile>README.md</PackageReadmeFile>
   </PropertyGroup>
 
-  <ItemGroup>
-	<EmbeddedResource Include="..\Embedded\gm.sf2">
-	</EmbeddedResource>
+   <ItemGroup>
+	<None Include="..\README.md">
+	  <Pack>True</Pack>
+	  <PackagePath>\</PackagePath>
+	</None>
+	<EmbeddedResource Include="..\Embedded\gm.sf2"/>
     <Reference Include="0Harmony">
       <HintPath>..\Dependencies\0Harmony.dll</HintPath>
     </Reference>
