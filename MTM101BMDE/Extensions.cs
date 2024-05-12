@@ -11,7 +11,13 @@ namespace MTM101BaldAPI
 {
     public static class Extensions
     {
-
+        /// <summary>
+        /// Convert the GameObject into a prefab by moving its transform inside an internal GameObject marked as HideAndDontSave. It is automatically done for NPCs made with NPCBuilders and Items made with ItemBuilder.
+        /// Use this method in AssetsLoaded.
+        /// </summary>
+        /// <param name="me"></param>
+        /// <param name="setActive">If true, then the GameObject will be set to active. The components code won't run anyways.</param>
+        /// <exception cref="NullReferenceException"></exception>
         public static void ConvertToPrefab(this GameObject me, bool setActive)
         {
             if (MTM101BaldiDevAPI.PrefabSubObject == null)

@@ -427,8 +427,12 @@ namespace MTM101BaldAPI
             }
         }
 
-        // "GUYS IM GONNA USE THIS FOR MY CUSTOM ERROR SCREEN FOR MY FUNNY 4TH WALL BREAK IN MY MOD!"
-        // just dont. please. only use this function for actual errors.
+        /// <summary>
+        /// "GUYS IM GONNA USE THIS FOR MY CUSTOM ERROR SCREEN FOR MY FUNNY 4TH WALL BREAK IN MY MOD!"
+        /// just dont. please. only use this function for actual errors.
+        /// </summary>
+        /// <param name="plug"></param>
+        /// <param name="e"></param>
         public static void CauseCrash(PluginInfo plug, Exception e)
         {
             Canvas template = MTM101BaldiDevAPI.AssetMan.Get<Canvas>("ErrorTemplate");

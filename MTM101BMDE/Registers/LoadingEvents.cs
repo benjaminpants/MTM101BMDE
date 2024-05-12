@@ -26,7 +26,7 @@ namespace MTM101BaldAPI.Registers
         /// </summary>
         /// <param name="toRegister"></param>
         /// <param name="post">If true, this will be called after the initial call, this is useful if you need to replace all references to something</param>
-        [Obsolete]
+        [Obsolete("Use RegisterOnAssetsLoaded(PluginInfo info, Action toRegister, bool post) instead.")]
         public static void RegisterOnAssetsLoaded(Action toRegister, bool post)
         {
             if (post)
