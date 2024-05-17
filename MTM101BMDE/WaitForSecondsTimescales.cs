@@ -5,6 +5,9 @@ using UnityEngine;
 
 namespace MTM101BaldAPI
 {
+    /// <summary>
+    /// Wait for the defined amount of time depending on the NPCTimeScale of the environement controller. The NPC Timescale can be affected by The Test for instance.
+    /// </summary>
     public class WaitForSecondsNPCTimescale : CustomYieldInstruction
     {
         public EnvironmentController ec;
@@ -49,6 +52,9 @@ namespace MTM101BaldAPI
         }
     }
 
+    /// <summary>
+    /// Wait for the defined amount of time depending on the EnviromentTimescale of the environement controller.
+    /// </summary>
     public class WaitForSecondsEnviromentTimescale : CustomYieldInstruction
     {
         public EnvironmentController ec;
