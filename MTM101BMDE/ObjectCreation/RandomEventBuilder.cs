@@ -31,6 +31,11 @@ namespace MTM101BaldAPI.ObjectCreation
         static FieldInfo _minEventTime = AccessTools.Field(typeof(RandomEvent), "minEventTime");
         static FieldInfo _maxEventTime = AccessTools.Field(typeof(RandomEvent), "maxEventTime");
         static FieldInfo _potentialRoomAssets = AccessTools.Field(typeof(RandomEvent), "potentialRoomAssets");
+
+        /// <summary>
+        /// Builds the random event.
+        /// </summary>
+        /// <returns></returns>
         public T Build()
         {
             GameObject eventObject = new GameObject();
@@ -59,6 +64,12 @@ namespace MTM101BaldAPI.ObjectCreation
             _info = info;
         }
 
+        /// <summary>
+        /// Adds a character requirement to this event.
+        /// NOTE THAT THIS DOES NOTHING ON ITS OWN! THIS ONLY ADDS TO THE METADATA!
+        /// </summary>
+        /// <param name="character"></param>
+        /// <returns></returns>
         public RandomEventBuilder<T> AddRequiredCharacter(Character character)
         {
             _flags |= RandomEventFlags.CharacterSpecific;
@@ -66,6 +77,12 @@ namespace MTM101BaldAPI.ObjectCreation
             return this;
         }
 
+        /// <summary>
+        /// Set the metadata of the random event.
+        /// </summary>
+        /// <param name="flags"></param>
+        /// <param name="tags"></param>
+        /// <returns></returns>
         public RandomEventBuilder<T> SetMeta(RandomEventFlags flags, params string[] tags)
         {
             _flags = flags;
@@ -77,12 +94,23 @@ namespace MTM101BaldAPI.ObjectCreation
             return this;
         }
 
+        /// <summary>
+        /// Sets the description/text that shows up when the event is triggered.
+        /// </summary>
+        /// <param name="desc"></param>
+        /// <returns></returns>
         public RandomEventBuilder<T> SetDescription(string desc)
         {
             _description = desc;
             return this;
         }
 
+        /// <summary>
+        /// Add a room asset that will be generated if this event is chosen.
+        /// </summary>
+        /// <param name="asset"></param>
+        /// <param name="weight"></param>
+        /// <returns></returns>
         public RandomEventBuilder<T> AddRoomAsset(RoomAsset asset, int weight = 100)
         {
             potentialRoomAssets.Add(new WeightedRoomAsset()
@@ -93,18 +121,34 @@ namespace MTM101BaldAPI.ObjectCreation
             return this;
         }
 
+        /// <summary>
+        /// Add multiple room assets that will have one chosen at random if this event is chosen.
+        /// </summary>
+        /// <param name="assets"></param>
+        /// <returns></returns>
         public RandomEventBuilder<T> AddRoomAssets(params WeightedRoomAsset[] assets)
         {
             potentialRoomAssets.AddRange(assets);
             return this;
         }
         
+        /// <summary>
+        /// Set the name of the random event GameObject.
+        /// </summary>
+        /// <param name="name"></param>
+        /// <returns></returns>
         public RandomEventBuilder<T> SetName(string name)
         {
             _eventName = name;
             return this;
         }
 
+        /// <summary>
+        /// Set the minimum and maximum time this event can last for.
+        /// </summary>
+        /// <param name="min"></param>
+        /// <param name="max"></param>
+        /// <returns></returns>
         public RandomEventBuilder<T> SetMinMaxTime(float min, float max)
         {
             SetMinTime(min);
@@ -124,6 +168,11 @@ namespace MTM101BaldAPI.ObjectCreation
             _minTime = Math.Min(_minTime, max);
         }
 
+        /// <summary>
+        /// Set the RandomEventType enum that this event will use.
+        /// </summary>
+        /// <param name="typ"></param>
+        /// <returns></returns>
         public RandomEventBuilder<T> SetEnum(RandomEventType typ)
         {
             _type = typ;
@@ -131,6 +180,11 @@ namespace MTM101BaldAPI.ObjectCreation
             return this;
         }
 
+        /// <summary>
+        /// Create a RandomEventType enum using EnumExtensions with the specified name.
+        /// </summary>
+        /// <param name="enumToRegister"></param>
+        /// <returns></returns>
         public RandomEventBuilder<T> SetEnum(string enumToRegister)
         {
             _type = RandomEventType.Fog;

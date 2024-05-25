@@ -16,6 +16,12 @@ namespace MTM101BaldAPI.AssetTools
 {
     public static class AssetLoader
     {
+        /// <summary>
+        /// Load textures from a specified folder.
+        /// </summary>
+        /// <param name="path"></param>
+        /// <param name="search"></param>
+        /// <returns>The array of textures created using the images found.</returns>
         public static Texture2D[] TexturesFromFolder(string path, string search = "*.png")
         {
             string[] paths = Directory.GetFiles(Path.Combine(path), search);
@@ -27,6 +33,13 @@ namespace MTM101BaldAPI.AssetTools
             return textures;
         }
 
+        /// <summary>
+        /// Gets textures from a specified folder, starting from the mod's StreamingAssets path.
+        /// </summary>
+        /// <param name="plugin"></param>
+        /// <param name="search"></param>
+        /// <param name="paths"></param>
+        /// <returns></returns>
         public static Texture2D[] TexturesFromMod(BaseUnityPlugin plugin, string search, params string[] paths)
         {
             List<string> pathz = paths.ToList();
@@ -45,11 +58,22 @@ namespace MTM101BaldAPI.AssetTools
             return (from tex in textures select SpriteFromTexture2D(tex, pixelsPerUnit)).ToArray();
         }
 
+        /// <summary>
+        /// Load a texture from a file.
+        /// </summary>
+        /// <param name="path"></param>
+        /// <returns></returns>
         public static Texture2D TextureFromFile(string path)
         {
             return TextureFromFile(path, TextureFormat.RGBA32);
         }
 
+        /// <summary>
+        /// Load a texture from a file with the specified format.
+        /// </summary>
+        /// <param name="path"></param>
+        /// <param name="format"></param>
+        /// <returns></returns>
         public static Texture2D TextureFromFile(string path, TextureFormat format)
         {
             byte[] array = File.ReadAllBytes(path);
@@ -60,6 +84,13 @@ namespace MTM101BaldAPI.AssetTools
             return texture2D;
         }
 
+        /// <summary>
+        /// Replace the image data of one texture with another.
+        /// They must be the exact same size.
+        /// </summary>
+        /// <param name="toReplace">The texture to override the texture of.</param>
+        /// <param name="replacement">The replacement texture.</param>
+        /// <returns></returns>
         public static bool ReplaceTexture(Texture2D toReplace, Texture2D replacement)
         {
             if (toReplace == null)
@@ -86,11 +117,23 @@ namespace MTM101BaldAPI.AssetTools
             return true;
         }
 
+        /// <summary>
+        /// Find a texture with the specified name and replace it's image data with the data of replacement.
+        /// </summary>
+        /// <param name="toReplace"></param>
+        /// <param name="replacement"></param>
+        /// <returns></returns>
         public static bool ReplaceTexture(string toReplace, Texture2D replacement)
         {
             return ReplaceTexture(Resources.FindObjectsOfTypeAll<Texture2D>().Where(x => x.name == toReplace).First(), replacement);
         }
 
+        /// <summary>
+        /// Attempt to convert a texture to another format, deleting the original.
+        /// </summary>
+        /// <param name="toConvert"></param>
+        /// <param name="format"></param>
+        /// <returns>The texture converted to the new format.</returns>
         public static Texture2D AttemptConvertTo(Texture2D toConvert, TextureFormat format)
         {
             if (toConvert.format == format) return toConvert;
@@ -107,6 +150,11 @@ namespace MTM101BaldAPI.AssetTools
             return AttemptConvertTo(toConvert, TextureFormat.RGBA32);
         }
 
+        /// <summary>
+        /// Go through a folder and replace the image data of all textures sharing the same name of the png file.
+        /// </summary>
+        /// <param name="path"></param>
+        /// <returns></returns>
         public static bool ReplaceAllTexturesFromFolder(string path)
         {
             Texture2D[] foundTextures = Resources.FindObjectsOfTypeAll<Texture2D>();
@@ -157,6 +205,11 @@ namespace MTM101BaldAPI.AssetTools
             throw new NotImplementedException("Unknown audio file type:" + extension + "!");
         }
 
+        /// <summary>
+        /// Load an audio clip from a file.
+        /// </summary>
+        /// <param name="path"></param>
+        /// <returns></returns>
         public static AudioClip AudioClipFromFile(string path)
         {
             if (MTM101BaldiDevAPI.Instance == null)
@@ -176,6 +229,13 @@ namespace MTM101BaldAPI.AssetTools
             Path.Combine("File:///","")
         };
 
+        /// <summary>
+        /// Load an audio clip from a file with the specified AudioType.
+        /// </summary>
+        /// <param name="path"></param>
+        /// <param name="type"></param>
+        /// <returns></returns>
+        /// <exception cref="Exception"></exception>
         public static AudioClip AudioClipFromFile(string path, AudioType type)
         {
             AudioClip clip;
@@ -240,11 +300,23 @@ namespace MTM101BaldAPI.AssetTools
             return SpriteFromTexture2D(tex, new Vector2(0.5f, 0.5f));
         }
 
+        /// <summary>
+        /// Create a sprite from a Texture2D with the origin of the image being the center.
+        /// </summary>
+        /// <param name="tex">The texture to use.</param>
+        /// <param name="pixelsPerUnit">The pixels per unit, a hallway in BB+ is 10 units.</param>
+        /// <returns></returns>
         public static Sprite SpriteFromTexture2D(Texture2D tex, float pixelsPerUnit)
         {
             return SpriteFromTexture2D(tex, new Vector2(0.5f, 0.5f), pixelsPerUnit);
         }
 
+        /// <summary>
+        /// Convert a stream to a byte array.
+        /// </summary>
+        /// <param name="stream"></param>
+        /// <returns></returns>
+        /// <exception cref="InvalidOperationException"></exception>
         public static byte[] ToByteArray(this Stream stream)
         {
             if (!stream.CanRead) throw new InvalidOperationException("Can't convert stream that we can't read!");
@@ -256,6 +328,13 @@ namespace MTM101BaldAPI.AssetTools
             return bytes;
         }
 
+        /// <summary>
+        /// Create a sprite from a Texture2D.
+        /// </summary>
+        /// <param name="tex">The texture to use.</param>
+        /// <param name="center">The pixels per unit, a hallway in BB+ is 10 units.</param>
+        /// <param name="pixelsPerUnit"></param>
+        /// <returns></returns>
         public static Sprite SpriteFromTexture2D(Texture2D tex, Vector2 center, float pixelsPerUnit = 1)
         {
             Sprite sprite = Sprite.Create(tex, new Rect(0f, 0f, tex.width, tex.height), center, pixelsPerUnit);
@@ -264,11 +343,22 @@ namespace MTM101BaldAPI.AssetTools
         }
 
         static FieldInfo localizedText = AccessTools.Field(typeof(LocalizationManager), "localizedText");
+
+        /// <summary>
+        /// Load a Language folder from a non-standard place.
+        /// </summary>
+        /// <param name="path"></param>
         public static void LoadLanguageFolder(string path)
         {
             LangExtender.LoaderExtension.LoadFolder(path, (Dictionary<string, string>)localizedText.GetValue(Singleton<LocalizationManager>.Instance));
         }
 
+        /// <summary>
+        /// Load a Texture2D from the specified path, starting from the specified mod's mod path.
+        /// </summary>
+        /// <param name="plug"></param>
+        /// <param name="paths"></param>
+        /// <returns></returns>
         public static Texture2D TextureFromMod(BaseUnityPlugin plug, params string[] paths)
         {
             List<string> pathz = paths.ToList();
@@ -276,6 +366,12 @@ namespace MTM101BaldAPI.AssetTools
             return TextureFromFile(Path.Combine(pathz.ToArray()));
         }
 
+        /// <summary>
+        /// Load an Audioclip from the specified path, starting from the specified mod's mod path.
+        /// </summary>
+        /// <param name="plug"></param>
+        /// <param name="paths"></param>
+        /// <returns></returns>
         public static AudioClip AudioClipFromMod(BaseUnityPlugin plug, params string[] paths)
         {
             List<string> pathz = paths.ToList();
@@ -283,17 +379,24 @@ namespace MTM101BaldAPI.AssetTools
             return AudioClipFromFile(Path.Combine(pathz.ToArray()));
         }
 
+        /// <summary>
+        /// Get a mod's mod path. (Currently StreamingAssets/Modded/[MOD GUID])
+        /// </summary>
+        /// <param name="plug"></param>
+        /// <returns></returns>
         public static string GetModPath(BaseUnityPlugin plug)
         {
             return Path.Combine(Application.streamingAssetsPath, "Modded", plug.Info.Metadata.GUID);
         }
 
-        /// <summary>
-        /// Creates a midi from a file. It returns the id assigned to the midi, which is an altered version of the id you pass to avoid conflicts.
-        /// </summary>
-
         internal static Dictionary<string, byte[]> MidiDatas = new Dictionary<string, byte[]>();
         public static Dictionary<string, byte[]> MidisToBeAdded = new Dictionary<string, byte[]>();
+        /// <summary>
+        /// Loads a midi file with the specified path.
+        /// </summary>
+        /// <param name="path">The filepath of the midi.</param>
+        /// <param name="id">The ID of the midi, used as a starting point for creating the return value.</param>
+        /// <returns>The string that can be used in the midi player to play the midi.</returns>
         public static string MidiFromFile(string path, string id)
         {
             string idToUse = "custom_" + id;
@@ -305,6 +408,13 @@ namespace MTM101BaldAPI.AssetTools
             return idToUse;
         }
 
+        /// <summary>
+        /// Loads a midi file with the specified path starting from the mod path.
+        /// </summary>
+        /// <param name="id">The ID of the midi, used as a starting point for creating the return value.</param>
+        /// <param name="plug">The modpath to get.</param>
+        /// <param name="paths">The folders to go through starting from the modpath.</param>
+        /// <returns>The string that can be used in the midi player to play the midi.</returns>
         public static string MidiFromMod(string id, BaseUnityPlugin plug, params string[] paths)
         {
             List<string> pathz = paths.ToList();
@@ -371,6 +481,12 @@ namespace MTM101BaldAPI.AssetTools
             return flipped;
         }
 
+        /// <summary>
+        /// Creates a cubemap from a texture in the specified path, starting from the mod path.
+        /// </summary>
+        /// <param name="plugin"></param>
+        /// <param name="paths"></param>
+        /// <returns></returns>
         public static Cubemap CubemapFromMod(BaseUnityPlugin plugin, params string[] paths)
         {
             List<string> pathz = paths.ToList();
@@ -378,11 +494,21 @@ namespace MTM101BaldAPI.AssetTools
             return CubemapFromFile(Path.Combine(pathz.ToArray()));
         }
 
+        /// <summary>
+        /// Creates a cubemap from a texture in the specified path.
+        /// </summary>
+        /// <param name="path"></param>
+        /// <returns></returns>
         public static Cubemap CubemapFromFile(string path)
         {
             return CubemapFromTexture(TextureFromFile(path));
         }
 
+        /// <summary>
+        /// Create a cubemap from a Texture2D.
+        /// </summary>
+        /// <param name="texture"></param>
+        /// <returns></returns>
         public static Cubemap CubemapFromTexture(Texture2D texture)
         {
             texture = FlipX(texture);

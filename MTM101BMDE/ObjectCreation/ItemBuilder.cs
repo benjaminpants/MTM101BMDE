@@ -32,6 +32,10 @@ namespace MTM101BaldAPI.ObjectCreation
             this.info = info;
         }
 
+        /// <summary>
+        /// Builds the ItemObject and creates the Item prefab if none is specified.
+        /// </summary>
+        /// <returns></returns>
         public ItemObject Build()
         {
             ItemObject item = ScriptableObject.CreateInstance<ItemObject>();
@@ -77,6 +81,12 @@ namespace MTM101BaldAPI.ObjectCreation
             return item;
         }
 
+        /// <summary>
+        /// Sets the metadata of the item.
+        /// </summary>
+        /// <param name="flags"></param>
+        /// <param name="tags"></param>
+        /// <returns></returns>
         public ItemBuilder SetMeta(ItemFlags flags, string[] tags)
         {
             this.flags = flags;
@@ -84,12 +94,22 @@ namespace MTM101BaldAPI.ObjectCreation
             return this;
         }
 
+        /// <summary>
+        /// Sets the metadata of the item to an already existing metadata which this object will be appened to.
+        /// </summary>
+        /// <param name="existingMeta"></param>
+        /// <returns></returns>
         public ItemBuilder SetMeta(ItemMetaData existingMeta)
         {
             metaDataToAddTo = existingMeta;
             return this;
         }
 
+        /// <summary>
+        /// Sets the type of the item component to add to the created Item prefab.
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <returns></returns>
         public ItemBuilder SetItemComponent<T>() where T : Item
         {
             itemObjectType = typeof(T);
@@ -97,6 +117,12 @@ namespace MTM101BaldAPI.ObjectCreation
             return this;
         }
 
+        /// <summary>
+        /// Sets the item component to an already existing gameObject.
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="gameObject"></param>
+        /// <returns></returns>
         public ItemBuilder SetItemComponent<T>(T gameObject) where T : Item
         {
             itemObjectType = null;
@@ -104,6 +130,12 @@ namespace MTM101BaldAPI.ObjectCreation
             return this;
         }
 
+        /// <summary>
+        /// Sets the name of the item and its description in the shop.
+        /// </summary>
+        /// <param name="name"></param>
+        /// <param name="description"></param>
+        /// <returns></returns>
         public ItemBuilder SetNameAndDescription(string name, string description)
         {
             localizedText = name;
@@ -111,12 +143,22 @@ namespace MTM101BaldAPI.ObjectCreation
             return this;
         }
 
+        /// <summary>
+        /// Makes the item be used instantly when collected through a pickup.
+        /// </summary>
+        /// <returns></returns>
         public ItemBuilder SetAsInstantUse()
         {
             instantUse = true;
             return this;
         }
 
+        /// <summary>
+        /// Sets the big and large sprites respectively.
+        /// </summary>
+        /// <param name="small">The small sprite, usually with a pixelsPerUnit of 25.</param>
+        /// <param name="large">The large sprite, usually with a pixelsPerUnit of 50.</param>
+        /// <returns></returns>
         public ItemBuilder SetSprites(Sprite small, Sprite large) 
         {
             smallSprite = small;
@@ -124,13 +166,23 @@ namespace MTM101BaldAPI.ObjectCreation
             return this;
         }
 
+        /// <summary>
+        /// Set the Items enum to use for the item.
+        /// </summary>
+        /// <param name="item"></param>
+        /// <returns></returns>
         public ItemBuilder SetEnum(Items item)
         {
             itemEnum = item;
             itemEnumName = "";
             return this;
         }
-
+        
+        /// <summary>
+        /// Creates an Items enum using EnumExtensions with the specified name.
+        /// </summary>
+        /// <param name="enumToRegister"></param>
+        /// <returns></returns>
         public ItemBuilder SetEnum(string enumToRegister)
         {
             itemEnum = Items.None;
@@ -138,12 +190,22 @@ namespace MTM101BaldAPI.ObjectCreation
             return this;
         }
 
+        /// <summary>
+        /// Sets the item's price in the shop.
+        /// </summary>
+        /// <param name="price"></param>
+        /// <returns></returns>
         public ItemBuilder SetShopPrice(int price)
         {
             this.price = price;
             return this;
         }
 
+        /// <summary>
+        /// Sets the cost of the item for the generator.
+        /// </summary>
+        /// <param name="cost"></param>
+        /// <returns></returns>
         public ItemBuilder SetGeneratorCost(int cost)
         {
             generatorCost = cost;

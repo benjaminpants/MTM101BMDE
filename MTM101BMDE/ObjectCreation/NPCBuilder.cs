@@ -66,6 +66,10 @@ namespace MTM101BaldAPI.ObjectCreation
         bool preciseTarget = true;
         bool decelerate = false;
 
+        /// <summary>
+        /// Builds the NPC.
+        /// </summary>
+        /// <returns>The created NPC prefab.</returns>
         public T Build()
         {
             T newNpc = GameObject.Instantiate(MTM101BaldiDevAPI.AssetMan.Get<GameObject>("TemplateNPC")).AddComponent<T>();
