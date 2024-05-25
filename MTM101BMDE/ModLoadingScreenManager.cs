@@ -44,9 +44,9 @@ namespace MTM101BaldAPI
             public int count;
         }
 
-
         void Start()
         {
+
             apiLoadingBar = CreateBar(new Vector2(24f, 164f), 55);
             modLoadingBar = CreateBar(new Vector2(24f, 164f + 80f), 55);
             TextMeshProUGUI loadingText = UIHelpers.CreateText<TextMeshProUGUI>(BaldiFonts.ComicSans36, "Loading...", this.transform, new Vector3(24f + (54f * 4f), 98f), true);
