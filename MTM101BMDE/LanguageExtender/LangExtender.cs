@@ -4,7 +4,6 @@ using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Net;
 using System.IO;
-//BepInEx stuff
 using BepInEx;
 using BepInEx.Logging;
 using UnityEngine;
@@ -17,7 +16,7 @@ using MTM101BaldAPI;
 namespace MTM101BaldAPI.LangExtender
 {
 
-	static class LocalExtensions
+	public static class LocalExtensions
 	{
 		public static string GetUnmoddedLocalizedText(this LocalizationManager me, string key, bool trymodonfail = true)
 		{
