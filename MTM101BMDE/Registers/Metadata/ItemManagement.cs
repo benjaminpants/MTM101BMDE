@@ -93,11 +93,27 @@ namespace MTM101BaldAPI.Registers
             });
         }
 
+        public ItemMetaData FindByEnumFromMod(Items itm, PluginInfo specificMod)
+        {
+            return Find(x =>
+            {
+                return (x.id == itm) && (x.info == specificMod);
+            });
+        }
+
         public ItemMetaData[] GetAllWithFlags(ItemFlags flag)
         {
             return FindAll(x =>
             {
                 return x.flags.HasFlag(flag);
+            }).Distinct().ToArray();
+        }
+
+        public ItemMetaData[] GetAllFromMod(PluginInfo mod)
+        {
+            return FindAll(x =>
+            {
+                return x.info == mod;
             }).Distinct().ToArray();
         }
 

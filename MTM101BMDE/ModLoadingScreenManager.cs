@@ -44,9 +44,18 @@ namespace MTM101BaldAPI
             public int count;
         }
 
+        void CreateRandomQMark()
+        {
+            Sprite selectedSprite = MTM101BaldiDevAPI.Instance.questionMarkSprites[UnityEngine.Random.Range(0, MTM101BaldiDevAPI.Instance.questionMarkSprites.Length)];
+            UIHelpers.CreateImage(selectedSprite, this.transform, new Vector2(UnityEngine.Random.Range(-230f, 230f), UnityEngine.Random.Range(-170f, 170f)), false).transform.SetAsFirstSibling();
+        }
+
         void Start()
         {
-
+            for (int i = 0; i < 8; i++)
+            {
+                CreateRandomQMark();
+            }
             apiLoadingBar = CreateBar(new Vector2(24f, 164f), 55);
             modLoadingBar = CreateBar(new Vector2(24f, 164f + 80f), 55);
             TextMeshProUGUI loadingText = UIHelpers.CreateText<TextMeshProUGUI>(BaldiFonts.ComicSans36, "Loading...", this.transform, new Vector3(24f + (54f * 4f), 98f), true);
@@ -116,6 +125,7 @@ namespace MTM101BaldAPI
                 {
                     textToChange.text = (string)numerator.Current;
                     totalSteps++;
+                    CreateRandomQMark();
                     SetBarValue(barToAdjust, (float)totalSteps / (float)maxSteps);
                 }
                 yield return null;

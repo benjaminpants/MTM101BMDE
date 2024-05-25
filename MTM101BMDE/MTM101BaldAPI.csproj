@@ -9,6 +9,7 @@
   <ItemGroup>
 	<EmbeddedResource Include="..\Embedded\gm.sf2">
 	</EmbeddedResource>
+	<None Include="..\.editorconfig" Link=".editorconfig" />
     <Reference Include="0Harmony">
       <HintPath>..\Dependencies\0Harmony.dll</HintPath>
     </Reference>
