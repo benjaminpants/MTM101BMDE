@@ -6,7 +6,7 @@ using UnityEngine;
 namespace MTM101BaldAPI.Components
 {
     /// <summary>
-    /// GameObjects with this behavior make the culling manager treat them as if they were a player. Useful if you have are using cameras that aren't the players.
+    /// GameObjects with this behavior makes the culling manager treat it as if it were a player. Useful if you have are using cameras that aren't the players'.
     /// Note that performance may take a hit if you use this, so use it with caution! (Maybe if the player isn't looking you could remove the component?)
     /// </summary>
     public class CullAffector : MonoBehaviour
