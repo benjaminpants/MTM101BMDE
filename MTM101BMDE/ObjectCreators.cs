@@ -115,6 +115,29 @@ namespace MTM101BaldAPI
             return obj;
         }
 
+		/// <summary>
+		/// Creates a material with the appropiate shader and texture for use on the minimap.
+		/// </summary>
+		/// <param name="tex"></param>
+		/// <returns></returns>
+		public static Material CreateMapTileShader(Texture2D tex)
+		{
+			Material mat = new Material(MTM101BaldiDevAPI.AssetMan.Get<Shader>("Shader Graphs/MapTile"));
+			mat.SetTexture("_MapBackground", tex);
+			mat.name = "MapTileMat_" + tex.name;
+			mat.renderQueue = 2000;
+			mat.color = Color.white;
+
+            return mat;
+		}
+
+		/// <summary>
+		/// Create a PosterObject in the style of a typical character poster.
+		/// </summary>
+		/// <param name="texture"></param>
+		/// <param name="nameKey">The localization key that will show up as the character's name.</param>
+		/// <param name="descKey">The localization key that will show up as the character's description.</param>
+		/// <returns></returns>
 		public static PosterObject CreateCharacterPoster(Texture2D texture, string nameKey, string descKey)
 		{
 			PosterObject obj = ScriptableObject.Instantiate<PosterObject>(MTM101BaldiDevAPI.AssetMan.Get<PosterObject>("CharacterPosterTemplate"));

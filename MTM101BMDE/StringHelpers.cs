@@ -4,6 +4,7 @@ using System.Text;
 using UnityEngine;
 using System.Linq;
 using TMPro;
+using MTM101BaldAPI.Registers;
 
 namespace MTM101BaldAPI
 {
@@ -15,32 +16,16 @@ namespace MTM101BaldAPI
             return text.GetComponent<TextLocalizer>();
         }
 
+        [Obsolete("Please use ItemMetaStorage.Instance.FindByEnum(en).nameKey instead!")]
         public static string GetName(this Items en)
         {
-            string e = en.ToString();
-            try
-            {
-                e = Singleton<LocalizationManager>.Instance.GetLocalizedText(en.GetFirstInstance().nameKey);
-            }
-            catch(Exception E)
-            {
-                MTM101BaldiDevAPI.Log.LogWarning(E.Message);
-            }
-            return e;
+            return ItemMetaStorage.Instance.FindByEnum(en).nameKey;
         }
 
+        [Obsolete("Please use NPCMetaStorage.Instance.Get(en).nameLocalizationKey instead!")]
         public static string GetName(this Character en)
         {
-            string e = en.ToString();
-            try
-            {
-                e = Singleton<LocalizationManager>.Instance.GetLocalizedText(en.GetFirstInstance().Poster.textData[0].textKey);
-            }
-            catch (Exception E)
-            {
-                MTM101BaldiDevAPI.Log.LogWarning(E.Message);
-            }
-            return e;
+            return NPCMetaStorage.Instance.Get(en).nameLocalizationKey;
         }
     }
 }

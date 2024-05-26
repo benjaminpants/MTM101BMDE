@@ -46,6 +46,10 @@ namespace MTM101BaldAPI
             });
         }
 
+        /// <summary>
+        /// Patches all conditional patches in the current assembly. A direct replacement for PatchAll.
+        /// </summary>
+        /// <param name="_harmony"></param>
         public static void PatchAllConditionals(this Harmony _harmony)
         {
             MethodBase method = new StackTrace().GetFrame(1).GetMethod();
@@ -54,12 +58,17 @@ namespace MTM101BaldAPI
         }
     }
 
-
+    /// <summary>
+    /// Base class for ConditionalPatches.
+    /// </summary>
     public abstract class ConditionalPatch : Attribute
     {
         public abstract bool ShouldPatch();
     }
 
+    /// <summary>
+    /// Always patches, same as not having a ConditionalPatch at all.
+    /// </summary>
     public class ConditionalPatchAlways : ConditionalPatch
     {
         public override bool ShouldPatch()
@@ -68,6 +77,9 @@ namespace MTM101BaldAPI
         }
     }
 
+    /// <summary>
+    /// Patches if the specified config is true.
+    /// </summary>
     public class ConditionalPatchConfig : ConditionalPatch
     {
         string _mod;
@@ -98,6 +110,9 @@ namespace MTM101BaldAPI
         }
     }
 
+    /// <summary>
+    /// Never patches.
+    /// </summary>
     public class ConditionalPatchNever : ConditionalPatch
     {
         public override bool ShouldPatch()
@@ -106,6 +121,9 @@ namespace MTM101BaldAPI
         }
     }
 
+    /// <summary>
+    /// Patch if the specified mod is installed.
+    /// </summary>
     public class ConditionalPatchMod : ConditionalPatch
     {
         public string modKey;
@@ -121,6 +139,9 @@ namespace MTM101BaldAPI
         }
     }
 
+    /// <summary>
+    /// Patch if the specified mod is not installed.
+    /// </summary>
     public class ConditionalPatchNoMod : ConditionalPatch
     {
         public string modKey;

@@ -65,6 +65,7 @@ namespace MTM101BaldAPI.ObjectCreation
         bool autoRotate = true;
         bool preciseTarget = true;
         bool decelerate = false;
+        string npcName = null;
 
         /// <summary>
         /// Builds the NPC.
@@ -151,6 +152,11 @@ namespace MTM101BaldAPI.ObjectCreation
             NPCMetadata meta = newNpc.AddMeta(info.Instance, flags);
             meta.tags.AddRange(tags);
 
+            if (npcName != null)
+            {
+                meta.nameLocalizationKey = npcName;
+            }
+
             return newNpc;
         }
 
@@ -204,6 +210,17 @@ namespace MTM101BaldAPI.ObjectCreation
         public NPCBuilder<T> SetName(string name)
         {
             objectName = name;
+            return this;
+        }
+
+        /// <summary>
+        /// Sets the localization key that will be set in the NPC's meta. This is usually the same key for the name section of the character poster.
+        /// </summary>
+        /// <param name="name">The key to set</param>
+        /// <returns></returns>
+        public NPCBuilder<T> SetMetaName(string name)
+        {
+            npcName = name;
             return this;
         }
 

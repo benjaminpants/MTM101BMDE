@@ -50,7 +50,9 @@ namespace MTM101BaldAPI.SaveSystem
     }
 
 
-    // stores the name of a few parts of an item to make sure it can be found again if, for one reason or another it gets changed.
+    /// <summary>
+    /// Stores the mod GUID and name of the ItemObject to allow it to be referenced later.
+    /// </summary>
     [Serializable]
     public struct ModdedItemIdentifier
     {
@@ -104,7 +106,9 @@ namespace MTM101BaldAPI.SaveSystem
         MissingItems
     }
 
-    // The root class for modded save games, storing the base game data, but restructured in a way that is more mod friendly.
+    /// <summary>
+    /// The root class for modded save games, storing the base game data, but restructured in a way that is more mod friendly.
+    /// </summary>
     public class ModdedSaveGame
     {
         public List<ModdedItemIdentifier> items = new List<ModdedItemIdentifier>(); // use a list instead of a standard

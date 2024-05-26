@@ -7,6 +7,10 @@ using UnityEngine;
 
 namespace MTM101BaldAPI.PlusExtensions
 {
+
+    /// <summary>
+    /// A stat modifier for the PlayerMovement's variables.
+    /// </summary>
     public class PlayerMovementStatModifier : MonoBehaviour
     {
         PlayerMovement pm;

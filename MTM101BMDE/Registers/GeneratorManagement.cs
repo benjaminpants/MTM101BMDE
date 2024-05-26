@@ -35,6 +35,12 @@ namespace MTM101BaldAPI.Registers
     {
         private static Dictionary<BaseUnityPlugin, Dictionary<GenerationModType, Action<string, int, CustomLevelObject>>> generationStuff = new Dictionary<BaseUnityPlugin, Dictionary<GenerationModType, Action<string, int, CustomLevelObject>>>();
 
+        /// <summary>
+        /// Register a generator action, called during mod loading.
+        /// </summary>
+        /// <param name="plug">The plugin adding the generator modifiers.</param>
+        /// <param name="type"></param>
+        /// <param name="action">The first parameter is the level name, the second one is the level id, and the last is the CustomLevelObject itself.</param>
         public static void Register(BaseUnityPlugin plug, GenerationModType type, Action<string, int, CustomLevelObject> action)
         {
             if (!generationStuff.ContainsKey(plug))
@@ -44,6 +50,12 @@ namespace MTM101BaldAPI.Registers
             generationStuff[plug].Add(type, action);
         }
 
+        /// <summary>
+        /// Invoke the generator actions for the specified CustomLevelObject.
+        /// </summary>
+        /// <param name="name"></param>
+        /// <param name="floorNumber"></param>
+        /// <param name="obj"></param>
         public static void Invoke(string name, int floorNumber, CustomLevelObject obj)
         {
             Dictionary<GenerationModType, List<Action<string, int, CustomLevelObject>>> actionsList = new Dictionary<GenerationModType, List<Action<string, int, CustomLevelObject>>>();

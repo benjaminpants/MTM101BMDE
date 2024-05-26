@@ -13,6 +13,11 @@ namespace MTM101BaldAPI.Components
 
         public float animationLength { private set; get; }
 
+        /// <summary>
+        /// Create an animation with the specified FPS
+        /// </summary>
+        /// <param name="fps"></param>
+        /// <param name="frames"></param>
         public CustomAnimation(int fps, T[] frames)
         {
             this.frames = new CustomAnimationFrame<T>[frames.Length];
@@ -24,6 +29,11 @@ namespace MTM101BaldAPI.Components
             animationLength = ((float)frames.Length / (float)fps);
         }
 
+        /// <summary>
+        /// Create an animation that is totalTime long.
+        /// </summary>
+        /// <param name="frames"></param>
+        /// <param name="totalTime"></param>
         public CustomAnimation(T[] frames, float totalTime)
         {
             this.frames = new CustomAnimationFrame<T>[frames.Length];
@@ -92,6 +102,19 @@ namespace MTM101BaldAPI.Components
         protected float defaultAnimSpeed = 1f;
         protected bool paused = false;
 
+        /// <summary>
+        /// Populate the animations dictionary with a dictionary of keys and frame arrays with the specified FPS.
+        /// </summary>
+        /// <param name="animations"></param>
+        /// <param name="fps"></param>
+        public virtual void PopulateAnimations(Dictionary<string, TFrame[]> animations, int fps)
+        {
+            foreach (KeyValuePair<string, TFrame[]> frameC in animations)
+            {
+                this.animations.Add(frameC.Key, (TAnimation)new CustomAnimation<TFrame>(fps, frameC.Value));
+            }
+        }
+
         public TAnimation currentAnimation
         {
             get
@@ -112,7 +135,7 @@ namespace MTM101BaldAPI.Components
         }
 
         protected float _currentSpeed = 1f;
-        public float Speed
+        public virtual float Speed
         {
             get
             {
@@ -212,8 +235,8 @@ namespace MTM101BaldAPI.Components
     }
 
     /// <summary>
-    /// A custom sprite animator, please note that currently, this does not properly save the animations property, so if you are using this in an NPC,
-    /// I advise defining the animations in its Initialization function, as putting them in the prefab won't work.
+    /// A custom animator for sprites.
+    /// Note that the animations do not serialize, so initialize them in the entities Initialize function.
     /// </summary>
     public class CustomSpriteAnimator : CustomAnimatorMono<SpriteRenderer, CustomAnimation<Sprite>, Sprite>
     {
@@ -238,8 +261,8 @@ namespace MTM101BaldAPI.Components
     }
 
     /// <summary>
-    /// A custom image animator, please note that currently, this does not properly save the animations property, so if you are using this in an NPC,
-    /// I advise defining the animations in its Initialization function, as putting them in the prefab won't work.
+    /// A custom animator for images.
+    /// Note that the animations do not serialize, so initialize them in the entities Initialize function.
     /// </summary>
     public class CustomImageAnimator : CustomAnimatorMono<Image, CustomAnimation<Sprite>, Sprite>
     {

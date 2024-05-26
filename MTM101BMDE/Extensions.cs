@@ -157,6 +157,12 @@ namespace MTM101BaldAPI.Registers
             return npcMeta;
         }
 
+        /// <summary>
+        /// Converts metadata into a list of the metadata's values.
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="me"></param>
+        /// <returns></returns>
         public static List<T> ToValues<T>(this List<IMetadata<T>> me)
         {
             List<T> returnL = new List<T>();
@@ -170,6 +176,12 @@ namespace MTM101BaldAPI.Registers
             return returnL;
         }
 
+        /// <summary>
+        /// Converts metadata into an array of the metadata's values.
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="me"></param>
+        /// <returns></returns>
         public static T[] ToValues<T>(this IMetadata<T>[] me)
         {
             T[] returnL = new T[me.Length];

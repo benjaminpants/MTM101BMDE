@@ -28,6 +28,7 @@ namespace MTM101BaldAPI.Registers
     public class NPCMetadata : IMetadata<NPC>
     {
         public NPCFlags flags;
+        public string nameLocalizationKey;
         public Character character => value.Character;
 
         public Dictionary<string, NPC> prefabs;
@@ -51,6 +52,16 @@ namespace MTM101BaldAPI.Registers
             }
             defaultKey = defKey;
             this.flags = flags;
+            string e = EnumExtensions.GetExtendedName<Character>((int)value.Character);
+            try
+            {
+                e = Singleton<LocalizationManager>.Instance.GetLocalizedText(value.Poster.textData[0].textKey);
+            }
+            catch (Exception E)
+            {
+                MTM101BaldiDevAPI.Log.LogWarning(E.Message);
+            }
+            nameLocalizationKey = e;
         }
     }
 

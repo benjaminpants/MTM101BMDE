@@ -90,6 +90,13 @@ namespace MTM101BaldAPI
 
         }
 
+        /// <summary>
+        /// Get an extended enum from a name.
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="name"></param>
+        /// <returns></returns>
+        /// <exception cref="KeyNotFoundException"></exception>
         public static T GetFromExtendedName<T>(string name) where T : Enum
         {
             if (Enum.IsDefined(typeof(T), name))

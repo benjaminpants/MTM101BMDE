@@ -19,7 +19,7 @@ namespace MTM101BaldAPI.AssetTools
 
         protected Type[] ignoreTypes;
 
-        protected static Type[] defaultIgnoreTypes = new Type[]
+        public static readonly Type[] defaultIgnoreTypes = new Type[]
         {
             typeof(object),
             typeof(UnityEngine.Object),
@@ -30,6 +30,10 @@ namespace MTM101BaldAPI.AssetTools
 
         protected Dictionary<Type, Dictionary<string, object>> data = new Dictionary<Type, Dictionary<string, object>>();
 
+        /// <summary>
+        /// Get the amount of unique elements in the AssetManager.
+        /// </summary>
+        /// <returns></returns>
         public int GetUniqueCount()
         {
             List<object> found = new List<object>();
@@ -48,11 +52,18 @@ namespace MTM101BaldAPI.AssetTools
             return count;
         }
 
+        /// <summary>
+        /// Create an AssetManager with a custom set of types to be ignored. It is suggested you also add the types in AssetManager.defaultIgnoreTypes
+        /// </summary>
+        /// <param name="ignoreTypes"></param>
         public AssetManager(Type[] ignoreTypes)
         {
             this.ignoreTypes = ignoreTypes;
         }
 
+        /// <summary>
+        /// Create an AssetManager with the default types ignored.
+        /// </summary>
         public AssetManager()
         {
             ignoreTypes = defaultIgnoreTypes;
@@ -63,6 +74,10 @@ namespace MTM101BaldAPI.AssetTools
             AddInternal(key, value, value.GetType());
         }
 
+        /// <summary>
+        /// Remove all objects of type T from the AssetManager.
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
         public void ClearAll<T>()
         {
             if (!data.ContainsKey(typeof(T))) return;
@@ -77,6 +92,12 @@ namespace MTM101BaldAPI.AssetTools
             });
         }
 
+        /// <summary>
+        /// Add a range of elements to the AssetManager, using the keyFunc to determine the keys.
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="range"></param>
+        /// <param name="keyFunc"></param>
         public void AddRange<T>(T[] range, Func<T, string> keyFunc)
         {
             for (int i = 0; i < range.Length; i++)
@@ -85,16 +106,25 @@ namespace MTM101BaldAPI.AssetTools
             }
         }
 
+        /// <summary>
+        /// Add all resources of the specified type to the AssetManager, using the name as the key.
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
         public void AddFromResources<T>() where T : UnityEngine.Object
         {
             AddRange<T>(Resources.FindObjectsOfTypeAll<T>());
         }
 
-        public bool ContainsKey(string t)
+        /// <summary>
+        /// Check if the asset manager contains the specified key.
+        /// </summary>
+        /// <param name="key"></param>
+        /// <returns></returns>
+        public bool ContainsKey(string key)
         {
             foreach (KeyValuePair<Type, Dictionary<string,object>> kvp in data)
             {
-                if (kvp.Value.ContainsKey(t))
+                if (kvp.Value.ContainsKey(key))
                 {
                     return true;
                 }    
@@ -102,6 +132,11 @@ namespace MTM101BaldAPI.AssetTools
             return false;
         }
 
+        /// <summary>
+        /// Add a range of values to the AssetManager, using the .name of the object as the key.
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="range"></param>
         public void AddRange<T>(T[] range) where T : UnityEngine.Object
         {
             AddRange(range, (obj) =>
@@ -110,11 +145,22 @@ namespace MTM101BaldAPI.AssetTools
             });
         }
 
+        /// <summary>
+        /// Add a range of values to the AssetManager, using the .name of the object as the key.
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="range"></param>
         public void AddRange<T>(List<T> range) where T : UnityEngine.Object
         {
             AddRange(range.ToArray());
         }
 
+        /// <summary>
+        /// Add a range of values to the AssetManager using a dictionary of object key pairs, with an optional prefix.
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="range"></param>
+        /// <param name="prefix"></param>
         public void AddRange<T>(Dictionary<T, string> range, string prefix = "")
         {
             AddRange<T>(range.Keys.ToArray(), (obj) =>
@@ -123,6 +169,12 @@ namespace MTM101BaldAPI.AssetTools
             });
         }
 
+        /// <summary>
+        /// Add a range of values to the AssetManager using an object array and a key array.
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="range"></param>
+        /// <param name="keys"></param>
         public void AddRange<T>(T[] range, string[] keys)
         {
             for (int i = 0; i < range.Length; i++)
@@ -131,6 +183,11 @@ namespace MTM101BaldAPI.AssetTools
             }
         }
 
+        /// <summary>
+        /// Add a range of values to the AssetManager using a dictionary of object key pairs.
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="range"></param>
         public void AddRange<T>(Dictionary<string, T> range)
         {
             foreach (KeyValuePair<string, T> kvp in range)

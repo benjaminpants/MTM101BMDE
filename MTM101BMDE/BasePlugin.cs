@@ -406,6 +406,7 @@ namespace MTM101BaldAPI
             AssetMan.Add<Sprite>("MenuArrowHighlight", allSprites.Where(x => x.name == "MenuArrowSheet_0").First());
             AssetMan.Add<Sprite>("Bar", allSprites.Where(x => x.name == "MenuBarSheet_0").First());
             AssetMan.Add<Sprite>("BarTransparent", allSprites.Where(x => x.name == "MenuBarSheet_1").First());
+            AssetMan.AddFromResources<Shader>();
             questionMarkSprites = allSprites.Where(x => x.texture.name == "QMarkSheet").ToArray();
             SoundObject[] allSoundObjects = Resources.FindObjectsOfTypeAll<SoundObject>();
             AssetMan.Add<SoundObject>("Xylophone", allSoundObjects.Where(x => x.name == "Xylophone").First());

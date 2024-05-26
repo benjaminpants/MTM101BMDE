@@ -41,6 +41,9 @@ namespace MTM101BaldAPI.Registers
 
         /// <summary>
         /// Registers a loading IEnumerator that gets called when every asset has been loaded into memory and can be sorted through with Resources.FindObjectsOfTypeAll.
+        /// The first yield return should be the amount of total amount of yield returns in the function as an int.
+        /// The second yield return should be the initial loading text.
+        /// Every yield afterwards should be a string that displays the next loading step.
         /// </summary>
         /// <param name="info"></param>
         /// <param name="enumerator"></param>
