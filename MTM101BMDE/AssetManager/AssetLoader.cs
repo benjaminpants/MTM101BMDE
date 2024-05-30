@@ -168,7 +168,11 @@ namespace MTM101BaldAPI.AssetTools
                     return;
                 }
                 string targetName = Path.GetFileNameWithoutExtension(x);
-                Texture2D targetTex = foundTextures.Where(z => z.name == targetName).First();
+                Texture2D targetTex = foundTextures.First(z => z.name == targetName);
+                if (targetTex == null)
+                {
+                    throw new KeyNotFoundException("Unable to find texture with name: " + targetTex + "!");
+                }
                 Texture2D replacement = AssetLoader.TextureFromFile(x, targetTex.format);
                 replacement = AttemptConvertTo(replacement, targetTex.format);
                 replacement.name = replacement.name + "_REPLACEMENT";
