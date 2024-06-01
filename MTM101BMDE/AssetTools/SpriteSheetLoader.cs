@@ -1,4 +1,5 @@
-﻿using HarmonyLib;
+﻿using BepInEx;
+using HarmonyLib;
 using MTM101BaldAPI.Components;
 using Newtonsoft.Json;
 using System;
@@ -13,12 +14,34 @@ namespace MTM101BaldAPI.AssetTools.SpriteSheets
 {
     public static class SpriteSheetLoader
     {
+        /// <summary>
+        /// Loads an Aesprite JSON file from the specified file path.
+        /// </summary>
+        /// <param name="path"></param>
+        /// <param name="pixelsPerUnit"></param>
+        /// <param name="pivot"></param>
+        /// <returns></returns>
         public static Dictionary<string, CustomAnimation<Sprite>> LoadAsepriteAnimationsFromFile(string path, float pixelsPerUnit, Vector2 pivot)
         {
             AsepriteSheet sheet = JsonConvert.DeserializeObject<AsepriteSheet>(File.ReadAllText(path));
             sheet.PopulateFrames();
             sheet.texture = AssetLoader.TextureFromFile(Path.Combine(Path.GetDirectoryName(path), sheet.meta.image));
             return AsepriteConvertSheetToAnimations(sheet, pixelsPerUnit, pivot);
+        }
+
+        /// <summary>
+        /// Loads an Aesprite JSON file from the specified mod path.
+        /// </summary>
+        /// <param name="plugin"></param>
+        /// <param name="pixelsPerUnit"></param>
+        /// <param name="pivot"></param>
+        /// <param name="paths"></param>
+        /// <returns></returns>
+        public static Dictionary<string, CustomAnimation<Sprite>> LoadAsepriteAnimationsFromMod(BaseUnityPlugin plugin, float pixelsPerUnit, Vector2 pivot, params string[] paths)
+        {
+            List<string> pathz = paths.ToList();
+            pathz.Insert(0, AssetLoader.GetModPath(plugin));
+            return LoadAsepriteAnimationsFromFile(Path.Combine(pathz.ToArray()), pixelsPerUnit, pivot);
         }
 
         internal static Dictionary<string, CustomAnimation<Sprite>> AsepriteConvertSheetToAnimations(AsepriteSheet sheet, float pixelsPerUnit, Vector2 pivot)
