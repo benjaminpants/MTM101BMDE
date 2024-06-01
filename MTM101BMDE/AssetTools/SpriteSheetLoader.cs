@@ -47,6 +47,7 @@ namespace MTM101BaldAPI.AssetTools.SpriteSheets
             {
                 case "forward":
                     break;
+                case "reverse":
                 case "backward":
                     animationFrames = animationFrames.Reverse().ToArray();
                     break;
