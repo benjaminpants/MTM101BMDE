@@ -54,8 +54,10 @@ namespace MTM101BaldAPI.Registers.Buttons
 
         internal static Material BaseButtonMaterial_Unpressed;
         internal static Material BaseButtonMaterial_Pressed;
+#pragma warning disable CS0649
         internal static Material BaseLeverMaterial_Up;
         internal static Material BaseLeverMaterial_Down;
+#pragma warning restore CS0649
 
         static FieldInfo buttonPressedF = AccessTools.Field(typeof(GameButton), "pressed");
         static FieldInfo buttonUnpressedF = AccessTools.Field(typeof(GameButton), "unPressed");

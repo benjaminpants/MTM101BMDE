@@ -41,7 +41,7 @@ namespace MTM101BaldAPI
     {
         internal static ManualLogSource Log = new ManualLogSource("BB+ Dev API Pre Initialization");
 
-        public const string VersionNumber = "4.2.0.0";
+        public const string VersionNumber = "4.2.1.0";
 
         /// <summary>
         /// The version of the API, applicable when BepInEx cache messes up the version number.
@@ -421,13 +421,7 @@ namespace MTM101BaldAPI
             foreach (SceneObject objct in sceneObjects)
             {
                 if (objct.levelObject == null) continue;
-                CustomLevelObject customizedObject = ScriptableObject.CreateInstance<CustomLevelObject>();
-                // transfer the data
-                FieldInfo[] foes = typeof(LevelObject).GetFields();
-                foreach (FieldInfo fo in foes)
-                {
-                    fo.SetValue(customizedObject, fo.GetValue(objct.levelObject));
-                }
+                CustomLevelObject customizedObject = ScriptableObjectHelpers.CloneScriptableObject<LevelObject, CustomLevelObject>(objct.levelObject);
                 customizedObject.name = objct.levelObject.name;
                 Destroy(objct.levelObject);
                 objct.levelObject = customizedObject;

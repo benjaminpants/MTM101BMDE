@@ -230,7 +230,8 @@ namespace MTM101BaldAPI.AssetTools
             "",
             "file://",
             "file:///",
-            Path.Combine("File:///","")
+            Path.Combine("File:///",""),
+            Path.Combine("File://","")
         };
 
         /// <summary>

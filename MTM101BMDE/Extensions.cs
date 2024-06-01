@@ -34,9 +34,14 @@ namespace MTM101BaldAPI
 
         static MethodInfo _EndTransition = AccessTools.Method(typeof(GlobalCam), "EndTransition");
         static FieldInfo _transitioner = AccessTools.Field(typeof(GlobalCam), "transitioner");
+        /// <summary>
+        /// Stops the currently running transition.
+        /// </summary>
+        /// <param name="me"></param>
         public static void StopCurrentTransition(this GlobalCam me)
         {
             IEnumerator transitioner = (IEnumerator)_transitioner.GetValue(me);
+            if (transitioner == null) { return; }
             me.StopCoroutine(transitioner);
             _EndTransition.Invoke(me, null);
         }
@@ -56,6 +61,10 @@ namespace MTM101BaldAPI
             return returnValue;
         }
 
+        /// <summary>
+        /// Makes an object never unload from memory.
+        /// </summary>
+        /// <param name="me"></param>
         public static void MarkAsNeverUnload(this UnityEngine.Object me)
         {
             if (!MTM101BaldiDevAPI.keepInMemory.Contains(me))
@@ -63,11 +72,20 @@ namespace MTM101BaldAPI
                 MTM101BaldiDevAPI.keepInMemory.Add(me);
             }
         }
+
+        /// <summary>
+        /// Allows an object unload from memory.
+        /// </summary>
+        /// <param name="me"></param>
         public static void RemoveUnloadMark(this UnityEngine.Object me)
         {
             MTM101BaldiDevAPI.keepInMemory.Remove(me);
         }
 
+        /// <summary>
+        /// Makes an object never unload from memory.
+        /// </summary>
+        /// <param name="me"></param>
         public static void MarkAsNeverUnload(this ScriptableObject me)
         {
             if (!MTM101BaldiDevAPI.keepInMemory.Contains(me))
@@ -75,11 +93,23 @@ namespace MTM101BaldAPI
                 MTM101BaldiDevAPI.keepInMemory.Add(me);
             }
         }
+
+        /// <summary>
+        /// Allows an object unload from memory.
+        /// </summary>
+        /// <param name="me"></param>
         public static void RemoveUnloadMark(this ScriptableObject me)
         {
             MTM101BaldiDevAPI.keepInMemory.Remove(me);
         }
 
+        /// <summary>
+        /// Get the index of the cell at the specified position, returns -1 if there is no cell with that position.
+        /// </summary>
+        /// <param name="me"></param>
+        /// <param name="x"></param>
+        /// <param name="y"></param>
+        /// <returns>The index in the cells array of the cell with the specific position, -1 if there is no cell in that position.</returns>
         public static int GetCellIndexAt(this RoomAsset me, int x, int y)
         {
             for (int i = 0; i < me.cells.Count; i++)
@@ -92,6 +122,13 @@ namespace MTM101BaldAPI
             return -1;
         }
 
+        /// <summary>
+        /// Gets the cell at the specified position, returns null if there is no cell at that position.
+        /// </summary>
+        /// <param name="me"></param>
+        /// <param name="x"></param>
+        /// <param name="y"></param>
+        /// <returns>The cell at the specified position or null if it does not exist.</returns>
         public static CellData GetCellAt(this RoomAsset me, int x, int y)
         {
             int index = me.GetCellIndexAt(x, y);
@@ -99,16 +136,32 @@ namespace MTM101BaldAPI
             return me.cells[index];
         }
 
+        /// <summary>
+        /// Sets the main texture of the material, uses the appropiate variable names for BB+ shaders.
+        /// </summary>
+        /// <param name="me"></param>
+        /// <param name="texture"></param>
         public static void SetMainTexture(this Material me, Texture texture)
         {
             me.SetTexture("_MainTex", texture);
         }
 
+        /// <summary>
+        /// Sets the mask texture of the material.
+        /// </summary>
+        /// <param name="me"></param>
+        /// <param name="texture"></param>
         public static void SetMaskTexture(this Material me, Texture texture)
         {
             me.SetTexture("_Mask", texture);
         }
 
+        /// <summary>
+        /// Applies the StandardDoorMats materials to the specified StandardDoor, optionally changing the mask.
+        /// </summary>
+        /// <param name="me"></param>
+        /// <param name="materials"></param>
+        /// <param name="mask"></param>
         public static void ApplyDoorMaterials(this StandardDoor me, StandardDoorMats materials, Material mask = null)
         {
             me.overlayShut[0] = materials.shut;

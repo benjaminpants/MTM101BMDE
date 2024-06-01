@@ -14,24 +14,19 @@ namespace MTM101BaldAPI.Patches
     class CullingPatch
     {
 
-
-        static FieldInfo _ec = AccessTools.Field(typeof(CullingManager), "ec");
-        static FieldInfo _active = AccessTools.Field(typeof(CullingManager), "active");
-        static FieldInfo _manualMode = AccessTools.Field(typeof(CullingManager), "manualMode");
-        static FieldInfo _currentChunkId = AccessTools.Field(typeof(CullingManager), "currentChunkId");
-        static void Postfix(CullingManager __instance)
+        static void Postfix(CullingManager __instance, ref EnvironmentController ___ec, bool ___active, bool ___manualMode, int ___currentChunkId)
         {
             if (CullAffector.allAffectors.Count == 0) return; //dont bother if we have no CullAffectors.
-            List<int> culledChunks = new List<int>() { (int)_currentChunkId.GetValue(__instance) };
+            List<int> culledChunks = new List<int>() { ___currentChunkId };
             for (int i = 0; i < CullAffector.allAffectors.Count; i++)
             {
                 CullAffector affector = CullAffector.allAffectors[i];
-                Cell currentCell = ((EnvironmentController)_ec.GetValue(__instance)).CellFromPosition(affector.transform.position);
+                Cell currentCell = ___ec.CellFromPosition(affector.transform.position);
                 if (!currentCell.HasChunk) continue;
                 __instance.CalculateOcclusionCullingForChunk(currentCell.Chunk.Id);
                 culledChunks.Add(currentCell.Chunk.Id);
             }
-            if ((bool)_active.GetValue(__instance) && !(bool)_manualMode.GetValue(__instance))
+            if (___active && !___manualMode)
             {
                 for (int i = 0; i < __instance.allChunks.Count; i++)
                 {
