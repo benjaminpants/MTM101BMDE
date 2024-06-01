@@ -50,11 +50,14 @@ namespace MTM101BaldAPI.AssetTools.SpriteSheets
                 case "backward":
                     animationFrames = animationFrames.Reverse().ToArray();
                     break;
-                case "pingpong":
-                    animationFrames = animationFrames.AddRangeToArray(animationFrames.Reverse().ToArray()).ToArray();
-                    break;
                 case "pingpong_reverse":
-                    animationFrames = animationFrames.AddRangeToArray(animationFrames.Reverse().ToArray()).Reverse().ToArray();
+                case "pingpong":
+                    List<CustomAnimationFrame<Sprite>> reversedPing = animationFrames.Reverse().ToList();
+                    animationFrames = animationFrames.AddRangeToArray(reversedPing.ToArray()).ToArray();
+                    if (tag.direction == "pingpong_reverse")
+                    {
+                        animationFrames = animationFrames.Reverse().ToArray();
+                    }
                     break;
                 default:
                     MTM101BaldiDevAPI.Log.LogWarning("Unknown tag direction: " + tag.direction);
@@ -112,13 +115,13 @@ namespace MTM101BaldAPI.AssetTools.SpriteSheets
             public FrameTag[] frameTags;
         }
 
-        internal struct FrameTag
+        internal class FrameTag
         {
             public string name;
             public int from;
             public int to;
             public string direction;
-            public int repeat;
+            public int repeat = 1;
             public string color;
         }
     }
