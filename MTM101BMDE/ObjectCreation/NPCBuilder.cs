@@ -285,7 +285,7 @@ namespace MTM101BaldAPI.ObjectCreation
         /// <returns></returns>
         public NPCBuilder<T> SetStationary()
         {
-            flags &= NPCFlags.CanMove;
+            flags &= ~NPCFlags.CanMove;
             return this;
         }
 
