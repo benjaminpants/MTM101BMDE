@@ -203,6 +203,7 @@ namespace MTM101BaldAPI.ObjectCreation
 
         /// <summary>
         /// Sets the cost of the item for the generator.
+        /// Each level has a budget it can spend on items.
         /// </summary>
         /// <param name="cost"></param>
         /// <returns></returns>
