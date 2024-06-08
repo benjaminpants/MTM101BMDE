@@ -155,7 +155,7 @@ namespace MTM101BaldAPI.AssetTools.SpriteSheets
         public float x, y, w, h;
 
         [JsonIgnore]
-        public Rect rect => new Rect(x, -y, w, -h);
+        public Rect rect => new Rect(x, -y, w, -h); //todo: change
     }
 
     internal struct SerializableWidthHeight

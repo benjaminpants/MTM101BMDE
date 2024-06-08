@@ -15,12 +15,13 @@ namespace MTM101BaldAPI.ObjectCreation
         static readonly FieldInfo _trigger = AccessTools.Field(typeof(Entity), "trigger");
         static readonly FieldInfo _externalActivity = AccessTools.Field(typeof(Entity), "externalActivity");
         static readonly FieldInfo _collisionLayerMask = AccessTools.Field(typeof(Entity), "collisionLayerMask");
+        static readonly FieldInfo _defaultLayer = AccessTools.Field(typeof(Entity), "defaultLayer");
 
         string entityName = "Unnamed";
         float baseRadius = 1f;
         float triggerRadius = 0f;
-        string layer;
-        LayerMask collisionLayerMask;
+        string layer = "StandardEntities";
+        LayerMask collisionLayerMask = new LayerMask();
         Func<Entity, Transform> addRenderBaseFunc;
 
         public Entity Build()
@@ -41,6 +42,7 @@ namespace MTM101BaldAPI.ObjectCreation
 
             _trigger.SetValue(entity, triggerCollider);
             _collider.SetValue(entity, mainCollider);
+            _defaultLayer.SetValue(entity, entityObject.layer);
             _collisionLayerMask.SetValue(entity, collisionLayerMask);
             _externalActivity.SetValue(entity, entityObject.AddComponent<ActivityModifier>());
 
@@ -71,6 +73,31 @@ namespace MTM101BaldAPI.ObjectCreation
         public EntityBuilder AddRenderbaseFunction(Func<Entity, Transform> function)
         {
             addRenderBaseFunc = function;
+            return this;
+        }
+
+        /// <summary>
+        /// Sets the function to create the renderbase to create a standard sprite RenderBase with the specified sprite.
+        /// </summary>
+        /// <param name="sprite"></param>
+        /// <returns></returns>
+        public EntityBuilder AddDefaultRenderBaseFunction(Sprite sprite)
+        {
+            addRenderBaseFunc = (Entity ent) =>
+            {
+                Transform bse = new GameObject().transform;
+                bse.name = "RenderBase";
+                bse.transform.parent = ent.transform;
+                bse.gameObject.layer = ent.gameObject.layer;
+                GameObject spriteObject = new GameObject();
+                spriteObject.transform.parent = bse.transform;
+                spriteObject.layer = LayerMask.NameToLayer("Billboard");
+                SpriteRenderer renderer = spriteObject.AddComponent<SpriteRenderer>();
+                renderer.material = new Material(ObjectCreators.SpriteMaterial);
+                renderer.name = "Sprite";
+                renderer.sprite = sprite;
+                return bse;
+            };
             return this;
         }
 

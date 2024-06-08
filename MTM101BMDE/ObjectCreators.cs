@@ -131,6 +131,8 @@ namespace MTM101BaldAPI
             return mat;
 		}
 
+		public static Material SpriteMaterial => MTM101BaldiDevAPI.AssetMan.Get<Material>("SpriteStandard_Billboard");
+
 		/// <summary>
 		/// Create a PosterObject in the style of a typical character poster.
 		/// </summary>
