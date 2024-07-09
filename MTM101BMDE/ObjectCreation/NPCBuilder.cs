@@ -306,7 +306,7 @@ namespace MTM101BaldAPI.ObjectCreation
         /// <returns></returns>
         public NPCBuilder<T> RemoveSprite()
         {
-            flags &= NPCFlags.HasPhysicalAppearence;
+            flags &= ~NPCFlags.HasPhysicalAppearence;
             return this;
         }
 
