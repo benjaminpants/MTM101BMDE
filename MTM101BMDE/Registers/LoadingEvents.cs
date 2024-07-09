@@ -14,9 +14,6 @@ namespace MTM101BaldAPI.Registers
             public IEnumerator loadingNumerator;
         }
 
-        internal static Action OnAllAssetsLoaded;
-        internal static Action OnAllAssetsLoadedPost;
-
         internal static List<LoadingEvent> LoadingEventsStart = new List<LoadingEvent>();
         internal static List<LoadingEvent> LoadingEventsPre = new List<LoadingEvent>();
         internal static List<LoadingEvent> LoadingEventsPost = new List<LoadingEvent>();

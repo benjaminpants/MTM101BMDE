@@ -137,7 +137,7 @@ namespace MTM101BaldAPI
         IEnumerator MainLoad()
         {
             SceneObject[] objs = Resources.FindObjectsOfTypeAll<SceneObject>().Where(x => x.levelObject != null).ToArray();
-            yield return (4 + objs.Length) + LoadingEvents.LoadingEventsPost.Count + LoadingEvents.LoadingEventsPre.Count + LoadingEvents.LoadingEventsStart.Count;
+            yield return (2 + objs.Length) + LoadingEvents.LoadingEventsPost.Count + LoadingEvents.LoadingEventsPre.Count + LoadingEvents.LoadingEventsStart.Count;
             for (int i = 0; i < LoadingEvents.LoadingEventsStart.Count; i++)
             {
                 LoadingEvents.LoadingEvent load = LoadingEvents.LoadingEventsStart[i];
@@ -149,11 +149,6 @@ namespace MTM101BaldAPI
             modIdText.text = "";
             yield return "Converting LevelObjects to CustomLevelObjects...";
             MTM101BaldiDevAPI.Instance.ConvertAllLevelObjects();
-            yield return "Calling Legacy OnAllAssetsLoaded...";
-            if (LoadingEvents.OnAllAssetsLoaded != null)
-            {
-                LoadingEvents.OnAllAssetsLoaded.Invoke();
-            }
             for (int i = 0; i < LoadingEvents.LoadingEventsPre.Count; i++)
             {
                 LoadingEvents.LoadingEvent load = LoadingEvents.LoadingEventsPre[i];
@@ -180,11 +175,6 @@ namespace MTM101BaldAPI
                 AssetLoader.MidiFromBytes(kvp.Key, kvp.Value);
             }
             AssetLoader.MidisToBeAdded = null;
-            yield return "Calling Legacy OnAllAssetsLoadedPost...";
-            if (LoadingEvents.OnAllAssetsLoadedPost != null)
-            {
-                LoadingEvents.OnAllAssetsLoadedPost.Invoke();
-            }
             for (int i = 0; i < LoadingEvents.LoadingEventsPost.Count; i++)
             {
                 LoadingEvents.LoadingEvent load = LoadingEvents.LoadingEventsPost[i];
