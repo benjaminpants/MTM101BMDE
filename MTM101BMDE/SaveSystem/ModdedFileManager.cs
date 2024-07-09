@@ -17,7 +17,8 @@ namespace MTM101BaldAPI.SaveSystem
         public int saveIndex { get; internal set; }
         public string savePath { get; internal set; }
         public List<int> saveIndexes = new List<int>();
-        static FieldInfo _cgmbackupItems = AccessTools.Field(typeof(CoreGameManager), "backupItems"); 
+        static FieldInfo _cgmbackupItems = AccessTools.Field(typeof(CoreGameManager), "backupItems");
+        static FieldInfo _cgmbackupLockerItems = AccessTools.Field(typeof(CoreGameManager), "backupLockerItems");
         static FieldInfo _cgmrestoreItemsOnSpawn = AccessTools.Field(typeof(CoreGameManager), "restoreItemsOnSpawn");
 
         public void CreateSavedGameCoreManager(GameLoader loader)
@@ -26,9 +27,17 @@ namespace MTM101BaldAPI.SaveSystem
             ModdedSaveGame savedGameData = saveData;
             Singleton<CoreGameManager>.Instance.SetSeed(savedGameData.seed);
             Singleton<CoreGameManager>.Instance.SetLives(savedGameData.lives);
-            Singleton<CoreGameManager>.Instance.AddPoints(savedGameData.ytps, 0, false);
+            Singleton<CoreGameManager>.Instance.AddPoints(savedGameData.ytps, 0, false, false);
             Singleton<CoreGameManager>.Instance.tripPlayed = savedGameData.fieldTripPlayed;
-            Singleton<CoreGameManager>.Instance.LoadSavedMap(savedGameData.foundMapTiles.ConvertTo2d(savedGameData.mapSizeX, savedGameData.mapSizeZ));
+            Singleton<CoreGameManager>.Instance.johnnyHelped = savedGameData.johnnyHelped;
+            if (savedGameData.mapAvailable)
+            {
+                Singleton<CoreGameManager>.Instance.LoadSavedMap(savedGameData.foundMapTiles.ConvertTo2d(savedGameData.mapSizeX, savedGameData.mapSizeZ));
+            }
+            if (savedGameData.mapPurchased)
+            {
+                Singleton<CoreGameManager>.Instance.levelMapHasBeenPurchasedFor = loader.list.scenes[savedGameData.levelId];
+            }
             //Equivalent to Singleton<CoreGameManager>.Instance.RestoreSavedItems(savedGameData.items);
             List<ItemObject[]> backupItems = (List<ItemObject[]>)_cgmbackupItems.GetValue(Singleton<CoreGameManager>.Instance);
             backupItems.Add(new ItemObject[savedGameData.items.Count]);
@@ -36,7 +45,15 @@ namespace MTM101BaldAPI.SaveSystem
             {
                 backupItems[0][i] = savedGameData.items[i].LocateObject();
             }
+            //Equivalent to Singleton<CoreGameManager>.Instance.RestoreSavedLockerItems(savedGameData.lockerItems)
+            ItemObject[] backupLockerItems = (ItemObject[])_cgmbackupLockerItems.GetValue(Singleton<CoreGameManager>.Instance);
+            for (int i = 0; i < savedGameData.lockerItems.Count; i++)
+            {
+                backupLockerItems[i] = savedGameData.lockerItems[i].LocateObject();
+                Singleton<CoreGameManager>.Instance.currentLockerItems[i] = backupLockerItems[i];
+            }
             _cgmbackupItems.SetValue(Singleton<CoreGameManager>.Instance,backupItems); //not sure if necessary.
+            _cgmbackupLockerItems.SetValue(Singleton<CoreGameManager>.Instance, backupLockerItems);
             _cgmrestoreItemsOnSpawn.SetValue(Singleton<CoreGameManager>.Instance, true);
         }
 
@@ -295,7 +312,7 @@ namespace MTM101BaldAPI.SaveSystem
     class SaveAndQuitModdedData
     {
         // override the function completely, if we make sure every reference is referring to ModdedSaveGame, this should leave vanilla games intact.
-        static bool Prefix(CoreGameManager __instance, ref int ___lives, ref int ___seed, ref bool[,] ___foundTilesToRestore)
+        static bool Prefix(CoreGameManager __instance, ref int ___lives, ref int ___seed, ref bool[,] ___foundTilesToRestore, ref IntVector2 ___savedMapSize)
         {
             if (MTM101BaldiDevAPI.SaveGamesHandler != SavedGameDataHandler.Modded) return true;
             ModdedSaveGame newSave = new ModdedSaveGame();
@@ -308,16 +325,27 @@ namespace MTM101BaldAPI.SaveSystem
                     newSave.items.Add(new ModdedItemIdentifier(itms[i]));
                 }
             }
-            newSave.levelId = __instance.sceneObject.levelNo;
+            if (__instance.GetPlayer(0) != null)
+            {
+                ItemObject[] lockerItems = Singleton<CoreGameManager>.Instance.currentLockerItems;
+                for (int i = 0; i < lockerItems.Length; i++)
+                {
+                    newSave.lockerItems.Add(new ModdedItemIdentifier(lockerItems[i]));
+                }
+            }
+            newSave.levelId = __instance.nextLevel.levelNo;
             newSave.ytps = __instance.GetPoints(0);
             newSave.lives = ___lives;
             newSave.seed = ___seed;
             newSave.saveAvailable = true;
             newSave.fieldTripPlayed = __instance.tripPlayed;
+            newSave.johnnyHelped = __instance.johnnyHelped;
             __instance.BackupMap(Singleton<BaseGameManager>.Instance.Ec.map);
-            newSave.foundMapTiles = ___foundTilesToRestore.ConvertTo1d(Singleton<BaseGameManager>.Instance.Ec.map.size.x, Singleton<BaseGameManager>.Instance.Ec.map.size.z);
-            newSave.mapSizeX = Singleton<BaseGameManager>.Instance.Ec.map.size.x;
-            newSave.mapSizeZ = Singleton<BaseGameManager>.Instance.Ec.map.size.z;
+            newSave.mapPurchased = __instance.saveMapPurchased;
+            newSave.mapAvailable = __instance.saveMapAvailable;
+            newSave.foundMapTiles = ___foundTilesToRestore.ConvertTo1d(___savedMapSize.x, ___savedMapSize.z);
+            newSave.mapSizeX = ___savedMapSize.x;
+            newSave.mapSizeZ = ___savedMapSize.z;
             Singleton<ModdedFileManager>.Instance.saveData = newSave;
             Singleton<PlayerFileManager>.Instance.Save();
             __instance.Quit();

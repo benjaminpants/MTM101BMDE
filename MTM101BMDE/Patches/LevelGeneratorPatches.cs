@@ -10,9 +10,10 @@ using UnityEngine.Assertions;
 
 namespace MTM101BaldAPI.Patches
 {
-    [ConditionalPatchConfig("mtm101.rulerp.bbplus.baldidevapi", "Generator", "Enable Custom Room Support")]
+    //[ConditionalPatchConfig("mtm101.rulerp.bbplus.baldidevapi", "Generator", "Enable Custom Room Support")]
     [HarmonyPatch(typeof(LevelGenerator))]
     [HarmonyPatch("Generate", MethodType.Enumerator)]
+    [ConditionalPatchNever]
     class LevelGeneratorPatches
     {
 

@@ -299,12 +299,6 @@ namespace MTM101BaldAPI.AssetTools
             return clip;
         }
 
-        [Obsolete("Please use SpriteFromTexture2D(Texture2D tex, float pixelsPerUnit) instead!")]
-        public static Sprite SpriteFromTexture2D(Texture2D tex)
-        {
-            return SpriteFromTexture2D(tex, new Vector2(0.5f, 0.5f));
-        }
-
         /// <summary>
         /// Create a sprite from a Texture2D with the origin of the image being the center.
         /// </summary>

@@ -22,12 +22,15 @@ namespace MTM101BaldAPI.Registers
     {
         public RandomEventFlags flags { private set; get; }
 
-        private static FieldInfo foKey = AccessTools.Field(typeof(RandomEvent), "eventDescKey");
+        private static FieldInfo foKey = AccessTools.Field(typeof(RandomEvent), "eventIntro");
         private RandomEvent rEvent;
         public RandomEvent value => rEvent;
 
         public RandomEventType type => rEvent.Type;
-        public string descKey => (string)foKey.GetValue(value);
+
+        public SoundObject introSound => ((SoundObject)foKey.GetValue(value));
+
+        public string descKey => introSound.soundKey;
 
         public List<string> tags => _tags;
         private List<string> _tags = new List<string>();

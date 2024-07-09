@@ -41,7 +41,7 @@ namespace MTM101BaldAPI
     {
         internal static ManualLogSource Log = new ManualLogSource("BB+ Dev API Pre Initialization");
 
-        public const string VersionNumber = "4.3.0.0";
+        public const string VersionNumber = "5.0.0.0";
 
         /// <summary>
         /// The version of the API, applicable when BepInEx cache messes up the version number.
@@ -145,6 +145,7 @@ namespace MTM101BaldAPI
                             grapplingHook = x;
                         }
                         break;
+                    case Items.DietBsoda:
                     case Items.Bsoda:
                         ItemMetaData bm = x.AddMeta(MTM101BaldiDevAPI.Instance, ItemFlags.Persists | ItemFlags.CreatesEntity);
                         bm.tags.Add("food");
@@ -191,6 +192,9 @@ namespace MTM101BaldAPI
                         break;
                     case Items.Points:
                         pointObjects.Add(x);
+                        break;
+                    case Items.Map:
+                        x.AddMeta(MTM101BaldiDevAPI.Instance, ItemFlags.InstantUse).tags.Add("shop_dummy");
                         break;
                     default:
                         // modded items start at 256, so we somehow have initialized after the mod in question, ignore the data.
@@ -408,8 +412,8 @@ namespace MTM101BaldAPI
             AssetMan.AddFromResources<Shader>();
             questionMarkSprites = allSprites.Where(x => x.texture.name == "QMarkSheet").ToArray();
             SoundObject[] allSoundObjects = Resources.FindObjectsOfTypeAll<SoundObject>();
-            AssetMan.Add<SoundObject>("Xylophone", allSoundObjects.Where(x => x.name == "Xylophone").First());
-            AssetMan.Add<SoundObject>("Explosion", allSoundObjects.Where(x => x.name == "Explosion").First());
+            AssetMan.Add<SoundObject>("Xylophone", allSoundObjects.Where(x => x.name == "NotebookCollect").First());
+            AssetMan.Add<SoundObject>("Explosion", allSoundObjects.Where(x => x.name == "GlassBreak").First());
             AssetMan.AddFromResources<TMPro.TMP_FontAsset>();
             AssetMan.AddFromResources<Material>();
         }

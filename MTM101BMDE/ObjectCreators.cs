@@ -17,23 +17,6 @@ namespace MTM101BaldAPI
 {
 	public static partial class ObjectCreators
 	{
-
-		[Obsolete("Please use MTM101BaldAPI.ObjectCreation.ItemBuilder instead! It provides more features and is significantly cleaner to use!")]
-        public static ItemObject CreateItemObject(string localizedtext, string desckey, Sprite smallicon, Sprite largeicon, Items type, int price, int generatorcost)
-		{
-			ItemObject obj = ScriptableObject.CreateInstance<ItemObject>();
-			obj.nameKey = localizedtext;
-			obj.itemSpriteSmall = smallicon;
-			obj.itemSpriteLarge = largeicon;
-			obj.itemType = type;
-			obj.descKey = desckey;
-			obj.value = generatorcost;
-			obj.price = price;
-			obj.name = localizedtext;
-
-			return obj;
-		}
-
 		public static StandardDoorMats CreateDoorDataObject(string name, Texture2D openTex, Texture2D closeTex)
 		{
 			StandardDoorMats template = MTM101BaldiDevAPI.AssetMan.Get<StandardDoorMats>("DoorTemplate");
@@ -88,19 +71,6 @@ namespace MTM101BaldAPI
 			obj.soundKey = subtitle;
 			obj.color = color;
 			obj.name = subtitle;
-			return obj;
-
-		}
-
-
-		public static FieldTripObject CreateFieldTripObject(FieldTrips trip, FieldTripManager manager, string messageendkey, string animation)
-		{
-			FieldTripObject obj = ScriptableObject.CreateInstance<FieldTripObject>();
-			obj.trip = trip;
-			obj.tripPre = manager;
-			obj.messageKey = messageendkey;
-			obj.animation = animation;
-			obj.name = EnumExtensions.GetExtendedName<FieldTrips>((int)trip);
 			return obj;
 
 		}

@@ -111,14 +111,18 @@ namespace MTM101BaldAPI.SaveSystem
     /// </summary>
     public class ModdedSaveGame
     {
-        public List<ModdedItemIdentifier> items = new List<ModdedItemIdentifier>(); // use a list instead of a standard
+        public List<ModdedItemIdentifier> items = new List<ModdedItemIdentifier>();
+        public List<ModdedItemIdentifier> lockerItems = new List<ModdedItemIdentifier>(); 
         public int levelId = 0;
         public int ytps = 0;
         public int lives = 2;
         public int seed = 0;
-        public const int version = 1;
+        public const int version = 2;
         public bool saveAvailable = false;
         public bool fieldTripPlayed = false;
+        public bool johnnyHelped = false;
+        public bool mapPurchased;
+        public bool mapAvailable;
         public bool[] foundMapTiles = new bool[0];
         public int mapSizeX = 0;
         public int mapSizeZ = 0;
@@ -152,6 +156,9 @@ namespace MTM101BaldAPI.SaveSystem
             writer.Write(ytps);
             writer.Write(lives);
             writer.Write(fieldTripPlayed);
+            writer.Write(mapAvailable);
+            writer.Write(mapPurchased);
+            writer.Write(johnnyHelped);
             writer.Write(mapSizeX);
             writer.Write(mapSizeZ);
             writer.Write(foundMapTiles.Length);
@@ -163,6 +170,11 @@ namespace MTM101BaldAPI.SaveSystem
             for (int i = 0; i < items.Count; i++)
             {
                 items[i].Write(writer);
+            }
+            writer.Write(lockerItems.Count);
+            for (int i = 0; i < lockerItems.Count; i++)
+            {
+                lockerItems[i].Write(writer);
             }
             foreach (KeyValuePair<string, ModdedSaveGameIOBinary> kvp in ModdedSaveGameHandlers)
             {
@@ -221,6 +233,13 @@ namespace MTM101BaldAPI.SaveSystem
             ytps = reader.ReadInt32();
             lives = reader.ReadInt32();
             fieldTripPlayed = reader.ReadBoolean();
+            // time to load all these new booleans!
+            if (version >= 2)
+            {
+                mapAvailable = reader.ReadBoolean();
+                mapPurchased = reader.ReadBoolean();
+                johnnyHelped = reader.ReadBoolean();
+            }
             mapSizeX = reader.ReadInt32();
             mapSizeZ = reader.ReadInt32();
             int foundTilesLength = reader.ReadInt32();
@@ -236,6 +255,17 @@ namespace MTM101BaldAPI.SaveSystem
                 ModdedItemIdentifier ident = ModdedItemIdentifier.Read(reader);
                 if (ident.LocateObject() == null) return ModdedSaveLoadStatus.MissingItems;
                 items.Add(ident);
+            }
+            // load lockers if we are in a save version that supports them
+            if (version >= 2)
+            {
+                int lockerItemCount = reader.ReadInt32();
+                for (int i = 0; i < lockerItemCount; i++)
+                {
+                    ModdedItemIdentifier ident = ModdedItemIdentifier.Read(reader);
+                    if (ident.LocateObject() == null) return ModdedSaveLoadStatus.MissingItems;
+                    lockerItems.Add(ident);
+                }
             }
             // seperate the verification from the actual reading part so we dont partially load mod stuff.
             // we can gurantee that we can reset this class but nothing about the others.

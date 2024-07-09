@@ -22,24 +22,6 @@ namespace MTM101BaldAPI.Registers
         internal static List<LoadingEvent> LoadingEventsPost = new List<LoadingEvent>();
 
         /// <summary>
-        /// Registers an event that gets called when every asset has been loaded into memory and can be sorted through with Resources.FindObjectsOfTypeAll.
-        /// </summary>
-        /// <param name="toRegister"></param>
-        /// <param name="post">If true, this will be called after the initial call, this is useful if you need to replace all references to something</param>
-        [Obsolete("Use RegisterOnAssetsLoaded(PluginInfo info, Action toRegister, bool post) instead.")]
-        public static void RegisterOnAssetsLoaded(Action toRegister, bool post)
-        {
-            if (post)
-            {
-                OnAllAssetsLoadedPost += toRegister;
-            }
-            else
-            {
-                OnAllAssetsLoaded += toRegister;
-            }
-        }
-
-        /// <summary>
         /// Registers a loading IEnumerator that gets called when every asset has been loaded into memory and can be sorted through with Resources.FindObjectsOfTypeAll.
         /// The first yield return should be the amount of total amount of yield returns in the function as an int.
         /// The second yield return should be the initial loading text.

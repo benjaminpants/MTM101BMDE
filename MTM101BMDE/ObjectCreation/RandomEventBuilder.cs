@@ -16,7 +16,7 @@ namespace MTM101BaldAPI.ObjectCreation
         RandomEventType _type;
         string _enumName = "";
         string _eventName = null;
-        string _description = "Uh oh! Some event happened, but a description wasn't assigned!";
+        SoundObject _soundObject = null;
         float _minTime = 60f;
         float _maxTime = 60f;
         List<string> _tags = new List<string>();
@@ -27,7 +27,7 @@ namespace MTM101BaldAPI.ObjectCreation
 
 
         static FieldInfo _eventType = AccessTools.Field(typeof(RandomEvent), "eventType");
-        static FieldInfo _eventDescKey = AccessTools.Field(typeof(RandomEvent), "eventDescKey");
+        static FieldInfo _eventIntro = AccessTools.Field(typeof(RandomEvent), "eventIntro");
         static FieldInfo _minEventTime = AccessTools.Field(typeof(RandomEvent), "minEventTime");
         static FieldInfo _maxEventTime = AccessTools.Field(typeof(RandomEvent), "maxEventTime");
         static FieldInfo _potentialRoomAssets = AccessTools.Field(typeof(RandomEvent), "potentialRoomAssets");
@@ -46,9 +46,9 @@ namespace MTM101BaldAPI.ObjectCreation
                 type = EnumExtensions.ExtendEnum<RandomEventType>(_enumName);
             }
             _eventType.SetValue(evnt, type);
-            _eventDescKey.SetValue(evnt, _description);
             _minEventTime.SetValue(evnt, _minTime);
             _maxEventTime.SetValue(evnt, _maxTime);
+            _eventIntro.SetValue(evnt, _soundObject);
             _potentialRoomAssets.SetValue(evnt, potentialRoomAssets.ToArray());
             eventObject.name = _eventName;
             RandomEventMetadata meta = new RandomEventMetadata(_info, evnt, _flags);
@@ -94,14 +94,21 @@ namespace MTM101BaldAPI.ObjectCreation
             return this;
         }
 
-        /// <summary>
-        /// Sets the description/text that shows up when the event is triggered.
-        /// </summary>
-        /// <param name="desc"></param>
-        /// <returns></returns>
+        [Obsolete("Please use SetSound instead!")]
         public RandomEventBuilder<T> SetDescription(string desc)
         {
-            _description = desc;
+            MTM101BaldiDevAPI.Log.LogWarning("Using legacy SetDescription in RandomEventBuilder! This is deprecated! (" + desc + ")");
+            return this;
+        }
+
+        /// <summary>
+        /// Sets the sound that Baldi will "say" when the event is triggered.
+        /// </summary>
+        /// <param name="sound"></param>
+        /// <returns></returns>
+        public RandomEventBuilder<T> SetSound(SoundObject sound)
+        {
+            _soundObject = sound;
             return this;
         }
 
