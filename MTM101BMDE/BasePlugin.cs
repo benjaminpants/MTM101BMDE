@@ -582,6 +582,7 @@ PRESS ALT+F4 TO EXIT THE GAME.
         {
             Transform t = __instance.transform.Find("Reminder");
             TMPro.TMP_Text text = t.gameObject.GetComponent<TMPro.TMP_Text>();
+            text.gameObject.SetActive(true); // so the pre-releases don't hide the version number
             text.text = "Modding API " + MTM101BaldiDevAPI.VersionNumber;
             text.gameObject.transform.position += new Vector3(-7f,0f, 0f);
         }
