@@ -304,7 +304,7 @@ namespace MTM101BaldAPI.Patches
             {
                 if (potentialRoomsList.Count == 0) break;
                 // do the typical spawn behavior code, select an asset, try it, and then remove it if it fails.
-                WeightedSelection<RoomAsset>[] potentialAssets = group.potentialAssets.ToArray();
+                WeightedSelection<RoomAsset>[] potentialAssets = potentialRoomsList.ToArray();
                 int index = WeightedSelection<RoomAsset>.ControlledRandomIndex(potentialAssets, generator.controlledRNG);
                 object[] parameters = new object[] { potentialAssets[index].selection, group.generateDoors, null};
                 bool result = (bool)_RandomlyPlaceRoom.Invoke(generator, parameters);
