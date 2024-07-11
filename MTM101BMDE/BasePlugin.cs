@@ -417,15 +417,30 @@ namespace MTM101BaldAPI
         internal void ConvertAllLevelObjects()
         {
             SceneObject[] sceneObjects = Resources.FindObjectsOfTypeAll<SceneObject>();
+            Dictionary<LevelObject, CustomLevelObject> oldToNewMapping = new Dictionary<LevelObject, CustomLevelObject>();
             foreach (SceneObject objct in sceneObjects)
             {
                 if (objct.levelObject == null) continue;
                 CustomLevelObject customizedObject = ScriptableObjectHelpers.CloneScriptableObject<LevelObject, CustomLevelObject>(objct.levelObject);
                 customizedObject.name = objct.levelObject.name;
-                Destroy(objct.levelObject);
+                oldToNewMapping.Add(objct.levelObject, customizedObject);
                 objct.levelObject = customizedObject;
                 objct.levelObject.MarkAsNeverUnload();
                 objct.MarkAsNeverUnload();
+            }
+            foreach (KeyValuePair<LevelObject,CustomLevelObject> kvp in oldToNewMapping)
+            {
+                kvp.Value.previousLevels = new LevelObject[kvp.Key.previousLevels.Length];
+                // remap the old previousLevels to the new one.
+                for (int i = 0; i < kvp.Key.previousLevels.Length; i++)
+                {
+                    kvp.Value.previousLevels[i] = oldToNewMapping[kvp.Key.previousLevels[i]];
+                }
+            }
+            // destroy the old objects (do this in a seperate loop so we can preserve the keys until the very end
+            foreach (KeyValuePair<LevelObject, CustomLevelObject> kvp in oldToNewMapping)
+            {
+                Destroy(kvp.Key);
             }
         }
 
