@@ -525,7 +525,7 @@ PRESS ALT+F4 TO EXIT THE GAME.
             useOldAudioLoad = Config.Bind("Technical",
                 "Use Old Audio Loading Method",
                 false,
-                "Whether or not the old, legacy method of loading audio should be used. (ONLY TURN ON IF YOU GET MENTIONS OF AN AUDIO LOADING ERROR!)");
+                "Whether or not the old legacy method of loading audio should be used. Do not turn on as it is not needed anymore.");
 
             usingMidiFix = Config.Bind("Technical",
                 "Use Midi Fix",
@@ -543,7 +543,7 @@ PRESS ALT+F4 TO EXIT THE GAME.
                 true,
                 "Whether or not outdoors areas will have different light colors depending on the skybox used. Only disable for legacy mods.");
 
-            ConfigEntry<bool> genConfig = Config.Bind("Generator",
+            /*ConfigEntry<bool> genConfig = Config.Bind("Generator",
                 "Enable Custom Room Support",
                 true,
                 "Enables/Disables the support for Custom Rooms provided by the CustomLevelData class. ONLY TURN OFF IF YOU ABSOLUTELY HAVE TO! THIS WILL BREAK MODS!");
@@ -551,7 +551,7 @@ PRESS ALT+F4 TO EXIT THE GAME.
             if (!genConfig.Value)
             {
                 AddWarningScreen("Custom Room Support is <b>off</b>!\nCertain mods may break or otherwise not function!",false);
-            }
+            }*/
             harmony.PatchAllConditionals();
 
             Log = base.Logger;
@@ -569,7 +569,7 @@ PRESS ALT+F4 TO EXIT THE GAME.
             //the version number stuff
             Transform t = __instance.transform.parent.Find("Version Number");
             TMPro.TMP_Text text = t.gameObject.GetComponent<TMPro.TMP_Text>();
-            text.text += "API " + MTM101BaldiDevAPI.VersionNumber;
+            text.text += "\nAPI " + MTM101BaldiDevAPI.VersionNumber;
             t.localPosition += new Vector3(0f, 28f);
             if (MTM101BaldiDevAPI.CalledInitialize) return;
             if (GameObject.Find("NameList")) { GameObject.Find("NameList").GetComponent<AudioSource>().enabled = false; }
