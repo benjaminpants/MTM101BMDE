@@ -171,6 +171,7 @@ namespace MTM101BaldAPI.AssetTools
                 Texture2D targetTex = foundTextures.First(z => z.name == targetName);
                 if (targetTex == null)
                 {
+                    allSucceeded = false;
                     throw new KeyNotFoundException("Unable to find texture with name: " + targetTex + "!");
                 }
                 Texture2D replacement = AssetLoader.TextureFromFile(x, targetTex.format);
@@ -331,14 +332,41 @@ namespace MTM101BaldAPI.AssetTools
         /// Create a sprite from a Texture2D.
         /// </summary>
         /// <param name="tex">The texture to use.</param>
-        /// <param name="center">The pixels per unit, a hallway in BB+ is 10 units.</param>
-        /// <param name="pixelsPerUnit"></param>
+        /// <param name="center">The center of the sprite, where 0,0 is the top left and 1,1 is the bottom right.</param>
+        /// <param name="pixelsPerUnit">The pixels per unit, a hallway in BB+ is 10 units.</param>
         /// <returns></returns>
         public static Sprite SpriteFromTexture2D(Texture2D tex, Vector2 center, float pixelsPerUnit = 1)
         {
-            Sprite sprite = Sprite.Create(tex, new Rect(0f, 0f, tex.width, tex.height), center, pixelsPerUnit);
+            Sprite sprite = Sprite.Create(tex, new Rect(0f, 0f, tex.width, tex.height), center, pixelsPerUnit, 0, SpriteMeshType.FullRect);
             sprite.name = "Spr" + tex.name;
             return sprite;
+        }
+
+        /// <summary>
+        /// Creates a sprite from the specified file path.
+        /// </summary>
+        /// <param name="filePath">The path to load the texture from.</param>
+        /// <param name="center">The center of the sprite, where 0,0 is the top left and 1,1 is the bottom right.</param>
+        /// <param name="pixelsPerUnit">The pixels per unit, a hallway in BB+ is 10 units.</param>
+        /// <returns></returns>
+        public static Sprite SpriteFromFile(string filePath, Vector2 center, float pixelsPerUnit = 1)
+        {
+            return SpriteFromTexture2D(TextureFromFile(filePath), center, pixelsPerUnit);
+        }
+
+        /// <summary>
+        /// Load a Sprite from the specified path, starting from the specified mod's mod path.
+        /// </summary>
+        /// <param name="plug">The mod to load the sprite from</param>
+        /// <param name="paths">The additional paths to load</param>
+        /// <param name="pixelsPerUnit">The pixels per unit, a hallway in BB+ is 10 units.</param>
+        /// <param name="center">The center of the sprite, where 0,0 is the top left and 1,1 is the bottom right.</param>
+        /// <returns></returns>
+        public static Sprite SpriteFromMod(BaseUnityPlugin plug, Vector2 center, float pixelsPerUnit, params string[] paths)
+        {
+            List<string> pathz = paths.ToList();
+            pathz.Insert(0, GetModPath(plug));
+            return SpriteFromFile(Path.Combine(pathz.ToArray()), center, pixelsPerUnit);
         }
 
         static FieldInfo localizedText = AccessTools.Field(typeof(LocalizationManager), "localizedText");

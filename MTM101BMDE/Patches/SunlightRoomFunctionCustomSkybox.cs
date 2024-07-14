@@ -12,8 +12,9 @@ namespace MTM101BaldAPI.Patches
     [HarmonyPatch("Initialize")]
     class SunlightRoomFunctionCustomSkybox
     {
-        static bool Prefix(RoomController room, ref RoomController ___room)
+        static bool Prefix(SunlightRoomFunction __instance, RoomController room, ref RoomController ___room)
         {
+            if (__instance.color != Color.white) return true;
             ___room = room; //cant call inheritence because c# reflection lolol
             Color colorForSkybox = Color.white;
             SkyboxMetadata meta = SkyboxMetaStorage.Instance.Get(Singleton<CoreGameManager>.Instance.sceneObject.skybox);

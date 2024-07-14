@@ -167,7 +167,13 @@ namespace MTM101BaldAPI
                     continue;
                 }
                 MTM101BaldiDevAPI.Log.LogInfo(String.Format("Invoking SceneObject({0})({2}) Generation Changes for {1}!", obj.levelTitle, obj.levelObject.ToString(), obj.levelNo.ToString()));
+                obj.levelObject.shopItems = obj.shopItems;
+                obj.levelObject.totalShopItems = obj.totalShopItems;
+                obj.levelObject.mapPrice = obj.mapPrice;
                 GeneratorManagement.Invoke(obj.levelTitle, obj.levelNo, (CustomLevelObject)obj.levelObject);
+                obj.shopItems = obj.levelObject.shopItems;
+                obj.totalShopItems = obj.levelObject.totalShopItems;
+                obj.mapPrice = obj.levelObject.mapPrice;
             }
             yield return "Adding MIDIs...";
             foreach (KeyValuePair<string, byte[]> kvp in AssetLoader.MidisToBeAdded)
