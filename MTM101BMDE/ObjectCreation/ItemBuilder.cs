@@ -25,6 +25,7 @@ namespace MTM101BaldAPI.ObjectCreation
         private ItemMetaData metaDataToAddTo;
         private bool instantUse = false;
         private Item objectReference;
+        private SoundObject pickupSoundOverride;
 
 
         public ItemBuilder(PluginInfo info)
@@ -74,6 +75,7 @@ namespace MTM101BaldAPI.ObjectCreation
                 metaDataToAddTo.itemObjects = metaDataToAddTo.itemObjects.AddToArray(item);
                 return item;
             }
+            item.audPickupOverride = pickupSoundOverride;
             ItemMetaData itemMeta = new ItemMetaData(info, item);
             itemMeta.tags.AddRange(tags);
             itemMeta.flags = flags;
@@ -91,6 +93,17 @@ namespace MTM101BaldAPI.ObjectCreation
         {
             this.flags = flags;
             this.tags = tags;
+            return this;
+        }
+
+        /// <summary>
+        /// Sets the pickup sound of the item to be something different from the default
+        /// </summary>
+        /// <param name=""></param>
+        /// <returns></returns>
+        public ItemBuilder SetPickupSound(SoundObject sound)
+        {
+            pickupSoundOverride = sound;
             return this;
         }
 

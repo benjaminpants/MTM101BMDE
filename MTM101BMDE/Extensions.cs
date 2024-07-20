@@ -32,6 +32,13 @@ namespace MTM101BaldAPI
             }
         }
 
+        public static T GetOrAddComponent<T>(this GameObject me) where T : Component
+        {
+            T foundComponent = me.GetComponent<T>();
+            if (foundComponent) return foundComponent;
+            return me.AddComponent<T>();
+        }
+
         static MethodInfo _EndTransition = AccessTools.Method(typeof(GlobalCam), "EndTransition");
         static FieldInfo _transitioner = AccessTools.Field(typeof(GlobalCam), "transitioner");
         /// <summary>

@@ -67,6 +67,11 @@ namespace MTM101BaldAPI.Components
         }
     }
 
+    public interface IAnimationPlayer
+    {
+        void Play(string name, float speed);
+    }
+
     public interface ICustomAnimator<TType, TAnimation, TFrame> where TAnimation : CustomAnimation<TFrame>
     {
         TType affectedObject { get; set; }
@@ -91,7 +96,7 @@ namespace MTM101BaldAPI.Components
     /// <typeparam name="TType"></typeparam>
     /// <typeparam name="TAnimation"></typeparam>
     /// <typeparam name="TFrame"></typeparam>
-    public abstract class CustomAnimatorMono<TType, TAnimation, TFrame> : MonoBehaviour, ICustomAnimator<TType, TAnimation, TFrame> where TAnimation : CustomAnimation<TFrame>
+    public abstract class CustomAnimatorMono<TType, TAnimation, TFrame> : MonoBehaviour, IAnimationPlayer, ICustomAnimator<TType, TAnimation, TFrame> where TAnimation : CustomAnimation<TFrame>
     {
         public Dictionary<string, TAnimation> animations = new Dictionary<string, TAnimation>();
         protected float currentFrameTime = 0f;
