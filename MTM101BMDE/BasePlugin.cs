@@ -41,7 +41,7 @@ namespace MTM101BaldAPI
     {
         internal static ManualLogSource Log = new ManualLogSource("BB+ Dev API Pre Initialization");
 
-        public const string VersionNumber = "5.2.0.0";
+        public const string VersionNumber = "5.2.0.1";
 
         /// <summary>
         /// The version of the API, applicable when BepInEx cache messes up the version number.
@@ -195,6 +195,9 @@ namespace MTM101BaldAPI
                         break;
                     case Items.Map:
                         x.AddMeta(MTM101BaldiDevAPI.Instance, ItemFlags.InstantUse).tags.Add("shop_dummy");
+                        break;
+                    case Items.BusPass:
+                        x.AddMeta(MTM101BaldiDevAPI.Instance, ItemFlags.NoUses);
                         break;
                     default:
                         // modded items start at 256, so we somehow have initialized after the mod in question, ignore the data.
