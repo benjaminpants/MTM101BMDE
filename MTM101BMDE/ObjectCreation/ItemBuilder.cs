@@ -99,7 +99,7 @@ namespace MTM101BaldAPI.ObjectCreation
         /// <summary>
         /// Sets the pickup sound of the item to be something different from the default
         /// </summary>
-        /// <param name=""></param>
+        /// <param name="sound">The sound that will be played when this item is picked up.</param>
         /// <returns></returns>
         public ItemBuilder SetPickupSound(SoundObject sound)
         {
