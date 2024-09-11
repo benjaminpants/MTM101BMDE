@@ -36,6 +36,8 @@ namespace MTM101BaldAPI.ObjectCreation
         readonly static FieldInfo _autoRotate = AccessTools.Field(typeof(Navigator), "autoRotate");
         readonly static FieldInfo _preciseTarget = AccessTools.Field(typeof(Navigator), "preciseTarget");
         readonly static FieldInfo _decelerate = AccessTools.Field(typeof(Navigator), "decelerate");
+        readonly static FieldInfo _overrideSubtitleColor = AccessTools.Field(typeof(AudioManager), "overrideSubtitleColor");
+        readonly static FieldInfo _subtitleColor = AccessTools.Field(typeof(AudioManager), "subtitleColor");
 
 
         string objectName = "Unnamed Character";
@@ -65,6 +67,8 @@ namespace MTM101BaldAPI.ObjectCreation
         bool autoRotate = true;
         bool preciseTarget = true;
         bool decelerate = false;
+        bool forceColor = false;
+        Color subtitleColor = Color.white;
         string npcName = null;
 
         /// <summary>
@@ -152,12 +156,30 @@ namespace MTM101BaldAPI.ObjectCreation
             NPCMetadata meta = newNpc.AddMeta(info.Instance, flags);
             meta.tags.AddRange(tags);
 
+
             if (npcName != null)
             {
                 meta.nameLocalizationKey = npcName;
             }
 
+            if (forceColor)
+            {
+                _overrideSubtitleColor.SetValue(audMan, true);
+                _subtitleColor.SetValue(audMan, forceColor);
+            }
+            else
+            {
+                _overrideSubtitleColor.SetValue(audMan, false);
+            }
+
             return newNpc;
+        }
+
+        public NPCBuilder<T> SetForcedSubtitleColor(Color forcedColor)
+        {
+            subtitleColor = forcedColor;
+            forceColor = true;
+            return this;
         }
 
         /// <summary>

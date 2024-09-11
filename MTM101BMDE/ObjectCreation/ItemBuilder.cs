@@ -70,12 +70,13 @@ namespace MTM101BaldAPI.ObjectCreation
                 flags |= ItemFlags.InstantUse;
                 item.addToInventory = false;
             }
+            item.audPickupOverride = pickupSoundOverride;
             if (metaDataToAddTo != null)
             {
                 metaDataToAddTo.itemObjects = metaDataToAddTo.itemObjects.AddToArray(item);
+                item.AddMeta(metaDataToAddTo);
                 return item;
             }
-            item.audPickupOverride = pickupSoundOverride;
             ItemMetaData itemMeta = new ItemMetaData(info, item);
             itemMeta.tags.AddRange(tags);
             itemMeta.flags = flags;
