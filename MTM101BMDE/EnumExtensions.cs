@@ -42,6 +42,23 @@ namespace MTM101BaldAPI
             return GetExtendedName<T>(Convert.ToInt32(en));
         }
 
+        public static int[] GetValues<T>() where T : Enum
+        {
+            List<int> possibleTypes = new List<int>();
+            Array values = Enum.GetValues(typeof(T));
+            for (int i = 0; i < values.Length; i++)
+            {
+                possibleTypes.Add((int)values.GetValue(i));
+            }
+            if (!ExtendedData.ContainsKey(typeof(T))) return possibleTypes.ToArray();
+            ExtendedEnumData data = ExtendedData[typeof(T)];
+            for (int i = 0; i < data.Enums.Count; i++)
+            {
+                possibleTypes.Add(data.valueOffset + i);
+            }
+            return possibleTypes.ToArray();
+        }
+
 
         /// <summary>
         /// Extends an enum, same effect could be achieved by casting an int, however this has a system to keep track of multiple enum additions from different mods to prevent conflicts

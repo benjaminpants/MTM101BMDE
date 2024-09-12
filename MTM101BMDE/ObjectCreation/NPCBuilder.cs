@@ -165,7 +165,7 @@ namespace MTM101BaldAPI.ObjectCreation
             if (forceColor)
             {
                 _overrideSubtitleColor.SetValue(audMan, true);
-                _subtitleColor.SetValue(audMan, forceColor);
+                _subtitleColor.SetValue(audMan, subtitleColor);
             }
             else
             {
