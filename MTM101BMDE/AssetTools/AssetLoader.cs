@@ -16,6 +16,45 @@ namespace MTM101BaldAPI.AssetTools
 {
     public static class AssetLoader
     {
+
+        /// <summary>
+        /// Loads and applies localization from the specified file.
+        /// </summary>
+        /// <param name="path"></param>
+        public static void LocalizationFromFile(string path)
+        {
+            LocalizationData localizationData = JsonUtility.FromJson<LocalizationData>(File.ReadAllText(path));
+            Dictionary<string, string> localizedText = (Dictionary<string, string>)_localizedText.GetValue(LocalizationManager.Instance);
+            foreach (LocalizationItem item in localizationData.items)
+            {
+                if (localizedText.ContainsKey(item.key))
+                {
+                    localizedText[item.key] = item.value;
+                }
+                else
+                {
+                    localizedText.Add(item.key, item.value);
+                }
+            }
+        }
+
+        /// <summary>
+        /// Automatically loads the appropiate localization file from the specified mod. Behaves exactly as in API versions prior to 6.0.0.0.
+        /// (AKA: Put JSON files in Language/English/)
+        /// </summary>
+        public static void LocalizationFromMod(BaseUnityPlugin plugin)
+        {
+            string rootPath = Path.Combine(GetModPath(plugin), "Language", ((Language)_currentSubLang.GetValue(LocalizationManager.Instance)).ToString());
+            string[] paths = Directory.GetFiles(rootPath, "*.json");
+            foreach (string path in paths)
+            {
+                LocalizationFromFile(path);
+            }
+        }
+
+        private static FieldInfo _localizedText = AccessTools.Field(typeof(LocalizationManager), "localizedText");
+        private static FieldInfo _currentSubLang = AccessTools.Field(typeof(LocalizationManager), "currentSubLang");
+
         /// <summary>
         /// Load textures from a specified folder.
         /// </summary>
@@ -369,15 +408,17 @@ namespace MTM101BaldAPI.AssetTools
             return SpriteFromFile(Path.Combine(pathz.ToArray()), center, pixelsPerUnit);
         }
 
-        static FieldInfo localizedText = AccessTools.Field(typeof(LocalizationManager), "localizedText");
-
         /// <summary>
         /// Load a Language folder from a non-standard place.
         /// </summary>
-        /// <param name="path"></param>
-        public static void LoadLanguageFolder(string path)
+        /// <param name="rootPath"></param>
+        public static void LoadLanguageFolder(string rootPath)
         {
-            LangExtender.LoaderExtension.LoadFolder(path, (Dictionary<string, string>)localizedText.GetValue(Singleton<LocalizationManager>.Instance));
+            string[] paths = Directory.GetFiles(rootPath, "*.json");
+            foreach (string path in paths)
+            {
+                LocalizationFromFile(path);
+            }
         }
 
         /// <summary>
