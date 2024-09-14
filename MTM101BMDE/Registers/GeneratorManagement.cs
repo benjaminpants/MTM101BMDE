@@ -33,40 +33,40 @@ namespace MTM101BaldAPI.Registers
 
     public static class GeneratorManagement
     {
-        private static Dictionary<BaseUnityPlugin, Dictionary<GenerationModType, Action<string, int, CustomLevelObject>>> generationStuff = new Dictionary<BaseUnityPlugin, Dictionary<GenerationModType, Action<string, int, CustomLevelObject>>>();
+        private static Dictionary<BaseUnityPlugin, Dictionary<GenerationModType, Action<string, int, SceneObject>>> generationStuff = new Dictionary<BaseUnityPlugin, Dictionary<GenerationModType, Action<string, int, SceneObject>>>();
 
         /// <summary>
         /// Register a generator action, called during mod loading.
         /// </summary>
         /// <param name="plug">The plugin adding the generator modifiers.</param>
         /// <param name="type"></param>
-        /// <param name="action">The first parameter is the level name, the second one is the level id, and the last is the CustomLevelObject itself.</param>
-        public static void Register(BaseUnityPlugin plug, GenerationModType type, Action<string, int, CustomLevelObject> action)
+        /// <param name="action">The first parameter is the level name, the second one is the level id, and the last is the SceneObject itself.</param>
+        public static void Register(BaseUnityPlugin plug, GenerationModType type, Action<string, int, SceneObject> action)
         {
             if (!generationStuff.ContainsKey(plug))
             {
-                generationStuff.Add(plug, new Dictionary<GenerationModType, Action<string, int, CustomLevelObject>>());
+                generationStuff.Add(plug, new Dictionary<GenerationModType, Action<string, int, SceneObject>>());
             }
             generationStuff[plug].Add(type, action);
         }
 
         /// <summary>
-        /// Invoke the generator actions for the specified CustomLevelObject.
+        /// Invoke the generator actions for the specified SceneObject.
         /// </summary>
         /// <param name="name"></param>
         /// <param name="floorNumber"></param>
         /// <param name="obj"></param>
-        public static void Invoke(string name, int floorNumber, CustomLevelObject obj)
+        public static void Invoke(string name, int floorNumber, SceneObject obj)
         {
-            Dictionary<GenerationModType, List<Action<string, int, CustomLevelObject>>> actionsList = new Dictionary<GenerationModType, List<Action<string, int, CustomLevelObject>>>();
+            Dictionary<GenerationModType, List<Action<string, int, SceneObject>>> actionsList = new Dictionary<GenerationModType, List<Action<string, int, SceneObject>>>();
             foreach (var kvp in generationStuff) //i hate using var but i also dont want to type this out
             {
-                Dictionary<GenerationModType, Action<string, int, CustomLevelObject>> kvp2 = kvp.Value;
+                Dictionary<GenerationModType, Action<string, int, SceneObject>> kvp2 = kvp.Value;
                 foreach (var kvp3 in kvp2)
                 {
                     if (!actionsList.ContainsKey(kvp3.Key))
                     {
-                        actionsList.Add(kvp3.Key, new List<Action<string, int, CustomLevelObject>>());
+                        actionsList.Add(kvp3.Key, new List<Action<string, int, SceneObject>>());
                     }
                     actionsList[kvp3.Key].Add(kvp3.Value);
                 }

@@ -170,7 +170,7 @@ namespace MTM101BaldAPI
                 obj.levelObject.shopItems = obj.shopItems;
                 obj.levelObject.totalShopItems = obj.totalShopItems;
                 obj.levelObject.mapPrice = obj.mapPrice;
-                GeneratorManagement.Invoke(obj.levelTitle, obj.levelNo, (CustomLevelObject)obj.levelObject);
+                GeneratorManagement.Invoke(obj.levelTitle, obj.levelNo, obj);
                 obj.shopItems = obj.levelObject.shopItems;
                 obj.totalShopItems = obj.levelObject.totalShopItems;
                 obj.mapPrice = obj.levelObject.mapPrice;

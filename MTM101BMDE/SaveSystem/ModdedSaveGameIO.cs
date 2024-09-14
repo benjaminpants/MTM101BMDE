@@ -9,6 +9,7 @@ using UnityEngine;
 // a static variable with a class
 // a monobehavior attached to CoreGameManager that stores the actual data while you are playing
 // the save function transferring data to the static class
+// TODO: figure out how to do this
 namespace MTM101BaldAPI.SaveSystem
 {
     // The main ModdedSaveGameIO class, these are to be inherited.

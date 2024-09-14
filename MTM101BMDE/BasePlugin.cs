@@ -41,7 +41,7 @@ namespace MTM101BaldAPI
     {
         internal static ManualLogSource Log = new ManualLogSource("BB+ Dev API Pre Initialization");
 
-        public const string VersionNumber = "5.3.0.0";
+        public const string VersionNumber = "6.0.0.0";
 
         /// <summary>
         /// The version of the API, applicable when BepInEx cache messes up the version number.
@@ -88,23 +88,6 @@ namespace MTM101BaldAPI
             {
                 return saveHandler;
             }
-            /*set
-            {
-                switch (saveHandler)
-                {
-                    case SavedGameDataHandler.Modded:
-                    case SavedGameDataHandler.None:
-                        saveHandler = value;
-                        break;
-                    case SavedGameDataHandler.Vanilla:
-                        if (ModdedSaveGame.ModdedSaveGameHandlers.Count == 0)
-                        {
-                            saveHandler = value;
-                        }
-                        saveHandler = SavedGameDataHandler.Modded;
-                        break;
-                }
-            }*/
         }
 
         internal static SavedGameDataHandler saveHandler = SavedGameDataHandler.Vanilla;
