@@ -53,8 +53,31 @@ namespace MTM101BaldAPI
     }
 
     /// <summary>
-    /// Wait for the defined amount of time depending on the EnviromentTimescale of the environement controller.
+    /// Wait for the defined amount of time depending on the EnvironmentTimescale of the environement controller.
     /// </summary>
+    public class WaitForSecondsEnvironmentTimescale : CustomYieldInstruction
+    {
+        public EnvironmentController ec;
+        public float timeRemaining;
+
+        public WaitForSecondsEnvironmentTimescale(EnvironmentController envC, float seconds)
+        {
+            timeRemaining = seconds;
+            ec = envC;
+        }
+
+        public override bool keepWaiting
+        {
+            get
+            {
+                if (!ec) return false; // EC GONE! Establish CHAOS!
+                timeRemaining -= Time.deltaTime * ec.EnvironmentTimeScale;
+                return (timeRemaining >= 0);
+            }
+        }
+    }
+
+    [Obsolete("Please use WaitForSecondsEnvironmentTimescale instead!", true)]
     public class WaitForSecondsEnviromentTimescale : CustomYieldInstruction
     {
         public EnvironmentController ec;

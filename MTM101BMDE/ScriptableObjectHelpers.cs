@@ -9,7 +9,7 @@ namespace MTM101BaldAPI
     public static class ScriptableObjectHelpers
     {
         /// <summary>
-        /// Creates a ScriptableObject of type CloneType and copies the values of OriginalType to CloneType.
+        /// Creates a ScriptableObject of type CloneType and copies the public values of OriginalType to CloneType.
         /// <c>This clones by reference!</c>
         /// </summary>
         /// <typeparam name="OriginalType"></typeparam>

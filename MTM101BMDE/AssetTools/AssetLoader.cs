@@ -312,6 +312,35 @@ namespace MTM101BaldAPI.AssetTools
         }
 
         /// <summary>
+        /// Generates sprites from the specified spritesheet.
+        /// </summary>
+        /// <param name="horizontalTiles">How many tiles this spritesheet has horizontally.</param>
+        /// <param name="verticalTiles">How many tiles this spritesheet has vertically.</param>
+        /// <param name="pixelsPerUnit">The pixels per unit for the created sprites.</param>
+        /// <param name="center">The center for the created sprites.</param>
+        /// <param name="tex">The texture to use.</param>
+        /// <returns>The collection of sprites.</returns>
+        public static Sprite[] SpritesFromSpritesheet(int horizontalTiles, int verticalTiles, float pixelsPerUnit, Vector2 center, Texture2D tex)
+        {
+            int estimatedXsize = tex.width / horizontalTiles;
+            int estimatedYsize = tex.height / verticalTiles;
+
+            Sprite[] sprs = new Sprite[horizontalTiles * verticalTiles];
+            int i = 0;
+            for (int y = verticalTiles - 1; y >= 0; y--)
+            {
+                for (int x = 0; x < horizontalTiles; x++)
+                {
+                    Sprite spr = Sprite.Create(tex, new Rect(x * estimatedXsize, y * estimatedYsize, estimatedXsize, estimatedYsize), center, pixelsPerUnit, 0, SpriteMeshType.FullRect);
+                    spr.name = tex.name + x + "_" + y;
+                    sprs[i++] = spr;
+                }
+            }
+
+            return sprs;
+        }
+
+        /// <summary>
         /// Convert a stream to a byte array.
         /// </summary>
         /// <param name="stream"></param>

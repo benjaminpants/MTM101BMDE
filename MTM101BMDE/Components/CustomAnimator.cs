@@ -199,10 +199,15 @@ namespace MTM101BaldAPI.Components
             VirtualUpdate();
         }
 
+        protected virtual float GetDeltaTime()
+        {
+            return (useUnscaledTime ? Time.unscaledDeltaTime : Time.deltaTime);
+        }
+
         protected virtual void VirtualUpdate()
         {
             if (currentAnim == "") return;
-            float delta = (useUnscaledTime ? Time.unscaledDeltaTime : Time.deltaTime) * Speed;
+            float delta = GetDeltaTime() * Speed;
             currentAnimTime += delta;
             currentFrameTime += delta;
             if (currentFrameTime >= currentFrame.frameTime)

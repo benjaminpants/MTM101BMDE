@@ -41,7 +41,7 @@ namespace MTM101BaldAPI
     {
         internal static ManualLogSource Log = new ManualLogSource("BB+ Dev API Pre Initialization");
 
-        public const string VersionNumber = "5.3.0.0";
+        public const string VersionNumber = "5.4.0.0";
 
         /// <summary>
         /// The version of the API, applicable when BepInEx cache messes up the version number.
@@ -82,29 +82,20 @@ namespace MTM101BaldAPI
             }
         }
 
+        public static bool SaveGameHasMods
+        {
+            get
+            {
+                return ModdedSaveGame.ModdedSaveGameHandlers.Count > 0;
+            }
+        }
+
         public static SavedGameDataHandler SaveGamesHandler
         {
             get
             {
                 return saveHandler;
             }
-            /*set
-            {
-                switch (saveHandler)
-                {
-                    case SavedGameDataHandler.Modded:
-                    case SavedGameDataHandler.None:
-                        saveHandler = value;
-                        break;
-                    case SavedGameDataHandler.Vanilla:
-                        if (ModdedSaveGame.ModdedSaveGameHandlers.Count == 0)
-                        {
-                            saveHandler = value;
-                        }
-                        saveHandler = SavedGameDataHandler.Modded;
-                        break;
-                }
-            }*/
         }
 
         internal static SavedGameDataHandler saveHandler = SavedGameDataHandler.Vanilla;
@@ -546,15 +537,6 @@ PRESS ALT+F4 TO EXIT THE GAME.
                 true,
                 "Whether or not outdoors areas will have different light colors depending on the skybox used. Only disable for legacy mods.");
 
-            /*ConfigEntry<bool> genConfig = Config.Bind("Generator",
-                "Enable Custom Room Support",
-                true,
-                "Enables/Disables the support for Custom Rooms provided by the CustomLevelData class. ONLY TURN OFF IF YOU ABSOLUTELY HAVE TO! THIS WILL BREAK MODS!");
-
-            if (!genConfig.Value)
-            {
-                AddWarningScreen("Custom Room Support is <b>off</b>!\nCertain mods may break or otherwise not function!",false);
-            }*/
             harmony.PatchAllConditionals();
 
             Log = base.Logger;
