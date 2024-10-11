@@ -1,5 +1,7 @@
-﻿using System;
+﻿using HarmonyLib;
+using System;
 using System.Collections.Generic;
+using System.Reflection;
 using System.Text;
 using TMPro;
 using UnityEngine;
@@ -144,19 +146,111 @@ namespace MTM101BaldAPI.UI
             return img;
         }
 
+        static FieldInfo _canvas = AccessTools.Field(typeof(GlobalCamCanvasAssigner), "canvas");
+
+        /// <summary>
+        /// Create a blank UI canvas, based off of the canvas' on the title screen.
+        /// </summary>
+        /// <param name="name"></param>
+        /// <param name="addCanvasAssigner"></param>
+        /// <returns></returns>
+        public static Canvas CreateBlankUIScreen(string name, bool addCanvasAssigner = true)
+        {
+            GameObject obj = new GameObject(name);
+            obj.SetActive(false);
+            obj.layer = LayerMask.NameToLayer("UI");
+            Canvas canvas = obj.AddComponent<Canvas>();
+            canvas.renderMode = RenderMode.ScreenSpaceOverlay;
+            CanvasScaler scaler = obj.AddComponent<CanvasScaler>();
+            scaler.defaultSpriteDPI = 96f;
+            scaler.fallbackScreenDPI = 96f;
+            scaler.referencePixelsPerUnit = 100f;
+            scaler.physicalUnit = CanvasScaler.Unit.Points;
+            scaler.referenceResolution = new Vector2(480f, 360f);
+            scaler.screenMatchMode = CanvasScaler.ScreenMatchMode.Expand;
+            scaler.uiScaleMode = CanvasScaler.ScaleMode.ScaleWithScreenSize;
+            GraphicRaycaster raycaster = obj.AddComponent<GraphicRaycaster>();
+            raycaster.blockingMask = -1;
+            raycaster.blockingObjects = GraphicRaycaster.BlockingObjects.None;
+            if (!addCanvasAssigner)
+            {
+                obj.AddComponent<PlaneDistance>();
+                GlobalCamCanvasAssigner gcca = obj.AddComponent<GlobalCamCanvasAssigner>();
+                _canvas.SetValue(gcca, canvas);
+            }
+            obj.SetActive(true);
+            // todo: investigate plane distance, does it hold any relevancy?
+            return canvas;
+        }
+
+        /// <summary>
+        /// Add 4:3 borders to the respective canvas.
+        /// </summary>
+        /// <param name="canvas"></param>
+        public static void AddBordersToCanvas(Canvas canvas)
+        {
+            Image image1 = new GameObject("Border1").AddComponent<Image>();
+            image1.transform.localPosition = new Vector3(-752f, 0f, 0f);
+            image1.rectTransform.anchorMin = Vector2.one / 2f;
+            image1.rectTransform.anchorMax = Vector2.one / 2f;
+            image1.rectTransform.sizeDelta = new Vector2(1024f, 360f);
+            image1.color = Color.black;
+
+            Image image2 = new GameObject("Border2").AddComponent<Image>();
+            image2.transform.localPosition = new Vector3(752f, 0f, 0f);
+            image2.rectTransform.anchorMin = Vector2.one / 2f;
+            image2.rectTransform.anchorMax = Vector2.one / 2f;
+            image2.rectTransform.sizeDelta = new Vector2(1024f, 360f);
+            image2.color = Color.black;
+
+            Image image3 = new GameObject("Border3").AddComponent<Image>();
+            image3.transform.localPosition = new Vector3(0f, 360f, 0f);
+            image3.rectTransform.anchorMin = Vector2.one / 2f;
+            image3.rectTransform.anchorMax = Vector2.one / 2f;
+            image3.rectTransform.sizeDelta = new Vector2(2528f, 360f);
+            image3.color = Color.black;
+
+            Image image4 = new GameObject("Border4").AddComponent<Image>();
+            image4.transform.localPosition = new Vector3(0f, -360f, 0f);
+            image4.rectTransform.anchorMin = Vector2.one / 2f;
+            image4.rectTransform.anchorMax = Vector2.one / 2f;
+            image4.rectTransform.sizeDelta = new Vector2(2528f, 360f);
+            image4.color = Color.black;
+
+            // i hate how hacky this is i hate unity
+            GameObject holderObject = new GameObject("Bottom");
+            holderObject.transform.SetParent(canvas.transform, true);
+            image1.transform.SetParent(holderObject.transform);
+            image2.transform.SetParent(holderObject.transform);
+            image3.transform.SetParent(holderObject.transform);
+            image4.transform.SetParent(holderObject.transform);
+            holderObject.transform.localPosition = Vector3.zero;
+            holderObject.transform.localScale = Vector3.one;
+        }
+
         /// <summary>
         /// Creates an image based off of the sprite, handling its RectTransform.
         /// </summary>
         /// <param name="spr"></param>
         /// <param name="parent"></param>
         /// <param name="position"></param>
-        /// <param name="correctPosition">If the position should be corrected based off of the top left of a 4:3 screen. This is primarily for custom field trips and UI.</param>
+        /// <param name="correctPosition">If the position should be corrected based off of the top left of a 4:3 screen. This is primarily for UI.</param>
         /// <returns></returns>
         public static Image CreateImage(Sprite spr, Transform parent, Vector3 position, bool correctPosition = false)
         {
             return CreateImage(spr, parent, position, correctPosition, 1f);
         }
 
+        /// <summary>
+        /// Creates text object using the requested font.
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="font">The font to use, represented as an enum.</param>
+        /// <param name="text">The text to use</param>
+        /// <param name="parent"></param>
+        /// <param name="position"></param>
+        /// <param name="correctPosition">If the position should be corrected based off of the top left of a 4:3 screen. This is primarily for UI.</param>
+        /// <returns></returns>
         public static T CreateText<T>(BaldiFonts font, string text, Transform parent, Vector3 position, bool correctPosition = false) where T : TMP_Text
         {
             T tmp = new GameObject().AddComponent<T>();

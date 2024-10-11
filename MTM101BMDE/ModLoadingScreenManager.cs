@@ -12,7 +12,7 @@ using UnityEngine.UI;
 
 namespace MTM101BaldAPI
 {
-    internal class ModLoadingScreenManager : MonoBehaviour
+    public class ModLoadingScreenManager : MonoBehaviour
     {
         internal Sprite barActive = MTM101BaldiDevAPI.AssetMan.Get<Sprite>("Bar");
         internal Sprite barInactive = MTM101BaldiDevAPI.AssetMan.Get<Sprite>("BarTransparent");
@@ -87,17 +87,22 @@ namespace MTM101BaldAPI
             StartCoroutine(LoadEnumerator());
         }
 
+        void LoadingEnded()
+        {
+            Singleton<GlobalCam>.Instance.Transition(UiTransition.Dither, 0.01666667f * 2.5f);
+            if (GameObject.Find("NameList")) { GameObject.Find("NameList").GetComponent<AudioSource>().enabled = true; }
+            CursorController.Instance.DisableClick(false);
+            Destroy(this.gameObject);
+        }
+
         IEnumerator LoadEnumerator()
         {
             yield return BeginLoadEnumerator(MainLoad(), apiLoadingBar, apiLoadText);
             apiLoadText.text = "Done!";
             modIdText.text = "";
             modLoadText.text = "";
-            Singleton<GlobalCam>.Instance.Transition(UiTransition.Dither, 0.01666667f * 2.5f);
-            if (GameObject.Find("NameList")) { GameObject.Find("NameList").GetComponent<AudioSource>().enabled = true; }
-            CursorController.Instance.DisableClick(false);
             doneLoading = true;
-            Destroy(this.gameObject);
+            LoadingEnded();
             yield break;
         }
 

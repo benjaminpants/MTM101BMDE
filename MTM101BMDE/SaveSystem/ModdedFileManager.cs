@@ -272,7 +272,7 @@ namespace MTM101BaldAPI.SaveSystem
     {
         static void Postfix(GameLoader __instance)
         {
-            if (MTM101BaldiDevAPI.SaveGamesHandler != SavedGameDataHandler.Modded) return;
+            if ((MTM101BaldiDevAPI.SaveGamesHandler != SavedGameDataHandler.Modded) && (!MTM101BaldiDevAPI.SaveGameHasMods)) return;
             ModdedSaveGame.ModdedSaveGameHandlers.Do(x =>
             {
                 x.Value.OnCGMCreated(Singleton<CoreGameManager>.Instance, false);

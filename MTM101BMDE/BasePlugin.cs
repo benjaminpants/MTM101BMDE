@@ -82,6 +82,14 @@ namespace MTM101BaldAPI
             }
         }
 
+        public static bool SaveGameHasMods
+        {
+            get
+            {
+                return ModdedSaveGame.ModdedSaveGameHandlers.Count > 0;
+            }
+        }
+
         public static SavedGameDataHandler SaveGamesHandler
         {
             get
@@ -529,15 +537,6 @@ PRESS ALT+F4 TO EXIT THE GAME.
                 true,
                 "Whether or not outdoors areas will have different light colors depending on the skybox used. Only disable for legacy mods.");
 
-            /*ConfigEntry<bool> genConfig = Config.Bind("Generator",
-                "Enable Custom Room Support",
-                true,
-                "Enables/Disables the support for Custom Rooms provided by the CustomLevelData class. ONLY TURN OFF IF YOU ABSOLUTELY HAVE TO! THIS WILL BREAK MODS!");
-
-            if (!genConfig.Value)
-            {
-                AddWarningScreen("Custom Room Support is <b>off</b>!\nCertain mods may break or otherwise not function!",false);
-            }*/
             harmony.PatchAllConditionals();
 
             Log = base.Logger;

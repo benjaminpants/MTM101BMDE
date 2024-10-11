@@ -98,6 +98,10 @@ namespace MTM101BaldAPI.Components
     /// <typeparam name="TFrame"></typeparam>
     public abstract class CustomAnimatorMono<TType, TAnimation, TFrame> : MonoBehaviour, IAnimationPlayer, ICustomAnimator<TType, TAnimation, TFrame> where TAnimation : CustomAnimation<TFrame>
     {
+        /// <summary>
+        /// Determines if this CustomAnimator should be affected by timescale.
+        /// </summary>
+        public bool useUnscaledTime = false;
         public Dictionary<string, TAnimation> animations = new Dictionary<string, TAnimation>();
         protected float currentFrameTime = 0f;
         protected float currentAnimTime = 0f;
@@ -195,10 +199,15 @@ namespace MTM101BaldAPI.Components
             VirtualUpdate();
         }
 
+        protected virtual float GetDeltaTime()
+        {
+            return (useUnscaledTime ? Time.unscaledDeltaTime : Time.deltaTime);
+        }
+
         protected virtual void VirtualUpdate()
         {
             if (currentAnim == "") return;
-            float delta = Time.deltaTime * Speed;
+            float delta = GetDeltaTime() * Speed;
             currentAnimTime += delta;
             currentFrameTime += delta;
             if (currentFrameTime >= currentFrame.frameTime)
