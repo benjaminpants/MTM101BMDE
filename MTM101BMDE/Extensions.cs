@@ -32,15 +32,6 @@ namespace MTM101BaldAPI
             }
         }
 
-        public static CustomLevelObject GetCustomLevelObject(this SceneObject sceneObj)
-        {
-            if (sceneObj.levelObject is CustomLevelObject)
-            {
-                return (CustomLevelObject)sceneObj.levelObject;
-            }
-            return null;
-        }
-
         public static T GetOrAddComponent<T>(this GameObject me) where T : Component
         {
             T foundComponent = me.GetComponent<T>();
