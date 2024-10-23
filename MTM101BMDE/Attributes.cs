@@ -103,7 +103,7 @@ namespace MTM101BaldAPI
             instance.Config.TryGetEntry(new ConfigDefinition(_category, _name), out ConfigEntry<bool> entry);
             if (entry == null)
             {
-                UnityEngine.Debug.LogWarning(String.Format("Cannot find config with: ({0}) {1}, {2}",_mod, _category, _name));
+                UnityEngine.Debug.LogWarning(String.Format("Cannot find config with: ({0}) {1}, {2}", _mod, _category, _name));
                 return false;
             }
             return entry.Value;

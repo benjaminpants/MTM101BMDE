@@ -6,14 +6,14 @@ using UnityEngine;
 namespace MTM101BaldAPI
 {
     /// <summary>
-    /// Wait for the defined amount of time depending on the NPCTimeScale of the environement controller. The NPC Timescale can be affected by The Test for instance.
+    /// Wait for the defined amount of time depending on the global NPC timescale. It is advised to use WaitForSecondsNPCTimescale instead.
     /// </summary>
-    public class WaitForSecondsNPCTimescale : CustomYieldInstruction
+    public class WaitForSecondsGlobalNPCTimescale : CustomYieldInstruction
     {
         public EnvironmentController ec;
         public float timeRemaining;
 
-        public WaitForSecondsNPCTimescale(EnvironmentController envC, float seconds)
+        public WaitForSecondsGlobalNPCTimescale(EnvironmentController envC, float seconds)
         {
             timeRemaining = seconds;
             ec = envC;
@@ -53,7 +53,32 @@ namespace MTM101BaldAPI
     }
 
     /// <summary>
-    /// Wait for the defined amount of time depending on the EnvironmentTimescale of the environement controller.
+    /// Waits for the amount of time, scaled based off of the NPC's timescale.
+    /// </summary>
+    public class WaitForSecondsNPCTimescale : CustomYieldInstruction
+    {
+        public float timeRemaining;
+        public NPC npc;
+
+        public WaitForSecondsNPCTimescale(NPC npc, float seconds)
+        {
+            timeRemaining = seconds;
+            this.npc = npc;
+        }
+
+        public override bool keepWaiting
+        {
+            get
+            {
+                if (!npc) return false; // NPC GONE! Establish CHAOS!
+                timeRemaining -= Time.deltaTime * npc.TimeScale;
+                return (timeRemaining >= 0);
+            }
+        }
+    }
+
+    /// <summary>
+    /// Wait for the defined amount of time depending on the EnvironmentTimescale of the environment controller.
     /// </summary>
     public class WaitForSecondsEnvironmentTimescale : CustomYieldInstruction
     {
@@ -61,29 +86,6 @@ namespace MTM101BaldAPI
         public float timeRemaining;
 
         public WaitForSecondsEnvironmentTimescale(EnvironmentController envC, float seconds)
-        {
-            timeRemaining = seconds;
-            ec = envC;
-        }
-
-        public override bool keepWaiting
-        {
-            get
-            {
-                if (!ec) return false; // EC GONE! Establish CHAOS!
-                timeRemaining -= Time.deltaTime * ec.EnvironmentTimeScale;
-                return (timeRemaining >= 0);
-            }
-        }
-    }
-
-    [Obsolete("Please use WaitForSecondsEnvironmentTimescale instead!")]
-    public class WaitForSecondsEnviromentTimescale : CustomYieldInstruction
-    {
-        public EnvironmentController ec;
-        public float timeRemaining;
-
-        public WaitForSecondsEnviromentTimescale(EnvironmentController envC, float seconds)
         {
             timeRemaining = seconds;
             ec = envC;

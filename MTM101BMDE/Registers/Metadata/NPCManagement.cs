@@ -63,6 +63,11 @@ namespace MTM101BaldAPI.Registers
             }
             nameLocalizationKey = e;
         }
+
+        public NPCMetadata(PluginInfo info, NPC[] prefabs, string defKey, NPCFlags flags, string[] tags) : this(info, prefabs, defKey, flags)
+        {
+            _tags.AddRange(tags);
+        }
     }
 
     public class NPCMetaStorage : MetaStorage<Character, NPCMetadata, NPC>

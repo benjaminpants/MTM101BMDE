@@ -84,6 +84,7 @@ namespace MTM101BaldAPI
 
         void BeginLoadProcess()
         {
+            LoadingEvents.SortLoadingEvents();
             StartCoroutine(LoadEnumerator());
         }
 

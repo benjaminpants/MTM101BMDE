@@ -24,7 +24,7 @@ namespace MTM101BaldAPI.SaveSystem
             saveLoadActions.Add(p,act);
         }
 
-        public static void CallSaveLoadAction(PlayerFileManager instance, bool isSave)
+        internal static void CallSaveLoadAction(PlayerFileManager instance, bool isSave)
         {
             string fName = instance.fileName;
             foreach (KeyValuePair<BaseUnityPlugin, Action<bool, string>> kvp in saveLoadActions)
@@ -65,7 +65,7 @@ namespace MTM101BaldAPI.SaveSystem
     {
         static bool Prefix()
         {
-            if (MTM101BaldiDevAPI.saveHandler != SavedGameDataHandler.Vanilla) return false;
+            if (MTM101BaldiDevAPI.SaveGameHasMods) return false;
             return true;
         }
 

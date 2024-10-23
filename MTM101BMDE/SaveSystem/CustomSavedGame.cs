@@ -15,13 +15,15 @@ namespace MTM101BaldAPI.SaveSystem
         public string[] mods;
         public bool hasFile;
         public bool canBeMoved;
+        public Dictionary<string, string[]> tags;
 
-        public PartialModdedSavedGame(int seed, string[] mods)
+        public PartialModdedSavedGame(int seed, string[] mods, Dictionary<string, string[]> tags)
         {
             this.seed = seed;
             this.mods = mods;
             hasFile = true;
             canBeMoved = false;
+            this.tags = tags;
         }
         
         public PartialModdedSavedGame(ModdedSaveGame saveGame)
@@ -32,10 +34,11 @@ namespace MTM101BaldAPI.SaveSystem
             canBeMoved = false;
         }
 
-        public PartialModdedSavedGame(string[] mods)
+        public PartialModdedSavedGame(string[] mods, Dictionary<string, string[]> tags)
         {
             seed = 0;
             this.mods = mods;
+            this.tags = tags;
             hasFile = false;
             canBeMoved = false;
         }
@@ -46,6 +49,7 @@ namespace MTM101BaldAPI.SaveSystem
             this.mods = new string[0];
             this.hasFile = false;
             canBeMoved = false;
+            tags = new Dictionary<string, string[]>();
         }
     }
 
@@ -103,7 +107,8 @@ namespace MTM101BaldAPI.SaveSystem
         Success,
         NoSave,
         MissingHandlers,
-        MissingItems
+        MissingItems,
+        MismatchedTags
     }
 
     /// <summary>
@@ -117,7 +122,7 @@ namespace MTM101BaldAPI.SaveSystem
         public int ytps = 0;
         public int lives = 2;
         public int seed = 0;
-        public const int version = 2;
+        public const int version = 3;
         public bool saveAvailable = false;
         public bool fieldTripPlayed = false;
         public bool johnnyHelped = false;
@@ -149,6 +154,12 @@ namespace MTM101BaldAPI.SaveSystem
             foreach (KeyValuePair<string, ModdedSaveGameIOBinary> kvp in ModdedSaveGameHandlers)
             {
                 writer.Write(kvp.Key);
+                string[] tags = kvp.Value.GenerateTags();
+                writer.Write(tags.Length);
+                for (int i = 0; i < tags.Length; i++)
+                {
+                    writer.Write(tags[i]);
+                }
             }
             if (!saveAvailable) return;
             writer.Write(levelId);
@@ -196,21 +207,34 @@ namespace MTM101BaldAPI.SaveSystem
             int version = reader.ReadInt32();
             int modCount = reader.ReadInt32();
             List<string> modHandlers = new List<string>();
+            Dictionary<string, string[]> modTags = new Dictionary<string, string[]>();
             for (int i = 0; i < modCount; i++)
             {
-                modHandlers.Add(reader.ReadString());
+                string modHandler = reader.ReadString();
+                modHandlers.Add(modHandler);
+                if (version >= 3)
+                {
+                    int tagsToRead = reader.ReadInt32();
+                    List<string> tags = new List<string>();
+                    for (int j = 0; j < tagsToRead; j++)
+                    {
+                        tags.Add(reader.ReadString());
+                    }
+                    modTags.Add(modHandler, tags.ToArray());
+                }
             }
             if (!saveAvailable)
             {
-                return new PartialModdedSavedGame(modHandlers.ToArray());
+                return new PartialModdedSavedGame(modHandlers.ToArray(), modTags);
             }
             reader.ReadInt32();
             int seed = reader.ReadInt32();
-            return new PartialModdedSavedGame(seed, modHandlers.ToArray());
+            return new PartialModdedSavedGame(seed, modHandlers.ToArray(), modTags);
         }
 
         public ModdedSaveLoadStatus Load(BinaryReader reader)
         {
+            bool tagsMatch = true;
             reader.ReadString();
             saveAvailable = reader.ReadBoolean();
             if (!saveAvailable)
@@ -225,7 +249,42 @@ namespace MTM101BaldAPI.SaveSystem
             List<string> modHandlers = new List<string>();
             for (int i = 0; i < modCount; i++)
             {
-                modHandlers.Add(reader.ReadString());
+                string modHandler = reader.ReadString();
+                modHandlers.Add(modHandler);
+                if (version >= 3)
+                {
+                    int tagsToRead = reader.ReadInt32();
+                    List<string> tags = new List<string>();
+                    for (int j = 0; j < tagsToRead; j++)
+                    {
+                        tags.Add(reader.ReadString());
+                    }
+                    if (ModdedSaveGameHandlers.ContainsKey(modHandler))
+                    {
+                        if (ModdedSaveGameHandlers[modHandler].TagsReady())
+                        {
+                            string[] generatedTags = ModdedSaveGameHandlers[modHandler].GenerateTags();
+                            // if the lengths dont match obviously the rest of the tags won't
+                            if (generatedTags.Length != tagsToRead)
+                            {
+                                tagsMatch = false;
+                                continue;
+                            }
+                            for (int j = 0; j < generatedTags.Length; j++)
+                            {
+                                if (!tags.Contains(generatedTags[j]))
+                                {
+                                    tagsMatch = false;
+                                    break;
+                                }
+                            }
+                        }
+                    }
+                    else
+                    {
+                        tagsMatch = false;
+                    }
+                }
             }
             if (!saveAvailable) return ModdedSaveLoadStatus.NoSave;
             levelId = reader.ReadInt32();
@@ -269,6 +328,7 @@ namespace MTM101BaldAPI.SaveSystem
             }
             // seperate the verification from the actual reading part so we dont partially load mod stuff.
             // we can gurantee that we can reset this class but nothing about the others.
+            if (!tagsMatch) return ModdedSaveLoadStatus.MismatchedTags;
             for (int i = 0; i < modHandlers.Count; i++)
             {
                 if (!ModdedSaveGameHandlers.ContainsKey(modHandlers[i])) return ModdedSaveLoadStatus.MissingHandlers;
