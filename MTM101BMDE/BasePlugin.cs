@@ -314,6 +314,7 @@ namespace MTM101BaldAPI
 #if DEBUG
         void OnMen(OptionsMenu __instance)
         {
+            /*
             GameObject ob = CustomOptionsCore.CreateNewCategory(__instance, "Test Menu");
             MenuToggle ch = CustomOptionsCore.CreateToggleButton(__instance, new Vector2(0f, 0f), "Checkbox", false, "Defaults to \"false\"");
             ch.transform.SetParent(ob.transform, false);
@@ -359,6 +360,7 @@ namespace MTM101BaldAPI
             });
 
             b.transform.SetParent(ob.transform, false);
+            */
         }
 #endif
 
@@ -594,7 +596,7 @@ PRESS ALT+F4 TO EXIT THE GAME.
             TMPro.TMP_Text text = t.gameObject.GetComponent<TMPro.TMP_Text>();
             text.gameObject.SetActive(true); // so the pre-releases don't hide the version number
             text.text = "Modding API " + MTM101BaldiDevAPI.VersionNumber;
-            text.gameObject.transform.position += new Vector3(-7f,0f, 0f);
+            text.gameObject.transform.position += new Vector3(-11f,0f, 0f);
         }
     }
 }

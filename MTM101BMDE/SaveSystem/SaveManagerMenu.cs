@@ -76,6 +76,7 @@ namespace MTM101BaldAPI
 
         internal static void MenuHook(OptionsMenu __instance)
         {
+            /*
             if (MTM101BaldiDevAPI.SaveGamesHandler != SavedGameDataHandler.Modded) return;
             GameObject ob = CustomOptionsCore.CreateNewCategory(__instance, "Modded\nSaved Games");
             SaveManagerMenu me = ob.AddComponent<SaveManagerMenu>();
@@ -206,6 +207,7 @@ namespace MTM101BaldAPI
             noButton.text.color = Color.red;
 
             me.SwitchToMain(false);
+            */
         }
     }
 }
