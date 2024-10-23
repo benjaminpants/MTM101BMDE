@@ -41,7 +41,7 @@ namespace MTM101BaldAPI
     {
         internal static ManualLogSource Log = new ManualLogSource("BB+ Dev API Pre Initialization");
 
-        public const string VersionNumber = "5.4.0.1";
+        public const string VersionNumber = "5.5.0.0";
 
         /// <summary>
         /// The version of the API, applicable when BepInEx cache messes up the version number.
@@ -362,7 +362,11 @@ namespace MTM101BaldAPI
         }
 #endif
 
-        internal static GameObject PrefabSubObject;
+        /// <summary>
+        /// The internal subobject used for converting objects into prefabs. 
+        /// Use this with GameObject.Instantiate as the parent transform to avoid manually having to clean stuff up.
+        /// </summary>
+        public static GameObject PrefabSubObject;
 
 
         static FieldInfo _allEntities = AccessTools.Field(typeof(Entity), "allEntities");

@@ -102,6 +102,30 @@ namespace MTM101BaldAPI.AssetTools
             return this;
         }
 
+        /// <summary>
+        /// Trims all the textures so that their bounds are only where there are visible pixels.
+        /// </summary>
+        /// <param name="tag"></param>
+        /// <param name="resultTag"></param>
+        /// <returns></returns>
+        public ProceduralTextureBuilder Trim(string tag, string resultTag)
+        {
+            PerformActionWithAllTaggedTextures(tag, resultTag, Trim);
+            return this;
+        }
+
+        private Texture2D Trim(Texture2D toTrim)
+        {
+            return Trim(toTrim,1f);
+        }
+
+        private Texture2D Overlay(Texture2D texture1, Texture2D texture2)
+        {
+            if (!texture1.isReadable) throw new ArgumentException("Passed a non-readable texture! (1)");
+            if (!texture2.isReadable) throw new ArgumentException("Passed a non-readable texture! (2)");
+            return null;
+        }
+
         // Trims the respect texture 2D so that there are no pixels with an alpha less than alpha tolerance at the edges.
         private Texture2D Trim(Texture2D toTrim, float alphaTolerance = 1f)
         {
