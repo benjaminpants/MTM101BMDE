@@ -77,7 +77,7 @@ namespace MTM101BaldAPI
         }
     }
 
-    [Obsolete("Please use WaitForSecondsEnvironmentTimescale instead!", true)]
+    [Obsolete("Please use WaitForSecondsEnvironmentTimescale instead!")]
     public class WaitForSecondsEnviromentTimescale : CustomYieldInstruction
     {
         public EnvironmentController ec;

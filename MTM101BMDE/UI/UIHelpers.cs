@@ -169,6 +169,7 @@ namespace MTM101BaldAPI.UI
             scaler.referenceResolution = new Vector2(480f, 360f);
             scaler.screenMatchMode = CanvasScaler.ScreenMatchMode.Expand;
             scaler.uiScaleMode = CanvasScaler.ScaleMode.ScaleWithScreenSize;
+            scaler.referencePixelsPerUnit = 1f;
             GraphicRaycaster raycaster = obj.AddComponent<GraphicRaycaster>();
             raycaster.blockingMask = -1;
             raycaster.blockingObjects = GraphicRaycaster.BlockingObjects.None;

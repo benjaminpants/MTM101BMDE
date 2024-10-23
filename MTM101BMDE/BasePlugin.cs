@@ -362,7 +362,11 @@ namespace MTM101BaldAPI
         }
 #endif
 
-        internal static GameObject PrefabSubObject;
+        /// <summary>
+        /// The internal subobject used for converting objects into prefabs. 
+        /// Use this with GameObject.Instantiate as the parent transform to avoid manually having to clean stuff up.
+        /// </summary>
+        public static GameObject PrefabSubObject;
 
 
         static FieldInfo _allEntities = AccessTools.Field(typeof(Entity), "allEntities");
