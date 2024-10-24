@@ -74,7 +74,7 @@ namespace MTM101BaldAPI
 
         bool deletingAllowed;
 
-        internal static void MenuHook(OptionsMenu __instance)
+        internal static void MenuHook(OptionsMenu __instance, CustomOptionsHandler handler)
         {
             /*
             if (MTM101BaldiDevAPI.SaveGamesHandler != SavedGameDataHandler.Modded) return;

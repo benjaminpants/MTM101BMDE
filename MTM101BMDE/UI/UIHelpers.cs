@@ -108,6 +108,7 @@ namespace MTM101BaldAPI.UI
             smb.OnPress = new UnityEngine.Events.UnityEvent();
             smb.OnHighlight = new UnityEngine.Events.UnityEvent();
             smb.OnRelease = new UnityEngine.Events.UnityEvent();
+            smb.OffHighlight = new UnityEngine.Events.UnityEvent();
             return smb;
         }
     }
