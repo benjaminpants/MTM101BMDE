@@ -317,7 +317,7 @@ namespace MTM101BaldAPI
         {
             public override void Build()
             {
-                //CreateText("test", "Test!", Vector3.zero, BaldiFonts.ComicSans36, TextAlignmentOptions.Center, new Vector2(200f, 70f), Color.black);
+                CreateText("test", "Test!", Vector3.zero, BaldiFonts.ComicSans36, TextAlignmentOptions.Center, new Vector2(200f, 70f), Color.black);
                 CreateTextButton(() =>
                 {
                     MTM101BaldiDevAPI.Log.LogInfo("This is a test!");
@@ -326,13 +326,15 @@ namespace MTM101BaldAPI
                 {
                     MTM101BaldiDevAPI.Log.LogInfo("This is another test!");
                 }, null, "TestImage", Vector3.left * 60f, Vector2.one * 30f).image.color = Color.green;
-                CreateBars("Test", Vector3.zero, 10);
+                CreateBars(() => { }, "Test", Vector3.down * 80f, 10);
+                CreateBars(() => { }, "Test2", Vector3.down * 95f, 1);
+                CreateBars(() => { }, "Test3", Vector3.down * 115f, 20);
             }
         }
 
         void OnMen(OptionsMenu __instance, CustomOptionsHandler handler)
         {
-            handler.AddCategory<TestOptionsCat>("blah1");
+            handler.AddCategory<TestOptionsCat>("Test Menu");
             /*
             GameObject ob = CustomOptionsCore.CreateNewCategory(__instance, "Test Menu");
             MenuToggle ch = CustomOptionsCore.CreateToggleButton(__instance, new Vector2(0f, 0f), "Checkbox", false, "Defaults to \"false\"");

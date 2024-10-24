@@ -119,7 +119,7 @@ namespace MTM101BaldAPI.OptionsAPI
         static FieldInfo _highlighted = AccessTools.Field(typeof(AdjustmentBars), "highlighted");
         static FieldInfo _unhighlighted = AccessTools.Field(typeof(AdjustmentBars), "unhighlighted");
 
-        protected AdjustmentBars CreateBars(string name, Vector3 position, int count)
+        protected AdjustmentBars CreateBars(UnityAction onChanged, string name, Vector3 position, int count)
         {
             GameObject barObject = new GameObject(name, typeof(RectTransform));
             barObject.SetActive(false); // disable so that the awake function doesn't active prematurely
@@ -151,6 +151,8 @@ namespace MTM101BaldAPI.OptionsAPI
             _highlighted.SetValue(adjustBar, bar);
             _unhighlighted.SetValue(adjustBar, barFaded);
             adjustBar.onValueChanged = new UnityEvent();
+            adjustBar.onValueChanged.AddListener(onChanged);
+            barObject.transform.localPosition = position;
             return adjustBar;
         }
     }
