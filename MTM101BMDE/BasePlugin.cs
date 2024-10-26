@@ -328,10 +328,11 @@ namespace MTM101BaldAPI
                 }, null, "TestImage", Vector3.left * 60f, Vector2.one * 30f);
                 greenSquare.image.color = Color.green;
                 AddTooltip(greenSquare, "Prints \"This is another test!\" and is also green.");
-                CreateBars(() => { }, "Test", Vector3.down * 80f, 10);
-                CreateBars(() => { }, "Test2", Vector3.down * 95f, 1);
-                CreateBars(() => { }, "Test3", Vector3.down * 115f, 20);
+                AdjustmentBars bar = CreateBars(() => { }, "Test", Vector3.down * 70f, 10);
+                AddTooltip(bar, "This is a bar with a tooltip!");
+                AddTooltip(CreateBars(() => { }, "Test2", Vector3.down * 105f + (Vector3.left * 60f), 15), "This is a longer bar with a tooltip!");
                 AddTooltipRegion("TestRegion", Vector3.up * 50f, Vector2.one * 100f, "Test tooltip region!", true);
+                CreateToggle("TestToggle", "Captions", false, Vector3.down * 40f, 200f);
             }
         }
 
@@ -435,12 +436,14 @@ namespace MTM101BaldAPI
             AssetMan.Add<GameObject>("TemplateNPC", templateObject);
             MTM101BaldAPI.Registers.Buttons.ButtonColorManager.InitializeButtonColors();
             Sprite[] allSprites = Resources.FindObjectsOfTypeAll<Sprite>();
-            AssetMan.Add<Sprite>("MenuArrowLeft",allSprites.Where(x => x.name == "MenuArrowSheet_2").First());
-            AssetMan.Add<Sprite>("MenuArrowLeftHighlight", allSprites.Where(x => x.name == "MenuArrowSheet_0").First());
+            AssetMan.Add<Sprite>("MenuArrowLeft",allSprites.First(x => x.name == "MenuArrowSheet_2"));
+            AssetMan.Add<Sprite>("MenuArrowLeftHighlight", allSprites.First(x => x.name == "MenuArrowSheet_0"));
             AssetMan.Add<Sprite>("MenuArrowRight", allSprites.Where(x => x.name == "MenuArrowSheet_3").First());
-            AssetMan.Add<Sprite>("MenuArrowRightHighlight", allSprites.Where(x => x.name == "MenuArrowSheet_1").First());
-            AssetMan.Add<Sprite>("Bar", allSprites.Where(x => x.name == "MenuBarSheet_0").First());
-            AssetMan.Add<Sprite>("BarTransparent", allSprites.Where(x => x.name == "MenuBarSheet_1").First());
+            AssetMan.Add<Sprite>("MenuArrowRightHighlight", allSprites.First(x => x.name == "MenuArrowSheet_1"));
+            AssetMan.Add<Sprite>("Bar", allSprites.First(x => x.name == "MenuBarSheet_0"));
+            AssetMan.Add<Sprite>("BarTransparent", allSprites.First(x => x.name == "MenuBarSheet_1"));
+            AssetMan.Add<Sprite>("CheckBox", allSprites.First(x => x.name == "CheckBox"));
+            AssetMan.Add<Sprite>("Check", allSprites.First(x => x.name == "YCTP_IndicatorsSheet_0"));
             AssetMan.AddFromResources<Shader>();
             questionMarkSprites = allSprites.Where(x => x.texture.name == "QMarkSheet").ToArray();
             SoundObject[] allSoundObjects = Resources.FindObjectsOfTypeAll<SoundObject>();

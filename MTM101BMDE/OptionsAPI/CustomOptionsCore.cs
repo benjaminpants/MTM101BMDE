@@ -50,7 +50,7 @@ namespace MTM101BaldAPI.OptionsAPI
 
         public TooltipController tooltipController;
 
-        protected Transform toolTipHotspot;
+        public Transform toolTipHotspot;
 
         protected Sprite bar => MTM101BaldiDevAPI.AssetMan.Get<Sprite>("Bar");
         protected Sprite barFaded => MTM101BaldiDevAPI.AssetMan.Get<Sprite>("BarTransparent");
@@ -58,14 +58,29 @@ namespace MTM101BaldAPI.OptionsAPI
         protected Sprite menuArrowLeftHighlight => MTM101BaldiDevAPI.AssetMan.Get<Sprite>("MenuArrowLeftHighlight");
         protected Sprite menuArrowRight => MTM101BaldiDevAPI.AssetMan.Get<Sprite>("MenuArrowRight");
         protected Sprite menuArrowRightHighlight => MTM101BaldiDevAPI.AssetMan.Get<Sprite>("MenuArrowRightHighlight");
+        protected Sprite checkBox => MTM101BaldiDevAPI.AssetMan.Get<Sprite>("CheckBox");
+        protected Sprite checkMark => MTM101BaldiDevAPI.AssetMan.Get<Sprite>("Check");
 
-        protected TextMeshProUGUI CreateText(string name, string text, Vector3 position, BaldiFonts font, TextAlignmentOptions alignment, Vector2 sizeDelta, Color color)
+
+        static FieldInfo _textBox = AccessTools.Field(typeof(TextLocalizer), "textBox");
+        protected TextMeshProUGUI CreateText(string name, string text, Vector3 position, BaldiFonts font, TextAlignmentOptions alignment, Vector2 sizeDelta, Color color, bool createLocalizer = true)
         {
             TextMeshProUGUI resultText = UIHelpers.CreateText<TextMeshProUGUI>(font, text, transform, position, false);
             resultText.alignment = alignment;
             resultText.rectTransform.sizeDelta = sizeDelta;
             resultText.color = color;
             resultText.name = name;
+            if (createLocalizer)
+            {
+                TextLocalizer textLocal = resultText.gameObject.AddComponent<TextLocalizer>();
+                _textBox.SetValue(textLocal, resultText); //why the fuck doesn't awake work
+                textLocal.key = text;
+                textLocal.GetLocalizedText(text);
+            }
+            else
+            {
+                resultText.text = text;
+            }
             return resultText;
         }
 
@@ -146,6 +161,7 @@ namespace MTM101BaldAPI.OptionsAPI
                 image.transform.SetParent(barsFolderObject.transform);
                 image.transform.localScale = Vector3.one;
                 image.transform.localPosition = Vector3.right * (i * 10f) + offset;
+                image.raycastTarget = false;
                 barImages[i] = image;
             }
             StandardMenuButton butRight = CreateButton(() => { adjustBar.Adjust(1); }, menuArrowRight, menuArrowRightHighlight, "RightCategoryButton", (Vector3.right * ((butLeft.unhighlightedSprite.rect.size.x + 2f) + (count * 10f))));
@@ -166,6 +182,7 @@ namespace MTM101BaldAPI.OptionsAPI
             toolTipHotspot.SetParent(transform, false);
             toolTipHotspot.localScale = Vector3.one;
             toolTipHotspot.localPosition = Vector3.zero;
+            toolTipHotspot.SetAsFirstSibling();
         }
 
         protected void AddTooltip(StandardMenuButton button, string tooltip)
@@ -177,8 +194,10 @@ namespace MTM101BaldAPI.OptionsAPI
 
         protected void AddTooltip(AdjustmentBars bar, string tooltip)
         {
-            throw new NotImplementedException();
-            //AddTooltipRegion(bar.name + "Region", bar)
+            AddTooltip(bar.transform.Find("LeftCategoryButton").GetComponent<StandardMenuButton>(), tooltip);
+            AddTooltip(bar.transform.Find("RightCategoryButton").GetComponent<StandardMenuButton>(), tooltip);
+            float width = Mathf.Abs(bar.transform.Find("LeftCategoryButton").position.x - bar.transform.Find("RightCategoryButton").position.x) / 3f;
+            AddTooltipRegion(bar.name + "Region", bar.transform.localPosition + (Vector3.right * (width / 2f)), new Vector2(width, 32f), tooltip, false);
         }
 
         protected StandardMenuButton AddTooltipRegion(string name, Vector3 position, Vector2 size, string tooltip, bool visible = false)
@@ -190,13 +209,58 @@ namespace MTM101BaldAPI.OptionsAPI
             GameObject obj = new GameObject(name, typeof(Image));
             obj.transform.SetParent(toolTipHotspot, false);
             Image image = obj.GetComponent<Image>();
-            image.color = (visible ? new Color(1f,1f,0f,0.25f) : Color.clear);
+            image.color = new Color(1f, 1f, 0f, visible ? 1f : 0f);
             obj.transform.localPosition = position;
             image.rectTransform.sizeDelta = size;
             StandardMenuButton menButton = obj.ConvertToButton<StandardMenuButton>();
             menButton.audConfirmOverride = MTM101BaldiDevAPI.AssetMan.Get<SoundObject>("Silence");
             AddTooltip(menButton, tooltip);
             return menButton;
+        }
+
+        static FieldInfo _val = AccessTools.Field(typeof(MenuToggle), "val");
+        static FieldInfo _checkmark = AccessTools.Field(typeof(MenuToggle), "checkmark");
+        static FieldInfo _disableCover = AccessTools.Field(typeof(MenuToggle), "disableCover");
+        static FieldInfo _hotspot = AccessTools.Field(typeof(MenuToggle), "hotspot");
+        protected MenuToggle CreateToggle(string name, string text, bool value, Vector3 position, float width)
+        {
+            Vector2 size = new Vector2(width, 32f);
+            GameObject obj = new GameObject(name, typeof(RectTransform));
+            obj.transform.SetParent(transform, false);
+            obj.transform.localScale = Vector3.one;
+            obj.layer = LayerMask.NameToLayer("UI");
+            obj.GetComponent<RectTransform>().sizeDelta = size + new Vector2(8f,0f);
+            TextMeshProUGUI textObj = CreateText("ToggleText", text, Vector3.zero, BaldiFonts.ComicSans24, TextAlignmentOptions.TopRight, size, Color.black, true);
+            textObj.transform.SetParent(obj.transform);
+            textObj.rectTransform.pivot = new Vector2(1f, 0.5f);
+            textObj.transform.localScale = Vector3.one;
+            textObj.transform.localPosition = new Vector3(-8f,0f,0f);
+            MenuToggle toggle = obj.AddComponent<MenuToggle>();
+            Image box = CreateImage(checkBox, "Box", Vector3.zero);
+            box.transform.SetParent(obj.transform);
+            box.transform.localScale = Vector3.one;
+            box.transform.localPosition = new Vector3(8f, 0f, 0f);
+            box.rectTransform.pivot = new Vector2(0f, 0.5f);
+            Image check = CreateImage(checkMark, "Check", Vector3.zero, Vector2.one * 32f);
+            check.transform.SetParent(box.transform);
+            check.transform.localScale = Vector3.one;
+            check.transform.localPosition = new Vector3(21f, 6f, 0f);
+            StandardMenuButton hotSpot = CreateButton(() => { toggle.Toggle(); }, null, "HotSpot", Vector3.zero, size);
+            hotSpot.image.color = Color.blue;
+            hotSpot.transform.SetParent(obj.transform);
+            hotSpot.transform.localScale = Vector3.one;
+            hotSpot.text = textObj;
+            hotSpot.underlineOnHigh = true;
+
+            // finally set up the buttom
+            _val.SetValue(toggle, value);
+            _checkmark.SetValue(toggle, check.gameObject);
+            _hotspot.SetValue(toggle, hotSpot.gameObject);
+
+
+            obj.transform.localPosition = position;
+
+            return toggle;
         }
     }
 
