@@ -318,17 +318,20 @@ namespace MTM101BaldAPI
             public override void Build()
             {
                 CreateText("test", "Test!", Vector3.zero, BaldiFonts.ComicSans36, TextAlignmentOptions.Center, new Vector2(200f, 70f), Color.black);
-                CreateTextButton(() =>
+                AddTooltip(CreateTextButton(() =>
                 {
                     MTM101BaldiDevAPI.Log.LogInfo("This is a test!");
-                }, "testButton", "TestButton!", Vector3.down * 140f, BaldiFonts.ComicSans24, TextAlignmentOptions.Center, new Vector2(150f, 70f), Color.black);
-                CreateButton(() =>
+                }, "testButton", "TestButton!", Vector3.down * 140f, BaldiFonts.ComicSans24, TextAlignmentOptions.Center, new Vector2(150f, 70f), Color.black), "prints \"This is a test!\"");
+                StandardMenuButton greenSquare = CreateButton(() =>
                 {
                     MTM101BaldiDevAPI.Log.LogInfo("This is another test!");
-                }, null, "TestImage", Vector3.left * 60f, Vector2.one * 30f).image.color = Color.green;
+                }, null, "TestImage", Vector3.left * 60f, Vector2.one * 30f);
+                greenSquare.image.color = Color.green;
+                AddTooltip(greenSquare, "Prints \"This is another test!\" and is also green.");
                 CreateBars(() => { }, "Test", Vector3.down * 80f, 10);
                 CreateBars(() => { }, "Test2", Vector3.down * 95f, 1);
                 CreateBars(() => { }, "Test3", Vector3.down * 115f, 20);
+                AddTooltipRegion("TestRegion", Vector3.up * 50f, Vector2.one * 100f, "Test tooltip region!", true);
             }
         }
 
@@ -441,10 +444,11 @@ namespace MTM101BaldAPI
             AssetMan.AddFromResources<Shader>();
             questionMarkSprites = allSprites.Where(x => x.texture.name == "QMarkSheet").ToArray();
             SoundObject[] allSoundObjects = Resources.FindObjectsOfTypeAll<SoundObject>();
-            AssetMan.Add<SoundObject>("Xylophone", allSoundObjects.Where(x => x.name == "NotebookCollect").First());
-            AssetMan.Add<SoundObject>("Explosion", allSoundObjects.Where(x => x.name == "GlassBreak").First());
+            AssetMan.Add<SoundObject>("Xylophone", allSoundObjects.First(x => x.name == "NotebookCollect"));
+            AssetMan.Add<SoundObject>("Explosion", allSoundObjects.First(x => x.name == "GlassBreak"));
             AssetMan.AddFromResources<TMPro.TMP_FontAsset>();
             AssetMan.AddFromResources<Material>();
+            AssetMan.Add<SoundObject>("Silence", allSoundObjects.First(x => x.name == "Silence"));
         }
 
         internal void ConvertAllLevelObjects()

@@ -48,6 +48,10 @@ namespace MTM101BaldAPI.OptionsAPI
     {
         public abstract void Build();
 
+        public TooltipController tooltipController;
+
+        protected Transform toolTipHotspot;
+
         protected Sprite bar => MTM101BaldiDevAPI.AssetMan.Get<Sprite>("Bar");
         protected Sprite barFaded => MTM101BaldiDevAPI.AssetMan.Get<Sprite>("BarTransparent");
         protected Sprite menuArrowLeft => MTM101BaldiDevAPI.AssetMan.Get<Sprite>("MenuArrowLeft");
@@ -155,6 +159,45 @@ namespace MTM101BaldAPI.OptionsAPI
             barObject.transform.localPosition = position;
             return adjustBar;
         }
+
+        protected void SetupTooltipHotspots()
+        {
+            toolTipHotspot = new GameObject("TooltipHotspots").transform;
+            toolTipHotspot.SetParent(transform, false);
+            toolTipHotspot.localScale = Vector3.one;
+            toolTipHotspot.localPosition = Vector3.zero;
+        }
+
+        protected void AddTooltip(StandardMenuButton button, string tooltip)
+        {
+            button.eventOnHigh = true;
+            button.OnHighlight.AddListener(() => { tooltipController.UpdateTooltip(tooltip); });
+            button.OffHighlight.AddListener(() => { tooltipController.CloseTooltip(); });
+        }
+
+        protected void AddTooltip(AdjustmentBars bar, string tooltip)
+        {
+            throw new NotImplementedException();
+            //AddTooltipRegion(bar.name + "Region", bar)
+        }
+
+        protected StandardMenuButton AddTooltipRegion(string name, Vector3 position, Vector2 size, string tooltip, bool visible = false)
+        {
+            if (toolTipHotspot == null)
+            {
+                SetupTooltipHotspots();
+            }
+            GameObject obj = new GameObject(name, typeof(Image));
+            obj.transform.SetParent(toolTipHotspot, false);
+            Image image = obj.GetComponent<Image>();
+            image.color = (visible ? new Color(1f,1f,0f,0.25f) : Color.clear);
+            obj.transform.localPosition = position;
+            image.rectTransform.sizeDelta = size;
+            StandardMenuButton menButton = obj.ConvertToButton<StandardMenuButton>();
+            menButton.audConfirmOverride = MTM101BaldiDevAPI.AssetMan.Get<SoundObject>("Silence");
+            AddTooltip(menButton, tooltip);
+            return menButton;
+        }
     }
 
     public class CustomOptionsHandler : MonoBehaviour
@@ -180,6 +223,7 @@ namespace MTM101BaldAPI.OptionsAPI
         static FieldInfo _categories = AccessTools.Field(typeof(OptionsMenu), "categories");
         static FieldInfo _currentCategory = AccessTools.Field(typeof(OptionsMenu), "currentCategory");
 
+        public TooltipController tooltipController;
         public OptionsMenu optionsMenu;
         int indexToSetTransformBehind;
 
@@ -187,6 +231,7 @@ namespace MTM101BaldAPI.OptionsAPI
         void Awake()
         {
             optionsMenu = GetComponent<OptionsMenu>();
+            tooltipController = GetComponent<TooltipController>();
             indexToSetTransformBehind = optionsMenu.transform.Find("TooltipBase").GetSiblingIndex();
             LoadCategories();
         }
@@ -236,6 +281,7 @@ namespace MTM101BaldAPI.OptionsAPI
             categories.Insert(indexToInsert, new OptionsCategory(pageName, newPage));
             newPage.transform.SetSiblingIndex(indexToSetTransformBehind - 1);
             CategoryType page = newPage.AddComponent<CategoryType>();
+            page.tooltipController = tooltipController;
             page.Build();
             RebuildPages();
             return page;
