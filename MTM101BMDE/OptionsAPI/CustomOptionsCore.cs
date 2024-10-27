@@ -245,22 +245,41 @@ namespace MTM101BaldAPI.OptionsAPI
             check.transform.SetParent(box.transform);
             check.transform.localScale = Vector3.one;
             check.transform.localPosition = new Vector3(21f, 6f, 0f);
-            StandardMenuButton hotSpot = CreateButton(() => { toggle.Toggle(); }, null, "HotSpot", Vector3.zero, size);
-            hotSpot.image.color = Color.blue;
+            StandardMenuButton hotSpot = CreateButton(() => { toggle.Toggle(); }, null, "HotSpot", Vector3.zero, new Vector2(size.x / 1.25f, size.y));
+            hotSpot.image.color = Color.clear;
             hotSpot.transform.SetParent(obj.transform);
             hotSpot.transform.localScale = Vector3.one;
             hotSpot.text = textObj;
             hotSpot.underlineOnHigh = true;
+            hotSpot.transform.localPosition += Vector3.left * ((width / 1.25f) / 4f);
 
             // finally set up the buttom
             _val.SetValue(toggle, value);
             _checkmark.SetValue(toggle, check.gameObject);
             _hotspot.SetValue(toggle, hotSpot.gameObject);
+            check.gameObject.SetActive(value);
 
 
             obj.transform.localPosition = position;
 
             return toggle;
+        }
+
+        protected StandardMenuButton CreateApplyButton(UnityAction onApply)
+        {
+            StandardMenuButton menBut = CreateButton(onApply, null, "ApplyButton", new Vector3(136f, -160f, 0f), new Vector2(100f, 32f));
+            TextMeshProUGUI text = CreateText("ApplyText", "Opt_Apply", Vector3.zero, BaldiFonts.ComicSans24, TextAlignmentOptions.TopRight, new Vector2(96f, 32f), Color.black);
+            text.transform.SetParent(menBut.transform, false);
+            text.transform.localScale = Vector3.one;
+            menBut.text = text;
+            menBut.underlineOnHigh = true;
+            menBut.transform.localScale = Vector3.one; // what the fuck i don't even CHANGE THE BUTTONS PARENT AND ITS SCALE STILL GETS COMPLETELY ***FUCKED.***
+            return menBut;
+        }
+
+        protected void AddTooltip(MenuToggle toggle, string tooltip)
+        {
+            AddTooltip(((GameObject)_hotspot.GetValue(toggle)).GetComponent<StandardMenuButton>(), tooltip);
         }
     }
 

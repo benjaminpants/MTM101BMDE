@@ -332,60 +332,15 @@ namespace MTM101BaldAPI
                 AddTooltip(bar, "This is a bar with a tooltip!");
                 AddTooltip(CreateBars(() => { }, "Test2", Vector3.down * 105f + (Vector3.left * 60f), 15), "This is a longer bar with a tooltip!");
                 AddTooltipRegion("TestRegion", Vector3.up * 50f, Vector2.one * 100f, "Test tooltip region!", true);
-                CreateToggle("TestToggle", "Captions", false, Vector3.down * 40f, 200f);
+                MenuToggle tog = CreateToggle("TestToggle", "Test Test 2!", false, Vector3.down * 40f, 300f);
+                AddTooltip(tog, "This is a toggle!");
+                AddTooltip(CreateApplyButton(() => { MTM101BaldiDevAPI.Log.LogInfo("Applied!"); }), "Prints \"Applied!\" to the console.");
             }
         }
 
         void OnMen(OptionsMenu __instance, CustomOptionsHandler handler)
         {
             handler.AddCategory<TestOptionsCat>("Test Menu");
-            /*
-            GameObject ob = CustomOptionsCore.CreateNewCategory(__instance, "Test Menu");
-            MenuToggle ch = CustomOptionsCore.CreateToggleButton(__instance, new Vector2(0f, 0f), "Checkbox", false, "Defaults to \"false\"");
-            ch.transform.SetParent(ob.transform, false);
-
-            TextLocalizer lol = CustomOptionsCore.CreateText(__instance, new Vector2(-70f, 70f), "Test Text");
-            lol.transform.SetParent(ob.transform, false);
-
-            StandardMenuButton lolagain = CustomOptionsCore.CreateTextButton(__instance, new Vector2(-70f, 40f), "HEY!", "This is a button that prints \"HEY!!\" in the console.", () =>
-            {
-                UnityEngine.Debug.Log("HEY!!");
-            });
-            lolagain.transform.SetParent(ob.transform, false);
-
-            AdjustmentBars bar = CustomOptionsCore.CreateAdjustmentBar(__instance, new Vector2(-96f, -40f), "barTiny", 2, "Tiny Bar", 0, () =>
-            {
-                UnityEngine.Debug.Log("1");
-            });
-            bar.transform.SetParent(ob.transform, false);
-            bar = CustomOptionsCore.CreateAdjustmentBar(__instance, new Vector2(-96f, -70f), "barSmall", 6, "Small Bar", 1, () =>
-            {
-                UnityEngine.Debug.Log("2");
-            });
-            bar.transform.SetParent(ob.transform, false);
-            bar = CustomOptionsCore.CreateAdjustmentBar(__instance, new Vector2(-96f, -100f), "barNorm", 10, "Normal Bar", 5, () =>
-            {
-                UnityEngine.Debug.Log("3");
-            });
-            bar.transform.SetParent(ob.transform, false);
-            bar = CustomOptionsCore.CreateAdjustmentBar(__instance, new Vector2(-96f, -130f), "barBig", 15, "Big Bar", 1, () =>
-            {
-                UnityEngine.Debug.Log("4");
-            });
-            bar.transform.SetParent(ob.transform, false);
-            bar = CustomOptionsCore.CreateAdjustmentBar(__instance, new Vector2(-96f, -160f), "barHuge", 22, "Huge Bar", 11, () =>
-            {
-                UnityEngine.Debug.Log("5");
-            });
-            bar.transform.SetParent(ob.transform, false);
-
-            StandardMenuButton b = CustomOptionsCore.CreateApplyButton(__instance, "Apply button. Prints \"APPLY!\" in the console.", () =>
-            {
-                UnityEngine.Debug.Log("APPLY!");
-            });
-
-            b.transform.SetParent(ob.transform, false);
-            */
         }
 #endif
 
