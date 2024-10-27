@@ -27,6 +27,9 @@ using MidiPlayerTK;
 using MTM101BaldAPI.Patches;
 using MTM101BaldAPI.Components;
 using System.Runtime.InteropServices;
+using UnityEngine.Networking;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 
 namespace MTM101BaldAPI
 {
@@ -127,6 +130,24 @@ namespace MTM101BaldAPI
             }
             MTM101BaldiDevAPI.Log.LogDebug("Soundfont loaded! Deleting from temp folder...");
             File.Delete(toDelete);
+        }
+
+        public string newestGBVersion = "unknown";
+
+        IEnumerator GetCurrentGamebananaVersion()
+        {
+            UnityWebRequest webRequest = UnityWebRequest.Get("https://api.gamebanana.com/Core/Item/Data?itemtype=Mod&itemid=383711&fields=Updates().aGetLatestUpdates()");
+            yield return webRequest.SendWebRequest();
+            if (webRequest.result != UnityWebRequest.Result.Success)
+            {
+                Log.LogError("Unable to access Gamebanana API! Is Gamebanana down?");
+                yield break;
+            }
+            string json = webRequest.downloadHandler.text;
+            JToken gbResults = JToken.Parse(json); //parse as jtoken instead of JObject
+
+            newestGBVersion = gbResults[0][0]["_sVersion"].Value<string>();
+            yield break;
         }
 
         internal void OnSceneUnload()
@@ -562,6 +583,7 @@ PRESS ALT+F4 TO EXIT THE GAME.
             harmony.PatchAllConditionals();
 
             Log = base.Logger;
+            StartCoroutine(GetCurrentGamebananaVersion());
         }
     }
 
@@ -602,11 +624,23 @@ PRESS ALT+F4 TO EXIT THE GAME.
     {
         static void Postfix(MainMenu __instance)
         {
-            Transform t = __instance.transform.Find("Reminder");
-            TMPro.TMP_Text text = t.gameObject.GetComponent<TMPro.TMP_Text>();
+            Transform reminder = __instance.transform.Find("Reminder");
+            TMPro.TMP_Text text = reminder.gameObject.GetComponent<TMPro.TMP_Text>();
             text.gameObject.SetActive(true); // so the pre-releases don't hide the version number
             text.text = "Modding API " + MTM101BaldiDevAPI.VersionNumber;
             text.gameObject.transform.position += new Vector3(-11f,0f, 0f);
+            text.raycastTarget = true;
+            StandardMenuButton button = text.gameObject.ConvertToButton<StandardMenuButton>();
+            button.underlineOnHigh = true;
+            if (new Version(MTM101BaldiDevAPI.Instance.newestGBVersion) > MTM101BaldiDevAPI.Version)
+            {
+                text.text += "\nOutdated!\n(Latest is " + MTM101BaldiDevAPI.Instance.newestGBVersion + ")";
+            }
+            else if (MTM101BaldiDevAPI.Version > new Version(MTM101BaldiDevAPI.Instance.newestGBVersion))
+            {
+                text.text += "\nUnreleased!";
+            }
+            button.OnPress.AddListener(() => { Application.OpenURL("https://gamebanana.com/mods/383711"); });
         }
     }
 }

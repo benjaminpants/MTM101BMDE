@@ -252,7 +252,6 @@ namespace MTM101BaldAPI.SaveSystem
             {
                 if (reader.BaseStream.Position >= reader.BaseStream.Length) //we must be in an older version
                 {
-                    // todo: add code so that modTags isn't null when there is no save
                     return ModdedSaveLoadStatus.NoSave;
                 }
             }
