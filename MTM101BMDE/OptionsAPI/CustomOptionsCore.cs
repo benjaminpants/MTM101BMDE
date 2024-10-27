@@ -60,6 +60,7 @@ namespace MTM101BaldAPI.OptionsAPI
         protected Sprite menuArrowRightHighlight => MTM101BaldiDevAPI.AssetMan.Get<Sprite>("MenuArrowRightHighlight");
         protected Sprite checkBox => MTM101BaldiDevAPI.AssetMan.Get<Sprite>("CheckBox");
         protected Sprite checkMark => MTM101BaldiDevAPI.AssetMan.Get<Sprite>("Check");
+        protected SoundObject silence => MTM101BaldiDevAPI.AssetMan.Get<SoundObject>("Silence");
 
 
         static FieldInfo _textBox = AccessTools.Field(typeof(TextLocalizer), "textBox");
@@ -97,7 +98,8 @@ namespace MTM101BaldAPI.OptionsAPI
         protected Image CreateImage(Sprite background, string name, Vector3 position, Vector2? sizeDelta = null)
         {
             Image newImage = new GameObject(name).AddComponent<Image>();
-            newImage.transform.SetParent(transform);
+            newImage.transform.SetParent(transform, false);
+            newImage.transform.localScale = Vector3.one; //i hate everything and everyone
             newImage.name = name;
             newImage.transform.localPosition = position;
             newImage.gameObject.layer = LayerMask.NameToLayer("UI");
@@ -213,7 +215,7 @@ namespace MTM101BaldAPI.OptionsAPI
             obj.transform.localPosition = position;
             image.rectTransform.sizeDelta = size;
             StandardMenuButton menButton = obj.ConvertToButton<StandardMenuButton>();
-            menButton.audConfirmOverride = MTM101BaldiDevAPI.AssetMan.Get<SoundObject>("Silence");
+            menButton.audConfirmOverride = silence;
             AddTooltip(menButton, tooltip);
             return menButton;
         }

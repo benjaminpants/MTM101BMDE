@@ -58,6 +58,37 @@ namespace MTM101BaldAPI.SaveSystem
         }
 
         /// <summary>
+        /// Displays the tags in a way that is more readable for players looking at their modded saves to figure out why they are different.
+        /// Generally, you should keep tags readable even if DisplayTagsDefault is used like it will be if this mod isn't actively installed.
+        /// </summary>
+        /// <param name="tags"></param>
+        /// <returns></returns>
+        public virtual string DisplayTags(string[] tags)
+        {
+            return DisplayTagsDefault(tags);
+        }
+
+        /// <summary>
+        /// The default function for displaying tags. Will be used if the mod is uninstalled or DisplayTags isn't overwritten.
+        /// </summary>
+        /// <param name="tags"></param>
+        /// <returns></returns>
+        public static string DisplayTagsDefault(string[] tags)
+        {
+            if (tags.Length == 0)
+            {
+                return "No tags.";
+            }
+            StringBuilder sb = new StringBuilder();
+            sb.AppendLine("<b>Tags:</b>");
+            for (int i = 0; i < tags.Length; i++)
+            {
+                sb.AppendLine(tags[i]);
+            }
+            return sb.ToString();
+        }
+
+        /// <summary>
         /// Determines if tags are ready to be generated.
         /// Return false if tags are not ready to be generated yet, making the API load the first save with matching mods, ignoring tags for this mod.
         /// It is suggested to manually call the RegenerateTags function once tags are ready to be generated.

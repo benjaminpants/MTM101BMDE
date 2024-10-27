@@ -18,9 +18,9 @@ namespace MTM101BaldAPI.Registers
         CanSee = 4, // This NPC can see/spot things
         MakeNoise = 8, // This NPC can make noise that Baldi can hear (First Prize)
         HasTrigger = 16, // This NPC's collider is a trigger (this excludes Chalkles and Bully)
-        HasPhysicalAppearence = 32, // This NPC has a physical appearence in the schoolhouse. Currently everybody has this flag
+        HasSprite = 32, // This NPC has a sprite in the schoolhouse, every NPC including Chalkles currently has this flag.
         IsBlockade = 64, // This NPC can block other NPC's LOS or Navigation
-        Standard =  CanMove | CanSee | HasPhysicalAppearence | HasTrigger,
+        Standard =  CanMove | CanSee | HasSprite | HasTrigger,
         StandardNoCollide = Standard & ~HasTrigger,
         StandardAndHear = Standard | CanHear
     }

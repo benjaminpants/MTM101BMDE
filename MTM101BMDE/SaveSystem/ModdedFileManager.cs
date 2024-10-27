@@ -57,6 +57,32 @@ namespace MTM101BaldAPI.SaveSystem
             _cgmrestoreItemsOnSpawn.SetValue(Singleton<CoreGameManager>.Instance, true);
         }
 
+        public void RegenerateTags()
+        {
+            if (TagsMatch()) return;
+            MTM101BaldiDevAPI.Log.LogInfo("Tags don't match! Reloading save...");
+            // force a reload
+            saveIndex = 0;
+            savePath = "";
+            Singleton<PlayerFileManager>.Instance.Load();
+        }
+
+        bool TagsMatch()
+        {
+            foreach (KeyValuePair<string, ModdedSaveGameIOBinary> kvp in ModdedSaveGame.ModdedSaveGameHandlers)
+            {
+                if (!kvp.Value.TagsReady()) continue;
+                string[] tags = kvp.Value.GenerateTags();
+                if (!saveData.modTags.ContainsKey(kvp.Key)) return false;
+                if (saveData.modTags[kvp.Key].Length != tags.Length) return false;
+                for (int i = 0; i < tags.Length; i++)
+                {
+                    if (!saveData.modTags[kvp.Key].Contains(tags[i])) return false;
+                }
+            }
+            return true;
+        }
+
         public int FindAppropiateSaveGame(string myPath, bool ignoreAlready)
         {
             // compare the currently cached path to the new path, if they aren't the same, then reset the save index
@@ -102,18 +128,38 @@ namespace MTM101BaldAPI.SaveSystem
                 reader.Close();
             }
             // a list of kvps that has every file that shares the same mods, might include files with less mods
+            // also includes mods with matching tags that are ready for tag comparisons
             KeyValuePair<int, PartialModdedSavedGame>[] containsAllMods = saveDatas.Where(x =>
             {
                 for (int i = 0; i < x.Value.mods.Length; i++)
                 {
-                    if (!ModdedSaveGame.ModdedSaveGameHandlers.ContainsKey(x.Value.mods[i]))
+                    string mod = x.Value.mods[i];
+                    if (!ModdedSaveGame.ModdedSaveGameHandlers.ContainsKey(mod))
                     {
                         return false;
+                    }
+                    // only check tags if they are ready
+                    if (ModdedSaveGame.ModdedSaveGameHandlers[mod].TagsReady())
+                    {
+                        string[] tagsToCheck = ModdedSaveGame.ModdedSaveGameHandlers[mod].GenerateTags();
+                        // if there is a length mismatch, tags aren't matching!
+                        if (x.Value.tags[mod].Length != tagsToCheck.Length)
+                        {
+                            return false;
+                        }
+                        for (int j = 0; j < tagsToCheck.Length; j++)
+                        {
+                            if (!x.Value.tags[mod].Contains(tagsToCheck[j]))
+                            {
+                                return false;
+                            }
+                        }
                     }
                 }
                 return true;
             }).ToArray();
             containsAllMods.Select(x => x.Value).Do(x => x.canBeMoved = true);
+            // no need for any more tag checks, as containsAllMods already has tags that match exactly
             KeyValuePair<int, PartialModdedSavedGame>[] containsExactMods = containsAllMods.Where(x =>
             {
                 int mods = 0;
@@ -187,6 +233,10 @@ namespace MTM101BaldAPI.SaveSystem
                     break;
                 case ModdedSaveLoadStatus.MissingHandlers:
                     MTM101BaldiDevAPI.Log.LogWarning("Failed to load save because one or more mod handlers were missing!");
+                    Singleton<ModdedFileManager>.Instance.saveData.saveAvailable = false;
+                    break;
+                case ModdedSaveLoadStatus.MismatchedTags:
+                    MTM101BaldiDevAPI.Log.LogWarning("Failed to load save because the tags were mismatched!");
                     Singleton<ModdedFileManager>.Instance.saveData.saveAvailable = false;
                     break;
                 case ModdedSaveLoadStatus.MissingItems:

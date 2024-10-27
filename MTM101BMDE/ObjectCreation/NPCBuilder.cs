@@ -58,7 +58,7 @@ namespace MTM101BaldAPI.ObjectCreation
         bool grounded = true;
         float minAudioDistance = 10f;
         float maxAudioDistance = 250f;
-        NPCFlags flags = NPCFlags.HasPhysicalAppearence | NPCFlags.CanMove;
+        NPCFlags flags = NPCFlags.HasSprite | NPCFlags.CanMove;
         string[] tags = new string[0];
         List<RoomCategory> spawnableRooms = new List<RoomCategory>();
         List<WeightedRoomAsset> potentialRoomAssets = new List<WeightedRoomAsset>();
@@ -99,7 +99,7 @@ namespace MTM101BaldAPI.ObjectCreation
             }
             _poster.SetValue(newNpc, poster);
             // set up proper sprite data
-            if (flags.HasFlag(NPCFlags.HasPhysicalAppearence))
+            if (flags.HasFlag(NPCFlags.HasSprite))
             {
                 newNpc.spriteBase = newNpc.transform.Find("SpriteBase").gameObject; //technically, yes, we could just use .GetChild(0), but I refer to it by name incase something changes to avoid grabbing the wrong thing
                 newNpc.spriteRenderer = new SpriteRenderer[] { newNpc.spriteBase.transform.GetChild(0).GetComponent<SpriteRenderer>() };
@@ -328,7 +328,7 @@ namespace MTM101BaldAPI.ObjectCreation
         /// <returns></returns>
         public NPCBuilder<T> RemoveSprite()
         {
-            flags &= ~NPCFlags.HasPhysicalAppearence;
+            flags &= ~NPCFlags.HasSprite;
             return this;
         }
 

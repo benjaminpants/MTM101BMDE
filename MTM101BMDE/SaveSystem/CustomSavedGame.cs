@@ -30,6 +30,11 @@ namespace MTM101BaldAPI.SaveSystem
         {
             seed = saveGame.seed;
             mods = ModdedSaveGame.ModdedSaveGameHandlers.Keys.ToArray();
+            tags = new Dictionary<string, string[]>();
+            foreach (KeyValuePair<string, string[]> kvp in saveGame.modTags)
+            {
+                tags.Add(kvp.Key, kvp.Value);
+            }
             hasFile = saveGame.saveAvailable;
             canBeMoved = false;
         }
@@ -117,7 +122,8 @@ namespace MTM101BaldAPI.SaveSystem
     public class ModdedSaveGame
     {
         public List<ModdedItemIdentifier> items = new List<ModdedItemIdentifier>();
-        public List<ModdedItemIdentifier> lockerItems = new List<ModdedItemIdentifier>(); 
+        public List<ModdedItemIdentifier> lockerItems = new List<ModdedItemIdentifier>();
+        public Dictionary<string, string[]> modTags = new Dictionary<string, string[]>();
         public int levelId = 0;
         public int ytps = 0;
         public int lives = 2;
@@ -222,6 +228,10 @@ namespace MTM101BaldAPI.SaveSystem
                     }
                     modTags.Add(modHandler, tags.ToArray());
                 }
+                else
+                {
+                    modTags.Add(modHandler, new string[0]);
+                }
             }
             if (!saveAvailable)
             {
@@ -234,6 +244,7 @@ namespace MTM101BaldAPI.SaveSystem
 
         public ModdedSaveLoadStatus Load(BinaryReader reader)
         {
+            modTags.Clear();
             bool tagsMatch = true;
             reader.ReadString();
             saveAvailable = reader.ReadBoolean();
@@ -241,6 +252,7 @@ namespace MTM101BaldAPI.SaveSystem
             {
                 if (reader.BaseStream.Position >= reader.BaseStream.Length) //we must be in an older version
                 {
+                    // todo: add code so that modTags isn't null when there is no save
                     return ModdedSaveLoadStatus.NoSave;
                 }
             }
@@ -259,6 +271,7 @@ namespace MTM101BaldAPI.SaveSystem
                     {
                         tags.Add(reader.ReadString());
                     }
+                    modTags.Add(modHandler, tags.ToArray());
                     if (ModdedSaveGameHandlers.ContainsKey(modHandler))
                     {
                         if (ModdedSaveGameHandlers[modHandler].TagsReady())
@@ -284,6 +297,10 @@ namespace MTM101BaldAPI.SaveSystem
                     {
                         tagsMatch = false;
                     }
+                }
+                else
+                {
+                    modTags.Add(modHandler, new string[0]);
                 }
             }
             if (!saveAvailable) return ModdedSaveLoadStatus.NoSave;

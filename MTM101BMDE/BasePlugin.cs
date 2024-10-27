@@ -26,6 +26,7 @@ using UnityEngine.UI;
 using MidiPlayerTK;
 using MTM101BaldAPI.Patches;
 using MTM101BaldAPI.Components;
+using System.Runtime.InteropServices;
 
 namespace MTM101BaldAPI
 {
@@ -114,6 +115,18 @@ namespace MTM101BaldAPI
             }
             OnSceneUnload();
             yield break;
+        }
+
+        private IEnumerator WaitForSoundfontLoad(string toDelete)
+        {
+            yield return null;
+            yield return null;
+            while (!MidiPlayerGlobal.MPTK_SoundFontLoaded)
+            {
+                yield return null;
+            }
+            MTM101BaldiDevAPI.Log.LogDebug("Soundfont loaded! Deleting from temp folder...");
+            File.Delete(toDelete);
         }
 
         internal void OnSceneUnload()
@@ -231,7 +244,7 @@ namespace MTM101BaldAPI
             NPCMetaStorage.Instance.Add(new NPCMetadata(MTM101BaldiDevAPI.Instance.Info, NPCs.Where(x => x.Character == Character.Sweep).ToArray(), "Gotta Sweep", NPCFlags.Standard, new string[] { "faculty" }));
             NPCMetaStorage.Instance.Add(new NPCMetadata(MTM101BaldiDevAPI.Instance.Info, NPCs.Where(x => x.Character == Character.LookAt).ToArray(), "LookAt", NPCFlags.Standard));
             NPCMetaStorage.Instance.Add(new NPCMetadata(MTM101BaldiDevAPI.Instance.Info, NPCs.Where(x => x.Character == Character.Prize).ToArray(), "FirstPrize", NPCFlags.Standard | NPCFlags.MakeNoise));
-            NPCMetaStorage.Instance.Add(new NPCMetadata(MTM101BaldiDevAPI.Instance.Info, NPCs.Where(x => x.Character == Character.DrReflex).ToArray(), "DrReflex", NPCFlags.Standard, new string[] { "faculty" }));
+            NPCMetaStorage.Instance.Add(new NPCMetadata(MTM101BaldiDevAPI.Instance.Info, NPCs.Where(x => x.Character == Character.DrReflex).ToArray(), "DrReflex", NPCFlags.StandardAndHear, new string[] { "faculty" }));
             Resources.FindObjectsOfTypeAll<RoomAsset>().Do(x =>
             {
                 RoomAssetMetaStorage.Instance.Add(new RoomAssetMeta(MTM101BaldiDevAPI.Instance.Info, x));
@@ -287,8 +300,10 @@ namespace MTM101BaldAPI
                 {
                     throw new Exception("Midifix stream Is null! Turn off the midifix in BepInEx/config!");
                 }
-                File.WriteAllBytes(Path.Combine(Application.temporaryCachePath, "gm.sf2"), stream.ToByteArray());
-                MidiPlayerGlobal.MPTK_LoadLiveSF("file://" + Path.Combine(Application.temporaryCachePath, "gm.sf2"));
+                string sf2Path = Path.Combine(Application.temporaryCachePath, "gm.sf2");
+                File.WriteAllBytes(sf2Path, stream.ToByteArray());
+                MidiPlayerGlobal.MPTK_LoadLiveSF("file://" + sf2Path);
+                StartCoroutine(WaitForSoundfontLoad(sf2Path));
                 stream.Dispose();
             }
 
@@ -533,6 +548,16 @@ PRESS ALT+F4 TO EXIT THE GAME.
                 "Enable Skybox Patches",
                 true,
                 "Whether or not outdoors areas will have different light colors depending on the skybox used. Only disable for legacy mods.");
+
+            ConfigEntry<bool> alwaysModdedSave = Config.Bind("General",
+                "Always Use Modded Save System",
+                false,
+                "If true, the modded save system will always be used, even if there are no mods that enable it.");
+
+            if (alwaysModdedSave.Value)
+            {
+                saveHandler = SavedGameDataHandler.Modded;
+            }
 
             harmony.PatchAllConditionals();
 
