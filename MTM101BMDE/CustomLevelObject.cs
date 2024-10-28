@@ -10,7 +10,7 @@ namespace MTM101BaldAPI
 
     public static class CustomLevelObjectExtensions
     {
-        static CustomLevelObject CustomLevelObject(this SceneObject sceneObj)
+        public static CustomLevelObject CustomLevelObject(this SceneObject sceneObj)
         {
             if (sceneObj.levelObject == null) return null;
             return (CustomLevelObject)sceneObj.levelObject;
