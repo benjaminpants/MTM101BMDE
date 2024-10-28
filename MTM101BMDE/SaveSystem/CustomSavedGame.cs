@@ -139,6 +139,18 @@ namespace MTM101BaldAPI.SaveSystem
         public int mapSizeZ = 0;
         internal static Dictionary<string, ModdedSaveGameIOBinary> ModdedSaveGameHandlers = new Dictionary<string, ModdedSaveGameIOBinary>();
 
+
+        public void FillBlankModTags()
+        {
+            ModdedSaveGameHandlers.Do(x =>
+            {
+                if (!modTags.ContainsKey(x.Key))
+                {
+                    modTags.Add(x.Key, x.Value.GenerateTags());
+                }
+            });
+        }
+
         public static void AddSaveHandler(ModdedSaveGameIOBinary handler)
         {
             if (handler.pluginInfo == null) throw new ArgumentNullException("You need to create a class that inherits from the ModdedSaveGameIOBinary class!");
@@ -242,7 +254,7 @@ namespace MTM101BaldAPI.SaveSystem
             return new PartialModdedSavedGame(seed, modHandlers.ToArray(), modTags);
         }
 
-        public ModdedSaveLoadStatus Load(BinaryReader reader)
+        public ModdedSaveLoadStatus Load(BinaryReader reader, bool addMissingTags)
         {
             modTags.Clear();
             bool tagsMatch = true;
@@ -252,6 +264,7 @@ namespace MTM101BaldAPI.SaveSystem
             {
                 if (reader.BaseStream.Position >= reader.BaseStream.Length) //we must be in an older version
                 {
+                    FillBlankModTags();
                     return ModdedSaveLoadStatus.NoSave;
                 }
             }
@@ -352,6 +365,14 @@ namespace MTM101BaldAPI.SaveSystem
             for (int i = 0; i < modHandlers.Count; i++)
             {
                 ModdedSaveGameHandlers[modHandlers[i]].Load(reader);
+            }
+            if (addMissingTags)
+            {
+                foreach (KeyValuePair<string, ModdedSaveGameIOBinary> kvp in ModdedSaveGameHandlers)
+                {
+                    if (modTags.ContainsKey(kvp.Key)) continue;
+                    modTags.Add(kvp.Key, kvp.Value.GenerateTags());
+                }
             }
             return ModdedSaveLoadStatus.Success;
         }

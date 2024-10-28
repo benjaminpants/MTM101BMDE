@@ -544,7 +544,7 @@ PRESS ALT+F4 TO EXIT THE GAME.
                 }
                 else
                 {
-                    Singleton<ModdedFileManager>.Instance.LoadGameWithIndex(myPath, Singleton<ModdedFileManager>.Instance.saveIndex);
+                    Singleton<ModdedFileManager>.Instance.LoadGameWithIndex(myPath, Singleton<ModdedFileManager>.Instance.saveIndex, true);
                 }
                 Singleton<ModdedFileManager>.Instance.UpdateCurrentPartialSave();
             });

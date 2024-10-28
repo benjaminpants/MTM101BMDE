@@ -48,6 +48,8 @@ namespace MTM101BaldAPI.OptionsAPI
     {
         public abstract void Build();
 
+        public OptionsMenu optionsMenu;
+
         public TooltipController tooltipController;
 
         public Transform toolTipHotspot;
@@ -367,6 +369,7 @@ namespace MTM101BaldAPI.OptionsAPI
             newPage.transform.SetSiblingIndex(indexToSetTransformBehind - 1);
             CategoryType page = newPage.AddComponent<CategoryType>();
             page.tooltipController = tooltipController;
+            page.optionsMenu = optionsMenu;
             page.Build();
             RebuildPages();
             return page;

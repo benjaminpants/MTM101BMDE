@@ -174,8 +174,9 @@ namespace MTM101BaldAPI.SaveSystem
             }).ToArray();
             if (containsExactMods.Length > 1)
             {
-                MTM101BaldiDevAPI.Log.LogError("Dirty hacker! Found duplicate files with same mods! Unfortunately, can't do anything about this, but SHAME! SHAMMEEE!");
+                MTM101BaldiDevAPI.Log.LogError("Dirty hacker! Found duplicate files with same mods and tags! Unfortunately, can't do anything about this, but SHAME! SHAMMEEE!");
             }
+            saveData.FillBlankModTags();
             if (containsExactMods.Length == 0)
             {
                 int validIndex = 1;
@@ -220,12 +221,12 @@ namespace MTM101BaldAPI.SaveSystem
             writer.Close();
         }
 
-        public void LoadGameWithIndex(string path, int index)
+        public void LoadGameWithIndex(string path, int index, bool addMissingTags)
         {
             if (!File.Exists(Path.Combine(path, "savedgame" + index + ".bbapi"))) return;
             FileStream fs = File.OpenRead(Path.Combine(path, "savedgame" + index + ".bbapi"));
             BinaryReader reader = new BinaryReader(fs);
-            ModdedSaveLoadStatus status = Singleton<ModdedFileManager>.Instance.saveData.Load(reader);
+            ModdedSaveLoadStatus status = Singleton<ModdedFileManager>.Instance.saveData.Load(reader, addMissingTags);
             reader.Close();
             switch (status)
             {
@@ -348,6 +349,7 @@ namespace MTM101BaldAPI.SaveSystem
         {
             if (MTM101BaldiDevAPI.SaveGamesHandler != SavedGameDataHandler.Modded) return;
             ModdedFileManager.Instance.saveData = new ModdedSaveGame();
+            ModdedFileManager.Instance.saveData.FillBlankModTags();
             ModdedSaveGame.ModdedSaveGameHandlers.Do(x =>
             {
                 x.Value.Reset();
@@ -396,6 +398,7 @@ namespace MTM101BaldAPI.SaveSystem
             newSave.foundMapTiles = ___foundTilesToRestore.ConvertTo1d(___savedMapSize.x, ___savedMapSize.z);
             newSave.mapSizeX = ___savedMapSize.x;
             newSave.mapSizeZ = ___savedMapSize.z;
+            newSave.FillBlankModTags();
             Singleton<ModdedFileManager>.Instance.saveData = newSave;
             Singleton<PlayerFileManager>.Instance.Save();
             __instance.Quit();

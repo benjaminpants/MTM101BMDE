@@ -57,7 +57,6 @@ namespace MTM101BaldAPI
             modListPage = 0;
             UpdateModList();
             ShiftModList(0);
-            return;
             deleteButton.text.color = deletingAllowed ? Color.black : Color.gray;
             deleteButton.tag = deletingAllowed ? "Button" : "Untagged";
             transferButton.text.color = game.canBeMoved ? Color.black : Color.gray;
@@ -161,7 +160,55 @@ namespace MTM101BaldAPI
             leftPageButton = CreateButton(() => { ShiftModList(-1); }, menuArrowLeft, menuArrowLeftHighlight, "LeftPageButton", new Vector3(-160f, -45f));
             rightPageButton = CreateButton(() => { ShiftModList(1); }, menuArrowRight, menuArrowRightHighlight, "RightPageButton", new Vector3(160f, -45f));
 
-            //deleteButton = CreateTextButton(() => { }, "DeleteButton", "<b>Delete", new Vector3(0f,-132f), BaldiFonts.ComicSans24, TextAlignmentOptions.Center, new Vector2(100f, 32f), Color.black);
+            deleteButton = CreateTextButton(() => {
+                SwitchToWarning("Deleting a saved game <i>CANNOT</i> be undone!\nAre you sure?", () =>
+                {
+                    Singleton<ModdedFileManager>.Instance.DeleteIndexedGame(externalIndex);
+                    optionsMenu.GetComponent<AudioManager>().PlaySingle(MTM101BaldiDevAPI.AssetMan.Get<SoundObject>("Explosion"));
+                    SwitchToMain(false);
+                });
+            }, "DeleteButton", "<b>Delete", new Vector3(0f,-112f), BaldiFonts.ComicSans24, TextAlignmentOptions.Center, new Vector2(100f, 32f), Color.black);
+            transferButton = CreateTextButton(() => {
+                SwitchToWarning("This will transfer the game to this save, not duplicate it! If you transfer, you won't be able to load this save with the old mods! Are you sure?", () =>
+                {
+                    // load the saved game
+                    Dictionary<string, string[]> currentTags = new Dictionary<string, string[]>();
+                    // do this seperately incase mods depend on eachother for tags. they shouldn't but just incase!
+                    ModdedSaveGame.ModdedSaveGameHandlers.Do(x =>
+                    {
+                        currentTags.Add(x.Key, x.Value.GenerateTags());
+                    });
+                    ModdedSaveGame.ModdedSaveGameHandlers.Do(x => x.Value.Reset()); //reset all
+                    Singleton<ModdedFileManager>.Instance.LoadGameWithIndex(ModdedSaveSystem.GetSaveFolder(MTM101BaldiDevAPI.Instance, Singleton<PlayerFileManager>.Instance.fileName), externalIndex, false);
+                    Singleton<ModdedFileManager>.Instance.DeleteIndexedGame(externalIndex);
+                    Singleton<ModdedFileManager>.Instance.saveData.modTags = currentTags;
+                    Singleton<ModdedFileManager>.Instance.UpdateCurrentPartialSave();
+                    optionsMenu.GetComponent<AudioManager>().PlaySingle(MTM101BaldiDevAPI.AssetMan.Get<SoundObject>("Xylophone"));
+                    SwitchToMain(false);
+                });
+            }, "TransferButton", "<b>Transfer To Current Game", new Vector3(0f, -150f), BaldiFonts.ComicSans24, TextAlignmentOptions.Center, new Vector2(300f, 32f), Color.black);
+
+            arrowLeft.transform.SetParent(mainScreen.transform, false);
+            arrowRight.transform.SetParent(mainScreen.transform, false);
+            idText.transform.SetParent(mainScreen.transform, false);
+            seedText.transform.SetParent(mainScreen.transform, false);
+            modListHeader.transform.SetParent(mainScreen.transform, false);
+            leftPageButton.transform.SetParent(mainScreen.transform, false);
+            rightPageButton.transform.SetParent(mainScreen.transform, false);
+            deleteButton.transform.SetParent(mainScreen.transform, false);
+            transferButton.transform.SetParent(mainScreen.transform, false);
+            for (int i = 0; i < modList.Length; i++)
+            {
+                modList[i].transform.SetParent(mainScreen.transform, false);
+            }
+
+            warnText = CreateText("WarningText", "Deleting a saved game <i>CANNOT</i> be undone!\nAre you sure?", Vector2.down * 25f, BaldiFonts.ComicSans24, TextAlignmentOptions.Top, new Vector2(300f, 150f), Color.red, false);
+            StandardMenuButton yesButton = CreateTextButton(() => { currentConfirmAction(); }, "YesButton", "<b>YES", new Vector2(-75f, -100f), BaldiFonts.ComicSans24, TextAlignmentOptions.Center, new Vector2(82f, 32f), Color.black);
+            StandardMenuButton noButton = CreateTextButton(() => { SwitchToMain(true); }, "NoButton", "<b>NO", new Vector2(75f, -100f), BaldiFonts.ComicSans24, TextAlignmentOptions.Center, new Vector2(82f, 32f), Color.black);
+
+            warnText.transform.SetParent(warnScreen.transform, false);
+            yesButton.transform.SetParent(warnScreen.transform, false);
+            noButton.transform.SetParent(warnScreen.transform, false);
 
             SwitchToMain(false);
 
