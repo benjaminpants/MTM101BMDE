@@ -17,43 +17,77 @@ namespace MTM101BaldAPI.AssetTools
     public static class AssetLoader
     {
 
-        /// <summary>
-        /// Loads and applies localization from the specified file.
-        /// </summary>
-        /// <param name="path"></param>
-        public static void LocalizationFromFile(string path)
+        private static List<BaseUnityPlugin> queuedModsForLanguage = new List<BaseUnityPlugin>();
+        private static List<(Language, string)> queuedFilesForLanguage = new List<(Language, string)>();
+        private static FieldInfo _localizedText = AccessTools.Field(typeof(LocalizationManager), "localizedText");
+        private static FieldInfo _currentSubLang = AccessTools.Field(typeof(LocalizationManager), "currentSubLang");
+
+        internal static void LoadAllQueuedLocalization(Language language)
         {
-            LocalizationData localizationData = JsonUtility.FromJson<LocalizationData>(File.ReadAllText(path));
-            Dictionary<string, string> localizedText = (Dictionary<string, string>)_localizedText.GetValue(LocalizationManager.Instance);
-            foreach (LocalizationItem item in localizationData.items)
+            if (Singleton<LocalizationManager>.Instance == null) return;
+            foreach ((Language, string) pathTuple in queuedFilesForLanguage)
             {
-                if (localizedText.ContainsKey(item.key))
+                if (language != pathTuple.Item1) continue;
+                string path = pathTuple.Item2;
+                LoadLocaFile(path);
+            }
+            foreach (BaseUnityPlugin plugin in queuedModsForLanguage)
+            {
+                string rootPath = Path.Combine(GetModPath(plugin), "Language", language.ToString());
+                if (!Directory.Exists(rootPath)) continue;
+                string[] paths = Directory.GetFiles(rootPath, "*.json");
+                foreach (string path in paths)
                 {
-                    localizedText[item.key] = item.value;
-                }
-                else
-                {
-                    localizedText.Add(item.key, item.value);
+                    LoadLocaFile(path);
                 }
             }
         }
 
         /// <summary>
-        /// Automatically loads the appropiate localization file from the specified mod. Behaves exactly as in API versions prior to 6.0.0.0.
+        /// Adds the specified file to be queued for load for the specified language.
+        /// </summary>
+        /// <param name="path"></param>
+        /// <param name="lang"></param>
+        public static void LocalizationFromFile(string path, Language lang)
+        {
+            queuedFilesForLanguage.Add((lang, path));
+        }
+
+        private static void LoadLocaFile(string path)
+        {
+            try
+            {
+                LocalizationData localizationData = JsonUtility.FromJson<LocalizationData>(File.ReadAllText(path));
+                Dictionary<string, string> localizedText = (Dictionary<string, string>)_localizedText.GetValue(LocalizationManager.Instance);
+                foreach (LocalizationItem item in localizationData.items)
+                {
+                    if (localizedText.ContainsKey(item.key))
+                    {
+                        localizedText[item.key] = item.value;
+                    }
+                    else
+                    {
+                        localizedText.Add(item.key, item.value);
+                    }
+                }
+                MTM101BaldiDevAPI.Log.LogDebug("Loaded " + Path.GetFileName(path) + " successfully!");
+            }
+            catch (Exception E)
+            {
+                MTM101BaldiDevAPI.Log.LogError("Given JSON for file: " + Path.GetFileName(path) + " is invalid!");
+                MTM101BaldiDevAPI.Log.LogError(E.Message);
+            }
+        }
+
+        /// <summary>
+        /// Automatically queues the appropiate localization file from the specified mod.
+        /// Use this if you are porting a mod from a version before 6.0.0.0
         /// (AKA: Put JSON files in Language/English/)
         /// </summary>
         public static void LocalizationFromMod(BaseUnityPlugin plugin)
         {
-            string rootPath = Path.Combine(GetModPath(plugin), "Language", ((Language)_currentSubLang.GetValue(LocalizationManager.Instance)).ToString());
-            string[] paths = Directory.GetFiles(rootPath, "*.json");
-            foreach (string path in paths)
-            {
-                LocalizationFromFile(path);
-            }
+            queuedModsForLanguage.Add(plugin);
         }
-
-        private static FieldInfo _localizedText = AccessTools.Field(typeof(LocalizationManager), "localizedText");
-        private static FieldInfo _currentSubLang = AccessTools.Field(typeof(LocalizationManager), "currentSubLang");
 
         /// <summary>
         /// Load textures from a specified folder.
@@ -441,12 +475,27 @@ namespace MTM101BaldAPI.AssetTools
         /// Load a Language folder from a non-standard place.
         /// </summary>
         /// <param name="rootPath"></param>
+        [Obsolete("Use LoadLocalizationFolder instead!")]
         public static void LoadLanguageFolder(string rootPath)
         {
             string[] paths = Directory.GetFiles(rootPath, "*.json");
             foreach (string path in paths)
             {
-                LocalizationFromFile(path);
+                queuedFilesForLanguage.Add((Language.English, path));
+            }
+        }
+
+        /// <summary>
+        /// Queues all the files in the specified localization folder to be loaded.
+        /// </summary>
+        /// <param name="rootPath"></param>
+        /// <param name="lang"></param>
+        public static void LoadLocalizationFolder(string rootPath, Language lang)
+        {
+            string[] paths = Directory.GetFiles(rootPath, "*.json");
+            foreach (string path in paths)
+            {
+                queuedFilesForLanguage.Add((lang, path));
             }
         }
 

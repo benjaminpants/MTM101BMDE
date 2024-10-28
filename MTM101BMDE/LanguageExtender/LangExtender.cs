@@ -12,6 +12,7 @@ using HarmonyLib;
 using BepInEx.Configuration;
 using System.Collections.Generic;
 using MTM101BaldAPI;
+using MTM101BaldAPI.AssetTools;
 
 namespace MTM101BaldAPI.LangExtender
 {
@@ -24,4 +25,14 @@ namespace MTM101BaldAPI.LangExtender
 			return key;
 		}
 	}
+
+	[HarmonyPatch(typeof(LocalizationManager))]
+	[HarmonyPatch("LoadLocalizedText")]
+	internal class LanguageLoadingPatch
+	{
+        static void Postfix(LocalizationManager __instance, Language language)
+		{
+			AssetLoader.LoadAllQueuedLocalization(language);
+		}
+    }
 }

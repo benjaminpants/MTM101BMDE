@@ -30,6 +30,7 @@ using System.Runtime.InteropServices;
 using UnityEngine.Networking;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
+using MTM101BaldAPI.ErrorHandler;
 
 namespace MTM101BaldAPI
 {
@@ -443,6 +444,7 @@ namespace MTM101BaldAPI
             AssetMan.AddFromResources<TMPro.TMP_FontAsset>();
             AssetMan.AddFromResources<Material>();
             AssetMan.Add<SoundObject>("Silence", allSoundObjects.First(x => x.name == "Silence"));
+            AssetMan.Add<AudioClip>("ErrorSound", Resources.FindObjectsOfTypeAll<AudioClip>().First(x => x.name == "Activity_Incorrect"));
         }
 
         internal void ConvertAllLevelObjects()
@@ -575,9 +577,19 @@ PRESS ALT+F4 TO EXIT THE GAME.
                 false,
                 "If true, the modded save system will always be used, even if there are no mods that enable it.");
 
+            ConfigEntry<bool> useErrorReporter = Config.Bind("General",
+                "Visible Exceptions",
+                true,
+                "If true, any exceptions that occur during gameplay will be flashed onto the screen.");
+
             if (alwaysModdedSave.Value)
             {
                 saveHandler = SavedGameDataHandler.Modded;
+            }
+
+            if (useErrorReporter.Value)
+            {
+                BepInEx.Logging.Logger.Listeners.Add(new APIErrorListener());
             }
 
             harmony.PatchAllConditionals();
