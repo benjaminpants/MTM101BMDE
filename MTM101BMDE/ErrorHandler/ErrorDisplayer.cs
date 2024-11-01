@@ -12,6 +12,7 @@ using UnityEngine;
 namespace MTM101BaldAPI.ErrorHandler
 {
 
+    [ConditionalPatchConfig("mtm101.rulerp.bbplus.baldidevapi", "General", "Visible Exceptions")]
     [HarmonyPatch(typeof(HudManager))]
     [HarmonyPatch("Awake")]
     static class ErrorDisplayPatch

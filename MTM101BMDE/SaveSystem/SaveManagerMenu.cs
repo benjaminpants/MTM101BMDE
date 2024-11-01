@@ -78,7 +78,7 @@ namespace MTM101BaldAPI
             int finalIndex = (modListPage * modList.Length) + index;
             if (finalIndex >= game.mods.Length) return;
             string mod = game.mods[finalIndex];
-            if (ModdedSaveGame.ModdedSaveGameHandlers.ContainsKey(mod))
+            if (ModdedSaveGame.ModdedSaveGameHandlers.ContainsKey(mod) && (!MTM101BaldiDevAPI.Instance.ignoringTagDisplays.Value))
             {
                 tooltipController.UpdateTooltip(ModdedSaveGame.ModdedSaveGameHandlers[mod].DisplayTags(game.tags[mod]));
             }

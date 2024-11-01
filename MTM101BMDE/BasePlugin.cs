@@ -41,10 +41,10 @@ namespace MTM101BaldAPI
         None
     }
 
-    [BepInPlugin("mtm101.rulerp.bbplus.baldidevapi", "BB+ Dev API", VersionNumber)]
+    [BepInPlugin("mtm101.rulerp.bbplus.baldidevapi", "Baldi's Basics Plus Dev API", VersionNumber)]
     public class MTM101BaldiDevAPI : BaseUnityPlugin
     {
-        internal static ManualLogSource Log = new ManualLogSource("BB+ Dev API Pre Initialization");
+        internal static ManualLogSource Log = new ManualLogSource("Baldi's Basics Plus Dev API Pre Initialization");
 
         public const string VersionNumber = "6.0.0.0";
 
@@ -60,6 +60,8 @@ namespace MTM101BaldAPI
         internal static List<UnityEngine.Object> keepInMemory = new List<UnityEngine.Object>();
 
         internal ConfigEntry<bool> usingMidiFix;
+
+        internal ConfigEntry<bool> ignoringTagDisplays;
 
         internal Sprite[] questionMarkSprites;
 
@@ -581,6 +583,11 @@ PRESS ALT+F4 TO EXIT THE GAME.
                 "Visible Exceptions",
                 true,
                 "If true, any exceptions that occur during gameplay will be flashed onto the screen.");
+
+            ignoringTagDisplays = Config.Bind("Technical",
+                "Ignore Custom Tag Displays",
+                false,
+                "If true, mod save tags will always be shown as if the mod wasn't installed. It is suggested to leave this off unless you are debugging.");
 
             if (alwaysModdedSave.Value)
             {
