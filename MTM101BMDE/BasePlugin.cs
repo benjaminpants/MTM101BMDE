@@ -63,6 +63,8 @@ namespace MTM101BaldAPI
 
         internal ConfigEntry<bool> ignoringTagDisplays;
 
+        internal ConfigEntry<bool> attemptOnline;
+
         internal Sprite[] questionMarkSprites;
 
         public static ItemMetaStorage itemMetadata = new ItemMetaStorage();
@@ -433,6 +435,7 @@ namespace MTM101BaldAPI
             AssetMan.Add<Sprite>("BarTransparent", allSprites.First(x => x.name == "MenuBarSheet_1"));
             AssetMan.Add<Sprite>("CheckBox", allSprites.First(x => x.name == "CheckBox"));
             AssetMan.Add<Sprite>("Check", allSprites.First(x => x.name == "YCTP_IndicatorsSheet_0"));
+            AssetMan.Add<Material>("tileStandard", Resources.FindObjectsOfTypeAll<Material>().First(x => x.name == "TileBase"));
             AssetMan.AddFromResources<Shader>();
             questionMarkSprites = allSprites.Where(x => x.texture.name == "QMarkSheet").ToArray();
             SoundObject[] allSoundObjects = Resources.FindObjectsOfTypeAll<SoundObject>();
@@ -579,6 +582,11 @@ PRESS ALT+F4 TO EXIT THE GAME.
                 true,
                 "If true, any exceptions that occur during gameplay will be flashed onto the screen.");
 
+            attemptOnline = Config.Bind("General",
+                "Connect to Gamebanana",
+                true,
+                "If true, the mod will attempt to connect to Gamebanana to get the latest version of the API.");
+
             ignoringTagDisplays = Config.Bind("Technical",
                 "Ignore Custom Tag Displays",
                 false,
@@ -597,7 +605,10 @@ PRESS ALT+F4 TO EXIT THE GAME.
             harmony.PatchAllConditionals();
 
             Log = base.Logger;
-            StartCoroutine(GetCurrentGamebananaVersion());
+            if (attemptOnline.Value)
+            {
+                StartCoroutine(GetCurrentGamebananaVersion());
+            }
         }
     }
 
@@ -643,16 +654,27 @@ PRESS ALT+F4 TO EXIT THE GAME.
             text.gameObject.SetActive(true); // so the pre-releases don't hide the version number
             text.text = "Modding API " + MTM101BaldiDevAPI.VersionNumber;
             text.gameObject.transform.position += new Vector3(-11f,0f, 0f);
+            if (!MTM101BaldiDevAPI.Instance.attemptOnline.Value)
+            {
+                return;
+            }
             text.raycastTarget = true;
             StandardMenuButton button = text.gameObject.ConvertToButton<StandardMenuButton>();
             button.underlineOnHigh = true;
-            if (new Version(MTM101BaldiDevAPI.Instance.newestGBVersion) > MTM101BaldiDevAPI.Version)
+            if (MTM101BaldiDevAPI.Instance.newestGBVersion != "unknown")
             {
-                text.text += "\nOutdated!\n(Latest is " + MTM101BaldiDevAPI.Instance.newestGBVersion + ")";
+                if (new Version(MTM101BaldiDevAPI.Instance.newestGBVersion) > MTM101BaldiDevAPI.Version)
+                {
+                    text.text += "\nOutdated!\n(Latest is " + MTM101BaldiDevAPI.Instance.newestGBVersion + ")";
+                }
+                else if (MTM101BaldiDevAPI.Version > new Version(MTM101BaldiDevAPI.Instance.newestGBVersion))
+                {
+                    text.text += "\nUnreleased!";
+                }
             }
-            else if (MTM101BaldiDevAPI.Version > new Version(MTM101BaldiDevAPI.Instance.newestGBVersion))
+            else
             {
-                text.text += "\nUnreleased!";
+                text.text += "Unable to connect!";
             }
             button.OnPress.AddListener(() => { Application.OpenURL("https://gamebanana.com/mods/383711"); });
         }

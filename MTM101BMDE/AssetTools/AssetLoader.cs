@@ -11,6 +11,7 @@ using MPTK.NAudio.Midi;
 using HarmonyLib;
 using MEC;
 using System.Reflection;
+using Dummiesman;
 
 namespace MTM101BaldAPI.AssetTools
 {
@@ -88,6 +89,27 @@ namespace MTM101BaldAPI.AssetTools
         {
             queuedModsForLanguage.Add(plugin);
         }
+
+
+        /// <summary>
+        /// Loads a .obj and .mtl from the specified file.
+        /// </summary>
+        /// <returns>The GameObject containing the model</returns>
+        public static GameObject ModelFromFile(string path)
+        {
+            OBJLoader objLoader = new OBJLoader();
+            GameObject obj = objLoader.Load(path, MTM101BaldiDevAPI.AssetMan.Get<Material>("TileBase"));
+            obj.name = Path.GetFileNameWithoutExtension(path);
+            return obj;
+        }
+
+        public static GameObject ModelFromMod(BaseUnityPlugin plugin, params string[] paths)
+        {
+            List<string> pathz = paths.ToList();
+            pathz.Insert(0, GetModPath(plugin));
+            return ModelFromFile(Path.Combine(pathz.ToArray()));
+        }
+
 
         /// <summary>
         /// Load textures from a specified folder.
