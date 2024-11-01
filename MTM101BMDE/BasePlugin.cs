@@ -395,8 +395,6 @@ namespace MTM101BaldAPI
         /// </summary>
         public static Transform prefabTransform => PrefabSubObject.transform;
 
-
-        static FieldInfo _allEntities = AccessTools.Field(typeof(Entity), "allEntities");
         internal void AssetsLoadPre()
         {
             GameObject internalIdentity = Resources.FindObjectsOfTypeAll<GameObject>().First(x => x.name == "InternalIdentityTransform");
@@ -412,20 +410,17 @@ namespace MTM101BaldAPI
             posterTemplate.name = "CharacterPosterTemplate";
             posterTemplate.baseTexture = null;
             AssetMan.Add<PosterObject>("CharacterPosterTemplate", posterTemplate);
-            NPC templateNpc = GameObject.Instantiate<NPC>(Resources.FindObjectsOfTypeAll<Beans>().First());
+            // TODO: create TemplateNPC from scratch and stop duplicating beans
+            Beans beansToCopy = Resources.FindObjectsOfTypeAll<Beans>().First();
+            beansToCopy.gameObject.SetActive(false);
+            NPC templateNpc = GameObject.Instantiate<NPC>(beansToCopy);
+            beansToCopy.gameObject.SetActive(true);
             templateNpc.GetComponent<Entity>().SetActive(false); //disable the entity
-            templateNpc.gameObject.SetActive(false);
             templateNpc.name = "TemplateNPC";
-            // handle audio manager stuff
-            PropagatedAudioManager audMan = templateNpc.GetComponent<PropagatedAudioManager>();
-            GameObject.Destroy(audMan.audioDevice.gameObject);
-            audMan.sourceId = 0; //reset source id
-            AudioManager.totalIds--; //decrement total ids
             GameObject templateObject = templateNpc.gameObject;
             GameObject.DestroyImmediate(templateObject.GetComponent<Beans>());
             GameObject.DestroyImmediate(templateObject.GetComponent<Animator>());
             templateObject.layer = LayerMask.NameToLayer("NPCs");
-            ((List<Entity>)_allEntities.GetValue(null)).Remove(templateObject.GetComponent<Entity>());
             templateObject.ConvertToPrefab(false);
             AssetMan.Add<GameObject>("TemplateNPC", templateObject);
             MTM101BaldAPI.Registers.Buttons.ButtonColorManager.InitializeButtonColors();
