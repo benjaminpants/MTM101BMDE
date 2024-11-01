@@ -6,4 +6,6 @@ You need BepInEx for this API to be useful.
 
 The downloads section on this page is outdated please use the GB page: https://gamebanana.com/mods/383711
 
-
+# Credits
+PixelGuy for various minor portions of the codebase
+Dummiesman for OBJ Importer, which was adapted for use in the API.
