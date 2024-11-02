@@ -241,7 +241,16 @@ namespace MTM101BaldAPI.AssetTools
 
         private Texture2D MakeNewTextureCopy(Texture2D propertiesToCopy)
         {
-            return new Texture2D(propertiesToCopy.width, propertiesToCopy.height, propertiesToCopy.format, propertiesToCopy.mipmapCount > 1);
+            Texture2D newTex = new Texture2D(propertiesToCopy.width, propertiesToCopy.height, propertiesToCopy.format, propertiesToCopy.mipmapCount > 1);
+            for (int x = 0; x < newTex.width; x++)
+            {
+                for (int y = 0; y < newTex.height; y++)
+                {
+                    newTex.SetPixel(x, y, Color.clear);
+                }
+            }
+            newTex.Apply();
+            return newTex;
         }
 
         private Texture2D AlphaClip(Texture2D baseTexture, Texture2D clipWith)
