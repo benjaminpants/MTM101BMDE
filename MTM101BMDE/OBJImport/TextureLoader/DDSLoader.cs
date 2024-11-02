@@ -5,7 +5,7 @@ using System.IO;
 using System.Linq;
 using UnityEngine;
 
-namespace Dummiesman
+namespace MTM101BaldAPI.OBJImporter
 {
     public static class DDSLoader
     {

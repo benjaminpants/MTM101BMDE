@@ -1,7 +1,7 @@
 ﻿using System.Globalization;
 using UnityEngine;
 
-namespace Dummiesman 
+namespace MTM101BaldAPI.OBJImporter 
 {
     public static class OBJLoaderHelper  
     {

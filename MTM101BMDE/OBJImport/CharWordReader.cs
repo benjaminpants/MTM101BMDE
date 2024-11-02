@@ -4,7 +4,7 @@ using UnityEngine;
 using System.IO;
 using System.Text;
 
-namespace Dummiesman {
+namespace MTM101BaldAPI.OBJImporter {
 	public class CharWordReader {
 		public char[] word;
 		public int wordSize;

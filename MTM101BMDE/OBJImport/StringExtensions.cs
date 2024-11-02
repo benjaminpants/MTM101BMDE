@@ -1,4 +1,4 @@
-﻿namespace Dummiesman
+﻿namespace MTM101BaldAPI.OBJImporter
 {
     public static class StringExtensions
     {

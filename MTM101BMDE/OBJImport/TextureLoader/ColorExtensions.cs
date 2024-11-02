@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-namespace Dummiesman.Extensions
+namespace MTM101BaldAPI.OBJImporter.Extensions
 {
     public static class ColorExtensions
     {

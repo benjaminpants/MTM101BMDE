@@ -9,7 +9,7 @@ using System.Collections;
 using System.IO;
 using B83.Image.BMP;
 
-namespace Dummiesman
+namespace MTM101BaldAPI.OBJImporter
 {
     public class ImageLoader
     {

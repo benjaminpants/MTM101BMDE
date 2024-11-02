@@ -16,12 +16,12 @@ using System.Collections.Generic;
 using System.IO;
 using UnityEngine;
 using System;
-using Dummiesman;
+using MTM101BaldAPI.OBJImporter
 #if UNITY_EDITOR
 using UnityEditor;
 #endif
 
-namespace Dummiesman
+namespace MTM101BaldAPI.OBJImporter
 {
     public enum SplitMode {
         None,

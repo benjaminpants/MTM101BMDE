@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using UnityEngine;
 
-namespace Dummiesman
+namespace MTM101BaldAPI.OBJImporter
 {
     public static class BinaryExtensions
     {

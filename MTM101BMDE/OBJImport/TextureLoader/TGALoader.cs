@@ -6,7 +6,7 @@ using System;
 using Dummiesman.Extensions;
 using System.Runtime.InteropServices;
 
-namespace Dummiesman
+namespace MTM101BaldAPI.OBJImporter
 {
     public class TGALoader
     {

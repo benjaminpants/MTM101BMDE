@@ -12,11 +12,11 @@
  * all copies or substantial portions of the Software.
 */
 
-using Dummiesman;
+using MTM101BaldAPI.OBJImporter
 using System.Collections.Generic;
 using UnityEngine;
 
-namespace Dummiesman {
+namespace MTM101BaldAPI.OBJImporter {
 public class OBJObjectBuilder {
 	//
 	public int PushedFaceCount { get; private set; } = 0;

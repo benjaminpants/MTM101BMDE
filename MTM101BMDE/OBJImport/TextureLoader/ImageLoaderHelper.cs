@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using System.Runtime.InteropServices;
 using UnityEngine;
 
-namespace Dummiesman
+namespace MTM101BaldAPI.OBJImporter
 {
     public class ImageLoaderHelper
     {
