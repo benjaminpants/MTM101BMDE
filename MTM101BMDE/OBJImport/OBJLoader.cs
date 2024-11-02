@@ -16,7 +16,7 @@ using System.Collections.Generic;
 using System.IO;
 using UnityEngine;
 using System;
-using MTM101BaldAPI.OBJImporter
+using MTM101BaldAPI.OBJImporter;
 #if UNITY_EDITOR
 using UnityEditor;
 #endif

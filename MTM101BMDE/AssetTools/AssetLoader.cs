@@ -11,7 +11,7 @@ using MPTK.NAudio.Midi;
 using HarmonyLib;
 using MEC;
 using System.Reflection;
-using MTM101BaldAPI.OBJImporter
+using MTM101BaldAPI.OBJImporter;
 
 namespace MTM101BaldAPI.AssetTools
 {

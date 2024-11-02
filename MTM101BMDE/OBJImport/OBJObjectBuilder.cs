@@ -12,7 +12,7 @@
  * all copies or substantial portions of the Software.
 */
 
-using MTM101BaldAPI.OBJImporter
+using MTM101BaldAPI.OBJImporter;
 using System.Collections.Generic;
 using UnityEngine;
 

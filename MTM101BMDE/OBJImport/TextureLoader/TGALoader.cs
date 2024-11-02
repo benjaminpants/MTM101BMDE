@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using System.IO;
 using System;
-using Dummiesman.Extensions;
+using MTM101BaldAPI.OBJImporter.Extensions;
 using System.Runtime.InteropServices;
 
 namespace MTM101BaldAPI.OBJImporter
