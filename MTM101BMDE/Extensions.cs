@@ -154,6 +154,16 @@ namespace MTM101BaldAPI
         }
 
         /// <summary>
+        /// Sets the color of the material, uses the appropiate variable names for BB+ shaders.
+        /// </summary>
+        /// <param name="me"></param>
+        /// <param name="color"></param>
+        public static void SetColor(this Material me, Color color)
+        {
+            me.SetColor("_TextureColor", color);
+        }
+
+        /// <summary>
         /// Sets the mask texture of the material.
         /// </summary>
         /// <param name="me"></param>

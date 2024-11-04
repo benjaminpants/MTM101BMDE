@@ -96,7 +96,7 @@ namespace MTM101BaldAPI.Registers.Buttons
             */
     }
 
-    internal static void AddRed()
+        internal static void AddRed()
         {
             if (_buttonColors.Count != 0) throw new Exception("AddRed called twice!");
             _buttonColors.Add("Red", new ButtonMaterials()
@@ -114,6 +114,7 @@ namespace MTM101BaldAPI.Registers.Buttons
         {
             ApplyLeverMaterials(applyTo, buttonColors[colorName]);
         }
+
         public static ButtonMaterials CreateButtonMaterial(string key, Color color)
         {
             if (buttonColors.ContainsKey(key))
