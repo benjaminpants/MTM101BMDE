@@ -312,22 +312,7 @@ namespace MTM101BaldAPI.AssetTools
 
         private Texture2D MakeReadableCopy(Texture2D source)
         {
-            RenderTexture dummyTex = RenderTexture.GetTemporary(source.width, source.height, 24);
-            Texture2D toDump = source;
-
-            toDump = new Texture2D(toDump.width, toDump.height, toDump.format, toDump.mipmapCount > 1)
-            {
-                name = source.name
-            };
-            Graphics.Blit(source, dummyTex);
-            toDump.filterMode = source.filterMode;
-            dummyTex.filterMode = source.filterMode;
-
-            toDump.ReadPixels(new Rect(0, 0, dummyTex.width, dummyTex.height), 0, 0);
-            //toDump.Apply();
-            RenderTexture.ReleaseTemporary(dummyTex);
-
-            return toDump;
+            return AssetLoader.MakeReadableCopy(source, false);
         }
     }
 }

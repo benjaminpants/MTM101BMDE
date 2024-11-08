@@ -22,16 +22,11 @@ namespace MTM101BaldAPI.AssetTools
         private static List<(Language, string)> queuedFilesForLanguage = new List<(Language, string)>();
         private static FieldInfo _localizedText = AccessTools.Field(typeof(LocalizationManager), "localizedText");
         private static FieldInfo _currentSubLang = AccessTools.Field(typeof(LocalizationManager), "currentSubLang");
+        private static List<Func<Language,Dictionary<string,string>>> queuedActionsForLanguage = new List<Func<Language, Dictionary<string, string>>>();
 
         internal static void LoadAllQueuedLocalization(Language language)
         {
             if (Singleton<LocalizationManager>.Instance == null) return;
-            foreach ((Language, string) pathTuple in queuedFilesForLanguage)
-            {
-                if (language != pathTuple.Item1) continue;
-                string path = pathTuple.Item2;
-                LoadLocaFile(path);
-            }
             foreach (BaseUnityPlugin plugin in queuedModsForLanguage)
             {
                 string rootPath = Path.Combine(GetModPath(plugin), "Language", language.ToString());
@@ -40,6 +35,21 @@ namespace MTM101BaldAPI.AssetTools
                 foreach (string path in paths)
                 {
                     LoadLocaFile(path);
+                }
+            }
+            foreach ((Language, string) pathTuple in queuedFilesForLanguage)
+            {
+                if (language != pathTuple.Item1) continue;
+                string path = pathTuple.Item2;
+                LoadLocaFile(path);
+            }
+            Dictionary<string, string> localizedText = (Dictionary<string, string>)_localizedText.GetValue(LocalizationManager.Instance);
+            foreach (Func<Language,Dictionary<string, string>> act in queuedActionsForLanguage)
+            {
+                Dictionary<string, string> output = act(language);
+                foreach (KeyValuePair<string, string> kvp in output)
+                {
+                    localizedText[kvp.Key] = kvp.Value;
                 }
             }
         }
@@ -52,6 +62,15 @@ namespace MTM101BaldAPI.AssetTools
         public static void LocalizationFromFile(string path, Language lang)
         {
             queuedFilesForLanguage.Add((lang, path));
+        }
+
+        /// <summary>
+        /// Adds the specified function to get called at the end of language loading.
+        /// The returned dictionary is added to the localization.
+        /// </summary>
+        public static void LocalizationFromFunction(Func<Language, Dictionary<string, string>> funcToAdd)
+        {
+            queuedActionsForLanguage.Add(funcToAdd);
         }
 
         private static void LoadLocaFile(string path)
@@ -126,6 +145,36 @@ namespace MTM101BaldAPI.AssetTools
                 textures[i] = AssetLoader.TextureFromFile(paths[i]);
             }
             return textures;
+        }
+
+        /// <summary>
+        /// Makes a readable copy of the specified Texture2D
+        /// </summary>
+        /// <param name="source"></param>
+        /// <param name="apply">If the changed texture should be uploaded to the GPU.</param>
+        /// <returns></returns>
+        public static Texture2D MakeReadableCopy(this Texture2D source, bool apply)
+        {
+            RenderTexture dummyTex = RenderTexture.GetTemporary(source.width, source.height, 24);
+            Texture2D toDump = source;
+
+            toDump = new Texture2D(toDump.width, toDump.height, toDump.format, toDump.mipmapCount > 1)
+            {
+                name = source.name
+            };
+            Graphics.Blit(source, dummyTex);
+            toDump.filterMode = source.filterMode;
+            dummyTex.filterMode = source.filterMode;
+
+            toDump.ReadPixels(new Rect(0, 0, dummyTex.width, dummyTex.height), 0, 0);
+            if (apply)
+            {
+                toDump.Apply();
+            }
+            RenderTexture.ReleaseTemporary(dummyTex);
+            toDump.name = source.name + "_Readable";
+
+            return toDump;
         }
 
         /// <summary>
