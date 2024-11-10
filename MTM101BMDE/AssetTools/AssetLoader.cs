@@ -626,6 +626,23 @@ namespace MTM101BaldAPI.AssetTools
         }
 
         /// <summary>
+        /// Unloads the specified custom midi of the specified ID. This CANNOT unload vanilla midis.
+        /// </summary>
+        /// <param name="id"></param>
+        public static void UnloadCustomMidi(string id)
+        {
+            if (MidiDatas.ContainsKey(id))
+            {
+                MidiDatas.Remove(id);
+                return;
+            }
+            if (MidisToBeAdded.ContainsKey(id))
+            {
+                MidisToBeAdded.Remove(id);
+            }
+        }
+
+        /// <summary>
         /// Loads a midi file with the specified path starting from the mod path.
         /// </summary>
         /// <param name="id">The ID of the midi, used as a starting point for creating the return value.</param>
