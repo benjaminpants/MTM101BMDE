@@ -636,6 +636,7 @@ namespace MTM101BaldAPI.AssetTools
                 MidiDatas.Remove(id);
                 return;
             }
+            if (MidisToBeAdded == null) return;
             if (MidisToBeAdded.ContainsKey(id))
             {
                 MidisToBeAdded.Remove(id);
