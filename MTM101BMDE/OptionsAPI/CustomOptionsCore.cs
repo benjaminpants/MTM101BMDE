@@ -272,6 +272,7 @@ namespace MTM101BaldAPI.OptionsAPI
         protected StandardMenuButton CreateApplyButton(UnityAction onApply)
         {
             StandardMenuButton menBut = CreateButton(onApply, null, "ApplyButton", new Vector3(136f, -160f, 0f), new Vector2(100f, 32f));
+            menBut.image.color = Color.clear;
             TextMeshProUGUI text = CreateText("ApplyText", "Opt_Apply", Vector3.zero, BaldiFonts.ComicSans24, TextAlignmentOptions.TopRight, new Vector2(96f, 32f), Color.black);
             text.transform.SetParent(menBut.transform, false);
             text.transform.localScale = Vector3.one;
