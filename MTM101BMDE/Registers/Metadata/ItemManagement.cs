@@ -82,14 +82,14 @@ namespace MTM101BaldAPI.Registers
         static FieldInfo _value = AccessTools.Field(typeof(ITM_YTPs), "value");
 
         /// <summary>
-        /// Get the metadata for the points item with the specified(or closest) value.
+        /// Get the ItemObject for the points item with the specified(or closest) value.
         /// </summary>
         /// <param name="points">The amount of points to try to search for</param>
-        /// <param name="mustBeExact">If true, the point count must be exact, otherwise it will return null</param>
-        /// <returns></returns>
+        /// <param name="mustBeExact">If true, the point count must be exact, otherwise it will return null.</param>
+        /// <returns>The found ItemObject, or the closest match if mustBeExact is false.</returns>
         public ItemObject GetPointsObject(int points, bool mustBeExact)
         {
-            ItemObject[] pointItems = FindByEnum(Items.Points).itemObjects;
+            ItemObject[] pointItems = FindByEnum(Items.Points).itemObjects.Where(x => x.item is ITM_YTPs).ToArray(); //incase someone does something weird
             int[] pointValues = pointItems.Select(x => (int)_value.GetValue(x.item)).ToArray();
             ItemObject closestMatch = null;
             int closestMatchDiff = int.MaxValue;
@@ -105,6 +105,7 @@ namespace MTM101BaldAPI.Registers
             if (mustBeExact && (closestMatchDiff != 0)) return null;
             return closestMatch;
         }
+
 
         public ItemMetaData FindByEnum(Items itm)
         {

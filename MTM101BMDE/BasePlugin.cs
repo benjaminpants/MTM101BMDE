@@ -72,6 +72,7 @@ namespace MTM101BaldAPI
         public static RandomEventMetaStorage randomEventStorage = new RandomEventMetaStorage();
         public static ObjectBuilderMetaStorage objBuilderMeta = new ObjectBuilderMetaStorage();
         public static SkyboxMetaStorage skyboxMeta = new SkyboxMetaStorage();
+        public static SceneObjectMetaStorage sceneMeta = new SceneObjectMetaStorage();
 
         public static RoomAssetMetaStorage roomAssetMeta = new RoomAssetMetaStorage();
 
@@ -109,6 +110,8 @@ namespace MTM101BaldAPI
 
         internal static SavedGameDataHandler saveHandler = SavedGameDataHandler.Vanilla;
 
+        public static GameLoader gameLoader;
+
         internal IEnumerator ReloadScenes()
         {
             AsyncOperation waitForSceneLoad = SceneManager.LoadSceneAsync("Game", LoadSceneMode.Additive);
@@ -133,6 +136,7 @@ namespace MTM101BaldAPI
             {
                 yield return null;
             }
+            yield return null;
             MTM101BaldiDevAPI.Log.LogDebug("Soundfont loaded! Deleting from temp folder...");
             File.Delete(toDelete);
         }
@@ -157,6 +161,7 @@ namespace MTM101BaldAPI
 
         internal void OnSceneUnload()
         {
+            gameLoader = Resources.FindObjectsOfTypeAll<GameLoader>().First(x => x.GetInstanceID() >= 0);
             Singleton<GlobalCam>.Instance.StopCurrentTransition();
             // INITIALIZE ITEM METADATA
             ItemObject grapplingHook = null;
@@ -310,6 +315,44 @@ namespace MTM101BaldAPI
             {
                 ObjectBuilderMeta meta = new ObjectBuilderMeta(MTM101BaldiDevAPI.Instance.Info, x);
                 ObjectBuilderMetaStorage.Instance.Add(meta);
+            });
+
+
+            // get all sceneobjects to add metadata
+            Resources.FindObjectsOfTypeAll<SceneObject>().Where(x => x.GetInstanceID() >= 0).Do(x =>
+            {
+                switch (x.name)
+                {
+                    case "MainLevel_1":
+                    case "MainLevel_2":
+                    case "MainLevel_3":
+                        x.AddMeta(this, new string[] { "main", "found_on_main" });
+                        break;
+                    case "EndlessRandomMedium":
+                    case "EndlessPremadeMedium":
+                        x.AddMeta(this, new string[] { "endless" });
+                        break;
+                    case "PlaceholderEnding":
+                        x.AddMeta(this, new string[] { "ending", "found_on_main" });
+                        break;
+                    case "Pitstop":
+                        x.AddMeta(this, new string[] { "pitstop" });
+                        break;
+                    case "Camping":
+                        x.AddMeta(this, new string[] { "fieldtrip" });
+                        break;
+                    case "StealthyChallenge":
+                    case "SpeedyChallenge":
+                    case "GrappleChallenge":
+                        x.AddMeta(this, new string[] { "challenge" });
+                        break;
+                    case "Farm": //farm isnt a fieldtrip because its just a dummy sceneobject for the option in the menu, and isnt actually usable as a field trip
+                        x.AddMeta(this, new string[0]);
+                        break;
+                    default:
+                        MTM101BaldiDevAPI.Log.LogWarning("Unknown root SceneObject: " + x.name + ". Unable to add meta!");
+                        break;
+                }
             });
 
             Cubemap[] cubemaps = Resources.FindObjectsOfTypeAll<Cubemap>();

@@ -1,4 +1,5 @@
 ﻿using MTM101BaldAPI.AssetTools;
+using MTM101BaldAPI.Reflection;
 using MTM101BaldAPI.Registers;
 using MTM101BaldAPI.UI;
 using System;
@@ -143,7 +144,7 @@ namespace MTM101BaldAPI
         IEnumerator MainLoad()
         {
             SceneObject[] objs = Resources.FindObjectsOfTypeAll<SceneObject>().Where(x => x.levelObject != null).ToArray();
-            yield return (2 + objs.Length) + LoadingEvents.LoadingEventsPost.Count + LoadingEvents.LoadingEventsPre.Count + LoadingEvents.LoadingEventsStart.Count;
+            yield return (3 + objs.Length) + LoadingEvents.LoadingEventsPost.Count + LoadingEvents.LoadingEventsPre.Count + LoadingEvents.LoadingEventsStart.Count;
             for (int i = 0; i < LoadingEvents.LoadingEventsStart.Count; i++)
             {
                 LoadingEvents.LoadingEvent load = LoadingEvents.LoadingEventsStart[i];
@@ -188,6 +189,8 @@ namespace MTM101BaldAPI
                 yield return "Invoking Mod Asset Post-Loading... (" + i + "/" + LoadingEvents.LoadingEventsPost.Count + ")";
                 yield return BeginLoadEnumerator(load.loadingNumerator, modLoadingBar, modLoadText);
             }
+            yield return "Reloading Localization...";
+            Singleton<LocalizationManager>.Instance.ReflectionInvoke("Start", null);
             yield break;
         }
 

@@ -207,6 +207,15 @@ namespace MTM101BaldAPI.Registers
             return meta;
         }
 
+        public static SceneObjectMetadata AddMeta(this SceneObject me, BaseUnityPlugin plugin, string[] tags = null)
+        {
+            SceneObjectMetadata meta = new SceneObjectMetadata(plugin.Info, me);
+            tags = tags ?? new string[0];
+            meta.tags.AddRange(tags);
+            MTM101BaldiDevAPI.sceneMeta.Add(me, meta);
+            return meta;
+        }
+
         public static ItemMetaData AddMeta(this ItemObject me, ItemMetaData meta)
         {
             MTM101BaldiDevAPI.itemMetadata.Add(me, meta);
@@ -265,6 +274,11 @@ namespace MTM101BaldAPI.Registers
         public static ItemMetaData GetMeta(this ItemObject me)
         {
             return MTM101BaldiDevAPI.itemMetadata.Get(me);
+        }
+
+        public static SceneObjectMetadata GetMeta(this SceneObject me)
+        {
+            return MTM101BaldiDevAPI.sceneMeta.Get(me);
         }
 
         public static NPCMetadata GetMeta(this NPC me)

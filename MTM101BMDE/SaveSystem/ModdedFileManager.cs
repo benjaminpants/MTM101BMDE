@@ -36,7 +36,7 @@ namespace MTM101BaldAPI.SaveSystem
             }
             if (savedGameData.mapPurchased)
             {
-                Singleton<CoreGameManager>.Instance.levelMapHasBeenPurchasedFor = loader.list.scenes[savedGameData.levelId];
+                Singleton<CoreGameManager>.Instance.levelMapHasBeenPurchasedFor = savedGameData.level;
             }
             //Equivalent to Singleton<CoreGameManager>.Instance.RestoreSavedItems(savedGameData.items);
             List<ItemObject[]> backupItems = (List<ItemObject[]>)_cgmbackupItems.GetValue(Singleton<CoreGameManager>.Instance);
@@ -307,7 +307,7 @@ namespace MTM101BaldAPI.SaveSystem
             Singleton<ModdedFileManager>.Instance.CreateSavedGameCoreManager(__instance);
             Singleton<CursorManager>.Instance.LockCursor();
             __instance.SetMode(0);
-            __instance.LoadLevel(__instance.list.scenes[Singleton<ModdedFileManager>.Instance.saveData.levelId]);
+            __instance.LoadLevel(Singleton<ModdedFileManager>.Instance.saveData.level);
             Singleton<ModdedFileManager>.Instance.DeleteSavedGame();
             ModdedSaveGame.ModdedSaveGameHandlers.Do(x =>
             {
@@ -385,7 +385,7 @@ namespace MTM101BaldAPI.SaveSystem
                     newSave.lockerItems.Add(new ModdedItemIdentifier(lockerItems[i]));
                 }
             }
-            newSave.levelId = __instance.nextLevel.levelNo;
+            newSave.level = __instance.nextLevel;
             newSave.ytps = __instance.GetPoints(0);
             newSave.lives = ___lives;
             newSave.seed = ___seed;

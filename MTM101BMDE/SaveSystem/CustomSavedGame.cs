@@ -6,6 +6,7 @@ using System.IO;
 using System.Text;
 using MTM101BaldAPI.Registers;
 using System.Linq;
+using UnityEngine;
 
 namespace MTM101BaldAPI.SaveSystem
 {
@@ -116,6 +117,54 @@ namespace MTM101BaldAPI.SaveSystem
         MismatchedTags
     }
 
+    public enum SceneIndexMethod : byte
+    {
+        Metadata, // this is the one that should almost always be used under every circumstance.
+        Legacy, // this is for vanilla SceneObjects that haven't had metadata added yet.
+        Name // this is for modded SceneObjects that haven't had metadata added yet.
+    }
+
+    public struct SceneObjectIdentifier
+    {
+        public SceneIndexMethod method;
+        public string value;
+
+        public SceneObjectIdentifier(SceneIndexMethod method, string value)
+        {
+            this.value = value;
+            this.method = method;
+        }
+
+        public static SceneObjectIdentifier Read(BinaryReader reader)
+        {
+            return new SceneObjectIdentifier((SceneIndexMethod)reader.ReadByte(), reader.ReadString());
+        }
+
+        public void Write(BinaryWriter writer)
+        {
+            writer.Write((byte)method);
+            writer.Write(value);
+        }
+
+        public SceneObject GetSceneObject()
+        {
+            string v = value;
+            switch (method)
+            {
+                case SceneIndexMethod.Metadata:
+                    string[] split = v.Split('\0');
+                    return MTM101BaldiDevAPI.sceneMeta.Find(x => x.info.Metadata.GUID == split[0] && x.value.name == split[1]).value;
+                case SceneIndexMethod.Name:
+                    MTM101BaldiDevAPI.Log.LogWarning("Attempted to find SceneObject via name in a SceneObjectIdentifier! (" + v + ")");
+                    return Resources.FindObjectsOfTypeAll<SceneObject>().First(x => x.name == v);
+                case SceneIndexMethod.Legacy:
+                    MTM101BaldiDevAPI.Log.LogWarning("Attempted to find SceneObject via index in a SceneObjectIdentifier! (" + v + ")");
+                    return MTM101BaldiDevAPI.gameLoader.list.scenes[int.Parse(v)];
+            }
+            return null;
+        }
+    }
+
     /// <summary>
     /// The root class for modded save games, storing the base game data, but restructured in a way that is more mod friendly.
     /// </summary>
@@ -125,10 +174,36 @@ namespace MTM101BaldAPI.SaveSystem
         public List<ModdedItemIdentifier> lockerItems = new List<ModdedItemIdentifier>();
         public Dictionary<string, string[]> modTags = new Dictionary<string, string[]>();
         public int levelId = 0;
+        private SceneObjectIdentifier _level;
+        public SceneObject level
+        {
+            get
+            {
+                if (!saveAvailable) return null;
+                return _level.GetSceneObject();
+            }
+            set
+            {
+                SceneObjectMetadata meta = value.GetMeta();
+                if (meta != null)
+                {
+                    _level = new SceneObjectIdentifier(SceneIndexMethod.Metadata, meta.info.Metadata.GUID + "\0" + meta.value.name);
+                    return;
+                }
+                MTM101BaldiDevAPI.Log.LogWarning("Had to resort to fallback for: " + value.name + "!");
+                int foundIndex = MTM101BaldiDevAPI.gameLoader.list.scenes.ToList().IndexOf(value);
+                if (foundIndex != -1)
+                {
+                    _level = new SceneObjectIdentifier(SceneIndexMethod.Legacy, foundIndex.ToString());
+                    return;
+                }
+                _level = new SceneObjectIdentifier(SceneIndexMethod.Name, value.name);
+            }
+        }
         public int ytps = 0;
         public int lives = 2;
         public int seed = 0;
-        public const int version = 3;
+        public const int version = 4;
         public bool saveAvailable = false;
         public bool fieldTripPlayed = false;
         public bool johnnyHelped = false;
@@ -180,7 +255,7 @@ namespace MTM101BaldAPI.SaveSystem
                 }
             }
             if (!saveAvailable) return;
-            writer.Write(levelId);
+            _level.Write(writer);
             writer.Write(seed);
             writer.Write(ytps);
             writer.Write(lives);
@@ -249,7 +324,14 @@ namespace MTM101BaldAPI.SaveSystem
             {
                 return new PartialModdedSavedGame(modHandlers.ToArray(), modTags);
             }
-            reader.ReadInt32();
+            if (version >= 4)
+            {
+                SceneObjectIdentifier.Read(reader);
+            }
+            else
+            {
+                reader.ReadInt32();
+            }
             int seed = reader.ReadInt32();
             return new PartialModdedSavedGame(seed, modHandlers.ToArray(), modTags);
         }
@@ -316,7 +398,14 @@ namespace MTM101BaldAPI.SaveSystem
                 }
             }
             if (!saveAvailable) return ModdedSaveLoadStatus.NoSave;
-            levelId = reader.ReadInt32();
+            if (version >= 4)
+            {
+                _level = SceneObjectIdentifier.Read(reader);
+            }
+            else
+            {
+                _level = new SceneObjectIdentifier(SceneIndexMethod.Legacy, reader.ReadInt32().ToString());
+            }
             seed = reader.ReadInt32();
             ytps = reader.ReadInt32();
             lives = reader.ReadInt32();
