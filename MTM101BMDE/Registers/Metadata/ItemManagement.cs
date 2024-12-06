@@ -106,7 +106,6 @@ namespace MTM101BaldAPI.Registers
             return closestMatch;
         }
 
-
         public ItemMetaData FindByEnum(Items itm)
         {
             return Find(x =>
