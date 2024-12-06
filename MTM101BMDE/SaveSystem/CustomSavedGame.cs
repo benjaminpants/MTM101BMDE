@@ -173,7 +173,6 @@ namespace MTM101BaldAPI.SaveSystem
         public List<ModdedItemIdentifier> items = new List<ModdedItemIdentifier>();
         public List<ModdedItemIdentifier> lockerItems = new List<ModdedItemIdentifier>();
         public Dictionary<string, string[]> modTags = new Dictionary<string, string[]>();
-        public int levelId = 0;
         private SceneObjectIdentifier _level;
         public SceneObject level
         {
@@ -202,16 +201,20 @@ namespace MTM101BaldAPI.SaveSystem
         }
         public int ytps = 0;
         public int lives = 2;
+        public int attempts = 0;
         public int seed = 0;
-        public const int version = 4;
+        public const int version = 5;
         public bool saveAvailable = false;
         public bool fieldTripPlayed = false;
         public bool johnnyHelped = false;
         public bool mapPurchased;
         public bool mapAvailable;
         public bool[] foundMapTiles = new bool[0];
+        public List<Vector2> markerPositions = new List<Vector2>();
+        public List<int> markerIds = new List<int>();
         public int mapSizeX = 0;
         public int mapSizeZ = 0;
+        public LifeMode lifeMode = LifeMode.Normal;
         internal static Dictionary<string, ModdedSaveGameIOBinary> ModdedSaveGameHandlers = new Dictionary<string, ModdedSaveGameIOBinary>();
 
 
@@ -259,6 +262,8 @@ namespace MTM101BaldAPI.SaveSystem
             writer.Write(seed);
             writer.Write(ytps);
             writer.Write(lives);
+            writer.Write(attempts);
+            writer.Write((int)lifeMode);
             writer.Write(fieldTripPlayed);
             writer.Write(mapAvailable);
             writer.Write(mapPurchased);
@@ -269,6 +274,17 @@ namespace MTM101BaldAPI.SaveSystem
             for (int i = 0; i < foundMapTiles.Length; i++)
             {
                 writer.Write(foundMapTiles[i]);
+            }
+            writer.Write(markerIds.Count);
+            for (int i = 0; i < markerIds.Count; i++)
+            {
+                writer.Write(markerIds[i]);
+            }
+            writer.Write(markerPositions.Count);
+            for (int i = 0; i < markerPositions.Count; i++)
+            {
+                writer.Write(markerPositions[i].x);
+                writer.Write(markerPositions[i].y);
             }
             writer.Write(items.Count);
             for (int i = 0; i < items.Count; i++)
@@ -409,8 +425,12 @@ namespace MTM101BaldAPI.SaveSystem
             seed = reader.ReadInt32();
             ytps = reader.ReadInt32();
             lives = reader.ReadInt32();
+            if (version >= 5)
+            {
+                attempts = reader.ReadInt32();
+                lifeMode = (LifeMode)reader.ReadInt32();
+            }
             fieldTripPlayed = reader.ReadBoolean();
-            // time to load all these new booleans!
             if (version >= 2)
             {
                 mapAvailable = reader.ReadBoolean();
@@ -424,6 +444,21 @@ namespace MTM101BaldAPI.SaveSystem
             for (int i = 0; i < foundTilesLength; i++)
             {
                 foundMapTiles[i] = reader.ReadBoolean();
+            }
+            markerIds.Clear();
+            markerPositions.Clear();
+            if (version >= 5)
+            {
+                int markerIdCount = reader.ReadInt32();
+                for (int i = 0; i < markerIdCount; i++)
+                {
+                    markerIds.Add(reader.ReadInt32());
+                }
+                int markerPositionCount = reader.ReadInt32();
+                for (int i = 0; i < markerPositionCount; i++)
+                {
+                    markerPositions.Add(new Vector2(reader.ReadSingle(), reader.ReadSingle()));
+                }
             }
             items.Clear();
             int itemCount = reader.ReadInt32();

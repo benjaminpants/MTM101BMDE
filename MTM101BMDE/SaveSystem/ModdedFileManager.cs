@@ -7,6 +7,7 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Text;
+using UnityEngine;
 
 namespace MTM101BaldAPI.SaveSystem
 {
@@ -26,13 +27,13 @@ namespace MTM101BaldAPI.SaveSystem
             UnityEngine.Object.Instantiate<CoreGameManager>(loader.cgmPre);
             ModdedSaveGame savedGameData = saveData;
             Singleton<CoreGameManager>.Instance.SetSeed(savedGameData.seed);
-            Singleton<CoreGameManager>.Instance.SetLives(savedGameData.lives);
+            Singleton<CoreGameManager>.Instance.SetLives(savedGameData.lives, true);
             Singleton<CoreGameManager>.Instance.AddPoints(savedGameData.ytps, 0, false, false);
             Singleton<CoreGameManager>.Instance.tripPlayed = savedGameData.fieldTripPlayed;
             Singleton<CoreGameManager>.Instance.johnnyHelped = savedGameData.johnnyHelped;
             if (savedGameData.mapAvailable)
             {
-                Singleton<CoreGameManager>.Instance.LoadSavedMap(savedGameData.foundMapTiles.ConvertTo2d(savedGameData.mapSizeX, savedGameData.mapSizeZ));
+                Singleton<CoreGameManager>.Instance.LoadSavedMap(savedGameData.foundMapTiles.ConvertTo2d(savedGameData.mapSizeX, savedGameData.mapSizeZ), savedGameData.markerPositions, savedGameData.markerIds);
             }
             if (savedGameData.mapPurchased)
             {
@@ -364,7 +365,7 @@ namespace MTM101BaldAPI.SaveSystem
     class SaveAndQuitModdedData
     {
         // override the function completely, if we make sure every reference is referring to ModdedSaveGame, this should leave vanilla games intact.
-        static bool Prefix(CoreGameManager __instance, ref int ___lives, ref int ___seed, ref bool[,] ___foundTilesToRestore, ref IntVector2 ___savedMapSize)
+        static bool Prefix(CoreGameManager __instance, ref int ___lives, ref int ___seed, ref bool[,] ___foundTilesToRestore, ref IntVector2 ___savedMapSize, ref List<Vector2> ___markerPositions, ref List<int> ___markerIds, ref int ___attempts)
         {
             if (MTM101BaldiDevAPI.SaveGamesHandler != SavedGameDataHandler.Modded) return true;
             ModdedSaveGame newSave = new ModdedSaveGame();
@@ -388,11 +389,14 @@ namespace MTM101BaldAPI.SaveSystem
             newSave.level = __instance.nextLevel;
             newSave.ytps = __instance.GetPoints(0);
             newSave.lives = ___lives;
+            newSave.attempts = ___attempts;
             newSave.seed = ___seed;
             newSave.saveAvailable = true;
             newSave.fieldTripPlayed = __instance.tripPlayed;
             newSave.johnnyHelped = __instance.johnnyHelped;
             __instance.BackupMap(Singleton<BaseGameManager>.Instance.Ec.map);
+            newSave.markerPositions = ___markerPositions;
+            newSave.markerIds = ___markerIds;
             newSave.mapPurchased = __instance.saveMapPurchased;
             newSave.mapAvailable = __instance.saveMapAvailable;
             newSave.foundMapTiles = ___foundTilesToRestore.ConvertTo1d(___savedMapSize.x, ___savedMapSize.z);

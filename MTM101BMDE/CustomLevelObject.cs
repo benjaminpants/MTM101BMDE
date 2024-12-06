@@ -93,33 +93,6 @@ namespace MTM101BaldAPI
         [Obsolete("BB+ no longer uses .items, use .forcedItems or .potentialItems instead!", true)]
         public new WeightedItemObject[] items; //hacky way of adding the Obsolete tag, but it works?
 
-        [Obsolete("BB+ no longer uses .classWallTexs, change the textures in the associated room group instead!", true)]
-        public new WeightedTexture2D[] classWallTexs;
-
-        [Obsolete("BB+ no longer uses .classFloorTexs, change the textures in the associated room group instead!", true)]
-        public new WeightedTexture2D[] classFloorTexs;
-
-        [Obsolete("BB+ no longer uses .classCeilingTexs, change the textures in the associated room group instead!", true)]
-        public new WeightedTexture2D[] classCeilingTexs;
-
-        [Obsolete("BB+ no longer uses .facultyWallTexs, change the textures in the associated room group instead!", true)]
-        public new WeightedTexture2D[] facultyWallTexs;
-
-        [Obsolete("BB+ no longer uses .facultyFloorTexs, change the textures in the associated room group instead!", true)]
-        public new WeightedTexture2D[] facultyFloorTexs;
-
-        [Obsolete("BB+ no longer uses .facultyCeilingTexs, change the textures in the associated room group instead!", true)]
-        public new WeightedTexture2D[] facultyCeilingTexs;
-
-        [Obsolete("BB+ no longer uses .classLights, change the lights in the associated room group instead!", true)]
-        public new WeightedTransform[] classLights;
-
-        [Obsolete("BB+ no longer uses .facultyLights, change the lights in the associated room group instead!", true)]
-        public new WeightedTransform[] facultyLights;
-
-        [Obsolete("BB+ no longer uses .officeLights, change the lights in the associated room group instead!", true)]
-        public new WeightedTransform[] officeLights;
-
         [Obsolete("BB+ no longer uses .totalShopItems, change totalShopItems in the SceneObject instead!", true)]
         public new int totalShopItems;
 

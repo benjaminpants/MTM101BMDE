@@ -70,7 +70,6 @@ namespace MTM101BaldAPI
         public static ItemMetaStorage itemMetadata = new ItemMetaStorage();
         public static NPCMetaStorage npcMetadata = new NPCMetaStorage();
         public static RandomEventMetaStorage randomEventStorage = new RandomEventMetaStorage();
-        public static ObjectBuilderMetaStorage objBuilderMeta = new ObjectBuilderMetaStorage();
         public static SkyboxMetaStorage skyboxMeta = new SkyboxMetaStorage();
         public static SceneObjectMetaStorage sceneMeta = new SceneObjectMetaStorage();
 
@@ -310,11 +309,6 @@ namespace MTM101BaldAPI
                         RandomEventMetaStorage.Instance.Add(new RandomEventMetadata(MTM101BaldiDevAPI.Instance.Info, x, RandomEventFlags.Permanent));
                         break;
                 }
-            });
-            Resources.FindObjectsOfTypeAll<ObjectBuilder>().Do(x =>
-            {
-                ObjectBuilderMeta meta = new ObjectBuilderMeta(MTM101BaldiDevAPI.Instance.Info, x);
-                ObjectBuilderMetaStorage.Instance.Add(meta);
             });
 
 
