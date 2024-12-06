@@ -21,7 +21,6 @@ namespace MTM101BaldAPI.ObjectCreation
 
         readonly static FieldInfo _character = AccessTools.Field(typeof(NPC), "character");
         readonly static FieldInfo _ignorePlayerOnSpawn = AccessTools.Field(typeof(NPC), "ignorePlayerOnSpawn");
-        readonly static FieldInfo _ignoreBelts = AccessTools.Field(typeof(NPC), "ignoreBelts");
         readonly static FieldInfo _navigator = AccessTools.Field(typeof(NPC), "navigator");
         readonly static FieldInfo _iEntityTrigger = AccessTools.Field(typeof(Entity), "iEntityTrigger");
         readonly static FieldInfo _minDistance = AccessTools.Field(typeof(PropagatedAudioManager), "minDistance");
@@ -138,7 +137,7 @@ namespace MTM101BaldAPI.ObjectCreation
             nav.npc = newNpc;
             _entity.SetValue(nav, npcEntity);
             _collider.SetValue(nav, newNpc.baseTrigger[0]);
-            _ignoreBelts.SetValue(newNpc, ignoreBelts);
+            //_ignoreBelts.SetValue(newNpc, ignoreBelts);
             _ignorePlayerOnSpawn.SetValue(newNpc, ignorePlayerOnSpawn);
             npcEntity.SetGrounded(grounded);
 
@@ -374,16 +373,6 @@ namespace MTM101BaldAPI.ObjectCreation
         public NPCBuilder<T> IgnorePlayerOnSpawn()
         {
             ignorePlayerOnSpawn = true;
-            return this;
-        }
-
-        /// <summary>
-        /// Makes the NPC ignore conveyor belts.
-        /// </summary>
-        /// <returns></returns>
-        public NPCBuilder<T> IgnoreBelts()
-        {
-            ignoreBelts = true;
             return this;
         }
 
