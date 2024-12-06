@@ -11,10 +11,26 @@ namespace MTM101BaldAPI.Registers
     public enum RandomEventFlags
     {
         None = 0,
-        CharacterSpecific = 1, // This event requires a specific character to work
-        RoomSpecific = 2, // This event requires a specific room to work
-        Permanent = 4, // This event makes permanent changes to the level
-        AffectsGenerator = 8 // This event affects the generator in some way(adding a character or room)
+        /// <summary>
+        /// This event requires a specific character to work
+        /// </summary>
+        CharacterSpecific = 1,
+        /// <summary>
+        /// This event requires a specific room to work
+        /// </summary>
+        RoomSpecific = 2,
+        /// <summary>
+        /// This event makes permanent changes to the level
+        /// </summary>
+        Permanent = 4,
+        /// <summary>
+        /// This event affects the generator in some way(adding a character or room)
+        /// </summary>
+        AffectsGenerator = 8,
+        /// <summary>
+        /// This event isn't called through regular means, and shouldn't be added to the random event pool.
+        /// </summary>
+        Special = 16
     }
 
 

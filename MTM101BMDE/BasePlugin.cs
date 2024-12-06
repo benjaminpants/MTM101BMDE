@@ -308,6 +308,9 @@ namespace MTM101BaldAPI
                     case RandomEventType.Lockdown:
                         RandomEventMetaStorage.Instance.Add(new RandomEventMetadata(MTM101BaldiDevAPI.Instance.Info, x, RandomEventFlags.Permanent));
                         break;
+                    case RandomEventType.TimeOut:
+                        RandomEventMetaStorage.Instance.Add(new RandomEventMetadata(MTM101BaldiDevAPI.Instance.Info, x, RandomEventFlags.Special));
+                        break;
                 }
             });
 
