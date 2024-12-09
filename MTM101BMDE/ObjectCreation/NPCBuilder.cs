@@ -53,7 +53,6 @@ namespace MTM101BaldAPI.ObjectCreation
         bool hasTrigger = false;
         bool useHeatmap = false;
         bool ignorePlayerOnSpawn = false;
-        bool ignoreBelts = false;
         bool grounded = true;
         float minAudioDistance = 10f;
         float maxAudioDistance = 250f;
