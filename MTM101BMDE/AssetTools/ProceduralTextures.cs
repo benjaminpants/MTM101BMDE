@@ -1,4 +1,5 @@
-﻿using System;
+﻿using HarmonyLib;
+using System;
 using System.Collections.Generic;
 using System.Text;
 using UnityEngine;
@@ -17,6 +18,7 @@ namespace MTM101BaldAPI.AssetTools
 
         private void AddTextureWithTag(Texture2D tex, string tag)
         {
+            if (tex == null) return;
             if (!internalTextures.ContainsKey(tag))
             {
                 internalTextures.Add(tag, new List<Texture2D>());
@@ -126,6 +128,38 @@ namespace MTM101BaldAPI.AssetTools
             return null;
         }
 
+
+        public ProceduralTextureBuilder RemoveAllEmpty(string tagToPurge, float alphaTolerance = 1f)
+        {
+            Texture2D[] texes = GetAllTexturesWithTag(tagToPurge);
+            List<Texture2D> texturesToKill = new List<Texture2D>();
+            foreach (Texture2D tex in texes)
+            {
+                int width = tex.width;
+                int height = tex.height;
+                for (int x = 0; x < width; x++)
+                {
+                    for (int y = 0; y < height; y++)
+                    {
+                        Color colorAt = tex.GetPixel(x, y);
+                        if (colorAt.a >= alphaTolerance)
+                        {
+                            goto TheEnd;
+                        }
+                    }
+                }
+                texturesToKill.Add(tex);
+                TheEnd:;
+
+            }
+
+            texturesToKill.Do(x => GameObject.Destroy(x));
+
+            internalTextures[tagToPurge].RemoveAll(x => texturesToKill.Contains(x));
+
+            return this;
+        }
+
         // Trims the respect texture 2D so that there are no pixels with an alpha less than alpha tolerance at the edges.
         private Texture2D Trim(Texture2D toTrim, float alphaTolerance = 1f)
         {
@@ -151,6 +185,7 @@ namespace MTM101BaldAPI.AssetTools
                     bounds.yMax = y;
                 }
             }
+            if (bounds.size == Vector2.zero) return null;
             RenderTexture tempTex = RenderTexture.GetTemporary(toTrim.width,toTrim.height);
             RenderTexture.active = tempTex;
             Texture2D newTexture = MakeNewTextureCopy(toTrim);
