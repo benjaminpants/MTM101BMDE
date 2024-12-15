@@ -155,25 +155,30 @@ namespace MTM101BaldAPI.AssetTools
         /// <returns></returns>
         public static Texture2D MakeReadableCopy(this Texture2D source, bool apply)
         {
-            RenderTexture dummyTex = RenderTexture.GetTemporary(source.width, source.height, 24);
             Texture2D toDump = source;
-
-            toDump = new Texture2D(toDump.width, toDump.height, toDump.format, toDump.mipmapCount > 1)
-            {
-                name = source.name
-            };
-            Graphics.Blit(source, dummyTex);
+            toDump = new Texture2D(toDump.width, toDump.height, toDump.format, toDump.mipmapCount > 1);
+            toDump.name = source.name;
             toDump.filterMode = source.filterMode;
-            dummyTex.filterMode = source.filterMode;
 
-            toDump.ReadPixels(new Rect(0, 0, dummyTex.width, dummyTex.height), 0, 0);
-            if (apply)
+            if (source.isReadable) // If it's already readable, just copy the pixels from the source to the copy
             {
-                toDump.Apply();
+                toDump.SetPixels(source.GetPixels());
             }
-            RenderTexture.ReleaseTemporary(dummyTex);
-            toDump.name = source.name + "_Readable";
+            else
+            {
+                RenderTexture dummyTex = RenderTexture.GetTemporary(source.width, source.height, 24);
+                Graphics.Blit(source, dummyTex);
+                dummyTex.filterMode = source.filterMode;
 
+                toDump.ReadPixels(new Rect(0, 0, dummyTex.width, dummyTex.height), 0, 0);
+
+                RenderTexture.ReleaseTemporary(dummyTex);
+            }
+
+            if (apply)
+                toDump.Apply();
+
+            toDump.name = source.name + "_Readable";
             return toDump;
         }
 
@@ -677,43 +682,66 @@ namespace MTM101BaldAPI.AssetTools
             }
         }
 
-        // FlipX, FlipY, and CubemapFromTexture2D were all taken from FADE
-        static Texture2D FlipX(Texture2D texture)
-        {
-            Texture2D flipped = new Texture2D(texture.width, texture.height);
+        // FlipX, FlipY, and CubemapFromTextureLegacy were adapted from FADE
 
-            int width = texture.width;
-            int height = texture.height;
+        /// <summary>
+        /// Flips the specified Texture2D horizontally.
+        /// </summary>
+        /// <param name="source"></param>
+        /// <param name="apply">If the changed texture should be uploaded to the GPU.</param>
+        /// <returns></returns>
+        public static void FlipX(this Texture2D source, bool apply)
+        {
+            Color[] pixels = source.GetPixels();
+            int width = source.width, height = source.height;
 
             for (int i = 0; i < width; i++)
-            {
                 for (int j = 0; j < height; j++)
-                {
-                    flipped.SetPixel(width - i - 1, j, texture.GetPixel(i, j));
-                }
-            }
-            flipped.Apply();
+                    source.SetPixel(i, height - j - 1, pixels[j * width + i]);
 
-            return flipped;
+            if (apply)
+                source.Apply();
         }
 
-        static Texture2D FlipY(Texture2D texture)
+        /// <summary>
+        /// Flips the specified Texture2D vertically.
+        /// </summary>
+        /// <param name="source"></param>
+        /// <param name="apply">If the changed texture should be uploaded to the GPU.</param>
+        /// <returns></returns>
+        public static void FlipY(this Texture2D source, bool apply)
         {
-            Texture2D flipped = new Texture2D(texture.width, texture.height, TextureFormat.RGBA32, false);
-
-            int width = texture.width;
-            int height = texture.height;
+            Color[] pixels = source.GetPixels();
+            int width = source.width, height = source.height;
 
             for (int i = 0; i < width; i++)
-            {
                 for (int j = 0; j < height; j++)
-                {
-                    flipped.SetPixel(i, height - j - 1, texture.GetPixel(i, j));
-                }
-            }
-            flipped.Apply();
+                    source.SetPixel(i, height - j - 1, pixels[j*width+i]);
 
-            return flipped;
+            if (apply)
+                source.Apply();
+        }
+
+        /// <summary>
+        /// Rotate specified Texture2D by 180 degrees (flip both horizontally and vertically).
+        /// </summary>
+        /// <param name="source"></param>
+        /// <param name="apply">If the changed texture should be uploaded to the GPU.</param>
+        /// <returns></returns>
+        public static void Rotate180(this Texture2D source, bool apply)
+        {
+            Color[] pixels = source.GetPixels();
+            int pixelCount = pixels.Length;
+            Color[] newPixels = new Color[pixelCount];
+            pixelCount--;
+
+            for (int i = 0; pixelCount >= 0; i++, pixelCount--)
+                newPixels[i] = pixels[pixelCount];
+
+            source.SetPixels(newPixels);
+
+            if (apply)
+                source.Apply();
         }
 
         /// <summary>
@@ -746,19 +774,106 @@ namespace MTM101BaldAPI.AssetTools
         /// <returns></returns>
         public static Cubemap CubemapFromTexture(Texture2D texture)
         {
-            texture = FlipX(texture);
-            texture = FlipY(texture);
+            // Convert from FADE layout if texture's aspect ratio is 6x1, will likely be removed later on
+            if (texture.width/texture.height == 6)
+                return CubemapFromTextureLegacy(texture);
 
-            int cubemapWidth = texture.width / 6;
-            Cubemap cubemap = new Cubemap(cubemapWidth, TextureFormat.ARGB32, false);
-            cubemap.SetPixels(texture.GetPixels(0 * cubemapWidth, 0, cubemapWidth, cubemapWidth), CubemapFace.NegativeZ);
-            cubemap.SetPixels(texture.GetPixels(1 * cubemapWidth, 0, cubemapWidth, cubemapWidth), CubemapFace.PositiveZ);
-            cubemap.SetPixels(texture.GetPixels(2 * cubemapWidth, 0, cubemapWidth, cubemapWidth), CubemapFace.NegativeY);
-            cubemap.SetPixels(texture.GetPixels(3 * cubemapWidth, 0, cubemapWidth, cubemapWidth), CubemapFace.PositiveY);
-            cubemap.SetPixels(texture.GetPixels(4 * cubemapWidth, 0, cubemapWidth, cubemapWidth), CubemapFace.NegativeX);
-            cubemap.SetPixels(texture.GetPixels(5 * cubemapWidth, 0, cubemapWidth, cubemapWidth), CubemapFace.PositiveX);
+            // MTM101API layout
+            int width = texture.width / 4;
+            texture.Rotate180(false);
+
+            Cubemap cubemap = new Cubemap(width, TextureFormat.RGB24, false);
+            cubemap.name = texture.name;
+            cubemap.SetPixels(texture.GetPixels(0, width, width, width), CubemapFace.NegativeZ);
+            cubemap.SetPixels(texture.GetPixels(width, width, width, width), CubemapFace.NegativeX);
+            cubemap.SetPixels(texture.GetPixels(width * 2, width, width, width), CubemapFace.PositiveZ);
+            cubemap.SetPixels(texture.GetPixels(width * 3, width, width, width), CubemapFace.PositiveX);
+
+            cubemap.SetPixels(texture.GetPixels(width, 0, width, width), CubemapFace.NegativeY);
+            cubemap.SetPixels(texture.GetPixels(width * 2, 0, width, width), CubemapFace.PositiveY);
             cubemap.Apply();
+
+            // Rotate texture back to normal
+            texture.Rotate180(false);
+
             return cubemap;
+        }
+
+        static Cubemap CubemapFromTextureLegacy(Texture2D texture)
+        {
+            int width = texture.width / 6;
+            texture.Rotate180(false);
+
+            Cubemap cubemap = new Cubemap(width, TextureFormat.RGB24, false);
+            cubemap.name = texture.name;
+            cubemap.SetPixels(texture.GetPixels(0, 0, width, width), CubemapFace.NegativeZ);
+            cubemap.SetPixels(texture.GetPixels(width, 0, width, width), CubemapFace.PositiveZ);
+            cubemap.SetPixels(texture.GetPixels(width * 2, 0, width, width), CubemapFace.NegativeY);
+            cubemap.SetPixels(texture.GetPixels(width * 3, 0, width, width), CubemapFace.PositiveY);
+            cubemap.SetPixels(texture.GetPixels(width * 4, 0, width, width), CubemapFace.NegativeX);
+            cubemap.SetPixels(texture.GetPixels(width * 5, 0, width, width), CubemapFace.PositiveX);
+
+            texture.Rotate180(false);
+            return cubemap;
+        }
+
+        private static Color[] _cubemapClearBlock;
+        private static int _cubemapWidth = -1;
+
+        /// <summary>
+        /// Unwraps a cubemap and outputs it as a decompressed Texture2D.
+        /// </summary>
+        /// <param name="cubemap"></param>
+        /// <returns></returns>
+        public static Texture2D TextureFromCubemap(Cubemap cubemap)
+        {
+            Texture2D unwrapped = new Texture2D(cubemap.width * 4, cubemap.width * 2, cubemap.format, false);
+            int width = cubemap.width;
+
+            // Create a block of transparent pixels to be used later
+            if (_cubemapWidth < width)
+            {
+                _cubemapWidth = width;
+                _cubemapClearBlock = new Color[width * width];
+            }
+
+            // Copy cubemap faces accordingly
+            Graphics.CopyTexture(cubemap, 5, 0, 0, 0, width, width, unwrapped, 0, 0, 0, width); // -Z
+            Graphics.CopyTexture(cubemap, 1, 0, 0, 0, width, width, unwrapped, 0, 0, width, width); // -X
+            Graphics.CopyTexture(cubemap, 4, 0, 0, 0, width, width, unwrapped, 0, 0, width * 2, width); // +Z
+            Graphics.CopyTexture(cubemap, 0, 0, 0, 0, width, width, unwrapped, 0, 0, width * 3, width); // +X
+            Graphics.CopyTexture(cubemap, 3, 0, 0, 0, width, width, unwrapped, 0, 0, width, 0); // -Y
+            Graphics.CopyTexture(cubemap, 2, 0, 0, 0, width, width, unwrapped, 0, 0, width * 2, 0); // +Y
+
+            // Store currently active Render Texture so it can be reactivated after this process
+            RenderTexture lastActive = RenderTexture.active;
+            RenderTexture dummyTexture = RenderTexture.GetTemporary(unwrapped.width, unwrapped.height, 0, RenderTextureFormat.ARGB32);
+
+            unwrapped.filterMode = FilterMode.Point;
+            dummyTexture.filterMode = FilterMode.Point;
+
+            // Blit unwrapped cubemap into the new Render Texture
+            Graphics.Blit(unwrapped, dummyTexture);
+
+            // Make the new temporary Render Texture active and copy its pixel data to a new Texture2D
+            RenderTexture.active = dummyTexture;
+            Texture2D output = new Texture2D(unwrapped.width, unwrapped.height, TextureFormat.ARGB32, false);
+            output.ReadPixels(new Rect(0, 0, unwrapped.width, unwrapped.height), 0, 0);
+
+            // Set remainder pixels to transparency
+            output.SetPixels(0, 0, width, width, _cubemapClearBlock);
+            output.SetPixels(width*3, 0, width,width, _cubemapClearBlock);
+
+            output.Rotate180(true); // Rotate texture by 180 degrees and upload it to the GPU
+
+            output.name = $"{cubemap.name}_Unwrapped";
+
+            UnityEngine.Object.DestroyImmediate(unwrapped);
+
+            // Set active Render Texture back to what it was and release the temporary one
+            RenderTexture.active = lastActive;
+            RenderTexture.ReleaseTemporary(dummyTexture);
+            return output;
         }
     }
 
