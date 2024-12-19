@@ -101,5 +101,8 @@ namespace MTM101BaldAPI
 
         [Obsolete("BB+ no longer uses .mapPrice, change mapPrice in the SceneObject instead!", true)]
         public new int mapPrice;
+
+        [Obsolete("BB+ no longer uses .potentialNPCs, change potentialNPCs in the SceneObject instead!", true)]
+        public new List<WeightedNPC> potentialNPCs;
     }
 }
