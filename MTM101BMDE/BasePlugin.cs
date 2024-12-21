@@ -46,7 +46,7 @@ namespace MTM101BaldAPI
     {
         internal static ManualLogSource Log = new ManualLogSource("Baldi's Basics Plus Dev API Pre Initialization");
 
-        public const string VersionNumber = "6.0.0.0";
+        public const string VersionNumber = "6.1.0.0";
 
         /// <summary>
         /// The version of the API, applicable when BepInEx cache messes up the version number.
@@ -539,6 +539,7 @@ namespace MTM101BaldAPI
 PLEASE REPORT TO THE MOD DEVELOPER(S).
 PRESS ALT+F4 TO EXIT THE GAME.
 ", plug.Metadata.GUID.ToUpper(), e.Message, e.StackTrace);
+            text.transform.localPosition += Vector3.up * 32f;
             if (Singleton<BaseGameManager>.Instance != null)
             {
                 Singleton<BaseGameManager>.Instance.Ec.AddTimeScale(new TimeScaleModifier() { environmentTimeScale = 0, npcTimeScale = 0 });
@@ -548,6 +549,7 @@ PRESS ALT+F4 TO EXIT THE GAME.
             {
                 CursorController.Instance.enabled = false;
             }
+            Time.timeScale = 0f; // pause everything else
             error.gameObject.SetActive(true);
             throw e; //rethrow the error
         }

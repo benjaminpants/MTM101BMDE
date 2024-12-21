@@ -17,6 +17,7 @@ namespace MTM101BaldAPI.ObjectCreation
         string _enumName = "";
         string _eventName = null;
         SoundObject _soundObject = null;
+        SoundObject _jingle = null;
         float _minTime = 60f;
         float _maxTime = 60f;
         List<string> _tags = new List<string>();
@@ -31,6 +32,7 @@ namespace MTM101BaldAPI.ObjectCreation
         static FieldInfo _minEventTime = AccessTools.Field(typeof(RandomEvent), "minEventTime");
         static FieldInfo _maxEventTime = AccessTools.Field(typeof(RandomEvent), "maxEventTime");
         static FieldInfo _potentialRoomAssets = AccessTools.Field(typeof(RandomEvent), "potentialRoomAssets");
+        static FieldInfo _eventJingleOverride = AccessTools.Field(typeof(RandomEvent), "eventJingleOverride");
 
         /// <summary>
         /// Builds the random event.
@@ -50,6 +52,7 @@ namespace MTM101BaldAPI.ObjectCreation
             _maxEventTime.SetValue(evnt, _maxTime);
             _eventIntro.SetValue(evnt, _soundObject);
             _potentialRoomAssets.SetValue(evnt, potentialRoomAssets.ToArray());
+            _eventJingleOverride.SetValue(evnt, _jingle);
             eventObject.name = _eventName;
             RandomEventMetadata meta = new RandomEventMetadata(_info, evnt, _flags);
             meta.tags.AddRange(_tags);
@@ -109,6 +112,18 @@ namespace MTM101BaldAPI.ObjectCreation
         public RandomEventBuilder<T> SetSound(SoundObject sound)
         {
             _soundObject = sound;
+            return this;
+        }
+
+        /// <summary>
+        /// Sets the jingle that will occur when this event is initially called and its showing the exclamation marks.
+        /// Defaults to the standard random event jingle, so unless you want to use a different jingle, there is no need to change this.
+        /// </summary>
+        /// <param name="sound"></param>
+        /// <returns></returns>
+        public RandomEventBuilder<T> SetJingle(SoundObject sound)
+        {
+            _jingle = sound;
             return this;
         }
 
