@@ -716,7 +716,7 @@ PRESS ALT+F4 TO EXIT THE GAME.
             }
             else
             {
-                text.text += "Unable to connect!";
+                text.text += "\nUnable to connect!";
             }
             button.OnPress.AddListener(() => { Application.OpenURL("https://gamebanana.com/mods/383711"); });
         }
