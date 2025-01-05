@@ -31,6 +31,15 @@ namespace MTM101BaldAPI.Registers
     }
 
 
+    /// <summary>
+    /// A helper class used to store fieldtrip loot during the mod loading phase.
+    /// </summary>
+    public class FieldTripLoot
+    {
+        public List<WeightedItemObject> potentialItems;
+        public List<ItemObject> guaranteedItems;
+    }
+
     public static class GeneratorManagement
     {
         private static Dictionary<BaseUnityPlugin, Dictionary<GenerationModType, Action<string, int, SceneObject>>> generationStuff = new Dictionary<BaseUnityPlugin, Dictionary<GenerationModType, Action<string, int, SceneObject>>>();
@@ -48,6 +57,23 @@ namespace MTM101BaldAPI.Registers
                 generationStuff.Add(plug, new Dictionary<GenerationModType, Action<string, int, SceneObject>>());
             }
             generationStuff[plug].Add(type, action);
+        }
+
+        internal static Dictionary<BaseUnityPlugin, Action<FieldTrips, FieldTripLoot>> fieldtripLootChanges = new Dictionary<BaseUnityPlugin, Action<FieldTrips, FieldTripLoot>>();
+
+        /// <summary>
+        /// Register an action that will be called to modify the field trip loot during mod loading.
+        /// Unlike registering a generator action, you can only register one of these.
+        /// </summary>
+        /// <param name="plug"></param>
+        /// <param name="action"></param>
+        public static void RegisterFieldTripLootChange(BaseUnityPlugin plug, Action<FieldTrips, FieldTripLoot> action)
+        {
+            if (fieldtripLootChanges.ContainsKey(plug))
+            {
+                throw new Exception("Attempted to add duplicate field trip loot change!");
+            }
+            fieldtripLootChanges.Add(plug, action);
         }
 
         /// <summary>

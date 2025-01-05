@@ -1,4 +1,6 @@
-﻿using MTM101BaldAPI.AssetTools;
+﻿using BepInEx;
+using HarmonyLib;
+using MTM101BaldAPI.AssetTools;
 using MTM101BaldAPI.Reflection;
 using MTM101BaldAPI.Registers;
 using MTM101BaldAPI.UI;
@@ -6,6 +8,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using System.Text;
 using TMPro;
 using UnityEngine;
@@ -141,10 +144,33 @@ namespace MTM101BaldAPI
             yield break;
         }
 
+        static readonly FieldInfo _potentialItems = AccessTools.Field(typeof(FieldTripBaseRoomFunction), "potentialItems");
+        static readonly FieldInfo _guaranteedItems = AccessTools.Field(typeof(FieldTripBaseRoomFunction), "guaranteedItems");
+
+        IEnumerator ModifyFieldtripLoot(FieldTripObject trip)
+        {
+            UnityEngine.Debug.Log(GeneratorManagement.fieldtripLootChanges.Count);
+            yield return GeneratorManagement.fieldtripLootChanges.Count;
+            yield return "Loading...";
+            FieldTripBaseRoomFunction roomFunction = trip.tripHub.room.roomFunctionContainer.GetComponent<FieldTripBaseRoomFunction>();
+            FieldTripLoot tripLoot = new FieldTripLoot();
+            tripLoot.potentialItems = ((WeightedItemObject[])_potentialItems.GetValue(roomFunction)).ToList();
+            tripLoot.guaranteedItems = ((List<ItemObject>)_guaranteedItems.GetValue(roomFunction)).ToList();
+            foreach (KeyValuePair<BaseUnityPlugin, Action<FieldTrips, FieldTripLoot>> kvp in GeneratorManagement.fieldtripLootChanges)
+            {
+                yield return kvp.Key;
+                kvp.Value.Invoke(trip.trip, tripLoot);
+            }
+            _potentialItems.SetValue(roomFunction, tripLoot.potentialItems.ToArray());
+            _guaranteedItems.SetValue(roomFunction, tripLoot.guaranteedItems.ToList());
+        }
+
+
         IEnumerator MainLoad()
         {
             SceneObject[] objs = Resources.FindObjectsOfTypeAll<SceneObject>().Where(x => x.levelObject != null).ToArray();
-            yield return (3 + objs.Length) + LoadingEvents.LoadingEventsPost.Count + LoadingEvents.LoadingEventsPre.Count + LoadingEvents.LoadingEventsStart.Count;
+            FieldTripObject[] foundTrips = Resources.FindObjectsOfTypeAll<FieldTripObject>().Where(x => x.tripHub != null).ToArray(); // ignore junk
+            yield return (3 + objs.Length) + LoadingEvents.LoadingEventsPost.Count + LoadingEvents.LoadingEventsPre.Count + LoadingEvents.LoadingEventsStart.Count + foundTrips.Length;
             for (int i = 0; i < LoadingEvents.LoadingEventsStart.Count; i++)
             {
                 LoadingEvents.LoadingEvent load = LoadingEvents.LoadingEventsStart[i];
@@ -176,6 +202,13 @@ namespace MTM101BaldAPI
                 MTM101BaldiDevAPI.Log.LogInfo(String.Format("Invoking SceneObject({0})({1}) Generation Changes!", obj.levelTitle, obj.levelNo.ToString()));
                 GeneratorManagement.Invoke(obj.levelTitle, obj.levelNo, obj);
             }
+            foreach (FieldTripObject trip in foundTrips)
+            {
+                yield return "Changing " + trip.name + " loot...";
+                yield return BeginLoadEnumerator(ModifyFieldtripLoot(trip), modLoadingBar, modLoadText);
+            }
+            modLoadText.text = "";
+            modIdText.text = "";
             yield return "Adding MIDIs...";
             foreach (KeyValuePair<string, byte[]> kvp in AssetLoader.MidisToBeAdded)
             {
