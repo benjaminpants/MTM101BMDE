@@ -149,7 +149,6 @@ namespace MTM101BaldAPI
 
         IEnumerator ModifyFieldtripLoot(FieldTripObject trip)
         {
-            UnityEngine.Debug.Log(GeneratorManagement.fieldtripLootChanges.Count);
             yield return GeneratorManagement.fieldtripLootChanges.Count;
             yield return "Loading...";
             FieldTripBaseRoomFunction roomFunction = trip.tripHub.room.roomFunctionContainer.GetComponent<FieldTripBaseRoomFunction>();
@@ -160,6 +159,12 @@ namespace MTM101BaldAPI
             {
                 yield return kvp.Key;
                 kvp.Value.Invoke(trip.trip, tripLoot);
+            }
+            if (GeneratorManagement.fieldtripLootChanges.Count > 0)
+            {
+                trip.MarkAsNeverUnload();
+                trip.tripHub.room.MarkAsNeverUnload();
+                trip.tripHub.room.roomFunctionContainer.MarkAsNeverUnload();
             }
             _potentialItems.SetValue(roomFunction, tripLoot.potentialItems.ToArray());
             _guaranteedItems.SetValue(roomFunction, tripLoot.guaranteedItems.ToList());
