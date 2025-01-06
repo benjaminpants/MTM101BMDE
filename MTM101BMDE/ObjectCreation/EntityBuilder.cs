@@ -20,6 +20,7 @@ namespace MTM101BaldAPI.ObjectCreation
         string entityName = "Unnamed";
         float baseRadius = 1f;
         float triggerRadius = 0f;
+        float height = 1f;
         string layer = "StandardEntities";
         LayerMask collisionLayerMask = new LayerMask();
         Func<Entity, Transform> addRenderBaseFunc;
@@ -34,11 +35,13 @@ namespace MTM101BaldAPI.ObjectCreation
 
             CapsuleCollider mainCollider = entityObject.AddComponent<CapsuleCollider>();
             mainCollider.radius = baseRadius;
+            mainCollider.height = height;
 
             CapsuleCollider triggerCollider = entityObject.AddComponent<CapsuleCollider>();
             triggerCollider.isTrigger = true;
             triggerCollider.radius = (triggerRadius > 0f) ? triggerRadius : baseRadius;
             triggerCollider.enabled = (triggerRadius > 0f);
+            triggerCollider.height = height;
 
             _trigger.SetValue(entity, triggerCollider);
             _collider.SetValue(entity, mainCollider);
@@ -62,6 +65,17 @@ namespace MTM101BaldAPI.ObjectCreation
         public EntityBuilder SetBaseRadius(float radius)
         {
             baseRadius = radius;
+            return this;
+        }
+
+        /// <summary>
+        /// Sets the collider's height.
+        /// </summary>
+        /// <param name="height"></param>
+        /// <returns></returns>
+        public EntityBuilder SetHeight(float height)
+        {
+            this.height = height;
             return this;
         }
 

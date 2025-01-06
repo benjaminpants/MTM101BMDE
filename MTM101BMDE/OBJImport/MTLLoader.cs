@@ -184,7 +184,7 @@ public class MTLLoader {
                 var currentColor = currentMaterial.GetColor("_Color");
                 var kdColor = OBJLoaderHelper.ColorFromStrArray(splitLine);
 
-                currentMaterial.SetColor("_Color", new Color(kdColor.r, kdColor.g, kdColor.b, currentColor.a));
+                //currentMaterial.SetColor("_Color", new Color(kdColor.r, kdColor.g, kdColor.b, currentColor.a));
                 continue;
             }
 
@@ -275,10 +275,10 @@ public class MTLLoader {
 
                 if(visibility < (1f - Mathf.Epsilon))
                 {
-                    var currentColor = currentMaterial.GetColor("_Color");
+                    var currentColor = Color.white;//currentMaterial.GetColor("_Color");
 
                     currentColor.a = visibility;
-                    currentMaterial.SetColor("_Color", currentColor);
+                    //currentMaterial.SetColor("_Color", currentColor);
 
                     OBJLoaderHelper.EnableMaterialTransparency(currentMaterial);
                 }
