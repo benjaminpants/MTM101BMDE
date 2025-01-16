@@ -141,6 +141,13 @@ namespace MTM101BaldAPI.AssetTools
             return ModelFromFile(Path.Combine(pathz.ToArray()));
         }
 
+        public static GameObject ModelFromModManualMaterials(BaseUnityPlugin plugin, Dictionary<string, Material> materials, params string[] paths)
+        {
+            List<string> pathz = paths.ToList();
+            pathz.Insert(0, GetModPath(plugin));
+            return ModelFromFileManualMaterials(Path.Combine(pathz.ToArray()), materials);
+        }
+
 
         /// <summary>
         /// Load textures from a specified folder.
