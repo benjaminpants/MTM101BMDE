@@ -44,8 +44,12 @@ public class MTLLoader {
             {
                 var tex = ImageLoader.LoadTexture(filePath);
 
-                if(isNormalMap)
+                tex.filterMode = FilterMode.Point;
+
+                if (isNormalMap)
+                {
                     tex = ImageUtils.ConvertToNormalMap(tex);
+                }
 
                 return tex;
             }
@@ -260,7 +264,7 @@ public class MTLLoader {
                     continue; //invalid args or sth
                 }
 
-                currentMaterial.SetTexture("_EmissionMap", TryLoadTexture(texturePath));
+                //currentMaterial.SetTexture("_EmissionMap", TryLoadTexture(texturePath));
                 continue;
             }
 
@@ -290,7 +294,7 @@ public class MTLLoader {
             {
                 float Ns = OBJLoaderHelper.FastFloatParse(splitLine[1]);
                 Ns = (Ns / 1000f);
-                currentMaterial.SetFloat("_Glossiness", Ns);
+                //currentMaterial.SetFloat("_Glossiness", Ns);
             }
         }
 

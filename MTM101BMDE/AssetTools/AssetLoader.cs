@@ -122,6 +122,18 @@ namespace MTM101BaldAPI.AssetTools
             return obj;
         }
 
+        /// <summary>
+        /// Loads an .obj file with the manually specified materials
+        /// </summary>
+        /// <returns>The GameObject containing the model</returns>
+        public static GameObject ModelFromFileManualMaterials(string path, Dictionary<string, Material> materials)
+        {
+            OBJLoader objLoader = new OBJLoader();
+            GameObject obj = objLoader.LoadWithManualMaterials(path, materials, MTM101BaldiDevAPI.AssetMan.Get<Material>("TileBase"));
+            obj.name = Path.GetFileNameWithoutExtension(path);
+            return obj;
+        }
+
         public static GameObject ModelFromMod(BaseUnityPlugin plugin, params string[] paths)
         {
             List<string> pathz = paths.ToList();
@@ -504,7 +516,6 @@ namespace MTM101BaldAPI.AssetTools
             int estimatedYsize = tex.height / verticalTiles;
 
             Sprite[,] sprs = new Sprite[horizontalTiles,verticalTiles];
-            int i = 0;
             for (int y = verticalTiles - 1; y >= 0; y--)
             {
                 for (int x = 0; x < horizontalTiles; x++)

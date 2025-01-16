@@ -283,6 +283,7 @@ namespace MTM101BaldAPI.OBJImporter
         /// </summary>
         /// <param name="input">Input OBJ stream</param>
         /// /// <param name="mtlInput">Input MTL stream</param>
+        /// <param name="baseMaterial">The material to use as a base for any generated materials (Added by the MTM101Api)</param>
         /// <returns>Returns a GameObject represeting the OBJ file, with each imported object as a child.</returns>
         public GameObject Load(Stream input, Stream mtlInput, Material baseMaterial)
         {
@@ -318,6 +319,22 @@ namespace MTM101BaldAPI.OBJImporter
                 {
                     return Load(fs);
                 }
+            }
+        }
+
+        /// <summary>
+        /// Load an OBJ while manually specifying the materials to be used.
+        /// </summary>
+        /// <param name="path"></param>
+        /// <param name="materials"></param>
+        /// <param name="baseMaterial"></param>
+        /// <returns></returns>
+        public GameObject LoadWithManualMaterials(string path, Dictionary<string, Material> materials, Material baseMaterial)
+        {
+            Materials = materials;
+            using (var fs = new FileStream(path, FileMode.Open))
+            {
+                return Load(fs);
             }
         }
 
