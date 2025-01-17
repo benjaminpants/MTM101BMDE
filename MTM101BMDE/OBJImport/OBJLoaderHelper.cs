@@ -77,7 +77,7 @@ namespace MTM101BaldAPI.OBJImporter
 
         public static Material CreateNullMaterial()
         {
-            return new Material(Shader.Find("TileBase"));
+            return new Material(MTM101BaldiDevAPI.AssetMan.Get<Material>("TileBase"));
         }
 
         public static Vector3 VectorFromStrArray(string[] cmps)
