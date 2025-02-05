@@ -265,23 +265,28 @@ namespace MTM101BaldAPI.SaveSystem
 
 
     // ******* Patches ******* //
-
-    [HarmonyPatch(typeof(MainModeButtonController))]
+    
+    [HarmonyPatch(typeof(HideSeekMenu))]
     [HarmonyPatch("OnEnable")]
     class DisableSaveButton
     {
-        static bool Prefix(MainModeButtonController __instance)
+        static bool Prefix(HideSeekMenu __instance, GameObject ___mainNew, GameObject ___mainNewWarning, GameObject ___mainContinue)
         {
             if (MTM101BaldiDevAPI.SaveGamesHandler == SavedGameDataHandler.Modded)
             {
-                __instance.mainNew.SetActive(!Singleton<ModdedFileManager>.Instance.saveData.saveAvailable);
-                __instance.mainContinue.SetActive(Singleton<ModdedFileManager>.Instance.saveData.saveAvailable);
+                if (Singleton<ModdedFileManager>.Instance.saveData.saveAvailable)
+                {
+                    ___mainNew.SetActive(false);
+                    ___mainNewWarning.SetActive(true);
+                    ___mainContinue.SetActive(true);
+                }
                 return false;
             }
             if (!MTM101BaldiDevAPI.SaveGamesEnabled)
             {
-                __instance.mainNew.SetActive(true);
-                __instance.mainContinue.SetActive(false);
+                ___mainNew.SetActive(true);
+                ___mainNewWarning.SetActive(false);
+                ___mainContinue.SetActive(false);
                 return false;
             }
             return true;

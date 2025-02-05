@@ -36,8 +36,8 @@ namespace MTM101BaldAPI.Patches
             string text = "";
             if (Singleton<InputManager>.Instance.SteamInputActive)
             {
-                text = string.Format(Singleton<LocalizationManager>.Instance.GetLocalizedText("Men_Warning"), Singleton<InputManager>.Instance.GetInputButtonName("MouseSubmit"));
-                WarningScreenContainer.pressAny = string.Format("PRESS {0} TO CONTINUE", Singleton<InputManager>.Instance.GetInputButtonName("MouseSubmit"));
+                text = string.Format(Singleton<LocalizationManager>.Instance.GetLocalizedText("Men_Warning"), Singleton<InputManager>.Instance.GetInputButtonName("MouseSubmit", "Interface", false));
+                WarningScreenContainer.pressAny = string.Format("PRESS {0} TO CONTINUE", Singleton<InputManager>.Instance.GetInputButtonName("MouseSubmit", "Interface", false));
             }
             else
             {
