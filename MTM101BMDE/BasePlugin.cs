@@ -346,6 +346,9 @@ namespace MTM101BaldAPI
                     case "Farm": //farm isnt a fieldtrip because its just a dummy sceneobject for the option in the menu, and isnt actually usable as a field trip
                         x.AddMeta(this, new string[0]);
                         break;
+                    case "Tutorial":
+                        x.AddMeta(this, new string[] { "tutorial" });
+                        break;
                     default:
                         MTM101BaldiDevAPI.Log.LogWarning("Unknown root SceneObject: " + x.name + ". Unable to add meta!");
                         break;

@@ -9,6 +9,11 @@ namespace MTM101BaldAPI.PlusExtensions
     public class ExtendedPosterObject : PosterObject
     {
         public PosterImageData[] overlayData;
+
+        public ExtendedPosterObject()
+        {
+            testMaterial = null;
+        }
     }
 
 
