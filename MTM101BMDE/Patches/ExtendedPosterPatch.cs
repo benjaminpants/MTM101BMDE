@@ -4,6 +4,8 @@ using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
 using System.Text;
+using System.Text.RegularExpressions;
+using TMPro;
 using UnityEngine;
 using UnityEngine.Rendering;
 using UnityEngine.UI;
@@ -11,70 +13,61 @@ using UnityEngine.UI;
 namespace MTM101BaldAPI.Patches
 {
     [HarmonyPatch(typeof(TextTextureGenerator))]
-    [HarmonyPatch("GenerateTextTexture")]
+    [HarmonyPatch("LoadPosterData")]
     class ExtendedPosterPatch
     {
-        static void Postfix(TextTextureGenerator __instance, Texture2D __result, PosterObject poster, Camera ___renderCamera, RenderTexture ___renderTexture, Rect ____readRect)
+        static void Postfix(TextTextureGenerator __instance, PosterObject poster, TMP_Text[] ___textureTMPPre)
         {
             if (!(poster is ExtendedPosterObject)) return; // if we aren't an extended poster, there is no reason to run this logic
-            MTM101BaldiDevAPI.Log.LogInfo("Found extended poster object!");
             Canvas canvas = __instance.transform.Find("Canvas").gameObject.GetComponent<Canvas>();
             ExtendedPosterObject extendedPoster = (ExtendedPosterObject)poster;
-            // deactivate all text
-            for (int i = 0; i < __instance.textureTMPPre.Length; i++)
-            {
-                __instance.textureTMPPre[i].gameObject.SetActive(false);
-            }
-
-            List<RawImage> images = new List<RawImage>();
-            RawImage imageTemplate = canvas.transform.Find("PosterPreview").GetComponent<RawImage>();
             for (int i = 0; i < extendedPoster.overlayData.Length; i++)
             {
                 PosterImageData overlayData = extendedPoster.overlayData[i];
                 //GameObject imageObject = new GameObject("Image" + i);
-                RawImage image = GameObject.Instantiate<RawImage>(imageTemplate);
-                image.transform.SetParent(canvas.transform, false);
-                image.transform.localPosition = Vector3.zero;
-                image.gameObject.layer = LayerMask.NameToLayer("UI");
-                image.transform.localScale = Vector3.one;
+                RawImage image = canvas.transform.Find("OverlayImage" + i).GetComponent<RawImage>();
+                image.gameObject.SetActive(true);
                 image.texture = overlayData.texture;
                 image.rectTransform.sizeDelta = new Vector2((float)overlayData.size.x, (float)overlayData.size.z);
-                image.rectTransform.localPosition = new Vector2((float)overlayData.position.x, (float)overlayData.position.z);
-                image.maskable = true;
-                MTM101BaldiDevAPI.Log.LogInfo("Setting up: " + i + "!");
-                MTM101BaldiDevAPI.Log.LogInfo(image.transform.localScale);
-                MTM101BaldiDevAPI.Log.LogInfo(image.transform.localPosition);
-                images.Add(image);
-                image.transform.SetAsFirstSibling();
+                image.rectTransform.anchoredPosition = new Vector2((float)overlayData.position.x, (float)overlayData.position.z);
             }
-            ___renderCamera.Render(); // re-render everything
-            RenderTexture.active = ___renderTexture;
-
-            Texture2D ourTex = new Texture2D(256, 256, TextureFormat.ARGB32, false);
-            ourTex.filterMode = FilterMode.Point;
-            ourTex.filterMode = FilterMode.Point;
-
-            ourTex.ReadPixels(____readRect,0,0);
-            ourTex.Apply(); //is this apply necessary
-            Color[] pixels = __result.GetPixels();
-
-            Color[] array = ourTex.GetPixels();
-            for (int i = 0; i < pixels.Length; i++)
+            // now modify the text
+            for (int i = 0; i < extendedPoster.textData.Length; i++)
             {
-                pixels[i].r = Mathf.Lerp(pixels[i].r, array[i].r, array[i].a);
-                pixels[i].g = Mathf.Lerp(pixels[i].g, array[i].g, array[i].a);
-                pixels[i].b = Mathf.Lerp(pixels[i].b, array[i].b, array[i].a);
-                pixels[i].g = 0;
+                if (!(extendedPoster.textData[i] is ExtendedPosterTextData)) continue; // nothing needs to be done here
+                ExtendedPosterTextData data = (ExtendedPosterTextData)extendedPoster.textData[i];
+                if (data.formats.Length != 0)
+                {
+                    string[] localizedFormats = new string[data.formats.Length];
+                    for (int j = 0; j < data.formats.Length; j++)
+                    {
+                        localizedFormats[j] = Singleton<LocalizationManager>.Instance.GetLocalizedText(data.formats[j]);
+                    }
+                    ___textureTMPPre[i].text = string.Format(___textureTMPPre[i].text, localizedFormats);
+                }
+                for (int j = 0; j < data.replacementRegex.Length; j++)
+                {
+                    ___textureTMPPre[i].text = Regex.Replace(___textureTMPPre[i].text, data.replacementRegex[j][0], data.replacementRegex[j][1]);
+                }
             }
+        }
+    }
 
-            __result.SetPixels(pixels);
-            __result.Apply();
 
-            GameObject.Destroy(ourTex); //cleanup
 
-            for (int i = 0; i < images.Count; i++)
+    [HarmonyPatch(typeof(TextTextureGenerator))]
+    [HarmonyPatch("GenerateTextTexture")]
+    class ExtendedPosterCleanupPatch
+    {
+        static void Postfix(TextTextureGenerator __instance, PosterObject poster)
+        {
+            if (!(poster is ExtendedPosterObject)) return; // if we aren't an extended poster, there is no reason to run this logic
+            Canvas canvas = __instance.transform.Find("Canvas").gameObject.GetComponent<Canvas>();
+            int i = 0;
+            while (canvas.transform.Find("OverlayImage" + i))
             {
-                GameObject.Destroy(images[i]);
+                canvas.transform.Find("OverlayImage" + i).gameObject.SetActive(false);
+                i++;
             }
         }
     }

@@ -5,6 +5,10 @@ using UnityEngine;
 
 namespace MTM101BaldAPI.PlusExtensions
 {
+
+    /// <summary>
+    /// An extended version of the PosterObject that adds extra functionality.
+    /// </summary>
     [Serializable]
     public class ExtendedPosterObject : PosterObject
     {
@@ -14,6 +18,23 @@ namespace MTM101BaldAPI.PlusExtensions
         {
             testMaterial = null;
         }
+    }
+
+    /// <summary>
+    /// An extended version of PosterTextData that adds extra functionality useful for automating poster creation or reducing copy and pasted localization.
+    /// Must be used under an ExtendedPosterObject.
+    /// </summary>
+    [Serializable]
+    public class ExtendedPosterTextData : PosterTextData
+    {
+        /// <summary>
+        /// Calls string.Format with the specified localized strings
+        /// </summary>
+        public string[] formats = new string[0];
+        /// <summary>
+        /// Replacement regex, where the first string is the regex itself and the second is the replacement
+        /// </summary>
+        public string[][] replacementRegex = new string[0][];
     }
 
 

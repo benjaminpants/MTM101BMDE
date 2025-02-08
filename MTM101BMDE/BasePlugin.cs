@@ -488,6 +488,21 @@ namespace MTM101BaldAPI
             AssetMan.AddFromResources<Material>();
             AssetMan.Add<SoundObject>("Silence", allSoundObjects.First(x => x.name == "Silence"));
             AssetMan.Add<AudioClip>("ErrorSound", Resources.FindObjectsOfTypeAll<AudioClip>().First(x => x.name == "Activity_Incorrect"));
+
+            // nab and modify the TextTextureGenerator prefab
+            TextTextureGenerator foundGen = Resources.FindObjectsOfTypeAll<TextTextureGenerator>().First(x => x.GetInstanceID() >= 0);
+            Transform texGenCanvas = foundGen.transform.Find("Canvas");
+            RawImage texGenImageTemplate = texGenCanvas.Find("PosterPreview").GetComponent<RawImage>();
+            for (int i = 0; i < 10; i++)
+            {
+                RawImage img = GameObject.Instantiate<RawImage>(texGenImageTemplate);
+                img.transform.SetParent(texGenCanvas, false); // unity wont let me parent it directly
+                img.name = "OverlayImage" + i;
+                img.rectTransform.pivot = new Vector2(0f, 1f);
+                img.rectTransform.anchorMin = new Vector2(0f,1f);
+                img.rectTransform.anchorMax = new Vector2(0f,1f);
+            }
+
         }
 
         internal void ConvertAllLevelObjects()

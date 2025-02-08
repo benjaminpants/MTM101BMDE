@@ -60,17 +60,16 @@ namespace MTM101BaldAPI.Registers
 
         public RoomAssetMeta[] FindAll(Predicate<RoomAssetMeta> predicate)
         {
-            return All().ToList().FindAll(predicate).ToArray();
+            return All().ToList().FindAll(predicate).Distinct().ToArray();
         }
 
         public RoomAssetMeta[] FindAllWithTags(bool matchAll, params string[] tags)
         {
             return FindAll(x =>
             {
-                foreach (string tag in x.tags)
+                foreach (string toSearchFor in tags)
                 {
-                    // if it contains the tag and we don't need to match all, return true, otherwise continue past the return false
-                    if (tags.Contains(tag))
+                    if (x.tags.Contains(toSearchFor))
                     {
                         if (!matchAll)
                         {

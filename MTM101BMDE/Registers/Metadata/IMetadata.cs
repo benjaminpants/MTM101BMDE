@@ -2,6 +2,7 @@
 using HarmonyLib;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Text;
 
@@ -58,17 +59,16 @@ namespace MTM101BaldAPI.Registers
 
         public T1[] FindAll(Predicate<T1> predicate)
         {
-            return metas.Values.ToList().FindAll(predicate).ToArray();
+            return metas.Values.ToList().FindAll(predicate).Distinct().ToArray();
         }
 
         public T1[] FindAllWithTags(bool matchAll, params string[] tags)
         {
             return FindAll(x =>
             {
-                foreach (string tag in x.tags)
+                foreach (string toSearchFor in tags)
                 {
-                    // if it contains the tag and we don't need to match all, return true, otherwise continue past the return false
-                    if (tags.Contains(tag))
+                    if (x.tags.Contains(toSearchFor))
                     {
                         if (!matchAll)
                         {
