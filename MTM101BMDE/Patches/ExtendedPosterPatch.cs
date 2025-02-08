@@ -27,25 +27,26 @@ namespace MTM101BaldAPI.Patches
             }
 
             List<RawImage> images = new List<RawImage>();
+            RawImage imageTemplate = canvas.transform.Find("PosterPreview").GetComponent<RawImage>();
             for (int i = 0; i < extendedPoster.overlayData.Length; i++)
             {
                 PosterImageData overlayData = extendedPoster.overlayData[i];
-                GameObject imageObject = new GameObject("Image" + i);
-                imageObject.transform.SetParent(canvas.transform, false);
-                imageObject.transform.localPosition = Vector3.zero;
-                imageObject.layer = LayerMask.NameToLayer("UI");
-                imageObject.transform.localScale = Vector3.one;
-                RawImage image = imageObject.AddComponent<RawImage>();
+                //GameObject imageObject = new GameObject("Image" + i);
+                RawImage image = GameObject.Instantiate<RawImage>(imageTemplate);
+                image.transform.SetParent(canvas.transform, false);
+                image.transform.localPosition = Vector3.zero;
+                image.gameObject.layer = LayerMask.NameToLayer("UI");
+                image.transform.localScale = Vector3.one;
                 image.texture = overlayData.texture;
                 image.rectTransform.sizeDelta = new Vector2((float)overlayData.size.x, (float)overlayData.size.z);
                 image.rectTransform.localPosition = new Vector2((float)overlayData.position.x, (float)overlayData.position.z);
                 image.maskable = true;
                 MTM101BaldiDevAPI.Log.LogInfo("Setting up: " + i + "!");
-                MTM101BaldiDevAPI.Log.LogInfo(imageObject.transform.localScale);
-                MTM101BaldiDevAPI.Log.LogInfo(imageObject.transform.localPosition);
+                MTM101BaldiDevAPI.Log.LogInfo(image.transform.localScale);
+                MTM101BaldiDevAPI.Log.LogInfo(image.transform.localPosition);
                 images.Add(image);
+                image.transform.SetAsFirstSibling();
             }
-            // todo: complete
             ___renderCamera.Render(); // re-render everything
             RenderTexture.active = ___renderTexture;
 
