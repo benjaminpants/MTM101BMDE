@@ -192,6 +192,8 @@ namespace MTM101BaldAPI
                         x.AddMeta(MTM101BaldiDevAPI.Instance, ItemFlags.Persists | ItemFlags.CreatesEntity);
                         break;
                     case Items.Boots:
+                        x.AddMeta(MTM101BaldiDevAPI.Instance, ItemFlags.Persists);
+                        break;
                     case Items.Teleporter:
                         x.AddMeta(MTM101BaldiDevAPI.Instance, ItemFlags.Persists).tags.Add("technology");
                         break;
@@ -210,12 +212,12 @@ namespace MTM101BaldAPI
                     case Items.Quarter:
                         x.AddMeta(MTM101BaldiDevAPI.Instance, ItemFlags.None).tags.Add("currency");
                         break;
-                    case Items.Wd40:
-                    case Items.DetentionKey:
-                    case Items.Tape:
                     case Items.Scissors:
                         x.AddMeta(MTM101BaldiDevAPI.Instance, ItemFlags.None).tags.Add("sharp");
                         break;
+                    case Items.Wd40:
+                    case Items.DetentionKey:
+                    case Items.Tape:
                     case Items.PrincipalWhistle:
                     case Items.DoorLock:
                         x.AddMeta(MTM101BaldiDevAPI.Instance, ItemFlags.None);
