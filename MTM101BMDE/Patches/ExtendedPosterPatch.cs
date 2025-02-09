@@ -1,13 +1,10 @@
 ﻿using HarmonyLib;
 using MTM101BaldAPI.PlusExtensions;
-using Newtonsoft.Json.Linq;
+using MTM101BaldAPI.UI;
 using System;
-using System.Collections.Generic;
-using System.Text;
 using System.Text.RegularExpressions;
 using TMPro;
 using UnityEngine;
-using UnityEngine.Rendering;
 using UnityEngine.UI;
 
 namespace MTM101BaldAPI.Patches
@@ -68,6 +65,45 @@ namespace MTM101BaldAPI.Patches
             {
                 canvas.transform.Find("OverlayImage" + i).gameObject.SetActive(false);
                 i++;
+            }
+        }
+    }
+
+    [HarmonyPatch(typeof(EnvironmentController))]
+    [HarmonyPatch("BuildPoster")]
+    [HarmonyPatch(new Type[] { typeof(PosterObject), typeof(Cell), typeof(Direction), typeof(bool) })]
+    [HarmonyPatch(new Type[] { typeof(PosterObject), typeof(Cell), typeof(Direction), typeof(System.Random) })]
+    class ExtendedPosterEvenWithoutTextPatch
+    {
+        static void Prefix(PosterObject poster, out bool __state)
+        {
+            __state = false;
+            if (!(poster is ExtendedPosterObject)) return;
+            if (poster.textData.Length == 0)
+            {
+                __state = true;
+                poster.textData = new PosterTextData[]
+                {
+                    new PosterTextData()
+                    {
+                        size = new IntVector2(0,0),
+                        font = BaldiFonts.ComicSans12.FontAsset(),
+                        alignment = TextAlignmentOptions.Left,
+                        color = Color.clear,
+                        fontSize = 1,
+                        position = new IntVector2(0,0),
+                        style = TMPro.FontStyles.Normal,
+                        textKey = ""
+                    }
+                };
+            }
+        }
+
+        static void Postfix(PosterObject poster, bool __state)
+        {
+            if (__state)
+            {
+                poster.textData = new PosterTextData[0];
             }
         }
     }
