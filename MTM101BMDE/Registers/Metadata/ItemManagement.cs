@@ -40,7 +40,11 @@ namespace MTM101BaldAPI.Registers
         /// <summary>
         /// This item creates a physical entity in the world, this is applicable for the BSODA but not the Big Ol' Boots.
         /// </summary>
-        CreatesEntity = 16
+        CreatesEntity = 16,
+        /// <summary>
+        /// This item has a variant in the tutorial that must be accounted for when handling MultipleUse
+        /// </summary>
+        HasTutorialVariant = 32
     }
 
     public class ItemMetaData : IMetadata<ItemObject>

@@ -165,7 +165,7 @@ namespace MTM101BaldAPI
             // INITIALIZE ITEM METADATA
             ItemObject grapplingHook = null;
             List<ItemObject> pointObjects = new List<ItemObject>();
-            Resources.FindObjectsOfTypeAll<ItemObject>().Do(x =>
+            Resources.FindObjectsOfTypeAll<ItemObject>().Where(x => !x.name.EndsWith("Tutorial")).Do(x =>
             {
                 switch (x.itemType)
                 {
@@ -261,6 +261,15 @@ namespace MTM101BaldAPI
             pointObjects.ForEach(x =>
             {
                 x.AddMeta(pointItemData);
+            });
+
+
+            Resources.FindObjectsOfTypeAll<ItemObject>().Where(x => x.name.EndsWith("Tutorial")).Do(x =>
+            {
+                ItemMetaData meta = ItemMetaStorage.Instance.FindByEnum(x.itemType);
+                meta.flags |= ItemFlags.HasTutorialVariant;
+                meta.itemObjects = meta.itemObjects.AddToArray(x);
+                x.AddMeta(meta);
             });
             // INITIALIZE CHARACTER METADATA
             NPC[] NPCs = Resources.FindObjectsOfTypeAll<NPC>();
