@@ -42,7 +42,7 @@ namespace MTM101BaldAPI.Registers
         /// </summary>
         CreatesEntity = 16,
         /// <summary>
-        /// This item has a variant in the tutorial that must be accounted for when handling MultipleUse
+        /// This item has a variant in the tutorial that must be accounted for when handling MultipleUse.
         /// </summary>
         HasTutorialVariant = 32
     }

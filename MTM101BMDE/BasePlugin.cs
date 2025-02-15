@@ -46,7 +46,7 @@ namespace MTM101BaldAPI
     {
         internal static ManualLogSource Log = new ManualLogSource("Baldi's Basics Plus Dev API Pre Initialization");
 
-        public const string VersionNumber = "6.2.0.0";
+        public const string VersionNumber = "6.3.0.0";
 
         /// <summary>
         /// The version of the API, applicable when BepInEx cache messes up the version number.
@@ -160,6 +160,7 @@ namespace MTM101BaldAPI
 
         internal void OnSceneUnload()
         {
+            AssetMan.Add<CursorController>("cursorController", Resources.FindObjectsOfTypeAll<CursorController>().First(x => x.name == "CursorOrigin"));
             gameLoader = Resources.FindObjectsOfTypeAll<GameLoader>().First(x => x.GetInstanceID() >= 0);
             Singleton<GlobalCam>.Instance.StopCurrentTransition();
             // INITIALIZE ITEM METADATA
@@ -268,7 +269,14 @@ namespace MTM101BaldAPI
             {
                 ItemMetaData meta = ItemMetaStorage.Instance.FindByEnum(x.itemType);
                 meta.flags |= ItemFlags.HasTutorialVariant;
-                meta.itemObjects = meta.itemObjects.AddToArray(x);
+                if (x.itemType == Items.GrapplingHook)
+                {
+                    meta.itemObjects = meta.itemObjects.Reverse().AddItem(x).Reverse().ToArray();
+                }
+                else
+                {
+                    meta.itemObjects = meta.itemObjects.AddItem(x).Reverse().ToArray();
+                }
                 x.AddMeta(meta);
             });
             // INITIALIZE CHARACTER METADATA

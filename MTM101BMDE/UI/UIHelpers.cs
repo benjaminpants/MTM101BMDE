@@ -150,12 +150,40 @@ namespace MTM101BaldAPI.UI
         static FieldInfo _canvas = AccessTools.Field(typeof(GlobalCamCanvasAssigner), "canvas");
 
         /// <summary>
+        /// Adds a standard 4:3 cursor initiator to the respective canvas.
+        /// </summary>
+        /// <param name="canvas">The canvas to add to.</param>
+        /// <returns></returns>
+        public static CursorInitiator AddCursorInitiatorToCanvas(Canvas canvas)
+        {
+            return AddCursorInitiatorToCanvas(canvas, new Vector2(480f, 360f), null);
+        }
+
+        /// <summary>
+        /// Adds a cursor initiator to the respective canvas with the specified screensize.
+        /// </summary>
+        /// <param name="canvas">The canvas to add to.</param>
+        /// <param name="screenSize">The screen size for the initiator.</param>
+        /// <param name="prefab">The prefab to use, if left null, it will use the standard one.</param>
+        /// <returns></returns>
+        public static CursorInitiator AddCursorInitiatorToCanvas(Canvas canvas, Vector2 screenSize, CursorController prefab = null)
+        {
+            CursorInitiator initiator = canvas.gameObject.AddComponent<CursorInitiator>();
+            initiator.cursorPre = prefab == null ? MTM101BaldiDevAPI.AssetMan.Get<CursorController>("cursorController") : prefab;
+            initiator.screenSize = screenSize;
+            initiator.graphicRaycaster = canvas.GetComponent<GraphicRaycaster>();
+            return initiator;
+        }
+
+
+        /// <summary>
         /// Create a blank UI canvas, based off of the canvas' on the title screen.
         /// </summary>
         /// <param name="name"></param>
         /// <param name="addCanvasAssigner"></param>
+        /// <param name="startActive">Determines if the Canvas should start active or not.</param>
         /// <returns></returns>
-        public static Canvas CreateBlankUIScreen(string name, bool addCanvasAssigner = true)
+        public static Canvas CreateBlankUIScreen(string name, bool addCanvasAssigner = true, bool startActive = true)
         {
             GameObject obj = new GameObject(name);
             obj.SetActive(false);
@@ -180,7 +208,7 @@ namespace MTM101BaldAPI.UI
                 GlobalCamCanvasAssigner gcca = obj.AddComponent<GlobalCamCanvasAssigner>();
                 _canvas.SetValue(gcca, canvas);
             }
-            obj.SetActive(true);
+            obj.SetActive(startActive);
             // todo: investigate plane distance, does it hold any relevancy?
             return canvas;
         }
