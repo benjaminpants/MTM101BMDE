@@ -214,6 +214,17 @@ namespace MTM101BaldAPI.UI
         }
 
         /// <summary>
+        /// Create a blank UI canvas, based off of the canvas' on the title screen.
+        /// </summary>
+        /// <param name="name"></param>
+        /// <param name="addCanvasAssigner"></param>
+        /// <returns></returns>
+        public static Canvas CreateBlankUIScreen(string name, bool addCanvasAssigner = true)
+        {
+            return CreateBlankUIScreen(name, addCanvasAssigner, true);
+        }
+
+        /// <summary>
         /// Add 4:3 borders to the respective canvas.
         /// </summary>
         /// <param name="canvas"></param>
