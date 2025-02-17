@@ -46,7 +46,7 @@ namespace MTM101BaldAPI
     {
         internal static ManualLogSource Log = new ManualLogSource("Baldi's Basics Plus Dev API Pre Initialization");
 
-        public const string VersionNumber = "6.3.0.0";
+        public const string VersionNumber = "6.3.0.1";
 
         /// <summary>
         /// The version of the API, applicable when BepInEx cache messes up the version number.

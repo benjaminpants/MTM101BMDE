@@ -686,6 +686,11 @@ namespace MTM101BaldAPI.AssetTools
             if (MidiDatas.ContainsKey(id))
             {
                 MidiDatas.Remove(id);
+                if (MidiPlayerGlobal.CurrentMidiSet.MidiFiles.Contains(id))
+                {
+                    MidiPlayerGlobal.CurrentMidiSet.MidiFiles.Remove(id);
+                    MidiPlayerGlobal.BuildMidiList();
+                }
                 return;
             }
             if (MidisToBeAdded == null) return;
