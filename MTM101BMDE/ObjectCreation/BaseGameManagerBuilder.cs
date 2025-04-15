@@ -30,11 +30,12 @@ namespace MTM101BaldAPI.ObjectCreation
     public class BaseGameManagerBuilder<T> where T : BaseGameManager
     {
 
-        float gradeValue = 1f;
-        float notebookAngerVal = 1f;
-        int levelNo = 0;
-        string managerNameKey = null;
-        string name;
+        private float gradeValue = 1f;
+        private float notebookAngerVal = 1f;
+        private int levelNo = 0;
+        private string managerNameKey = null;
+        private string name;
+        private ElevatorScreen customElevatorScreen;
         protected bool beginPlayImmediately = false;
         protected GameManagerNPCAutomaticSpawn npcSpawnMode = GameManagerNPCAutomaticSpawn.OnSpawnExit;
 
@@ -85,6 +86,17 @@ namespace MTM101BaldAPI.ObjectCreation
         }
 
         /// <summary>
+        /// Sets
+        /// </summary>
+        /// <param name="screen"></param>
+        /// <returns></returns>
+        public BaseGameManagerBuilder<T> SetCustomElevatorPrefab(ElevatorScreen screen)
+        {
+            customElevatorScreen = screen;
+            return this;
+        }
+
+        /// <summary>
         /// Sets the amount of anger Baldi gains when a notebook is collected.
         /// </summary>
         /// <param name="value"></param>
@@ -110,6 +122,7 @@ namespace MTM101BaldAPI.ObjectCreation
         static FieldInfo _notebookAngerVal = AccessTools.Field(typeof(BaseGameManager), "notebookAngerVal");
         static FieldInfo _levelNo = AccessTools.Field(typeof(BaseGameManager), "levelNo");
         static FieldInfo _managerNameKey = AccessTools.Field(typeof(BaseGameManager), "managerNameKey");
+        static FieldInfo _elevatorScreenPre = AccessTools.Field(typeof(BaseGameManager), "elevatorScreenPre");
 
         /// <summary>
         /// Creates the BaseGameManager prefab.
@@ -147,6 +160,7 @@ namespace MTM101BaldAPI.ObjectCreation
                     comp.spawnImmediately = true;
                     break;
             }
+            _elevatorScreenPre.SetValue(comp, customElevatorScreen == null ? MTM101BaldiDevAPI.AssetMan.Get<ElevatorScreen>("ElevatorScreen") : customElevatorScreen);
             return comp;
         }
     }
