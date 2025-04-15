@@ -161,6 +161,7 @@ namespace MTM101BaldAPI
         internal void OnSceneUnload()
         {
             AssetMan.Add<CursorController>("cursorController", Resources.FindObjectsOfTypeAll<CursorController>().First(x => x.name == "CursorOrigin"));
+            AssetMan.Add<ElevatorScreen>("ElevatorScreen", Resources.FindObjectsOfTypeAll<ElevatorScreen>().First(x => x.transform.parent == null));
             gameLoader = Resources.FindObjectsOfTypeAll<GameLoader>().First(x => x.GetInstanceID() >= 0);
             Singleton<GlobalCam>.Instance.StopCurrentTransition();
             // INITIALIZE ITEM METADATA
