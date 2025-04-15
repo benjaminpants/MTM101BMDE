@@ -26,6 +26,7 @@ namespace MTM101BaldAPI.ObjectCreation
         private bool instantUse = false;
         private Item objectReference;
         private SoundObject pickupSoundOverride;
+        private bool overrideDisabled = false;
 
 
         public ItemBuilder(PluginInfo info)
@@ -52,6 +53,7 @@ namespace MTM101BaldAPI.ObjectCreation
             item.itemSpriteLarge = largeSprite;
             item.price = price;
             item.value = generatorCost;
+            item.overrideDisabled = overrideDisabled;
             if (itemObjectType != null)
             {
                 GameObject obj = new GameObject();
@@ -116,6 +118,16 @@ namespace MTM101BaldAPI.ObjectCreation
         public ItemBuilder SetMeta(ItemMetaData existingMeta)
         {
             metaDataToAddTo = existingMeta;
+            return this;
+        }
+
+        /// <summary>
+        /// Makes this object able to be used, even when the item manager is otherwise disabled. (Such as Johnny's Shop)
+        /// </summary>
+        /// <returns></returns>
+        public ItemBuilder SetAsNotOverridable()
+        {
+            overrideDisabled = true;
             return this;
         }
 
