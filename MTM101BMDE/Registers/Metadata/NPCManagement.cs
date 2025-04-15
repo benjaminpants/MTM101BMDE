@@ -45,7 +45,7 @@ namespace MTM101BaldAPI.Registers
         /// </summary>
         IsBlockade = 64,
         /// <summary>
-        /// This NPC isn't spawned via other, non level generator/builder means (such as a StructureBuilder).
+        /// This NPC is spawned via other, non level generator/builder means (such as a StructureBuilder).
         /// EX: Student
         /// </summary>
         NonStandardSpawn = 128,
