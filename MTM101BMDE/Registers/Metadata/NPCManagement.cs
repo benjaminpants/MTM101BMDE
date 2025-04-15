@@ -84,11 +84,14 @@ namespace MTM101BaldAPI.Registers
             string e = EnumExtensions.GetExtendedName<Character>((int)value.Character);
             try
             {
-                e = Singleton<LocalizationManager>.Instance.GetLocalizedText(value.Poster.textData[0].textKey);
+                if (value.Poster != null)
+                {
+                    e = Singleton<LocalizationManager>.Instance.GetLocalizedText(value.Poster.textData[0].textKey);
+                }
             }
             catch (Exception E)
             {
-                MTM101BaldiDevAPI.Log.LogWarning(E.Message);
+                MTM101BaldiDevAPI.Log.LogWarning("Unable to get localized text for: " + defKey + "\n" + E.Message);
             }
             nameLocalizationKey = e;
         }
