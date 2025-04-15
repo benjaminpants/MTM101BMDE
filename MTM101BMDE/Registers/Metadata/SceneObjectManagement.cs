@@ -1,6 +1,7 @@
 ﻿using BepInEx;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 
 namespace MTM101BaldAPI.Registers
@@ -10,7 +11,20 @@ namespace MTM101BaldAPI.Registers
         public SceneObject value => _value;
         private SceneObject _value;
 
-        public bool randomlyGenerated => _value.levelObject != null;
+        public bool randomlyGenerated {
+            get
+            {
+                if (_value.levelObject != null)
+                {
+                    return true;
+                }
+                if (_value.randomizedLevelObject != null)
+                {
+                    return _value.randomizedLevelObject.Length > 0;
+                }
+                return false;
+            }
+        }
         public int number => _value.levelNo;
         public string title => _value.levelTitle;
 
@@ -24,6 +38,15 @@ namespace MTM101BaldAPI.Registers
         {
             _info = info;
             _value = obj;
+        }
+
+        /// <summary>
+        /// Get the level types supported by this SceneObject.
+        /// </summary>
+        /// <returns></returns>
+        public LevelType[] GetSupportedLevelTypes()
+        {
+            return value.GetLevelObjects().Select(x => x.type).Distinct().ToArray();
         }
     }
 
