@@ -26,9 +26,9 @@ namespace MTM101BaldAPI
 
         }*/
 
-        public static GameButton BuildInAreaWithColor(EnvironmentController ec, IntVector2 posA, IntVector2 posB, int buttonRange, GameObject receiver, GameButton buttonPre, string colorKey, System.Random cRng)
+        public static GameButton BuildInAreaWithColor(EnvironmentController ec, IntVector2 pos, int buttonRange, GameObject receiver, GameButton buttonPre, string colorKey, System.Random cRng)
         {
-            GameButton gb = GameButton.BuildInArea(ec, posA, posB, buttonRange, receiver, buttonPre, cRng);
+            GameButton gb = (GameButton)GameButton.BuildInArea(ec, pos, buttonRange, receiver, buttonPre, cRng);
             ButtonColorManager.ApplyButtonMaterials(gb, colorKey);
             return gb;
         }

@@ -2,6 +2,7 @@
 using HarmonyLib;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 
 namespace MTM101BaldAPI.Registers
@@ -9,9 +10,14 @@ namespace MTM101BaldAPI.Registers
     public enum GenerationModType
     {
         /// <summary>
+        /// Runs before everything else, including base. This is the only time a new level type can be added or a level type can be removed from a SceneObject.
+        /// Attempting it in any other GenerationModType will throw an error.
+        /// </summary>
+        Preparation, // runs before base.
+        /// <summary>
         /// This should be used for methods that override the majority of the generator properties, almost completely transforming the level.
         /// </summary>
-        Base, // runs first, expected to override everything
+        Base, // runs second, expected to override everything
 
         /// <summary>
         /// This should be used for overriding only certain properties of the generator, such as changing exit counts.
@@ -97,6 +103,11 @@ namespace MTM101BaldAPI.Registers
                     actionsList[kvp3.Key].Add(kvp3.Value);
                 }
             }
+            if (actionsList.ContainsKey(GenerationModType.Preparation))
+            {
+                actionsList[GenerationModType.Preparation].Do(x => x.Invoke(name, floorNumber, obj));
+            }
+            CustomLevelObject[] oldObjects = obj.GetLevelObjects();
             if (actionsList.ContainsKey(GenerationModType.Base))
             {
                 actionsList[GenerationModType.Base].Do(x => x.Invoke(name, floorNumber, obj));
@@ -112,6 +123,23 @@ namespace MTM101BaldAPI.Registers
             if (actionsList.ContainsKey(GenerationModType.Finalizer))
             {
                 actionsList[GenerationModType.Finalizer].Do(x => x.Invoke(name, floorNumber, obj));
+            }
+            int matchingObjects = 0;
+            CustomLevelObject[] newObjects = obj.GetLevelObjects();
+            if (newObjects.Length != oldObjects.Length)
+            {
+                throw new InvalidOperationException("A mod changed LevelObject assignments outside GenerationModType.Preparation (length does not match)");
+            }
+            for (int i = 0; i < newObjects.Length; i++)
+            {
+                if (oldObjects.Contains(newObjects[i]))
+                {
+                    matchingObjects++;
+                }
+            }
+            if (matchingObjects != oldObjects.Length)
+            {
+                throw new InvalidOperationException("A mod changed LevelObject assignments outside GenerationModType.Preparation (missing objects)");
             }
         }
     }

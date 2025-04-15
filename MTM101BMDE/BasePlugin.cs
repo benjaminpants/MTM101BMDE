@@ -46,7 +46,7 @@ namespace MTM101BaldAPI
     {
         internal static ManualLogSource Log = new ManualLogSource("Baldi's Basics Plus Dev API Pre Initialization");
 
-        public const string VersionNumber = "6.3.0.1";
+        public const string VersionNumber = "7.0.0.0";
 
         /// <summary>
         /// The version of the API, applicable when BepInEx cache messes up the version number.
@@ -72,8 +72,6 @@ namespace MTM101BaldAPI
         public static RandomEventMetaStorage randomEventStorage = new RandomEventMetaStorage();
         public static SkyboxMetaStorage skyboxMeta = new SkyboxMetaStorage();
         public static SceneObjectMetaStorage sceneMeta = new SceneObjectMetaStorage();
-
-        public static RoomAssetMetaStorage roomAssetMeta = new RoomAssetMetaStorage();
 
         internal ConfigEntry<bool> useOldAudioLoad;
 
@@ -237,6 +235,27 @@ namespace MTM101BaldAPI
                     case Items.BusPass:
                         x.AddMeta(MTM101BaldiDevAPI.Instance, ItemFlags.NoUses);
                         break;
+                    // MYSTMAN12 WHY
+                    case Items.lostItem0:
+                    case Items.lostItem1:
+                    case Items.lostItem2:
+                    case Items.lostItem3:
+                    case Items.lostItem4:
+                    case Items.lostItem5:
+                    case Items.lostItem6:
+                    case Items.lostItem7:
+                    case Items.lostItem8:
+                    case Items.lostItem9:
+                        x.AddMeta(MTM101BaldiDevAPI.Instance, ItemFlags.NoUses).tags.Add("lost_item");
+                        break;
+                    case Items.CircleKey:
+                    case Items.TriangleKey:
+                    case Items.SquareKey:
+                    case Items.PentagonKey:
+                    case Items.HexagonKey:
+                    case Items.WeirdKey:
+                        x.AddMeta(MTM101BaldiDevAPI.Instance, ItemFlags.None).tags.Add("shape_key");
+                        break;
                     default:
                         // modded items start at 256, so we somehow have initialized after the mod in question, ignore the data.
                         if ((int)x.itemType < 256)
@@ -295,10 +314,9 @@ namespace MTM101BaldAPI
             NPCMetaStorage.Instance.Add(new NPCMetadata(MTM101BaldiDevAPI.Instance.Info, NPCs.Where(x => x.Character == Character.LookAt).ToArray(), "LookAt", NPCFlags.Standard));
             NPCMetaStorage.Instance.Add(new NPCMetadata(MTM101BaldiDevAPI.Instance.Info, NPCs.Where(x => x.Character == Character.Prize).ToArray(), "FirstPrize", NPCFlags.Standard | NPCFlags.MakeNoise));
             NPCMetaStorage.Instance.Add(new NPCMetadata(MTM101BaldiDevAPI.Instance.Info, NPCs.Where(x => x.Character == Character.DrReflex).ToArray(), "DrReflex", NPCFlags.StandardAndHear, new string[] { "faculty" }));
-            Resources.FindObjectsOfTypeAll<RoomAsset>().Do(x =>
-            {
-                RoomAssetMetaStorage.Instance.Add(new RoomAssetMeta(MTM101BaldiDevAPI.Instance.Info, x));
-            });
+            NPCMetadata studentMeta = new NPCMetadata(MTM101BaldiDevAPI.Instance.Info, NPCs.Where(x => x.name.StartsWith("Student") && x.Character == Character.Null).ToArray(), "Student_0", NPCFlags.Standard | NPCFlags.NonStandardSpawn, new string[] { "student" });
+            studentMeta.nameLocalizationKey = "Student"; // technically not true as these guys have no localization key but. just incase.
+            NPCMetaStorage.Instance.Add(studentMeta);
 
             Resources.FindObjectsOfTypeAll<RandomEvent>().Do(x =>
             {
@@ -343,6 +361,8 @@ namespace MTM101BaldAPI
                     case "MainLevel_1":
                     case "MainLevel_2":
                     case "MainLevel_3":
+                    case "MainLevel_4":
+                    case "MainLevel_5":
                         x.AddMeta(this, new string[] { "main", "found_on_main" });
                         break;
                     case "EndlessRandomMedium":
@@ -531,14 +551,37 @@ namespace MTM101BaldAPI
             Dictionary<LevelObject, CustomLevelObject> oldToNewMapping = new Dictionary<LevelObject, CustomLevelObject>();
             foreach (SceneObject objct in sceneObjects)
             {
-                if (objct.levelObject == null) continue;
+                if (objct.levelObject == null)
+                {
+                    if (objct.randomizedLevelObject.Length == 0) continue;
+                    for (int i = 0; i < objct.randomizedLevelObject.Length; i++)
+                    {
+                        WeightedLevelObject curWeighted = objct.randomizedLevelObject[i];
+                        CustomLevelObject customWObject = ScriptableObjectHelpers.CloneScriptableObject<LevelObject, CustomLevelObject>(curWeighted.selection);
+                        customWObject.name = curWeighted.selection.name;
+                        if (!oldToNewMapping.ContainsKey(curWeighted.selection))
+                        {
+                            oldToNewMapping.Add(curWeighted.selection, customWObject);
+                        }
+                        objct.levelObject.MarkAsNeverUnload();
+                        customWObject.MarkAsNeverUnload();
+                        curWeighted.selection = customWObject;
+                    }
+                    objct.MarkAsNeverUnload();
+                    continue;
+                }
                 CustomLevelObject customizedObject = ScriptableObjectHelpers.CloneScriptableObject<LevelObject, CustomLevelObject>(objct.levelObject);
                 customizedObject.name = objct.levelObject.name;
-                oldToNewMapping.Add(objct.levelObject, customizedObject);
+                if (!oldToNewMapping.ContainsKey(objct.levelObject))
+                {
+                    oldToNewMapping.Add(objct.levelObject, customizedObject);
+                }
                 objct.levelObject = customizedObject;
                 objct.levelObject.MarkAsNeverUnload();
                 objct.MarkAsNeverUnload();
             }
+            // previous levels is unused and doesn't need to be properly carried over
+            /*
             foreach (KeyValuePair<LevelObject,CustomLevelObject> kvp in oldToNewMapping)
             {
                 kvp.Value.previousLevels = new LevelObject[kvp.Key.previousLevels.Length];
@@ -547,7 +590,7 @@ namespace MTM101BaldAPI
                 {
                     kvp.Value.previousLevels[i] = oldToNewMapping[kvp.Key.previousLevels[i]];
                 }
-            }
+            }*/
             // destroy the old objects (do this in a seperate loop so we can preserve the keys until the very end
             foreach (KeyValuePair<LevelObject, CustomLevelObject> kvp in oldToNewMapping)
             {

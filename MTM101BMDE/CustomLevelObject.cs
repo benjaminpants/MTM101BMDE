@@ -15,6 +15,26 @@ namespace MTM101BaldAPI
             if (sceneObj.levelObject == null) return null;
             return (CustomLevelObject)sceneObj.levelObject;
         }
+
+        /// <summary>
+        /// Get all the level objects referenced by the specified SceneObject.
+        /// </summary>
+        /// <param name="sceneObj"></param>
+        /// <returns></returns>
+        public static CustomLevelObject[] GetLevelObjects(this SceneObject sceneObj)
+        {
+            List<CustomLevelObject> levelObjects = new List<CustomLevelObject>();
+            if (sceneObj.levelObject != null)
+            {
+                levelObjects.Add((CustomLevelObject)sceneObj.levelObject);
+            }
+            for (int i = 0; i < sceneObj.randomizedLevelObject.Length; i++)
+            {
+                levelObjects.Add((CustomLevelObject)sceneObj.randomizedLevelObject[i].selection);
+            }
+
+            return levelObjects.Distinct().ToArray();
+        }
     }
 
 
@@ -89,6 +109,9 @@ namespace MTM101BaldAPI
             }
             customModDatas[modUUID].Add(key, value);
         }
+
+        [Obsolete("BB+ no longer uses .previousLevels change .previousLevels in the SceneObject instead!", true)]
+        public new LevelObject[] previousLevels = new LevelObject[0];
 
         [Obsolete("BB+ no longer uses .items, use .forcedItems or .potentialItems instead!", true)]
         public new WeightedItemObject[] items; //hacky way of adding the Obsolete tag, but it works?

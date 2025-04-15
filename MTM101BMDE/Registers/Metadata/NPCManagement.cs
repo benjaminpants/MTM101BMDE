@@ -12,17 +12,46 @@ namespace MTM101BaldAPI.Registers
     [Flags]
     public enum NPCFlags //these are heavily inspired by the system the mod menu uses, I'm not sure how many of these flags will be useful.
     {
-        None = 0, // This NPC has no necessary flags.
-        CanHear = 1, // This NPC can respond to sound
-        CanMove = 2, // This NPC can move linearly (Bully doesn't count)
-        CanSee = 4, // This NPC can see/spot things
-        MakeNoise = 8, // This NPC can make noise that Baldi can hear (First Prize)
-        HasTrigger = 16, // This NPC's collider is a trigger (this excludes Chalkles and Bully)
-        HasSprite = 32, // This NPC has a sprite in the schoolhouse, every NPC including Chalkles currently has this flag.
-        IsBlockade = 64, // This NPC can block other NPC's LOS or Navigation
+        /// <summary>
+        /// This NPC has no applicable flags.
+        /// </summary>
+        None = 0,
+        /// <summary>
+        /// This NPC can respond to sound
+        /// </summary>
+        CanHear = 1,
+        /// <summary>
+        /// This NPC can move linearly (Bully doesn't count)
+        /// </summary>
+        CanMove = 2,
+        /// <summary>
+        /// This NPC can see/spot things
+        /// </summary>
+        CanSee = 4,
+        /// <summary>
+        /// This NPC can make noise that Baldi can hear (First Prize)
+        /// </summary>
+        MakeNoise = 8,
+        /// <summary>
+        /// This NPC's collider is a trigger (this excludes Chalkles and Bully)
+        /// </summary>
+        HasTrigger = 16,
+        /// <summary>
+        /// This NPC has a sprite in the schoolhouse, every NPC including Chalkles currently has this flag.
+        /// </summary>
+        HasSprite = 32,
+        /// <summary>
+        /// This NPC can block other NPC's LOS or Navigation
+        /// </summary>
+        IsBlockade = 64,
+        /// <summary>
+        /// This NPC isn't spawned via other, non level generator/builder means (such as a StructureBuilder).
+        /// EX: Student
+        /// </summary>
+        NonStandardSpawn = 128,
         Standard =  CanMove | CanSee | HasSprite | HasTrigger,
         StandardNoCollide = Standard & ~HasTrigger,
-        StandardAndHear = Standard | CanHear
+        StandardAndHear = Standard | CanHear,
     }
 
     public class NPCMetadata : IMetadata<NPC>

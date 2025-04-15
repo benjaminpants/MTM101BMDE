@@ -23,22 +23,17 @@ namespace MTM101BaldAPI.Registers
         /// <summary>
         /// This item should not appear in the players inventory and is used instantly upon pickup.
         /// </summary>
-        [Obsolete("Please use InstantUse instead!")]
-        NoInventory = 2,
-        /// <summary>
-        /// This item should not appear in the players inventory and is used instantly upon pickup.
-        /// </summary>
         InstantUse = 2,
         /// <summary>
         /// This item doesn't do anything when used, regardless of circumstance. This is for items like the Apple, but not the quarter as it can be used in machines.
         /// </summary>
         NoUses = 4,
         /// <summary>
-        /// This item's behavior doesn't instantly destroy itself when used. This is applicable for the BSODA or the Big Ol' Boots.
+        /// This item's behavior doesn't instantly destroy itself when used. This is applicable for the BSODA or the Techno Boots.
         /// </summary>
         Persists = 8,
         /// <summary>
-        /// This item creates a physical entity in the world, this is applicable for the BSODA but not the Big Ol' Boots.
+        /// This item creates a physical entity in the world, this is applicable for the BSODA but not the Techno Boots.
         /// </summary>
         CreatesEntity = 16,
         /// <summary>

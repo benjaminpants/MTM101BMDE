@@ -125,6 +125,7 @@ namespace MTM101BaldAPI
             textToChange.text = (string)numerator.Current;
             int totalSteps = 0;
             SetBarValue(barToAdjust, 0f);
+            yield return null; // not having this here caused an issue where if something only took a brief moment the old text would carry over
             while (numerator.MoveNext())
             {
                 if (numerator.Current.GetType() != typeof(string))
@@ -173,7 +174,18 @@ namespace MTM101BaldAPI
 
         IEnumerator MainLoad()
         {
-            SceneObject[] objs = Resources.FindObjectsOfTypeAll<SceneObject>().Where(x => x.levelObject != null).ToArray();
+            SceneObject[] objs = Resources.FindObjectsOfTypeAll<SceneObject>().Where(x =>
+            {
+                if (x.levelObject != null)
+                {
+                    return true;
+                }
+                if (x.randomizedLevelObject != null)
+                {
+                    return x.randomizedLevelObject.Length > 0;
+                }
+                return false;
+            }).ToArray();
             FieldTripObject[] foundTrips = Resources.FindObjectsOfTypeAll<FieldTripObject>().Where(x => x.tripHub != null).ToArray(); // ignore junk
             yield return (3 + objs.Length) + LoadingEvents.LoadingEventsPost.Count + LoadingEvents.LoadingEventsPre.Count + LoadingEvents.LoadingEventsStart.Count + foundTrips.Length;
             for (int i = 0; i < LoadingEvents.LoadingEventsStart.Count; i++)
@@ -199,10 +211,24 @@ namespace MTM101BaldAPI
             foreach (SceneObject obj in objs)
             {
                 yield return "Changing " + obj.levelTitle + "...";
-                if (!(obj.levelObject is CustomLevelObject))
+                if (obj.levelObject != null)
                 {
-                    MTM101BaldiDevAPI.Log.LogWarning(String.Format("Can't invoke SceneObject({0})({2}) Generation Changes for {1}! Not a CustomLevelObject!", obj.levelTitle, obj.levelObject.ToString(), obj.levelNo.ToString()));
-                    continue;
+                    if (!(obj.levelObject is CustomLevelObject))
+                    {
+                        MTM101BaldiDevAPI.Log.LogWarning(String.Format("Can't invoke SceneObject({0})({2}) Generation Changes for {1}! Not a CustomLevelObject!", obj.levelTitle, obj.levelObject.ToString(), obj.levelNo.ToString()));
+                        continue;
+                    }
+                }
+                if (obj.randomizedLevelObject != null)
+                {
+                    for (int i = 0; i < obj.randomizedLevelObject.Length; i++)
+                    {
+                        if (!(obj.randomizedLevelObject[i].selection is CustomLevelObject))
+                        {
+                            MTM101BaldiDevAPI.Log.LogWarning(String.Format("Can't invoke SceneObject({0})({2}) Generation Changes for {1}! Not a CustomLevelObject!", obj.levelTitle, obj.randomizedLevelObject[i].selection.ToString(), obj.levelNo.ToString()));
+                            continue;
+                        }
+                    }
                 }
                 MTM101BaldiDevAPI.Log.LogInfo(String.Format("Invoking SceneObject({0})({1}) Generation Changes!", obj.levelTitle, obj.levelNo.ToString()));
                 GeneratorManagement.Invoke(obj.levelTitle, obj.levelNo, obj);
