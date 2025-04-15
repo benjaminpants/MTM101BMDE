@@ -16,16 +16,6 @@ using MTM101BaldAPI.AssetTools;
 
 namespace MTM101BaldAPI.LangExtender
 {
-
-	public static class LocalExtensions
-	{
-		[Obsolete("GetUnmoddedLocalizedText is no longer functional and will be removed soon!", true)]
-		public static string GetUnmoddedLocalizedText(this LocalizationManager me, string key, bool trymodonfail = true)
-		{
-			return key;
-		}
-	}
-
 	[HarmonyPatch(typeof(LocalizationManager))]
 	[HarmonyPatch("LoadLocalizedText")]
 	internal class LanguageLoadingPatch

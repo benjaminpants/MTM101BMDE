@@ -595,20 +595,6 @@ namespace MTM101BaldAPI.AssetTools
         }
 
         /// <summary>
-        /// Load a Language folder from a non-standard place.
-        /// </summary>
-        /// <param name="rootPath"></param>
-        [Obsolete("Use LoadLocalizationFolder instead!")]
-        public static void LoadLanguageFolder(string rootPath)
-        {
-            string[] paths = Directory.GetFiles(rootPath, "*.json");
-            foreach (string path in paths)
-            {
-                queuedFilesForLanguage.Add((Language.English, path));
-            }
-        }
-
-        /// <summary>
         /// Queues all the files in the specified localization folder to be loaded.
         /// </summary>
         /// <param name="rootPath"></param>

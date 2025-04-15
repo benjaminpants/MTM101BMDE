@@ -110,11 +110,12 @@ namespace MTM101BaldAPI
             customModDatas[modUUID].Add(key, value);
         }
 
+        //hacky way of adding the Obsolete tag, but it works?
         [Obsolete("BB+ no longer uses .previousLevels change .previousLevels in the SceneObject instead!", true)]
         public new LevelObject[] previousLevels = new LevelObject[0];
 
         [Obsolete("BB+ no longer uses .items, use .forcedItems or .potentialItems instead!", true)]
-        public new WeightedItemObject[] items; //hacky way of adding the Obsolete tag, but it works?
+        public new WeightedItemObject[] items;
 
         [Obsolete("BB+ no longer uses .totalShopItems, change totalShopItems in the SceneObject instead!", true)]
         public new int totalShopItems;

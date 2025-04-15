@@ -97,13 +97,6 @@ namespace MTM101BaldAPI.ObjectCreation
             return this;
         }
 
-        [Obsolete("Please use SetSound instead!")]
-        public RandomEventBuilder<T> SetDescription(string desc)
-        {
-            MTM101BaldiDevAPI.Log.LogWarning("Using legacy SetDescription in RandomEventBuilder! This is deprecated! (" + desc + ")");
-            return this;
-        }
-
         /// <summary>
         /// Sets the sound that Baldi will "say" when the event is triggered.
         /// </summary>
