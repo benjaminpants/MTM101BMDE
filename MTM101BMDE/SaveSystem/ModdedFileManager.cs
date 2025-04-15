@@ -404,6 +404,9 @@ namespace MTM101BaldAPI.SaveSystem
             newSave.markerIds = ___markerIds;
             newSave.mapPurchased = __instance.saveMapPurchased;
             newSave.mapAvailable = __instance.saveMapAvailable;
+            newSave.timeLimitChallenge = __instance.timeLimitChallenge;
+            newSave.mapChallenge = __instance.mapChallenge;
+            newSave.inventoryChallenge = __instance.inventoryChallenge;
             newSave.foundMapTiles = ___foundTilesToRestore.ConvertTo1d(___savedMapSize.x, ___savedMapSize.z);
             newSave.mapSizeX = ___savedMapSize.x;
             newSave.mapSizeZ = ___savedMapSize.z;

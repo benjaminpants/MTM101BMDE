@@ -203,7 +203,7 @@ namespace MTM101BaldAPI.SaveSystem
         public int lives = 2;
         public int attempts = 0;
         public int seed = 0;
-        public const int version = 5;
+        public const int version = 6;
         public bool saveAvailable = false;
         public bool fieldTripPlayed = false;
         public bool johnnyHelped = false;
@@ -215,6 +215,9 @@ namespace MTM101BaldAPI.SaveSystem
         public int mapSizeX = 0;
         public int mapSizeZ = 0;
         public LifeMode lifeMode = LifeMode.Normal;
+        public bool timeLimitChallenge = false;
+        public bool mapChallenge = false;
+        public bool inventoryChallenge = false;
         internal static Dictionary<string, ModdedSaveGameIOBinary> ModdedSaveGameHandlers = new Dictionary<string, ModdedSaveGameIOBinary>();
 
 
@@ -268,6 +271,10 @@ namespace MTM101BaldAPI.SaveSystem
             writer.Write(mapAvailable);
             writer.Write(mapPurchased);
             writer.Write(johnnyHelped);
+            // if i wasn't lazy i'd merge these into a byte and write that
+            writer.Write(timeLimitChallenge);
+            writer.Write(mapChallenge);
+            writer.Write(inventoryChallenge);
             writer.Write(mapSizeX);
             writer.Write(mapSizeZ);
             writer.Write(foundMapTiles.Length);
@@ -436,6 +443,12 @@ namespace MTM101BaldAPI.SaveSystem
                 mapAvailable = reader.ReadBoolean();
                 mapPurchased = reader.ReadBoolean();
                 johnnyHelped = reader.ReadBoolean();
+            }
+            if (version >= 6)
+            {
+                timeLimitChallenge = reader.ReadBoolean();
+                mapChallenge = reader.ReadBoolean();
+                inventoryChallenge = reader.ReadBoolean();
             }
             mapSizeX = reader.ReadInt32();
             mapSizeZ = reader.ReadInt32();
