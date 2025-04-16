@@ -107,7 +107,7 @@ namespace MTM101BaldAPI.Registers
             {
                 actionsList[GenerationModType.Preparation].Do(x => x.Invoke(name, floorNumber, obj));
             }
-            CustomLevelObject[] oldObjects = obj.GetLevelObjects();
+            CustomLevelObject[] oldObjects = obj.GetCustomLevelObjects();
             if (actionsList.ContainsKey(GenerationModType.Base))
             {
                 actionsList[GenerationModType.Base].Do(x => x.Invoke(name, floorNumber, obj));
@@ -125,7 +125,7 @@ namespace MTM101BaldAPI.Registers
                 actionsList[GenerationModType.Finalizer].Do(x => x.Invoke(name, floorNumber, obj));
             }
             int matchingObjects = 0;
-            CustomLevelObject[] newObjects = obj.GetLevelObjects();
+            CustomLevelObject[] newObjects = obj.GetCustomLevelObjects();
             if (newObjects.Length != oldObjects.Length)
             {
                 throw new InvalidOperationException("A mod changed LevelObject assignments outside GenerationModType.Preparation (length does not match)");

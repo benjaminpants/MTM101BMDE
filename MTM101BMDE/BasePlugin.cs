@@ -159,7 +159,6 @@ namespace MTM101BaldAPI
         internal void OnSceneUnload()
         {
             AssetMan.Add<CursorController>("cursorController", Resources.FindObjectsOfTypeAll<CursorController>().First(x => x.name == "CursorOrigin"));
-            AssetMan.Add<ElevatorScreen>("ElevatorScreen", Resources.FindObjectsOfTypeAll<ElevatorScreen>().First(x => x.transform.parent == null));
             gameLoader = Resources.FindObjectsOfTypeAll<GameLoader>().First(x => x.GetInstanceID() >= 0);
             Singleton<GlobalCam>.Instance.StopCurrentTransition();
             // INITIALIZE ITEM METADATA
@@ -404,12 +403,12 @@ namespace MTM101BaldAPI
             if (usingMidiFix.Value)
             {
                 Assembly assembly = Assembly.GetExecutingAssembly();
-                Stream stream = assembly.GetManifestResourceStream("MTM101BaldAPI.gm.sf2");
+                Stream stream = assembly.GetManifestResourceStream("MTM101BaldAPI.GMGSx_Unmodified.sf2");
                 if (stream == null)
                 {
                     throw new Exception("Midifix stream Is null! Turn off the midifix in BepInEx/config!");
                 }
-                string sf2Path = Path.Combine(Application.temporaryCachePath, "gm.sf2");
+                string sf2Path = Path.Combine(Application.temporaryCachePath, "GMGSx_Unmodified.sf2");
                 File.WriteAllBytes(sf2Path, stream.ToByteArray());
                 MidiPlayerGlobal.MPTK_LoadLiveSF("file://" + sf2Path);
                 StartCoroutine(WaitForSoundfontLoad(sf2Path));
@@ -487,6 +486,16 @@ namespace MTM101BaldAPI
             subChild.transform.SetParent(internalIdentity.transform, false);
             subChild.AddComponent<DestroyOnAwakeInstantWithWarning>();
             PrefabSubObject = subChild;
+
+
+            AssetMan.Add<ElevatorScreen>("ElevatorScreen", Resources.FindObjectsOfTypeAll<ElevatorScreen>().First(x => x.transform.parent == null));
+            AssetMan.Add<HappyBaldi>("HappyBaldi3", Resources.FindObjectsOfTypeAll<HappyBaldi>().First(x => x.name == "HappyBaldi3"));
+            AssetMan.Add<SceneObject>("Pitstop", Resources.FindObjectsOfTypeAll<SceneObject>().First(x => x.name == "Pitstop"));
+            Ambience ambienceClone = GameObject.Instantiate<Ambience>(Resources.FindObjectsOfTypeAll<Ambience>().First(x => x.transform.parent.name == "Lvl1_MainGameManager"), prefabTransform);
+            ambienceClone.name = "Ambience";
+            AssetMan.Add<Ambience>("AmbienceTemplate", ambienceClone);
+
+
             AssetMan.Add("ErrorTemplate", Resources.FindObjectsOfTypeAll<Canvas>().Where(x => x.name == "EndingError").First());
             AssetMan.Add("WindowTemplate", Resources.FindObjectsOfTypeAll<WindowObject>().Where(x => x.name == "WoodWindow").First());
             AssetMan.Add("DoorTemplate", Resources.FindObjectsOfTypeAll<StandardDoorMats>().Where(x => x.name == "ClassDoorSet").First());

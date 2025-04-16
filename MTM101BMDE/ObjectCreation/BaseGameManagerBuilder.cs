@@ -29,7 +29,6 @@ namespace MTM101BaldAPI.ObjectCreation
 
     public class BaseGameManagerBuilder<T> where T : BaseGameManager
     {
-
         private float gradeValue = 1f;
         private float notebookAngerVal = 1f;
         private int levelNo = 0;
@@ -68,7 +67,7 @@ namespace MTM101BaldAPI.ObjectCreation
         /// </summary>
         /// <param name="value"></param>
         /// <returns></returns>
-        public BaseGameManagerBuilder<T> SetNPCSpawnMode(GameManagerNPCAutomaticSpawn value)
+        public virtual BaseGameManagerBuilder<T> SetNPCSpawnMode(GameManagerNPCAutomaticSpawn value)
         {
             npcSpawnMode = value;
             return this;

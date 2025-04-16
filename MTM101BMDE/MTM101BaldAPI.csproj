@@ -7,7 +7,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-	<EmbeddedResource Include="..\Embedded\gm.sf2">
+	<EmbeddedResource Include="..\Embedded\GMGSx_Unmodified.sf2">
 	</EmbeddedResource>
 	<None Include="..\.editorconfig" Link=".editorconfig" />
     <Reference Include="0Harmony">

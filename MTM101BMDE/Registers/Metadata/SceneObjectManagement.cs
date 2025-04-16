@@ -46,7 +46,7 @@ namespace MTM101BaldAPI.Registers
         /// <returns></returns>
         public LevelType[] GetSupportedLevelTypes()
         {
-            return value.GetLevelObjects().Select(x => x.type).Distinct().ToArray();
+            return value.GetCustomLevelObjects().Select(x => x.type).Distinct().ToArray();
         }
     }
 
