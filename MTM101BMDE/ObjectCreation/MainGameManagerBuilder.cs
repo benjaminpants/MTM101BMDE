@@ -99,7 +99,7 @@ namespace MTM101BaldAPI.ObjectCreation
             }
             else
             {
-                _pitstop.SetValue(customPitstop, MTM101BaldiDevAPI.AssetMan.Get<SceneObject>("Pitstop"));
+                _pitstop.SetValue(comp, MTM101BaldiDevAPI.AssetMan.Get<SceneObject>("Pitstop"));
             }
             _allNotebooksNotification.SetValue(comp, allNotebooks);
             Ambience ambienceGameObject = GameObject.Instantiate<Ambience>(MTM101BaldiDevAPI.AssetMan.Get<Ambience>("AmbienceTemplate"), comp.transform);

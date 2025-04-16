@@ -143,7 +143,21 @@ namespace MTM101BaldAPI.ObjectCreation
             _gradeValue.SetValue(comp, gradeValue);
             _notebookAngerVal.SetValue(comp, notebookAngerVal);
             _levelNo.SetValue(comp, levelNo);
-            _managerNameKey.SetValue(comp, managerNameKey);
+            if (managerNameKey == null)
+            {
+                if ((typeof(T).IsSubclassOf(typeof(MainGameManager))) || (typeof(T) == typeof(MainGameManager)))
+                {
+                    _managerNameKey.SetValue(comp, "Mode_HideAndSeek");
+                }
+                else
+                {
+                    _managerNameKey.SetValue(comp, "Mode_Undefined");
+                }
+            }
+            else
+            {
+                _managerNameKey.SetValue(comp, managerNameKey);
+            }
 
             // these default to false but just incase
             comp.spawnNpcsOnInit = false;
