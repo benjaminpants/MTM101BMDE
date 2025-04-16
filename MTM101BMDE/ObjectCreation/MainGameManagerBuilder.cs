@@ -70,6 +70,7 @@ namespace MTM101BaldAPI.ObjectCreation
         static FieldInfo _happyBaldiPre = AccessTools.Field(typeof(MainGameManager), "happyBaldiPre");
         static FieldInfo _audIntro = AccessTools.Field(typeof(HappyBaldi), "audIntro");
         static FieldInfo _pitstop = AccessTools.Field(typeof(MainGameManager), "pitstop");
+        static FieldInfo _ambience = AccessTools.Field(typeof(MainGameManager), "ambience");
         static FieldInfo _allNotebooksNotification = AccessTools.Field(typeof(MainGameManager), "allNotebooksNotification");
         public override T Build()
         {
@@ -101,6 +102,9 @@ namespace MTM101BaldAPI.ObjectCreation
                 _pitstop.SetValue(customPitstop, MTM101BaldiDevAPI.AssetMan.Get<SceneObject>("Pitstop"));
             }
             _allNotebooksNotification.SetValue(comp, allNotebooks);
+            Ambience ambienceGameObject = GameObject.Instantiate<Ambience>(MTM101BaldiDevAPI.AssetMan.Get<Ambience>("AmbienceTemplate"), comp.transform);
+            ambienceGameObject.name = "Ambience";
+            _ambience.SetValue(comp, ambienceGameObject);
             return comp;
         }
     }
