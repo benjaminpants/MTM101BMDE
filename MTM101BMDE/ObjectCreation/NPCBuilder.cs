@@ -37,6 +37,7 @@ namespace MTM101BaldAPI.ObjectCreation
         readonly static FieldInfo _decelerate = AccessTools.Field(typeof(Navigator), "decelerate");
         readonly static FieldInfo _overrideSubtitleColor = AccessTools.Field(typeof(AudioManager), "overrideSubtitleColor");
         readonly static FieldInfo _subtitleColor = AccessTools.Field(typeof(AudioManager), "subtitleColor");
+        readonly static FieldInfo _pitchTimeScaleType = AccessTools.Field(typeof(PropagatedAudioManager), "pitchTimeScaleType");
 
 
         string objectName = "Unnamed Character";
@@ -54,6 +55,7 @@ namespace MTM101BaldAPI.ObjectCreation
         bool useHeatmap = false;
         bool ignorePlayerOnSpawn = false;
         bool grounded = true;
+        bool audioAffectedByTime = true;
         float minAudioDistance = 10f;
         float maxAudioDistance = 250f;
         NPCFlags flags = NPCFlags.HasSprite | NPCFlags.CanMove;
@@ -133,6 +135,7 @@ namespace MTM101BaldAPI.ObjectCreation
             PropagatedAudioManager audMan = newNpc.GetComponent<PropagatedAudioManager>();
             _minDistance.SetValue(audMan, minAudioDistance);
             _maxDistance.SetValue(audMan, maxAudioDistance);
+            _pitchTimeScaleType.SetValue(audMan, audioAffectedByTime ? TimeScaleType.Npc : TimeScaleType.Null);
             nav.npc = newNpc;
             _entity.SetValue(nav, npcEntity);
             _collider.SetValue(nav, newNpc.baseTrigger[0]);
@@ -187,6 +190,17 @@ namespace MTM101BaldAPI.ObjectCreation
         public NPCBuilder<T> DisableNavigationPrecision()
         {
             preciseTarget = false;
+            return this;
+        }
+
+        /// <summary>
+        /// Makes the audio this NPC creates not be affected by time.
+        /// This is done by setting the audio manager's pitchTimeScaleType to TimeScaleType.Null.
+        /// </summary>
+        /// <returns></returns>
+        public NPCBuilder<T> DisableAudioTimeScaling()
+        {
+            audioAffectedByTime = false;
             return this;
         }
 

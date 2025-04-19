@@ -91,7 +91,7 @@ namespace MTM101BaldAPI.Components
     }
 
     /// <summary>
-    /// A base for a monobehavior implementation of ICustomAnimator, including setting a default animation
+    /// A base for a monobehavior implementation of ICustomAnimator, including setting a default animation.
     /// </summary>
     /// <typeparam name="TType"></typeparam>
     /// <typeparam name="TAnimation"></typeparam>

@@ -28,10 +28,7 @@ namespace MTM101BaldAPI.Registers.Buttons
 
         public static void ChangeColor(this GameLever me, ButtonMaterials bm)
         {
-            throw new NotImplementedException("Levers have been removed since BB+ 0.4!");
-            /* Levers are currently nonfunctional
             ButtonColorManager.ApplyLeverMaterials(me, bm);
-            */
         }
 
         public static void ChangeColor(this GameButton me, string colorKey)
@@ -41,10 +38,7 @@ namespace MTM101BaldAPI.Registers.Buttons
 
         public static void ChangeColor(this GameLever me, string colorKey)
         {
-            throw new NotImplementedException("Levers have been removed since BB+ 0.4!");
-            /* Levers are currently nonfunctional
             ButtonColorManager.ApplyLeverMaterials(me, colorKey);
-            */
         }
     }
 
@@ -63,11 +57,10 @@ namespace MTM101BaldAPI.Registers.Buttons
         static FieldInfo buttonUnpressedF = AccessTools.Field(typeof(GameButton), "unPressed");
         static FieldInfo buttonMeshRenderer = AccessTools.Field(typeof(GameButton), "meshRenderer");
 
-        /* Levers are currently nonfunctional
         static FieldInfo leverMeshRenderer = AccessTools.Field(typeof(GameLever), "meshRenderer");
         static FieldInfo leverOffMat = AccessTools.Field(typeof(GameLever), "offMat");
         static FieldInfo leverOnMat = AccessTools.Field(typeof(GameLever), "onMat");
-        */
+        
 
         public static void ApplyButtonMaterials(GameButton applyTo, ButtonMaterials toApply)
         {
@@ -85,15 +78,12 @@ namespace MTM101BaldAPI.Registers.Buttons
 
         public static void ApplyLeverMaterials(GameLever applyTo, ButtonMaterials toApply)
         {
-            throw new NotImplementedException("Levers have been removed since BB+ 0.4!");
-            /* Levers are currently nonfunctional
             // why is the lever down mat the off mat? that's weird but. whatever
             MeshRenderer mr = ((MeshRenderer)leverMeshRenderer.GetValue(applyTo));
             Material oldOff = (Material)leverOffMat.GetValue(applyTo);
             leverOnMat.SetValue(applyTo, toApply.leverUp);
             leverOffMat.SetValue(applyTo, toApply.leverDown);
             mr.sharedMaterial = (mr.sharedMaterial == oldOff ? toApply.leverDown : toApply.leverUp);
-            */
     }
 
         internal static void AddRed()
@@ -122,8 +112,8 @@ namespace MTM101BaldAPI.Registers.Buttons
                 Debug.LogWarningFormat("Attempted to add already existing button color: {0}!", key);
                 return buttonColors[key];
             }
-            Material leverUpMaterial = null;// new Material(BaseLeverMaterial_Up);
-            Material leverDownMaterial = null;//new Material(BaseLeverMaterial_Down);
+            Material leverUpMaterial = new Material(BaseLeverMaterial_Up);
+            Material leverDownMaterial = new Material(BaseLeverMaterial_Down);
             Material pressedMaterial = new Material(BaseButtonMaterial_Pressed);
             Material unpressedMaterial = new Material(BaseButtonMaterial_Unpressed);
             color = new Color(color.r, color.g, color.b, 0f); //make sure alpha is 0
@@ -132,13 +122,11 @@ namespace MTM101BaldAPI.Registers.Buttons
             pressedMaterial.SetColor("_TextureColor", color);
             unpressedMaterial.name = String.Format("Button_{0}_Unpressed", key);
             unpressedMaterial.SetColor("_TextureColor", color);
-            /* Levers are currently nonfunctional
             // lever material creation
             leverUpMaterial.name = String.Format("Lever_{0}_Up", key);
             leverUpMaterial.SetColor("_TextureColor", color);
             leverDownMaterial.name = String.Format("Lever_{0}_Down", key);
             leverDownMaterial.SetColor("_TextureColor", color);
-            */
             ButtonMaterials newBut = new ButtonMaterials()
             {
                 buttonPressed = pressedMaterial,
@@ -157,17 +145,13 @@ namespace MTM101BaldAPI.Registers.Buttons
             List<Material> materials = Resources.FindObjectsOfTypeAll<Material>().ToList();
             BaseButtonMaterial_Unpressed = materials.Find(x => x.name == "Button_Red_Unpressed");
             BaseButtonMaterial_Pressed = materials.Find(x => x.name == "Button_Red_Pressed");
-            /* Levers are currently nonfunctional
             BaseLeverMaterial_Down = materials.Find(x => x.name == "Lever_Red_Down");
             BaseLeverMaterial_Up = materials.Find(x => x.name == "Lever_Red_Up");
-            */
             // make sure we crash HERE if any of these are null(makes things easier to debug if mystman12 renames these)
             Assert.IsNotNull(BaseButtonMaterial_Unpressed);
             Assert.IsNotNull(BaseButtonMaterial_Pressed);
-            /* Levers are currently nonfunctional
             Assert.IsNotNull(BaseLeverMaterial_Down);
             Assert.IsNotNull(BaseLeverMaterial_Up);
-            */
 
             // handle all the basic colors people may want so we dont have a million mods trying to create the same colors
             AddRed();
@@ -180,11 +164,6 @@ namespace MTM101BaldAPI.Registers.Buttons
             CreateButtonMaterial("Magenta", new Color(1f, 0f, 1f));
             CreateButtonMaterial("Pink", new Color(1f, 0.5f, 1f));
             CreateButtonMaterial("White", Color.white);
-
-            /* Levers are currently nonfunctional
-            GeneratorHelpers.leverPrefab = Resources.FindObjectsOfTypeAll<GameLever>().First();
-            Assert.IsNotNull(GeneratorHelpers.leverPrefab);
-            */
         }
 
         public static Dictionary<string, ButtonMaterials> buttonColors
