@@ -208,6 +208,7 @@ namespace MTM101BaldAPI
             }
             modLoadText.text = "";
             modIdText.text = "";
+            MTM101BaldiDevAPI.tooLateForGeneratorBasedFeatures = true;
             foreach (SceneObject obj in objs)
             {
                 yield return "Changing " + obj.levelTitle + "...";

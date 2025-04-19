@@ -148,7 +148,7 @@ namespace MTM101BaldAPI.SaveSystem
     /// A dummy ModdedSaveGameIO used for changing the save type to Modded for custom items.
     /// Simply writes a zero. Switch to ModdedSaveGameIOBinary and check for that zero to see if there is data to load if in the future your mod needs data.
     /// </summary>
-    internal class ModdedSaveGameIODummy : ModdedSaveGameIOBinary
+    public class ModdedSaveGameIODummy : ModdedSaveGameIOBinary
     {
         private PluginInfo _info;
         public override PluginInfo pluginInfo => _info;

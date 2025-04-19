@@ -41,6 +41,15 @@ namespace MTM101BaldAPI
         None
     }
 
+    /// <summary>
+    /// An enum for API features that change how the base game behaves internally/changes seeds, but doesn't effect or minally effects gameplay.
+    /// All of these are off by default and must be explicitely turned on.
+    /// </summary>
+    public enum IntrusiveAPIFeatures
+    {
+        None=0,
+    }
+
     [BepInPlugin("mtm101.rulerp.bbplus.baldidevapi", "Baldi's Basics Plus Dev API", VersionNumber)]
     public class MTM101BaldiDevAPI : BaseUnityPlugin
     {
@@ -60,10 +69,9 @@ namespace MTM101BaldAPI
         internal static List<UnityEngine.Object> keepInMemory = new List<UnityEngine.Object>();
 
         internal ConfigEntry<bool> usingMidiFix;
-
         internal ConfigEntry<bool> ignoringTagDisplays;
-
         internal ConfigEntry<bool> attemptOnline;
+        internal ConfigEntry<bool> alwaysModdedSave;
 
         internal Sprite[] questionMarkSprites;
 
@@ -85,7 +93,119 @@ namespace MTM101BaldAPI
             }
             set
             {
-                saveHandler = value ? (ModdedSaveGame.ModdedSaveGameHandlers.Count > 0 ? SavedGameDataHandler.Modded : SavedGameDataHandler.Vanilla) : SavedGameDataHandler.None;
+                saveHandler = value ? (MTM101BaldiDevAPI.Instance.alwaysModdedSave.Value ? SavedGameDataHandler.Modded : (ModdedSaveGame.ModdedSaveGameHandlers.Count > 0 ? SavedGameDataHandler.Modded : SavedGameDataHandler.Vanilla)) : SavedGameDataHandler.None;
+            }
+        }
+
+        /*
+        internal static Dictionary<LevelType, Type[]> removeFromForced = new Dictionary<LevelType, Type[]>()
+        {
+            { LevelType.Schoolhouse, new Type[0] },
+            { LevelType.Maintenance, new Type[2] { typeof(Structure_PowerLever), typeof(Structure_SteamValves) } },
+            { LevelType.Laboratory, new Type[1] { typeof(Structure_TeleporterRoom) } },
+            { LevelType.Factory, new Type[2] { typeof(Structure_ConveyorBelt), typeof(Structure_Rotohalls) } },
+
+        };
+
+        
+        static void GeneratorChanges(string levelName, int levelNumber, SceneObject sceneObj)
+        {
+            SceneObjectMetadata meta = sceneObj.GetMeta();
+            // dont modify if no meta and dont modify if the scene wasn't added by the API.
+            if (meta == null) return;
+            if (meta.info != MTM101BaldiDevAPI.Instance.Info) return;
+            LevelObject[] allLevelObjects = sceneObj.GetCustomLevelObjects();
+
+            for (int i = 0; i < allLevelObjects.Length; i++)
+            {
+                LevelObject currentObject = allLevelObjects[i];
+                // a little slow but tbh i dont care
+                if (removeFromForced.ContainsKey(currentObject.type))
+                {
+                    Type[] removeFromThisObject = removeFromForced[currentObject.type];
+                    List<StructureWithParameters> removedDatas = new List<StructureWithParameters>();
+                    List<StructureWithParameters> forcedStructures = currentObject.forcedStructures.ToList();
+                    for (int j = forcedStructures.Count; j >= 0; j--)
+                    {
+                        if (removeFromThisObject.Contains(forcedStructures[i].prefab.GetType()))
+                        {
+                            removedDatas.Add(forcedStructures[i]);
+                            removedDatas.RemoveAt(i);
+                            continue;
+                        }
+                        // annoying hack for the Factory
+                        if (currentObject.type == LevelType.Factory)
+                        {
+                            if (forcedStructures[i].prefab.name == "LockdownDoorConstructor")
+                            {
+                                removedDatas.Add(forcedStructures[i]);
+                                removedDatas.RemoveAt(i);
+                            }
+                        }
+                    }
+
+                    currentObject.forcedStructures = forcedStructures.ToArray();
+
+                    if (currentObject.potentialStructures == null)
+                    {
+                        currentObject.potentialStructures = new WeightedStructureWithParameters[0];
+                    }
+
+                    for (int j = 0; j < removedDatas.Count; j++)
+                    {
+                        currentObject.potentialStructures = currentObject.potentialStructures.AddToArray(new WeightedStructureWithParameters()
+                        {
+                            selection = removedDatas[i],
+                            weight = 100
+                        });
+                    }
+                    currentObject.minSpecialBuilders += removedDatas.Count;
+                    currentObject.maxSpecialBuilders += removedDatas.Count;
+                }
+            }
+        }
+        */
+
+        internal static IntrusiveAPIFeatures intrusiveFeatures = IntrusiveAPIFeatures.None;
+        internal static bool tooLateForGeneratorBasedFeatures = false;
+
+        public static IntrusiveAPIFeatures EnabledFeatures
+        {
+            get
+            {
+                return intrusiveFeatures;
+            }
+        }
+
+        /// <summary>
+        /// Enables the specified intrusive feature.
+        /// It is recommended to call this in the Awake method.
+        /// </summary>
+        /// <returns></returns>
+        public static bool EnableFeature(IntrusiveAPIFeatures feature)
+        {
+            // feature already enabled
+            if (intrusiveFeatures.HasFlag(feature))
+            {
+                return true;
+            }
+            switch (feature)
+            {
+                default:
+                    intrusiveFeatures |= feature;
+                    return true;
+                // probably will implement as a seperate mod later
+                /*
+                case IntrusiveAPIFeatures.RemoveForcedStructuresInLevelStyles:
+                    if (tooLateForGeneratorBasedFeatures)
+                    {
+                        MTM101BaldiDevAPI.Log.LogWarning("Attempted to enable \"RemoveForcedStructuresInLevelStyles\", despite it being too late for generator changes!");
+                        return false;
+                    }
+                    GeneratorManagement.Register(MTM101BaldiDevAPI.Instance, GenerationModType.Preparation, GeneratorChanges);
+                    intrusiveFeatures |= feature;
+                    return true;
+                */
             }
         }
 
@@ -704,7 +824,7 @@ PRESS ALT+F4 TO EXIT THE GAME.
                 true,
                 "Whether or not outdoors areas will have different light colors depending on the skybox used. Only disable for legacy mods.");
 
-            ConfigEntry<bool> alwaysModdedSave = Config.Bind("General",
+            alwaysModdedSave = Config.Bind("General",
                 "Always Use Modded Save System",
                 false,
                 "If true, the modded save system will always be used, even if there are no mods that enable it.");
