@@ -116,6 +116,15 @@ namespace MTM101BaldAPI.AssetTools
         }
 
         /// <summary>
+        /// Add all resources of the specified type to the AssetManager that are not created by mods/weren't created during runtime, using the name as the key.
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        public void AddFromResourcesNoClones<T>() where T : UnityEngine.Object
+        {
+            AddRange<T>(Resources.FindObjectsOfTypeAll<T>().Where(x => x.GetInstanceID() >= 0).ToArray());
+        }
+
+        /// <summary>
         /// Check if the asset manager contains the specified key.
         /// </summary>
         /// <param name="key"></param>
