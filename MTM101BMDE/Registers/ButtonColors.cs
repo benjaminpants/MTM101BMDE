@@ -11,9 +11,9 @@ namespace MTM101BaldAPI.Registers.Buttons
 {
     public static class ButtonColorExtensions
     {
-        public static void ChangeColor(this GameButtonBase me)
+        public static bool ChangeColor(this GameButtonBase me, string colorKey)
         {
-            //ButtonColorManager.ApplyButtonMaterials(me, bm);
+            return ButtonColorManager.ApplyButtonMaterials(me, colorKey);
         }
     }
 
