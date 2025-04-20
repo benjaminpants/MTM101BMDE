@@ -8,12 +8,11 @@ namespace MTM101BaldAPI
 {
     public static class GeneratorHelpers
     {
-        public static GameButton BuildInAreaWithColor(EnvironmentController ec, IntVector2 rangeStartPosition, int buttonRange, GameObject receiver, GameButtonBase buttonPre, string colorKey, System.Random cRng)
+        public static GameButtonBase BuildInAreaWithColor(EnvironmentController ec, IntVector2 rangeStartPosition, int buttonRange, GameObject receiver, GameButtonBase buttonPre, string colorKey, System.Random cRng)
         {
-            GameButton gb = (GameButton)GameButton.BuildInArea(ec, rangeStartPosition, buttonRange, receiver, buttonPre, cRng);
+            GameButtonBase gb = GameButton.BuildInArea(ec, rangeStartPosition, buttonRange, receiver, buttonPre, cRng);
             ButtonColorManager.ApplyButtonMaterials(gb, colorKey);
             return gb;
         }
     }
-    
 }

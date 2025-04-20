@@ -9,173 +9,140 @@ using UnityEngine.Assertions;
 
 namespace MTM101BaldAPI.Registers.Buttons
 {
-    public struct ButtonMaterials
-    {
-        public Material buttonPressed;
-        public Material buttonUnpressed;
-        public Material leverUp;
-        public Material leverDown;
-        public Color color;
-        public string name;
-    }
-
     public static class ButtonColorExtensions
     {
-        public static void ChangeColor(this GameButton me, ButtonMaterials bm)
+        public static void ChangeColor(this GameButtonBase me)
         {
-            ButtonColorManager.ApplyButtonMaterials(me, bm);
-        }
-
-        public static void ChangeColor(this GameLever me, ButtonMaterials bm)
-        {
-            ButtonColorManager.ApplyLeverMaterials(me, bm);
-        }
-
-        public static void ChangeColor(this GameButton me, string colorKey)
-        {
-            ButtonColorManager.ApplyButtonMaterials(me, colorKey);
-        }
-
-        public static void ChangeColor(this GameLever me, string colorKey)
-        {
-            ButtonColorManager.ApplyLeverMaterials(me, colorKey);
+            //ButtonColorManager.ApplyButtonMaterials(me, bm);
         }
     }
+
+
+    /// <summary>
+    /// Stores the color handler info for the respective button.
+    /// </summary>
+    public class ButtonColorHandlerInfo
+    {
+        /// <summary>
+        /// The Material, FieldInfo(for the variables that store the materials), and a formatting string used for naming the newly generated materials.
+        /// </summary>
+        public (Material, FieldInfo, string)[] materialInfoPairs;
+        public FieldInfo rendererField;
+
+        public FieldInfo onField;
+        /// <summary>
+        /// The color that won't have a new material generated for it.
+        /// </summary>
+        public string defaultColor;
+
+        public ButtonColorHandlerInfo((Material, FieldInfo, string)[] materialInfoPairs, FieldInfo rendererField, FieldInfo onField, string defaultColor = "Red")
+        {
+            this.materialInfoPairs = materialInfoPairs;
+            this.rendererField = rendererField;
+            this.defaultColor = defaultColor;
+            this.onField = onField;
+        }
+    }
+
 
     public static class ButtonColorManager
     {
-        private static Dictionary<string, ButtonMaterials> _buttonColors = new Dictionary<string, ButtonMaterials>();
+        private static Dictionary<Type, ButtonColorHandlerInfo> buttonColorHandlers = new Dictionary<Type, ButtonColorHandlerInfo>();
+        private static Dictionary<Type, Dictionary<string, Material[]>> buttonColorMaterials = new Dictionary<Type, Dictionary<string, Material[]>>();
+        private static List<string> createdColors = new List<string>() { "Red" };
 
-        internal static Material BaseButtonMaterial_Unpressed;
-        internal static Material BaseButtonMaterial_Pressed;
-#pragma warning disable CS0649
-        internal static Material BaseLeverMaterial_Up;
-        internal static Material BaseLeverMaterial_Down;
-#pragma warning restore CS0649
-
-        static FieldInfo buttonPressedF = AccessTools.Field(typeof(GameButton), "pressed");
-        static FieldInfo buttonUnpressedF = AccessTools.Field(typeof(GameButton), "unPressed");
-        static FieldInfo buttonMeshRenderer = AccessTools.Field(typeof(GameButton), "meshRenderer");
-
-        static FieldInfo leverMeshRenderer = AccessTools.Field(typeof(GameLever), "meshRenderer");
-        static FieldInfo leverOffMat = AccessTools.Field(typeof(GameLever), "offMat");
-        static FieldInfo leverOnMat = AccessTools.Field(typeof(GameLever), "onMat");
-        
-
-        public static void ApplyButtonMaterials(GameButton applyTo, ButtonMaterials toApply)
+        public static bool ApplyButtonMaterials(GameButtonBase button, string colorKey)
         {
-            MeshRenderer mr = ((MeshRenderer)buttonMeshRenderer.GetValue(applyTo));
-            Material oldPressed = (Material)buttonPressedF.GetValue(applyTo);
-            buttonPressedF.SetValue(applyTo, toApply.buttonPressed);
-            buttonUnpressedF.SetValue(applyTo, toApply.buttonUnpressed);
-            mr.sharedMaterial = (mr.sharedMaterial == oldPressed ? toApply.buttonPressed : toApply.buttonUnpressed);
+            if (!createdColors.Contains(colorKey)) return false;
+            return ApplyButtonMaterials(button, buttonColorMaterials[button.GetType()][colorKey]);
         }
 
-        public static void ApplyButtonMaterials(GameButton applyTo, string colorName)
+        public static bool ApplyButtonMaterials(GameButtonBase button, Material[] customMaterials)
         {
-            ApplyButtonMaterials(applyTo, buttonColors[colorName]);
-        }
-
-        public static void ApplyLeverMaterials(GameLever applyTo, ButtonMaterials toApply)
-        {
-            // why is the lever down mat the off mat? that's weird but. whatever
-            MeshRenderer mr = ((MeshRenderer)leverMeshRenderer.GetValue(applyTo));
-            Material oldOff = (Material)leverOffMat.GetValue(applyTo);
-            leverOnMat.SetValue(applyTo, toApply.leverUp);
-            leverOffMat.SetValue(applyTo, toApply.leverDown);
-            mr.sharedMaterial = (mr.sharedMaterial == oldOff ? toApply.leverDown : toApply.leverUp);
-    }
-
-        internal static void AddRed()
-        {
-            if (_buttonColors.Count != 0) throw new Exception("AddRed called twice!");
-            _buttonColors.Add("Red", new ButtonMaterials()
+            if (!buttonColorHandlers.ContainsKey(button.GetType())) return false;
+            ButtonColorHandlerInfo info = buttonColorHandlers[button.GetType()];
+            Renderer renderer = (Renderer)info.rendererField.GetValue(button);
+            for (int i = 0; i < info.materialInfoPairs.Length; i++)
             {
-                buttonUnpressed = BaseButtonMaterial_Unpressed,
-                buttonPressed = BaseButtonMaterial_Pressed,
-                leverUp = BaseLeverMaterial_Up,
-                leverDown = BaseLeverMaterial_Down,
-                color = new Color(1f, 0f, 0f, 0f),
-                name = "Red"
-            });
-        }
-
-        public static void ApplyLeverMaterials(GameLever applyTo, string colorName)
-        {
-            ApplyLeverMaterials(applyTo, buttonColors[colorName]);
-        }
-
-        public static ButtonMaterials CreateButtonMaterial(string key, Color color)
-        {
-            if (buttonColors.ContainsKey(key))
-            {
-                Debug.LogWarningFormat("Attempted to add already existing button color: {0}!", key);
-                return buttonColors[key];
+                info.materialInfoPairs[i].Item2.SetValue(button, customMaterials[i]); // adjust the variable
             }
-            Material leverUpMaterial = new Material(BaseLeverMaterial_Up);
-            Material leverDownMaterial = new Material(BaseLeverMaterial_Down);
-            Material pressedMaterial = new Material(BaseButtonMaterial_Pressed);
-            Material unpressedMaterial = new Material(BaseButtonMaterial_Unpressed);
-            color = new Color(color.r, color.g, color.b, 0f); //make sure alpha is 0
-            // button material creation
-            pressedMaterial.name = String.Format("Button_{0}_Pressed", key);
-            pressedMaterial.SetColor("_TextureColor", color);
-            unpressedMaterial.name = String.Format("Button_{0}_Unpressed", key);
-            unpressedMaterial.SetColor("_TextureColor", color);
-            // lever material creation
-            leverUpMaterial.name = String.Format("Lever_{0}_Up", key);
-            leverUpMaterial.SetColor("_TextureColor", color);
-            leverDownMaterial.name = String.Format("Lever_{0}_Down", key);
-            leverDownMaterial.SetColor("_TextureColor", color);
-            ButtonMaterials newBut = new ButtonMaterials()
+            if (info.onField != null)
             {
-                buttonPressed = pressedMaterial,
-                buttonUnpressed = unpressedMaterial,
-                color = color,
-                name = key,
-                leverUp = leverUpMaterial,
-                leverDown = leverDownMaterial
-            };
-            buttonColors.Add(key, newBut);
-            return newBut;
+                renderer.sharedMaterial = (bool)info.onField.GetValue(button) ? customMaterials[0] : customMaterials[1];
+                return true;
+            }
+            renderer.sharedMaterial = customMaterials[0];
+            return true;
+        }
+
+        public static void CreateButtonColor(string name, Color color)
+        {
+            if (createdColors.Contains(name))
+            {
+                return;
+            }
+            createdColors.Add(name);
+            // now... create the color.
+            foreach (KeyValuePair<Type, ButtonColorHandlerInfo> info in buttonColorHandlers)
+            {
+                Material[] newMaterials = new Material[info.Value.materialInfoPairs.Length];
+                for (int i = 0; i < info.Value.materialInfoPairs.Length; i++)
+                {
+                    Material newMat = new Material(info.Value.materialInfoPairs[i].Item1);
+                    newMat.SetColor("_TextureColor", color);
+                    newMat.name = String.Format(info.Value.materialInfoPairs[i].Item3, name);
+                    newMaterials[i] = newMat;
+                }
+                buttonColorMaterials[info.Key].Add(name, newMaterials);
+            }
+        }
+
+        // TODO: publicize this later, have it automatically add all already added colors when a new one gets added
+        private static void AddButtonColorHandler(Type buttonType, ButtonColorHandlerInfo info)
+        {
+            buttonColorHandlers.Add(buttonType, info);
+            buttonColorMaterials.Add(buttonType, new Dictionary<string, Material[]>());
+            Material[] defaultMaterials = new Material[info.materialInfoPairs.Length];
+            for (int i = 0; i < info.materialInfoPairs.Length; i++)
+            {
+                defaultMaterials[i] = info.materialInfoPairs[i].Item1;
+            }
+            buttonColorMaterials[buttonType].Add(info.defaultColor, defaultMaterials);
         }
 
         internal static void InitializeButtonColors()
         {
-            List<Material> materials = Resources.FindObjectsOfTypeAll<Material>().ToList();
-            BaseButtonMaterial_Unpressed = materials.Find(x => x.name == "Button_Red_Unpressed");
-            BaseButtonMaterial_Pressed = materials.Find(x => x.name == "Button_Red_Pressed");
-            BaseLeverMaterial_Down = materials.Find(x => x.name == "Lever_Red_Down");
-            BaseLeverMaterial_Up = materials.Find(x => x.name == "Lever_Red_Up");
-            // make sure we crash HERE if any of these are null(makes things easier to debug if mystman12 renames these)
-            Assert.IsNotNull(BaseButtonMaterial_Unpressed);
-            Assert.IsNotNull(BaseButtonMaterial_Pressed);
-            Assert.IsNotNull(BaseLeverMaterial_Down);
-            Assert.IsNotNull(BaseLeverMaterial_Up);
+            List<Material> materials = Resources.FindObjectsOfTypeAll<Material>().Where(x => x.GetInstanceID() >= 0).ToList();
 
-            // handle all the basic colors people may want so we dont have a million mods trying to create the same colors
-            AddRed();
-            CreateButtonMaterial("Orange", new Color(1f, 1f, 0f));
-            CreateButtonMaterial("Yellow", new Color(1f, 1f, 0f));
-            CreateButtonMaterial("Green", Color.green);
-            CreateButtonMaterial("Cyan", new Color(0f, 1f, 1f));
-            CreateButtonMaterial("Blue", Color.blue);
-            CreateButtonMaterial("Purple", new Color(0.5f, 1f, 0f));
-            CreateButtonMaterial("Magenta", new Color(1f, 0f, 1f));
-            CreateButtonMaterial("Pink", new Color(1f, 0.5f, 1f));
-            CreateButtonMaterial("White", Color.white);
-        }
+            // buttons
+            AddButtonColorHandler(typeof(GameButton), new ButtonColorHandlerInfo(new (Material, FieldInfo, string)[] {
+                (materials.Find(x => x.name == "Button_Red_Unpressed"), AccessTools.Field(typeof(GameButton), "unPressed"), "Button_{0}_Unpressed"),
+                (materials.Find(x => x.name == "Button_Red_Pressed"), AccessTools.Field(typeof(GameButton), "pressed"), "Button_{0}_Pressed"),
+                (materials.Find(x => x.name == "Button_RedOff_Unpressed"), AccessTools.Field(typeof(GameButton), "unPressedOff"), "Button_{0}Off_Unpressed"),
+                (materials.Find(x => x.name == "Button_RedOff_Pressed"), AccessTools.Field(typeof(GameButton), "pressedOff"), "Button_{0}Off_Pressed")
+            },
+            AccessTools.Field(typeof(GameButton), "meshRenderer"), // the accesstool for getting the target mesh renderer
+            null));
+            // levers
+            AddButtonColorHandler(typeof(GameLever), new ButtonColorHandlerInfo(new (Material, FieldInfo, string)[] {
+                (materials.Find(x => x.name == "Lever_Red_Down"), AccessTools.Field(typeof(GameLever), "offMat"), "Lever_{0}_Down"),
+                (materials.Find(x => x.name == "Lever_Red_Up"), AccessTools.Field(typeof(GameLever), "onMat"), "Lever_{0}_Up")
+            },
+            AccessTools.Field(typeof(GameLever), "meshRenderer"), 
+            AccessTools.Field(typeof(GameLever), "on"))); // the accesstool for getting whether or not this lever/switch/whatever is active
 
-        public static Dictionary<string, ButtonMaterials> buttonColors
-        {
-            get
-            {
-                if (_buttonColors.Count == 0)
-                {
-                    throw new NullReferenceException("Attempted to access buttonColors before it is defined!"); //give mods an error if they try to access button colors before they are ready
-                }
-                return _buttonColors;
-            }
+            CreateButtonColor("Orange", new Color(1f, 1f, 0f, 0f));
+            CreateButtonColor("Yellow", new Color(1f, 1f, 0f, 0f));
+            CreateButtonColor("Green", new Color(0f,1f,0f,0f));
+            CreateButtonColor("Lime", new Color(0.713f, 1f, 0f, 0f));
+            CreateButtonColor("Cyan", new Color(0f, 1f, 1f,0f));
+            CreateButtonColor("Blue", new Color(0f,0f,1f,0f));
+            CreateButtonColor("Purple", new Color(0.5f, 0f, 1f, 0f));
+            CreateButtonColor("Magenta", new Color(1f, 0f, 1f,0f));
+            CreateButtonColor("Pink", new Color(1f, 0.5f, 1f,0f));
+            CreateButtonColor("White", new Color(1f,1f,1f, 0f));
+            CreateButtonColor("Gray", new Color(0.5f,0.5f,0.5f, 0f));
+            CreateButtonColor("Black", new Color(0.11f, 0.11f, 0.11f, 0f));
         }
     }
 }
