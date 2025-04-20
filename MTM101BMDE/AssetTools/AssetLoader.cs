@@ -916,19 +916,6 @@ namespace MTM101BaldAPI.AssetTools
             return output;
         }
 
-        /// <summary>
-        /// Create a TextMeshPro font asset from a generic font file.
-        /// </summary>
-        /// <param name="path"></param>
-        /// <returns></returns>
-        static TMP_FontAsset TMPAssetFromFile(string path)
-        {
-            Font font = new Font(path);
-            TMP_FontAsset asset = TMP_FontAsset.CreateFontAsset(font);
-            asset.name = font.name;
-            return asset;
-        }
-
         static TMP_FontAsset TMPAssetFromFile(string path, int pointSize, int atlasPadding, GlyphRenderMode renderMode = GlyphRenderMode.RASTER_HINTED, int aW = 1024, int aH = 1024, AtlasPopulationMode mode = AtlasPopulationMode.Dynamic)
         {
             Font font = new Font(path);
@@ -937,13 +924,6 @@ namespace MTM101BaldAPI.AssetTools
             return asset;
         }
 
-        static TMP_FontAsset TMPAssetFromMod(BaseUnityPlugin plugin, params string[] paths)
-        {
-            List<string> pathz = paths.ToList();
-            pathz.Insert(0, GetModPath(plugin));
-            return TMPAssetFromFile(Path.Combine(pathz.ToArray()));
-        }
-    
         static TMP_FontAsset TMPAssetFromMod(BaseUnityPlugin plugin, string[] paths, int pointSize, int atlasPadding, GlyphRenderMode renderMode = GlyphRenderMode.RASTER_HINTED, int aW = 1024, int aH = 1024, AtlasPopulationMode mode = AtlasPopulationMode.Dynamic)
         {
             List<string> pathz = paths.ToList();
