@@ -50,11 +50,25 @@ namespace MTM101BaldAPI.Registers.Buttons
         private static Dictionary<Type, ButtonColorHandlerInfo> buttonColorHandlers = new Dictionary<Type, ButtonColorHandlerInfo>();
         private static Dictionary<Type, Dictionary<string, Material[]>> buttonColorMaterials = new Dictionary<Type, Dictionary<string, Material[]>>();
         private static List<string> createdColors = new List<string>() { "Red" };
+        private static List<Color> createdColorsColors = new List<Color>() { new Color(1f,0f,0f) };
+        public static string[] definedColors => createdColors.ToArray();
+
+        public static Color GetColorFromKey(string key)
+        {
+            int indexOf = createdColors.IndexOf(key);
+            if (indexOf == -1) return Color.clear;
+            return createdColorsColors[indexOf];
+        }
 
         public static bool ApplyButtonMaterials(GameButtonBase button, string colorKey)
         {
             if (!createdColors.Contains(colorKey)) return false;
             return ApplyButtonMaterials(button, buttonColorMaterials[button.GetType()][colorKey]);
+        }
+
+        public static bool TypeSupportsButtonColors(Type type)
+        {
+            return buttonColorHandlers.ContainsKey(type);
         }
 
         public static bool ApplyButtonMaterials(GameButtonBase button, Material[] customMaterials)
@@ -82,6 +96,7 @@ namespace MTM101BaldAPI.Registers.Buttons
                 return;
             }
             createdColors.Add(name);
+            createdColorsColors.Add(color);
             // now... create the color.
             foreach (KeyValuePair<Type, ButtonColorHandlerInfo> info in buttonColorHandlers)
             {
