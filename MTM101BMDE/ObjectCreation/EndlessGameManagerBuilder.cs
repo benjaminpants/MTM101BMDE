@@ -8,7 +8,8 @@ using UnityEngine;
 
 namespace MTM101BaldAPI.ObjectCreation
 {
-    // wip
+    // not done, comment out so poeple dont try to use it
+    /*
     public class EndlessGameManagerBuilder<T> : BaseGameManagerBuilder<T> where T : EndlessGameManager
     {
         protected HappyBaldi happyBaldiPrefab;
@@ -100,5 +101,5 @@ namespace MTM101BaldAPI.ObjectCreation
 
             return comp;
         }
-    }
+    }*/
 }
