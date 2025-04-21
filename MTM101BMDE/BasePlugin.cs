@@ -615,6 +615,9 @@ namespace MTM101BaldAPI
             ambienceClone.name = "Ambience";
             AssetMan.Add<Ambience>("AmbienceTemplate", ambienceClone);
 
+            Canvas endlessScoreCanvasClone = GameObject.Instantiate<Canvas>(Resources.FindObjectsOfTypeAll<Canvas>().First(x => x.GetInstanceID() >= 0 && x.name == "Score" && (x.transform.parent.GetComponent<EndlessGameManager>() != null)), prefabTransform);
+            endlessScoreCanvasClone.name = "Score";
+            AssetMan.Add("EndlessScoreTemplate", endlessScoreCanvasClone);
 
             AssetMan.Add("ErrorTemplate", Resources.FindObjectsOfTypeAll<Canvas>().Where(x => x.name == "EndingError").First());
             AssetMan.Add("WindowTemplate", Resources.FindObjectsOfTypeAll<WindowObject>().Where(x => x.name == "WoodWindow").First());
