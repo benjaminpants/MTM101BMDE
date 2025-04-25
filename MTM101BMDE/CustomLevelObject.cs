@@ -18,16 +18,24 @@ namespace MTM101BaldAPI
         public static CustomLevelObject[] GetCustomLevelObjects(this SceneObject sceneObj)
         {
             List<CustomLevelObject> levelObjects = new List<CustomLevelObject>();
+            if (sceneObj.randomizedLevelObject != null)
+            {
+                if (sceneObj.randomizedLevelObject.Length > 0)
+                {
+                    for (int i = 0; i < sceneObj.randomizedLevelObject.Length; i++)
+                    {
+                        levelObjects.Add((CustomLevelObject)sceneObj.randomizedLevelObject[i].selection);
+                    }
+                    return levelObjects.ToArray();
+                }
+            }
             if (sceneObj.levelObject != null)
             {
                 levelObjects.Add((CustomLevelObject)sceneObj.levelObject);
             }
-            for (int i = 0; i < sceneObj.randomizedLevelObject.Length; i++)
-            {
-                levelObjects.Add((CustomLevelObject)sceneObj.randomizedLevelObject[i].selection);
-            }
 
-            return levelObjects.Distinct().ToArray();
+
+            return levelObjects.ToArray();
         }
     }
 
@@ -43,7 +51,7 @@ namespace MTM101BaldAPI
         public object GetCustomModValue(string modUUID, string key)
         {
             if (!customModDatas.ContainsKey(modUUID)) return null;
-            if (!customModDatas[modUUID].ContainsKey(key)) return false;
+            if (!customModDatas[modUUID].ContainsKey(key)) return null;
             return customModDatas[modUUID][key];
         }
 
