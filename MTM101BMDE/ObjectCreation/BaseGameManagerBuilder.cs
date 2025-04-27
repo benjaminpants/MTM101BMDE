@@ -1,4 +1,5 @@
 ﻿using HarmonyLib;
+using MTM101BaldAPI.Reflection;
 using System;
 using System.Collections.Generic;
 using System.Reflection;
@@ -174,6 +175,7 @@ namespace MTM101BaldAPI.ObjectCreation
                     break;
             }
             _elevatorScreenPre.SetValue(comp, customElevatorScreen == null ? MTM101BaldiDevAPI.AssetMan.Get<ElevatorScreen>("ElevatorScreen") : customElevatorScreen);
+            comp.ReflectionSetVariable("destroyOnLoad", true);
             return comp;
         }
     }
