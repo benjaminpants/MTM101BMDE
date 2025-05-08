@@ -58,7 +58,7 @@ namespace MTM101BaldAPI
         /// </summary>
         /// <param name="me"></param>
         /// <returns></returns>
-        public static CustomLevelObject GetCurrentCustomLevelObject(SceneObject me)
+        public static CustomLevelObject GetCurrentCustomLevelObject(this SceneObject me)
         {
             if (Singleton<CoreGameManager>.Instance == null) return null;
             if (me.randomizedLevelObject.Length == 0) return (CustomLevelObject)me.levelObject;
