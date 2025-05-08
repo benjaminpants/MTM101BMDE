@@ -684,6 +684,16 @@ namespace MTM101BaldAPI
 
             // setup loading for default crazy machines
 
+            SodaMachine[] crazyMachines = Resources.FindObjectsOfTypeAll<SodaMachine>().Where(x => ((x.GetInstanceID() >= 0) && (x.name == "CrazyVendingMachineZesty" || x.name == "CrazyVendingMachineBSODA"))).ToArray();
+
+            GeneratorManagement.RegisterCustomLootHandler("CrazyVendingMachines", (WeightedItemObject[])crazyMachines[0].ReflectionGetVariable("potentialItems"), (CustomLoot l) =>
+            {
+                for (int i = 0; i < crazyMachines.Length; i++)
+                {
+                    crazyMachines[i].ReflectionSetVariable("potentialItems", l.potentialItems.ToArray());
+                }
+            });
+
         }
 
         internal void ConvertAllLevelObjects()

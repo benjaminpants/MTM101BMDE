@@ -156,6 +156,21 @@ namespace MTM101BaldAPI
         static readonly FieldInfo _potentialItems = AccessTools.Field(typeof(FieldTripBaseRoomFunction), "potentialItems");
         static readonly FieldInfo _guaranteedItems = AccessTools.Field(typeof(FieldTripBaseRoomFunction), "guaranteedItems");
 
+        IEnumerator ModifyCustomLoot(string id)
+        {
+            yield return GeneratorManagement.customLootChangers[id].Count;
+            yield return "Loading...";
+
+            CustomLoot cl = new CustomLoot();
+            cl.potentialItems.AddRange(GeneratorManagement.defaultCustomLoot[id]);
+            foreach (KeyValuePair<BaseUnityPlugin, Action<CustomLoot>> kvp in GeneratorManagement.customLootChangers[id])
+            {
+                yield return kvp.Key;
+                kvp.Value.Invoke(cl);
+            }
+            GeneratorManagement.registeredLootHandlers[id].Invoke(cl);
+        }
+
         IEnumerator ModifyFieldtripLoot(FieldTripObject trip)
         {
             yield return GeneratorManagement.fieldtripLootChanges.Count;
@@ -194,8 +209,9 @@ namespace MTM101BaldAPI
                 }
                 return false;
             }).ToArray();
+            int initialCustomLoots = GeneratorManagement.registeredLootHandlers.Count;
             FieldTripObject[] foundTrips = Resources.FindObjectsOfTypeAll<FieldTripObject>().Where(x => x.tripHub != null).ToArray(); // ignore junk
-            yield return (3 + objs.Length) + LoadingEvents.LoadingEventsPost.Count + LoadingEvents.LoadingEventsPre.Count + LoadingEvents.LoadingEventsStart.Count + foundTrips.Length;
+            yield return (3 + objs.Length) + LoadingEvents.LoadingEventsPost.Count + LoadingEvents.LoadingEventsPre.Count + LoadingEvents.LoadingEventsStart.Count + foundTrips.Length + initialCustomLoots;
             for (int i = 0; i < LoadingEvents.LoadingEventsStart.Count; i++)
             {
                 LoadingEvents.LoadingEvent load = LoadingEvents.LoadingEventsStart[i];
@@ -244,8 +260,15 @@ namespace MTM101BaldAPI
             }
             foreach (FieldTripObject trip in foundTrips)
             {
-                yield return "Changing " + trip.name + " loot...";
+                yield return "Changing " + trip.name + " trip loot...";
                 yield return BeginLoadEnumerator(ModifyFieldtripLoot(trip), modLoadingBar, modLoadText);
+            }
+            // update the top bar to account for anything new that might've been added
+            yield return (GeneratorManagement.registeredLootHandlers.Count - initialCustomLoots);
+            foreach (KeyValuePair<string, Action<CustomLoot>> kvp in GeneratorManagement.registeredLootHandlers)
+            {
+                yield return "Changing " + kvp.Key + " custom loot...";
+                yield return BeginLoadEnumerator(ModifyCustomLoot(kvp.Key), modLoadingBar, modLoadText);
             }
             modLoadText.text = "";
             modIdText.text = "";

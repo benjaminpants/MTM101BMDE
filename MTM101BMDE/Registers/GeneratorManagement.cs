@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using System.Security.Cryptography;
 using System.Text;
 
 namespace MTM101BaldAPI.Registers
@@ -82,6 +83,88 @@ namespace MTM101BaldAPI.Registers
         }
 
         internal static Dictionary<BaseUnityPlugin, Action<FieldTrips, FieldTripLoot>> fieldtripLootChanges = new Dictionary<BaseUnityPlugin, Action<FieldTrips, FieldTripLoot>>();
+        internal static Dictionary<string, Dictionary<BaseUnityPlugin, Action<CustomLoot>>> customLootChangers = new Dictionary<string, Dictionary<BaseUnityPlugin, Action<CustomLoot>>>();
+
+        internal static Dictionary<string, Action<CustomLoot>> registeredLootHandlers = new Dictionary<string, Action<CustomLoot>>();
+        internal static Dictionary<string, WeightedItemObject[]> defaultCustomLoot = new Dictionary<string, WeightedItemObject[]>();
+
+        /// <summary>
+        /// Register an action that will be used to modify the CustomLoot object of the specified ID.
+        /// Mods may use this for different loot tables.
+        /// </summary>
+        /// <param name="id"></param>
+        /// <param name="changer"></param>
+        /// <param name="plugin"></param>
+        public static void RegisterCustomLootChange(BaseUnityPlugin plugin, string id, Action<CustomLoot> changer)
+        {
+            if (!customLootChangers.ContainsKey(id))
+            {
+                customLootChangers.Add(id, new Dictionary<BaseUnityPlugin, Action<CustomLoot>>());
+            }
+            if (customLootChangers[id].ContainsKey(plugin))
+            {
+                return;
+            }
+            customLootChangers[id].Add(plugin, changer);
+        }
+
+        
+        /// <summary>
+        /// Register an action that will be used to modify the specified default loot table.
+        /// </summary>
+        /// <param name="plugin"></param>
+        /// <param name="type"></param>
+        /// <param name="changer"></param>
+        public static void RegisterDefaultLootChange(BaseUnityPlugin plugin, DefaultCustomLoot type, Action<CustomLoot> changer)
+        {
+            RegisterCustomLootChange(plugin, type.ToString(), changer);
+        }
+
+        /// <summary>
+        /// Register a handler for custom loot. Mods can register methods that change the CustomLoot object given to invokeAfterCalled
+        /// if a LootHandler of the specified id already exists, the two will be merged.
+        /// </summary>
+        /// <param name="id"></param>
+        /// <param name="defaultLoot"></param>
+        /// <param name="invokeAfterCalled"></param>
+        public static void RegisterCustomLootHandler(string id, WeightedItemObject[] defaultLoot, Action<CustomLoot> invokeAfterCalled)
+        {
+            if (registeredLootHandlers.ContainsKey(id))
+            {
+                Action<CustomLoot> oldHandler = registeredLootHandlers[id];
+                registeredLootHandlers[id] = (CustomLoot cl) =>
+                {
+                    oldHandler(cl);
+                    invokeAfterCalled(cl);
+                };
+                return;
+            }
+            if (!customLootChangers.ContainsKey(id))
+            {
+                customLootChangers.Add(id, new Dictionary<BaseUnityPlugin, Action<CustomLoot>>());
+            }
+            if (defaultCustomLoot.ContainsKey(id))
+            {
+                if (defaultLoot != null)
+                {
+                    defaultCustomLoot[id] = defaultCustomLoot[id].AddRangeToArray(defaultLoot);
+                }
+            }
+            else
+            {
+                if (defaultLoot != null)
+                {
+                    defaultCustomLoot.Add(id, defaultLoot);
+                }
+                else
+                {
+                    defaultCustomLoot.Add(id, new WeightedItemObject[0]);
+                }
+            }
+            registeredLootHandlers.Add(id, invokeAfterCalled);
+        }
+
+
 
         static readonly FieldInfo _potentialItems = AccessTools.Field(typeof(FieldTripBaseRoomFunction), "potentialItems");
         static readonly FieldInfo _guaranteedItems = AccessTools.Field(typeof(FieldTripBaseRoomFunction), "guaranteedItems");
