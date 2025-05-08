@@ -55,7 +55,7 @@ namespace MTM101BaldAPI
     {
         internal static ManualLogSource Log = new ManualLogSource("Baldi's Basics Plus Dev API Pre Initialization");
 
-        public const string VersionNumber = "7.0.1.1";
+        public const string VersionNumber = "7.1.0.0";
 
         /// <summary>
         /// The version of the API, applicable when BepInEx cache messes up the version number.
@@ -168,6 +168,7 @@ namespace MTM101BaldAPI
 
         internal static IntrusiveAPIFeatures intrusiveFeatures = IntrusiveAPIFeatures.None;
         internal static bool tooLateForGeneratorBasedFeatures = false;
+        internal FakeGameInit fakeInit;
 
         public static IntrusiveAPIFeatures EnabledFeatures
         {
@@ -278,6 +279,12 @@ namespace MTM101BaldAPI
 
         internal void OnSceneUnload()
         {
+            // create the fake GameInitializer
+            GameObject fakeInitObject = new GameObject("FakeGameInitializer");
+            fakeInitObject.gameObject.SetActive(false);
+            DontDestroyOnLoad(fakeInitObject.gameObject);
+            fakeInit = fakeInitObject.AddComponent<FakeGameInit>();
+            // load the resources we need and stop the transition
             AssetMan.Add<CursorController>("cursorController", Resources.FindObjectsOfTypeAll<CursorController>().First(x => x.name == "CursorOrigin"));
             gameLoader = Resources.FindObjectsOfTypeAll<GameLoader>().First(x => x.GetInstanceID() >= 0);
             Singleton<GlobalCam>.Instance.StopCurrentTransition();
@@ -675,6 +682,8 @@ namespace MTM101BaldAPI
                 img.rectTransform.anchorMax = new Vector2(0f,1f);
             }
 
+            // setup loading for default crazy machines
+
         }
 
         internal void ConvertAllLevelObjects()
@@ -712,17 +721,6 @@ namespace MTM101BaldAPI
                 objct.levelObject.MarkAsNeverUnload();
                 objct.MarkAsNeverUnload();
             }
-            // previous levels is unused and doesn't need to be properly carried over
-            /*
-            foreach (KeyValuePair<LevelObject,CustomLevelObject> kvp in oldToNewMapping)
-            {
-                kvp.Value.previousLevels = new LevelObject[kvp.Key.previousLevels.Length];
-                // remap the old previousLevels to the new one.
-                for (int i = 0; i < kvp.Key.previousLevels.Length; i++)
-                {
-                    kvp.Value.previousLevels[i] = oldToNewMapping[kvp.Key.previousLevels[i]];
-                }
-            }*/
             // destroy the old objects (do this in a seperate loop so we can preserve the keys until the very end
             foreach (KeyValuePair<LevelObject, CustomLevelObject> kvp in oldToNewMapping)
             {

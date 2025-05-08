@@ -3,6 +3,7 @@ using HarmonyLib;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using System.Text;
 
 namespace MTM101BaldAPI.Registers
@@ -46,6 +47,21 @@ namespace MTM101BaldAPI.Registers
         public List<ItemObject> guaranteedItems;
     }
 
+    /// <summary>
+    /// A helper class used for easy modification of WeightedItemObject arrays and lists during the mod loading phase.
+    /// </summary>
+    public class CustomLoot
+    {
+        public List<WeightedItemObject> potentialItems;
+    }
+
+    public enum DefaultCustomLoot
+    {
+        CrazyVendingMachines,
+        MysteryRoom,
+        PartyEvent
+    }
+
     public static class GeneratorManagement
     {
         private static Dictionary<BaseUnityPlugin, Dictionary<GenerationModType, Action<string, int, SceneObject>>> generationStuff = new Dictionary<BaseUnityPlugin, Dictionary<GenerationModType, Action<string, int, SceneObject>>>();
@@ -66,6 +82,32 @@ namespace MTM101BaldAPI.Registers
         }
 
         internal static Dictionary<BaseUnityPlugin, Action<FieldTrips, FieldTripLoot>> fieldtripLootChanges = new Dictionary<BaseUnityPlugin, Action<FieldTrips, FieldTripLoot>>();
+
+        static readonly FieldInfo _potentialItems = AccessTools.Field(typeof(FieldTripBaseRoomFunction), "potentialItems");
+        static readonly FieldInfo _guaranteedItems = AccessTools.Field(typeof(FieldTripBaseRoomFunction), "guaranteedItems");
+        /// <summary>
+        /// Invoke FieldTrip loot table changes for the specified field trip.
+        /// </summary>
+        /// <param name="trip"></param>
+        public static void InvokeFieldTripLootChange(FieldTripObject trip)
+        {
+            FieldTripBaseRoomFunction roomFunction = trip.tripHub.room.roomFunctionContainer.GetComponent<FieldTripBaseRoomFunction>();
+            FieldTripLoot tripLoot = new FieldTripLoot();
+            tripLoot.potentialItems = ((WeightedItemObject[])_potentialItems.GetValue(roomFunction)).ToList();
+            tripLoot.guaranteedItems = ((List<ItemObject>)_guaranteedItems.GetValue(roomFunction)).ToList();
+            foreach (KeyValuePair<BaseUnityPlugin, Action<FieldTrips, FieldTripLoot>> kvp in fieldtripLootChanges)
+            {
+                kvp.Value.Invoke(trip.trip, tripLoot);
+            }
+            if (fieldtripLootChanges.Count > 0)
+            {
+                trip.MarkAsNeverUnload();
+                trip.tripHub.room.MarkAsNeverUnload();
+                trip.tripHub.room.roomFunctionContainer.MarkAsNeverUnload();
+            }
+            _potentialItems.SetValue(roomFunction, tripLoot.potentialItems.ToArray());
+            _guaranteedItems.SetValue(roomFunction, tripLoot.guaranteedItems.ToList());
+        }
 
         /// <summary>
         /// Register an action that will be called to modify the field trip loot during mod loading.

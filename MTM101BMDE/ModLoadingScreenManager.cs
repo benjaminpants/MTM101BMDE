@@ -130,7 +130,15 @@ namespace MTM101BaldAPI
             {
                 if (numerator.Current.GetType() != typeof(string))
                 {
-                    yield return numerator.Current;
+                    // in the rare case we genuinely can not predict what will happen next (LootTables...)
+                    if (numerator.Current.GetType() == typeof(int))
+                    {
+                        maxSteps += (int)numerator.Current;
+                    }
+                    else
+                    {
+                        yield return numerator.Current;
+                    }
                 }
                 else
                 {
