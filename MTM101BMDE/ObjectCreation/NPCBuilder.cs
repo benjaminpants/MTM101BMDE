@@ -33,6 +33,7 @@ namespace MTM101BaldAPI.ObjectCreation
         readonly static FieldInfo _hasFov = AccessTools.Field(typeof(Looker), "hasFov");
         readonly static FieldInfo _fieldOfView = AccessTools.Field(typeof(Looker), "fieldOfView");
         readonly static FieldInfo _autoRotate = AccessTools.Field(typeof(Navigator), "autoRotate");
+        readonly static FieldInfo _avoidRooms = AccessTools.Field(typeof(Navigator), "avoidRooms");
         readonly static FieldInfo _preciseTarget = AccessTools.Field(typeof(Navigator), "preciseTarget");
         readonly static FieldInfo _decelerate = AccessTools.Field(typeof(Navigator), "decelerate");
         readonly static FieldInfo _overrideSubtitleColor = AccessTools.Field(typeof(AudioManager), "overrideSubtitleColor");
@@ -68,6 +69,7 @@ namespace MTM101BaldAPI.ObjectCreation
         bool preciseTarget = true;
         bool decelerate = false;
         bool forceColor = false;
+        bool avoidRooms = true;
         Color subtitleColor = Color.white;
         string npcName = null;
 
@@ -117,6 +119,7 @@ namespace MTM101BaldAPI.ObjectCreation
                 flags |= NPCFlags.CanSee;
             }
             _useHeatMap.SetValue(nav, useHeatmap);
+            _avoidRooms.SetValue(nav, avoidRooms);
             _npc.SetValue(newNpc.looker, newNpc);
             if (spawnableRooms.Count == 0)
             {
@@ -174,6 +177,16 @@ namespace MTM101BaldAPI.ObjectCreation
             }
 
             return newNpc;
+        }
+
+        /// <summary>
+        /// Makes it so that the wandering code will enter rooms, instead of avoiding them.
+        /// </summary>
+        /// <returns></returns>
+        public NPCBuilder<T> SetWanderEnterRooms()
+        {
+            avoidRooms = false;
+            return this;
         }
 
         public NPCBuilder<T> SetForcedSubtitleColor(Color forcedColor)

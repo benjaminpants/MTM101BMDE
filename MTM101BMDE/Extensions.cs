@@ -192,6 +192,24 @@ namespace MTM101BaldAPI
             }
             me.UpdateTextures();
         }
+
+        /// <summary>
+        /// Applies the StandardDoorMats materials to the specified StandardDoor, optionally changing the mask.
+        /// </summary>
+        /// <param name="me"></param>
+        /// <param name="materials"></param>
+        /// <param name="mask"></param>
+        /// <param name="side">The index into overlayShut and overlayOpen to use</param>
+        public static void ApplyDoorMaterialsToSide(this StandardDoor me, int side, StandardDoorMats materials, Material mask = null)
+        {
+            me.overlayShut[side] = materials.shut;
+            me.overlayOpen[side] = materials.open;
+            if (mask != null)
+            {
+                me.mask[side] = mask;
+            }
+            me.UpdateTextures();
+        }
     }
 }
 

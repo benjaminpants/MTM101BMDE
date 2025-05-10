@@ -823,7 +823,7 @@ PRESS ALT+F4 TO EXIT THE GAME.
             Config.Bind("Generator",
                 "Enable Skybox Patches",
                 true,
-                "Whether or not outdoors areas will have different light colors depending on the skybox used. Only disable for legacy mods.");
+                "Whether or not outdoors areas will have different light colors depending on the skybox used. Only disable for legacy mods. Will be removed soon.");
 
             alwaysModdedSave = Config.Bind("General",
                 "Always Use Modded Save System",

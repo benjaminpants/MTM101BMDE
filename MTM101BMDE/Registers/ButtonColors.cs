@@ -53,6 +53,11 @@ namespace MTM101BaldAPI.Registers.Buttons
         private static List<Color> createdColorsColors = new List<Color>() { new Color(1f,0f,0f) };
         public static string[] definedColors => createdColors.ToArray();
 
+        /// <summary>
+        /// Gets the specified color from the color key
+        /// </summary>
+        /// <param name="key"></param>
+        /// <returns></returns>
         public static Color GetColorFromKey(string key)
         {
             int indexOf = createdColors.IndexOf(key);
@@ -60,17 +65,47 @@ namespace MTM101BaldAPI.Registers.Buttons
             return createdColorsColors[indexOf];
         }
 
+        /// <summary>
+        /// Gets the material for the specified button type with the specified key
+        /// </summary>
+        /// <param name="t"></param>
+        /// <param name="colorKey"></param>
+        /// <returns></returns>
+        public static Material[] GetMaterialsForButtonType(Type t, string colorKey)
+        {
+            if (!createdColors.Contains(colorKey)) return null;
+            if (!buttonColorMaterials.ContainsKey(t)) return null;
+            return buttonColorMaterials[t][colorKey];
+        }
+
+        /// <summary>
+        /// Applies materials to the specified button, based off its type.
+        /// </summary>
+        /// <param name="button"></param>
+        /// <param name="colorKey"></param>
+        /// <returns></returns>
         public static bool ApplyButtonMaterials(GameButtonBase button, string colorKey)
         {
             if (!createdColors.Contains(colorKey)) return false;
             return ApplyButtonMaterials(button, buttonColorMaterials[button.GetType()][colorKey]);
         }
 
+        /// <summary>
+        /// Returns true if the specified type supports button colors.
+        /// </summary>
+        /// <param name="type"></param>
+        /// <returns></returns>
         public static bool TypeSupportsButtonColors(Type type)
         {
             return buttonColorHandlers.ContainsKey(type);
         }
 
+        /// <summary>
+        /// Applies the custom button materials to the button, automatically running the appropiate functions depending on the type.
+        /// </summary>
+        /// <param name="button"></param>
+        /// <param name="customMaterials"></param>
+        /// <returns></returns>
         public static bool ApplyButtonMaterials(GameButtonBase button, Material[] customMaterials)
         {
             if (!buttonColorHandlers.ContainsKey(button.GetType())) return false;
@@ -89,6 +124,11 @@ namespace MTM101BaldAPI.Registers.Buttons
             return true;
         }
 
+        /// <summary>
+        /// Creates a new button color and generates material variants for all registered button types.
+        /// </summary>
+        /// <param name="name"></param>
+        /// <param name="color"></param>
         public static void CreateButtonColor(string name, Color color)
         {
             if (createdColors.Contains(name))

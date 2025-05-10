@@ -6,6 +6,7 @@ using UnityEngine;
 
 namespace MTM101BaldAPI.Registers
 {
+    [Obsolete("Skybox metadata will be removed in 8.0!")]
     public class SkyboxMetadata : IMetadata<Cubemap>
     {
         private Cubemap _cubemap;
@@ -27,6 +28,7 @@ namespace MTM101BaldAPI.Registers
         }
     }
 
+    [Obsolete("Skybox metadata will be removed in 8.0!")]
     public class SkyboxMetaStorage : BasicMetaStorage<SkyboxMetadata, Cubemap>
     {
         public static SkyboxMetaStorage Instance => MTM101BaldiDevAPI.skyboxMeta;
