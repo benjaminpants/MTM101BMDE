@@ -106,7 +106,6 @@ namespace MTM101BaldAPI.ObjectCreation
             Ambience ambienceGameObject = GameObject.Instantiate<Ambience>(MTM101BaldiDevAPI.AssetMan.Get<Ambience>("AmbienceTemplate"), comp.transform);
             ambienceGameObject.name = "Ambience";
             _ambience.SetValue(comp, ambienceGameObject);
-            comp.ReflectionSetVariable("destroyOnLoad", true); //using this instead of the optimized version due to dynamic stuff
             return comp;
         }
     }
