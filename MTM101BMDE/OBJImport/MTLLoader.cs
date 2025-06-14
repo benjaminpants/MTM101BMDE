@@ -170,7 +170,7 @@ public class MTLLoader {
                 }
                 else
                 {
-                    baseMaterial = new Material(MTM101BaldiDevAPI.AssetMan.Get<Material>("TileBase")) { name = materialName };
+                    newMtl = new Material(MTM101BaldiDevAPI.AssetMan.Get<Material>("TileBase")) { name = materialName };
                 }
                 mtlDict[materialName] = newMtl;
                 currentMaterial = newMtl;
