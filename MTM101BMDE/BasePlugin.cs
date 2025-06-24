@@ -55,7 +55,7 @@ namespace MTM101BaldAPI
     {
         internal static ManualLogSource Log = new ManualLogSource("Baldi's Basics Plus Dev API Pre Initialization");
 
-        public const string VersionNumber = "7.1.0.0";
+        public const string VersionNumber = "8.0.0.0";
 
         /// <summary>
         /// The version of the API, applicable when BepInEx cache messes up the version number.
@@ -78,7 +78,6 @@ namespace MTM101BaldAPI
         public static ItemMetaStorage itemMetadata = new ItemMetaStorage();
         public static NPCMetaStorage npcMetadata = new NPCMetaStorage();
         public static RandomEventMetaStorage randomEventStorage = new RandomEventMetaStorage();
-        public static SkyboxMetaStorage skyboxMeta = new SkyboxMetaStorage();
         public static SceneObjectMetaStorage sceneMeta = new SceneObjectMetaStorage();
 
         internal ConfigEntry<bool> useOldAudioLoad;
@@ -318,10 +317,18 @@ namespace MTM101BaldAPI
                         x.AddMeta(MTM101BaldiDevAPI.Instance, ItemFlags.Persists | ItemFlags.CreatesEntity);
                         break;
                     case Items.Boots:
-                        x.AddMeta(MTM101BaldiDevAPI.Instance, ItemFlags.Persists);
+                        x.AddMeta(MTM101BaldiDevAPI.Instance, ItemFlags.Persists).tags.Add("clothing");
                         break;
                     case Items.Teleporter:
                         x.AddMeta(MTM101BaldiDevAPI.Instance, ItemFlags.Persists).tags.Add("technology");
+                        break;
+                    case Items.ReachExtender:
+                        x.AddMeta(MTM101BaldiDevAPI.Instance, ItemFlags.Persists).tags.Add("clothing");
+                        break;
+                    case Items.InvisibilityElixir:
+                        ItemMetaData elixerMeta = x.AddMeta(MTM101BaldiDevAPI.Instance, ItemFlags.Persists);
+                        elixerMeta.tags.Add("food");
+                        elixerMeta.tags.Add("drink");
                         break;
                     case Items.Nametag:
                         x.AddMeta(MTM101BaldiDevAPI.Instance, ItemFlags.Persists);
@@ -414,6 +421,12 @@ namespace MTM101BaldAPI
             Resources.FindObjectsOfTypeAll<ItemObject>().Where(x => x.name.EndsWith("Tutorial")).Do(x =>
             {
                 ItemMetaData meta = ItemMetaStorage.Instance.FindByEnum(x.itemType);
+                if (meta == null)
+                {
+                    Logger.LogWarning("Item has tutorial variant but no meta?");
+                    Logger.LogWarning(x.name);
+                    return;
+                }
                 meta.flags |= ItemFlags.HasTutorialVariant;
                 if (x.itemType == Items.GrapplingHook)
                 {
@@ -491,9 +504,19 @@ namespace MTM101BaldAPI
                     case "MainLevel_5":
                         x.AddMeta(this, new string[] { "main", "found_on_main" });
                         break;
-                    case "EndlessRandomMedium":
-                    case "EndlessPremadeMedium":
+                    case "Endless_Factory_Medium":
+                    case "Endless_Factory_Large":
+                    case "Endless_Laboratory_Large":
+                    case "Endless_Laboratory_Medium":
+                    case "Endless_Maintenance_Large":
+                    case "Endless_Maintenance_Medium":
+                    case "Endless_Schoolhouse_Large":
+                    case "Endless_Schoolhouse_Medium":
+                    case "Endless_Schoolhouse_Small":
                         x.AddMeta(this, new string[] { "endless" });
+                        break;
+                    case "EndlessPremadeMedium": // mystman12 left this here so i need to add meta
+                        x.AddMeta(this, new string[] { "endless", "unused" });
                         break;
                     case "PlaceholderEnding":
                         x.AddMeta(this, new string[] { "ending", "found_on_main" });
@@ -520,10 +543,6 @@ namespace MTM101BaldAPI
                         break;
                 }
             });
-
-            Cubemap[] cubemaps = Resources.FindObjectsOfTypeAll<Cubemap>();
-            skyboxMeta.Add(new SkyboxMetadata(Info, cubemaps.Where(x => x.name == "Cubemap_DayStandard").First(), Color.white));
-            skyboxMeta.Add(new SkyboxMetadata(Info, cubemaps.Where(x => x.name == "Cubemap_Twilight").First(), Color.white /*new Color(239f / 255f, 188f / 255f, 162f / 255f)*/));
 
             MTM101BaldiDevAPI.CalledInitialize = true;
 
@@ -818,12 +837,6 @@ PRESS ALT+F4 TO EXIT THE GAME.
             {
                 AddWarningScreen("Old Audio Loading is <b>on!</b>\nYou should not need this anymore as of API 4.0!\nTurn it off, and if mods are still broken, report it to MTM101!", false);
             }
-
-            //handled by the patch system so i do not need to check it
-            Config.Bind("Generator",
-                "Enable Skybox Patches",
-                true,
-                "Whether or not outdoors areas will have different light colors depending on the skybox used. Only disable for legacy mods. Will be removed soon.");
 
             alwaysModdedSave = Config.Bind("General",
                 "Always Use Modded Save System",

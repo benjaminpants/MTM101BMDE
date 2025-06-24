@@ -224,7 +224,7 @@ namespace MTM101BaldAPI
                 {
                     if (!(obj.levelObject is CustomLevelObject))
                     {
-                        MTM101BaldiDevAPI.Log.LogWarning(String.Format("Can't invoke SceneObject({0})({2}) Generation Changes for {1}! Not a CustomLevelObject!", obj.levelTitle, obj.levelObject.ToString(), obj.levelNo.ToString()));
+                        MTM101BaldiDevAPI.Log.LogWarning(String.Format("Can't invoke SceneObject({0})({2}) Generation Changes for {1}! Not a CustomLevelObject!", obj.levelTitle, obj.levelObject.ToString(), obj.name));
                         continue;
                     }
                 }
@@ -234,12 +234,12 @@ namespace MTM101BaldAPI
                     {
                         if (!(obj.randomizedLevelObject[i].selection is CustomLevelObject))
                         {
-                            MTM101BaldiDevAPI.Log.LogWarning(String.Format("Can't invoke SceneObject({0})({2}) Generation Changes for {1}! Not a CustomLevelObject!", obj.levelTitle, obj.randomizedLevelObject[i].selection.ToString(), obj.levelNo.ToString()));
+                            MTM101BaldiDevAPI.Log.LogWarning(String.Format("Can't invoke SceneObject({0})({2}) Generation Changes for {1}! Not a CustomLevelObject!", obj.levelTitle, obj.randomizedLevelObject[i].selection.ToString(), obj.name));
                             continue;
                         }
                     }
                 }
-                MTM101BaldiDevAPI.Log.LogInfo(String.Format("Invoking SceneObject({0})({1}) Generation Changes!", obj.levelTitle, obj.levelNo.ToString()));
+                MTM101BaldiDevAPI.Log.LogInfo(String.Format("Invoking SceneObject({0})({1}) Generation Changes!", obj.levelTitle, obj.name));
                 GeneratorManagement.Invoke(obj.levelTitle, obj.levelNo, obj);
             }
             foreach (FieldTripObject trip in foundTrips)
