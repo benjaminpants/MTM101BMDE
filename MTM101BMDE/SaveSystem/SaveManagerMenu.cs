@@ -144,7 +144,7 @@ namespace MTM101BaldAPI
             modListHeader.rectTransform.pivot = new Vector2(0.5f, 1f);
             for (int i = 0; i < modList.Length; i++)
             {
-                modList[i] = CreateText("ModList" + i, "mtm101.rulerp.bbplus.baldidevapi", new Vector3(0f, (0f) + (i * -16f)), BaldiFonts.ComicSans12, TextAlignmentOptions.Top, new Vector2(300f, 17f), Color.black, false);
+                modList[i] = CreateText("ModList" + i, MTM101BaldiDevAPI.ModGUID, new Vector3(0f, (0f) + (i * -16f)), BaldiFonts.ComicSans12, TextAlignmentOptions.Top, new Vector2(300f, 17f), Color.black, false);
                 modList[i].rectTransform.pivot = new Vector2(0.5f, 1f);
                 StandardMenuButton menButton = modList[i].gameObject.ConvertToButton<StandardMenuButton>();
                 menButton.underlineOnHigh = true;

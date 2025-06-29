@@ -50,11 +50,11 @@ namespace MTM101BaldAPI
         None=0,
     }
 
-    [BepInPlugin("mtm101.rulerp.bbplus.baldidevapi", "Baldi's Basics Plus Dev API", VersionNumber)]
+    [BepInPlugin(ModGUID, "Baldi's Basics Plus Dev API", VersionNumber)]
     public class MTM101BaldiDevAPI : BaseUnityPlugin
     {
         internal static ManualLogSource Log = new ManualLogSource("Baldi's Basics Plus Dev API Pre Initialization");
-
+        public const string ModGUID = "mtm101.rulerp.bbplus.baldidevapi";
         public const string VersionNumber = "8.0.0.0";
 
         /// <summary>
@@ -225,7 +225,16 @@ namespace MTM101BaldAPI
             }
         }
 
+        public static SavedGameDataHandler HighscoreHandler
+        {
+            get
+            {
+                return highscoreHandler;
+            }
+        }
+
         internal static SavedGameDataHandler saveHandler = SavedGameDataHandler.Vanilla;
+        internal static SavedGameDataHandler highscoreHandler = SavedGameDataHandler.None; // we actually want this to be None at first, as unlike with SavedGames, these don't get reloaded unless a score is achieved in vanilla.
 
         public static GameLoader gameLoader;
 
@@ -804,7 +813,7 @@ PRESS ALT+F4 TO EXIT THE GAME.
             CustomOptionsCore.OnMenuInitialize += SaveManagerMenu.MenuHook;
             Instance = this;
 
-            Harmony harmony = new Harmony("mtm101.rulerp.bbplus.baldidevapi");
+            Harmony harmony = new Harmony(MTM101BaldiDevAPI.ModGUID);
 
             ModdedSaveSystem.AddSaveLoadAction(this, (bool isSave, string myPath) =>
             {
