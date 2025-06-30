@@ -195,7 +195,7 @@ namespace MTM101BaldAPI
                 return false;
             }).ToArray();
             FieldTripObject[] foundTrips = Resources.FindObjectsOfTypeAll<FieldTripObject>().Where(x => x.tripHub != null).ToArray(); // ignore junk
-            yield return (3 + objs.Length) + LoadingEvents.LoadingEventsPost.Count + LoadingEvents.LoadingEventsPre.Count + LoadingEvents.LoadingEventsStart.Count + foundTrips.Length;
+            yield return (4 + objs.Length) + LoadingEvents.LoadingEventsPost.Count + LoadingEvents.LoadingEventsPre.Count + LoadingEvents.LoadingEventsStart.Count + foundTrips.Length;
             for (int i = 0; i < LoadingEvents.LoadingEventsStart.Count; i++)
             {
                 LoadingEvents.LoadingEvent load = LoadingEvents.LoadingEventsStart[i];
@@ -264,6 +264,19 @@ namespace MTM101BaldAPI
             }
             yield return "Reloading Localization...";
             Singleton<LocalizationManager>.Instance.ReflectionInvoke("Start", null);
+            yield return "Reloading highscores...";
+            if (MTM101BaldiDevAPI.highscoreHandler == SavedGameDataHandler.Unset)
+            {
+                if (ModdedHighscoreManager.tagList.Count > 0)
+                {
+                    MTM101BaldiDevAPI.highscoreHandler = SavedGameDataHandler.Modded;
+                }
+                else
+                {
+                    MTM101BaldiDevAPI.highscoreHandler = SavedGameDataHandler.Vanilla;
+                }
+            }
+            Singleton<HighScoreManager>.Instance.Load(); //reload
             yield break;
         }
 

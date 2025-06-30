@@ -38,7 +38,8 @@ namespace MTM101BaldAPI
     {
         Vanilla,
         Modded,
-        None
+        None,
+        Unset
     }
 
     /// <summary>
@@ -88,7 +89,7 @@ namespace MTM101BaldAPI
         {
             get
             {
-                return saveHandler != SavedGameDataHandler.None;
+                return (saveHandler != SavedGameDataHandler.None) && (saveHandler != SavedGameDataHandler.Unset);
             }
             set
             {
@@ -234,7 +235,7 @@ namespace MTM101BaldAPI
         }
 
         internal static SavedGameDataHandler saveHandler = SavedGameDataHandler.Vanilla;
-        internal static SavedGameDataHandler highscoreHandler = SavedGameDataHandler.None; // we actually want this to be None at first, as unlike with SavedGames, these don't get reloaded unless a score is achieved in vanilla.
+        internal static SavedGameDataHandler highscoreHandler = SavedGameDataHandler.Unset; // we actually want this to be None at first, as unlike with SavedGames, these don't get reloaded unless a score is achieved in vanilla.
 
         public static GameLoader gameLoader;
 
