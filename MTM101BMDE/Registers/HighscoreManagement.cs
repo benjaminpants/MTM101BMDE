@@ -52,6 +52,18 @@ namespace MTM101BaldAPI.Registers
 
     public static class ModdedHighscoreManager
     {
+        static ModdedHighscoreManager()
+        {
+            for (int i = 0; i < 5; i++)
+            {
+                for (int j = 0; j < 16; j++)
+                {
+                    tripScores[j, i] = 0;
+                    tripNames[j, i] = "Baldi";
+                }
+            }
+        }
+
         public static List<ModdedEndlessScore> moddedScores = new List<ModdedEndlessScore>();
         
         public static List<ModdedEndlessScore> activeModdedScores = new List<ModdedEndlessScore>();

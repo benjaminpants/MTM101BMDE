@@ -76,11 +76,40 @@ namespace MTM101BaldAPI.Patches
                 {
                     ModdedHighscoreManager.activeModdedScores.Remove(targetScore);
                     ModdedHighscoreManager.moddedScores.Remove(targetScore);
-                    Debug.Log("Pushed score out!");
                 }
             }
             ModdedHighscoreManager.UpdateActiveScores();
             ModdedHighscoreManager.Save(); //resave our file
+        }
+    }
+
+    [HarmonyPatch(typeof(HighScoreManager))]
+    [HarmonyPatch("AddTripScore")]
+    internal class HighscoresAddTripScorePatch
+    {
+        static bool Prefix(out int rank)
+        {
+            rank = -1;
+            if (MTM101BaldiDevAPI.HighscoreHandler == SavedGameDataHandler.None || MTM101BaldiDevAPI.highscoreHandler == SavedGameDataHandler.Unset) return false;
+            return true;
+        }
+        static void Postfix(HighScoreManager __instance)
+        {
+            for (int x = 0; x < __instance.tripNames.GetLength(0); x++)
+            {
+                for (int y = 0; y < __instance.tripNames.GetLength(1); y++)
+                {
+                    ModdedHighscoreManager.tripNames[x, y] = __instance.tripNames[x, y];
+                }
+            }
+            for (int x = 0; x < __instance.tripScores.GetLength(0); x++)
+            {
+                for (int y = 0; y < __instance.tripScores.GetLength(1); y++)
+                {
+                    ModdedHighscoreManager.tripScores[x, y] = __instance.tripScores[x, y];
+                }
+            }
+            ModdedHighscoreManager.Save(); // i hate this i hate you. mystman12 i dont hate you but please fix the field trip score saving system this is A NIGHTMARE
         }
     }
 
@@ -96,6 +125,40 @@ namespace MTM101BaldAPI.Patches
             if (MTM101BaldiDevAPI.HighscoreHandler == SavedGameDataHandler.None || MTM101BaldiDevAPI.highscoreHandler == SavedGameDataHandler.Unset) return false;
             ModdedHighscoreManager.Load();
             return false;
+        }
+    }
+
+    [HarmonyPatch(typeof(OptionsMenu))]
+    [HarmonyPatch("ResetEndless")]
+    internal class OptionsMenuResetEndlessScores
+    {
+        static void Postfix(OptionsMenu __instance)
+        {
+            if (MTM101BaldiDevAPI.HighscoreHandler != SavedGameDataHandler.Modded) return;
+            for (int i = ModdedHighscoreManager.activeModdedScores.Count - 1; i >= 0; i--)
+            {
+                ModdedHighscoreManager.moddedScores.Remove(ModdedHighscoreManager.activeModdedScores[i]);
+                ModdedHighscoreManager.activeModdedScores.RemoveAt(i);
+                ModdedHighscoreManager.UpdateActiveScores();
+            }
+        }
+    }
+    [HarmonyPatch(typeof(OptionsMenu))]
+    [HarmonyPatch("ResetTrip")]
+    internal class OptionsMenuResetTripScores
+    {
+        static void Postfix(OptionsMenu __instance)
+        {
+            if (MTM101BaldiDevAPI.HighscoreHandler != SavedGameDataHandler.Modded) return;
+            for (int i = 0; i < 5; i++)
+            {
+                for (int j = 0; j < 16; j++)
+                {
+                    ModdedHighscoreManager.tripScores[j, i] = 0;
+                    ModdedHighscoreManager.tripNames[j, i] = "Baldi";
+                }
+            }
+            ModdedHighscoreManager.UpdateRealHighscoreManager();
         }
     }
 }
