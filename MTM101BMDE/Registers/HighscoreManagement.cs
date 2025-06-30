@@ -259,7 +259,7 @@ namespace MTM101BaldAPI.Registers
                     writer.Write(guidAndTag.Value.Length);
                     for (int j = 0; j < guidAndTag.Value.Length; j++)
                     {
-                        writer.Write(compStrings.IndexOf(guidAndTag.Value[i])); // write the tags
+                        writer.Write(compStrings.IndexOf(guidAndTag.Value[j])); // write the tags
                     }
                 }
             }
