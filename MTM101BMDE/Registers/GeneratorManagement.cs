@@ -66,6 +66,8 @@ namespace MTM101BaldAPI.Registers
     {
         private static Dictionary<BaseUnityPlugin, Dictionary<GenerationModType, Action<string, int, SceneObject>>> generationStuff = new Dictionary<BaseUnityPlugin, Dictionary<GenerationModType, Action<string, int, SceneObject>>>();
 
+        internal static List<SceneObject> queuedModdedScenes = new List<SceneObject>();
+
         /// <summary>
         /// Register a generator action, called during mod loading.
         /// </summary>
@@ -122,6 +124,17 @@ namespace MTM101BaldAPI.Registers
                 throw new Exception("Attempted to add duplicate field trip loot change!");
             }
             fieldtripLootChanges.Add(plug, action);
+        }
+
+        /// <summary>
+        /// This adds the specified SceneObject to the queue to be processed during the loading screen.
+        /// Only use this for custom SceneObjecst you create.
+        /// This will only work properly if called before the loading screen applies generator changes, aka not in post.
+        /// </summary>
+        public static void EnqueueGeneratorChanges(SceneObject sceneObj)
+        {
+            if (queuedModdedScenes.Contains(sceneObj)) return;
+            queuedModdedScenes.Add(sceneObj);
         }
 
         /// <summary>

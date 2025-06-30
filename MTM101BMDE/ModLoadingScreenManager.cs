@@ -195,7 +195,7 @@ namespace MTM101BaldAPI
                 return false;
             }).ToArray();
             FieldTripObject[] foundTrips = Resources.FindObjectsOfTypeAll<FieldTripObject>().Where(x => x.tripHub != null).ToArray(); // ignore junk
-            yield return (4 + objs.Length) + LoadingEvents.LoadingEventsPost.Count + LoadingEvents.LoadingEventsPre.Count + LoadingEvents.LoadingEventsStart.Count + foundTrips.Length;
+            yield return (5 + objs.Length) + LoadingEvents.LoadingEventsPost.Count + LoadingEvents.LoadingEventsPre.Count + LoadingEvents.LoadingEventsStart.Count + foundTrips.Length;
             for (int i = 0; i < LoadingEvents.LoadingEventsStart.Count; i++)
             {
                 LoadingEvents.LoadingEvent load = LoadingEvents.LoadingEventsStart[i];
@@ -242,6 +242,15 @@ namespace MTM101BaldAPI
                 MTM101BaldiDevAPI.Log.LogInfo(String.Format("Invoking SceneObject({0})({1}) Generation Changes!", obj.levelTitle, obj.name));
                 GeneratorManagement.Invoke(obj.levelTitle, obj.levelNo, obj);
             }
+            yield return "Changing modded SceneObjects...";
+            while (GeneratorManagement.queuedModdedScenes.Count > 0)
+            {
+                SceneObject obj = GeneratorManagement.queuedModdedScenes[0];
+                GeneratorManagement.queuedModdedScenes.RemoveAt(0);
+                MTM101BaldiDevAPI.Log.LogInfo(String.Format("Invoking SceneObject({0})({1}) Generation Changes!", obj.levelTitle, obj.name));
+                GeneratorManagement.Invoke(obj.levelTitle, obj.levelNo, obj);
+            }
+
             foreach (FieldTripObject trip in foundTrips)
             {
                 yield return "Changing " + trip.name + " loot...";
