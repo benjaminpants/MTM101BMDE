@@ -76,7 +76,7 @@ namespace MTM101BaldAPI
     public class CustomLevelObject : LevelObject
     {
 
-        private Dictionary<string, Dictionary<string, object>> customModDatas = new Dictionary<string, Dictionary<string, object>>();
+        internal Dictionary<string, Dictionary<string, object>> customModDatas = new Dictionary<string, Dictionary<string, object>>();
 
         public object GetCustomModValue(string modUUID, string key)
         {
