@@ -38,7 +38,8 @@ namespace MTM101BaldAPI
     {
         Vanilla,
         Modded,
-        None
+        None,
+        Unset
     }
 
     /// <summary>
@@ -50,12 +51,12 @@ namespace MTM101BaldAPI
         None=0,
     }
 
-    [BepInPlugin("mtm101.rulerp.bbplus.baldidevapi", "Baldi's Basics Plus Dev API", VersionNumber)]
+    [BepInPlugin(ModGUID, "Baldi's Basics Plus Dev API", VersionNumber)]
     public class MTM101BaldiDevAPI : BaseUnityPlugin
     {
         internal static ManualLogSource Log = new ManualLogSource("Baldi's Basics Plus Dev API Pre Initialization");
-
-        public const string VersionNumber = "7.0.1.1";
+        public const string ModGUID = "mtm101.rulerp.bbplus.baldidevapi";
+        public const string VersionNumber = "8.1.0.0";
 
         /// <summary>
         /// The version of the API, applicable when BepInEx cache messes up the version number.
@@ -80,7 +81,6 @@ namespace MTM101BaldAPI
         public static ItemMetaStorage itemMetadata = new ItemMetaStorage();
         public static NPCMetaStorage npcMetadata = new NPCMetaStorage();
         public static RandomEventMetaStorage randomEventStorage = new RandomEventMetaStorage();
-        public static SkyboxMetaStorage skyboxMeta = new SkyboxMetaStorage();
         public static SceneObjectMetaStorage sceneMeta = new SceneObjectMetaStorage();
 
         internal static AssetManager AssetMan = new AssetManager();
@@ -89,7 +89,7 @@ namespace MTM101BaldAPI
         {
             get
             {
-                return saveHandler != SavedGameDataHandler.None;
+                return (saveHandler != SavedGameDataHandler.None) && (saveHandler != SavedGameDataHandler.Unset);
             }
             set
             {
@@ -168,6 +168,7 @@ namespace MTM101BaldAPI
 
         internal static IntrusiveAPIFeatures intrusiveFeatures = IntrusiveAPIFeatures.None;
         internal static bool tooLateForGeneratorBasedFeatures = false;
+        internal FakeGameInit fakeInit;
 
         public static IntrusiveAPIFeatures EnabledFeatures
         {
@@ -225,7 +226,24 @@ namespace MTM101BaldAPI
             }
         }
 
+        public static SavedGameDataHandler HighscoreHandler
+        {
+            get
+            {
+                return highscoreHandler;
+            }
+            set
+            {
+                highscoreHandler = value;
+                if (Singleton<HighScoreManager>.Instance != null)
+                {
+                    Singleton<HighScoreManager>.Instance.Load();
+                }
+            }
+        }
+
         internal static SavedGameDataHandler saveHandler = SavedGameDataHandler.Vanilla;
+        internal static SavedGameDataHandler highscoreHandler = SavedGameDataHandler.Unset; // we actually want this to be None at first, as unlike with SavedGames, these don't get reloaded unless a score is achieved in vanilla.
 
         public static GameLoader gameLoader;
 
@@ -278,6 +296,12 @@ namespace MTM101BaldAPI
 
         internal void OnSceneUnload()
         {
+            // create the fake GameInitializer
+            GameObject fakeInitObject = new GameObject("FakeGameInitializer");
+            fakeInitObject.gameObject.SetActive(false);
+            DontDestroyOnLoad(fakeInitObject.gameObject);
+            fakeInit = fakeInitObject.AddComponent<FakeGameInit>();
+            // load the resources we need and stop the transition
             AssetMan.Add<CursorController>("cursorController", Resources.FindObjectsOfTypeAll<CursorController>().First(x => x.name == "CursorOrigin"));
             gameLoader = Resources.FindObjectsOfTypeAll<GameLoader>().First(x => x.GetInstanceID() >= 0);
             Singleton<GlobalCam>.Instance.StopCurrentTransition();
@@ -311,10 +335,18 @@ namespace MTM101BaldAPI
                         x.AddMeta(MTM101BaldiDevAPI.Instance, ItemFlags.Persists | ItemFlags.CreatesEntity);
                         break;
                     case Items.Boots:
-                        x.AddMeta(MTM101BaldiDevAPI.Instance, ItemFlags.Persists);
+                        x.AddMeta(MTM101BaldiDevAPI.Instance, ItemFlags.Persists).tags.Add("clothing");
                         break;
                     case Items.Teleporter:
                         x.AddMeta(MTM101BaldiDevAPI.Instance, ItemFlags.Persists).tags.Add("technology");
+                        break;
+                    case Items.ReachExtender:
+                        x.AddMeta(MTM101BaldiDevAPI.Instance, ItemFlags.Persists).tags.Add("clothing");
+                        break;
+                    case Items.InvisibilityElixir:
+                        ItemMetaData elixerMeta = x.AddMeta(MTM101BaldiDevAPI.Instance, ItemFlags.Persists);
+                        elixerMeta.tags.Add("food");
+                        elixerMeta.tags.Add("drink");
                         break;
                     case Items.Nametag:
                         x.AddMeta(MTM101BaldiDevAPI.Instance, ItemFlags.Persists);
@@ -407,6 +439,12 @@ namespace MTM101BaldAPI
             Resources.FindObjectsOfTypeAll<ItemObject>().Where(x => x.name.EndsWith("Tutorial")).Do(x =>
             {
                 ItemMetaData meta = ItemMetaStorage.Instance.FindByEnum(x.itemType);
+                if (meta == null)
+                {
+                    Logger.LogWarning("Item has tutorial variant but no meta?");
+                    Logger.LogWarning(x.name);
+                    return;
+                }
                 meta.flags |= ItemFlags.HasTutorialVariant;
                 if (x.itemType == Items.GrapplingHook)
                 {
@@ -484,9 +522,19 @@ namespace MTM101BaldAPI
                     case "MainLevel_5":
                         x.AddMeta(this, new string[] { "main", "found_on_main" });
                         break;
-                    case "EndlessRandomMedium":
-                    case "EndlessPremadeMedium":
+                    case "Endless_Factory_Medium":
+                    case "Endless_Factory_Large":
+                    case "Endless_Laboratory_Large":
+                    case "Endless_Laboratory_Medium":
+                    case "Endless_Maintenance_Large":
+                    case "Endless_Maintenance_Medium":
+                    case "Endless_Schoolhouse_Large":
+                    case "Endless_Schoolhouse_Medium":
+                    case "Endless_Schoolhouse_Small":
                         x.AddMeta(this, new string[] { "endless" });
+                        break;
+                    case "EndlessPremadeMedium": // mystman12 left this here so i need to add meta
+                        x.AddMeta(this, new string[] { "endless", "unused" });
                         break;
                     case "PlaceholderEnding":
                         x.AddMeta(this, new string[] { "ending", "found_on_main" });
@@ -513,10 +561,6 @@ namespace MTM101BaldAPI
                         break;
                 }
             });
-
-            Cubemap[] cubemaps = Resources.FindObjectsOfTypeAll<Cubemap>();
-            skyboxMeta.Add(new SkyboxMetadata(Info, cubemaps.Where(x => x.name == "Cubemap_DayStandard").First(), Color.white));
-            skyboxMeta.Add(new SkyboxMetadata(Info, cubemaps.Where(x => x.name == "Cubemap_Twilight").First(), Color.white /*new Color(239f / 255f, 188f / 255f, 162f / 255f)*/));
 
             MTM101BaldiDevAPI.CalledInitialize = true;
 
@@ -675,6 +719,8 @@ namespace MTM101BaldAPI
                 img.rectTransform.anchorMax = new Vector2(0f,1f);
             }
 
+            // setup loading for default crazy machines
+
         }
 
         internal void ConvertAllLevelObjects()
@@ -712,17 +758,6 @@ namespace MTM101BaldAPI
                 objct.levelObject.MarkAsNeverUnload();
                 objct.MarkAsNeverUnload();
             }
-            // previous levels is unused and doesn't need to be properly carried over
-            /*
-            foreach (KeyValuePair<LevelObject,CustomLevelObject> kvp in oldToNewMapping)
-            {
-                kvp.Value.previousLevels = new LevelObject[kvp.Key.previousLevels.Length];
-                // remap the old previousLevels to the new one.
-                for (int i = 0; i < kvp.Key.previousLevels.Length; i++)
-                {
-                    kvp.Value.previousLevels[i] = oldToNewMapping[kvp.Key.previousLevels[i]];
-                }
-            }*/
             // destroy the old objects (do this in a seperate loop so we can preserve the keys until the very end
             foreach (KeyValuePair<LevelObject, CustomLevelObject> kvp in oldToNewMapping)
             {
@@ -787,7 +822,7 @@ PRESS ALT+F4 TO EXIT THE GAME.
             CustomOptionsCore.OnMenuInitialize += SaveManagerMenu.MenuHook;
             Instance = this;
 
-            Harmony harmony = new Harmony("mtm101.rulerp.bbplus.baldidevapi");
+            Harmony harmony = new Harmony(MTM101BaldiDevAPI.ModGUID);
 
             ModdedSaveSystem.AddSaveLoadAction(this, (bool isSave, string myPath) =>
             {
@@ -825,12 +860,6 @@ PRESS ALT+F4 TO EXIT THE GAME.
             {
                 AddWarningScreen("Old Audio Loading is <b>on!</b>\nYou should not need this anymore as of API 4.0!\nTurn it off, and if mods are still broken, report it to MTM101!", false);
             }
-
-            //handled by the patch system so i do not need to check it
-            Config.Bind("Generator",
-                "Enable Skybox Patches",
-                true,
-                "Whether or not outdoors areas will have different light colors depending on the skybox used. Only disable for legacy mods.");
 
             alwaysModdedSave = Config.Bind("General",
                 "Always Use Modded Save System",

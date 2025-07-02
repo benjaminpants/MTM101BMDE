@@ -1,12 +1,22 @@
 ﻿using BepInEx;
+using HarmonyLib;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using System.Text;
 using UnityEngine;
 
 namespace MTM101BaldAPI
 {
+
+    internal class FakeGameInit : GameInitializer
+    {
+        public override void Initialize()
+        {
+            // how about NO
+        }
+    }
 
     public static class CustomLevelObjectExtensions
     {
@@ -37,6 +47,26 @@ namespace MTM101BaldAPI
 
             return levelObjects.ToArray();
         }
+
+
+        readonly static FieldInfo _sceneObject = AccessTools.Field(typeof(GameInitializer), "sceneObject");
+        readonly static MethodInfo _GetControlledRandomLevelData = AccessTools.Method(typeof(GameInitializer), "GetControlledRandomLevelData");
+
+        /// <summary>
+        /// Returns the current level object for the specified SceneObject
+        /// CoreGameManager MUST exist for this to not return null.
+        /// </summary>
+        /// <param name="me"></param>
+        /// <returns></returns>
+        public static CustomLevelObject GetCurrentCustomLevelObject(this SceneObject me)
+        {
+            if (Singleton<CoreGameManager>.Instance == null) return null;
+            if (me.randomizedLevelObject.Length == 0) return (CustomLevelObject)me.levelObject;
+            FakeGameInit fInit = MTM101BaldiDevAPI.Instance.fakeInit;
+            _sceneObject.SetValue(fInit, me);
+            CustomLevelObject clm = (CustomLevelObject)_GetControlledRandomLevelData.Invoke(fInit, null);
+            return clm;
+        }
     }
 
 
@@ -46,7 +76,7 @@ namespace MTM101BaldAPI
     public class CustomLevelObject : LevelObject
     {
 
-        private Dictionary<string, Dictionary<string, object>> customModDatas = new Dictionary<string, Dictionary<string, object>>();
+        internal Dictionary<string, Dictionary<string, object>> customModDatas = new Dictionary<string, Dictionary<string, object>>();
 
         public object GetCustomModValue(string modUUID, string key)
         {

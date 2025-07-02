@@ -130,7 +130,15 @@ namespace MTM101BaldAPI
             {
                 if (numerator.Current.GetType() != typeof(string))
                 {
-                    yield return numerator.Current;
+                    // in the rare case we genuinely can not predict what will happen next (LootTables...)
+                    if (numerator.Current.GetType() == typeof(int))
+                    {
+                        maxSteps += (int)numerator.Current;
+                    }
+                    else
+                    {
+                        yield return numerator.Current;
+                    }
                 }
                 else
                 {
@@ -187,7 +195,7 @@ namespace MTM101BaldAPI
                 return false;
             }).ToArray();
             FieldTripObject[] foundTrips = Resources.FindObjectsOfTypeAll<FieldTripObject>().Where(x => x.tripHub != null).ToArray(); // ignore junk
-            yield return (3 + objs.Length) + LoadingEvents.LoadingEventsPost.Count + LoadingEvents.LoadingEventsPre.Count + LoadingEvents.LoadingEventsStart.Count + foundTrips.Length;
+            yield return (5 + objs.Length) + LoadingEvents.LoadingEventsPost.Count + LoadingEvents.LoadingEventsPre.Count + LoadingEvents.LoadingEventsStart.Count + foundTrips.Length;
             for (int i = 0; i < LoadingEvents.LoadingEventsStart.Count; i++)
             {
                 LoadingEvents.LoadingEvent load = LoadingEvents.LoadingEventsStart[i];
@@ -216,7 +224,7 @@ namespace MTM101BaldAPI
                 {
                     if (!(obj.levelObject is CustomLevelObject))
                     {
-                        MTM101BaldiDevAPI.Log.LogWarning(String.Format("Can't invoke SceneObject({0})({2}) Generation Changes for {1}! Not a CustomLevelObject!", obj.levelTitle, obj.levelObject.ToString(), obj.levelNo.ToString()));
+                        MTM101BaldiDevAPI.Log.LogWarning(String.Format("Can't invoke SceneObject({0})({2}) Generation Changes for {1}! Not a CustomLevelObject!", obj.levelTitle, obj.levelObject.ToString(), obj.name));
                         continue;
                     }
                 }
@@ -226,14 +234,23 @@ namespace MTM101BaldAPI
                     {
                         if (!(obj.randomizedLevelObject[i].selection is CustomLevelObject))
                         {
-                            MTM101BaldiDevAPI.Log.LogWarning(String.Format("Can't invoke SceneObject({0})({2}) Generation Changes for {1}! Not a CustomLevelObject!", obj.levelTitle, obj.randomizedLevelObject[i].selection.ToString(), obj.levelNo.ToString()));
+                            MTM101BaldiDevAPI.Log.LogWarning(String.Format("Can't invoke SceneObject({0})({2}) Generation Changes for {1}! Not a CustomLevelObject!", obj.levelTitle, obj.randomizedLevelObject[i].selection.ToString(), obj.name));
                             continue;
                         }
                     }
                 }
-                MTM101BaldiDevAPI.Log.LogInfo(String.Format("Invoking SceneObject({0})({1}) Generation Changes!", obj.levelTitle, obj.levelNo.ToString()));
+                MTM101BaldiDevAPI.Log.LogInfo(String.Format("Invoking SceneObject({0})({1}) Generation Changes!", obj.levelTitle, obj.name));
                 GeneratorManagement.Invoke(obj.levelTitle, obj.levelNo, obj);
             }
+            yield return "Changing modded SceneObjects...";
+            while (GeneratorManagement.queuedModdedScenes.Count > 0)
+            {
+                SceneObject obj = GeneratorManagement.queuedModdedScenes[0];
+                GeneratorManagement.queuedModdedScenes.RemoveAt(0);
+                MTM101BaldiDevAPI.Log.LogInfo(String.Format("Invoking SceneObject({0})({1}) Generation Changes!", obj.levelTitle, obj.name));
+                GeneratorManagement.Invoke(obj.levelTitle, obj.levelNo, obj);
+            }
+
             foreach (FieldTripObject trip in foundTrips)
             {
                 yield return "Changing " + trip.name + " loot...";
@@ -256,6 +273,19 @@ namespace MTM101BaldAPI
             }
             yield return "Reloading Localization...";
             Singleton<LocalizationManager>.Instance.ReflectionInvoke("Start", null);
+            yield return "Reloading highscores...";
+            if (MTM101BaldiDevAPI.highscoreHandler == SavedGameDataHandler.Unset)
+            {
+                if (ModdedHighscoreManager.tagList.Count > 0)
+                {
+                    MTM101BaldiDevAPI.highscoreHandler = SavedGameDataHandler.Modded;
+                }
+                else
+                {
+                    MTM101BaldiDevAPI.highscoreHandler = SavedGameDataHandler.Vanilla;
+                }
+            }
+            Singleton<HighScoreManager>.Instance.Load(); //reload
             yield break;
         }
 

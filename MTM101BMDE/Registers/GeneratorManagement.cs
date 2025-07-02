@@ -3,6 +3,7 @@ using HarmonyLib;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using System.Text;
 
 namespace MTM101BaldAPI.Registers
@@ -46,9 +47,26 @@ namespace MTM101BaldAPI.Registers
         public List<ItemObject> guaranteedItems;
     }
 
+    /// <summary>
+    /// A helper class used for easy modification of WeightedItemObject arrays and lists during the mod loading phase.
+    /// </summary>
+    public class CustomLoot
+    {
+        public List<WeightedItemObject> potentialItems;
+    }
+
+    public enum DefaultCustomLoot
+    {
+        CrazyVendingMachines,
+        MysteryRoom,
+        PartyEvent
+    }
+
     public static class GeneratorManagement
     {
         private static Dictionary<BaseUnityPlugin, Dictionary<GenerationModType, Action<string, int, SceneObject>>> generationStuff = new Dictionary<BaseUnityPlugin, Dictionary<GenerationModType, Action<string, int, SceneObject>>>();
+
+        internal static List<SceneObject> queuedModdedScenes = new List<SceneObject>();
 
         /// <summary>
         /// Register a generator action, called during mod loading.
@@ -67,6 +85,32 @@ namespace MTM101BaldAPI.Registers
 
         internal static Dictionary<BaseUnityPlugin, Action<FieldTrips, FieldTripLoot>> fieldtripLootChanges = new Dictionary<BaseUnityPlugin, Action<FieldTrips, FieldTripLoot>>();
 
+        static readonly FieldInfo _potentialItems = AccessTools.Field(typeof(FieldTripBaseRoomFunction), "potentialItems");
+        static readonly FieldInfo _guaranteedItems = AccessTools.Field(typeof(FieldTripBaseRoomFunction), "guaranteedItems");
+        /// <summary>
+        /// Invoke FieldTrip loot table changes for the specified field trip.
+        /// </summary>
+        /// <param name="trip"></param>
+        public static void InvokeFieldTripLootChange(FieldTripObject trip)
+        {
+            FieldTripBaseRoomFunction roomFunction = trip.tripHub.room.roomFunctionContainer.GetComponent<FieldTripBaseRoomFunction>();
+            FieldTripLoot tripLoot = new FieldTripLoot();
+            tripLoot.potentialItems = ((WeightedItemObject[])_potentialItems.GetValue(roomFunction)).ToList();
+            tripLoot.guaranteedItems = ((List<ItemObject>)_guaranteedItems.GetValue(roomFunction)).ToList();
+            foreach (KeyValuePair<BaseUnityPlugin, Action<FieldTrips, FieldTripLoot>> kvp in fieldtripLootChanges)
+            {
+                kvp.Value.Invoke(trip.trip, tripLoot);
+            }
+            if (fieldtripLootChanges.Count > 0)
+            {
+                trip.MarkAsNeverUnload();
+                trip.tripHub.room.MarkAsNeverUnload();
+                trip.tripHub.room.roomFunctionContainer.MarkAsNeverUnload();
+            }
+            _potentialItems.SetValue(roomFunction, tripLoot.potentialItems.ToArray());
+            _guaranteedItems.SetValue(roomFunction, tripLoot.guaranteedItems.ToList());
+        }
+
         /// <summary>
         /// Register an action that will be called to modify the field trip loot during mod loading.
         /// Unlike registering a generator action, you can only register one of these.
@@ -80,6 +124,17 @@ namespace MTM101BaldAPI.Registers
                 throw new Exception("Attempted to add duplicate field trip loot change!");
             }
             fieldtripLootChanges.Add(plug, action);
+        }
+
+        /// <summary>
+        /// This adds the specified SceneObject to the queue to be processed during the loading screen.
+        /// Only use this for custom SceneObjecst you create.
+        /// This will only work properly if called before the loading screen applies generator changes, aka not in post.
+        /// </summary>
+        public static void EnqueueGeneratorChanges(SceneObject sceneObj)
+        {
+            if (queuedModdedScenes.Contains(sceneObj)) return;
+            queuedModdedScenes.Add(sceneObj);
         }
 
         /// <summary>

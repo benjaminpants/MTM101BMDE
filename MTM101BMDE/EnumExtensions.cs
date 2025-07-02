@@ -59,7 +59,6 @@ namespace MTM101BaldAPI
 			if (!ExtendedData.TryGetValue(typeof(T), out ExtendedEnumData dat))
 			{
 				dat = new ExtendedEnumData(256); //Just so nothing conflicts and mods don't break when the game updates. If this becomes problematic let me know, I'll suffer but I will try to fix it.
-                //dat.valueOffset = Enum.GetNames(typeof(T)).Length - 1;
                 ExtendedData.Add(typeof(T),dat);
             }
             if (dat.Enums.Contains(extendName))

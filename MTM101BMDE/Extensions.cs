@@ -174,7 +174,7 @@ namespace MTM101BaldAPI
         }
 
         /// <summary>
-        /// Applies the StandardDoorMats materials to the specified StandardDoor, optionally changing the mask.
+        /// Applies the StandardDoorMats materials to both sides of the specified StandardDoor, optionally changing the mask.
         /// </summary>
         /// <param name="me"></param>
         /// <param name="materials"></param>
@@ -191,6 +191,84 @@ namespace MTM101BaldAPI
                 me.mask[1] = mask;
             }
             me.UpdateTextures();
+        }
+
+        /// <summary>
+        /// Applies the StandardDoorMats materials to the specified StandardDoor, optionally changing the mask.
+        /// </summary>
+        /// <param name="me"></param>
+        /// <param name="materials"></param>
+        /// <param name="mask"></param>
+        /// <param name="side">The index into overlayShut and overlayOpen to use</param>
+        public static void ApplyDoorMaterialsToSide(this StandardDoor me, int side, StandardDoorMats materials, Material mask = null)
+        {
+            me.overlayShut[side] = materials.shut;
+            me.overlayOpen[side] = materials.open;
+            if (mask != null)
+            {
+                me.mask[side] = mask;
+            }
+            me.UpdateTextures();
+        }
+
+        /// <summary>
+        /// Replaces the specified component types.
+        /// An example of a use case is duplicating an already existing item prefab and making it use your version of the script.
+        /// </summary>
+        /// <typeparam name="SwapFrom"></typeparam>
+        /// <typeparam name="SwapTo"></typeparam>
+        /// <param name="me"></param>
+        /// <param name="swapReferencesOnSameObject"></param>
+        /// <returns></returns>
+        public static SwapTo SwapComponent<SwapFrom, SwapTo>(this GameObject me, bool swapReferencesOnSameObject = false) where SwapTo : SwapFrom
+            where SwapFrom : MonoBehaviour
+        {
+            return me.SwapComponent<SwapFrom, SwapTo>(me.GetComponent<SwapFrom>(), swapReferencesOnSameObject);
+        }
+
+        /// <summary>
+        /// Replaces the specified component one with the SwapTo
+        /// An example of a use case is duplicating an already existing item prefab and making it use your version of the script.
+        /// </summary>
+        /// <typeparam name="SwapFrom">The type we are replacing</typeparam>
+        /// <typeparam name="SwapTo">The target type</typeparam>
+        /// <param name="me"></param>
+        /// <param name="component"></param>
+        /// <param name="swapReferencesOnSameObject">Whether fields referencing component will get swapped for our new component.</param>
+        /// <returns></returns>
+        public static SwapTo SwapComponent<SwapFrom, SwapTo>(this GameObject me, SwapFrom component, bool swapReferencesOnSameObject = false) where SwapTo : SwapFrom
+            where SwapFrom : MonoBehaviour
+        {
+            List<Component> objectsToChange = new List<Component>();
+            List<FieldInfo> fieldsToChange = new List<FieldInfo>();
+            if (swapReferencesOnSameObject)
+            {
+                Component[] components = me.GetComponents<Component>();
+                for (int i = 0; i < components.Length; i++)
+                {
+                    FieldInfo[] infos = components[i].GetType().GetFields(BindingFlags.Public | BindingFlags.Instance | BindingFlags.NonPublic);
+                    for (int j = 0; j < infos.Length; j++)
+                    {
+                        if (infos[j].GetValue(components[i]) == component)
+                        {
+                            objectsToChange.Add(components[i]);
+                            fieldsToChange.Add(infos[j]);
+                        }
+                    }
+                }
+            }
+            SwapTo result = me.AddComponent<SwapTo>();
+            FieldInfo[] compInfos = typeof(SwapFrom).GetFields(BindingFlags.Public | BindingFlags.Instance | BindingFlags.NonPublic);
+            for (int i = 0; i < compInfos.Length; i++)
+            {
+                compInfos[i].SetValue(result, compInfos[i].GetValue(component));
+            }
+            for (int i = 0; i < fieldsToChange.Count; i++)
+            {
+                fieldsToChange[i].SetValue(objectsToChange[i], result);
+            }
+            UnityEngine.Object.Destroy(component);
+            return result;
         }
     }
 }

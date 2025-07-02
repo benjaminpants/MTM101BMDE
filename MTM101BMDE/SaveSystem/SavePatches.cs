@@ -11,6 +11,9 @@ namespace MTM101BaldAPI.SaveSystem
     public static class ModdedSaveSystem
     {
         private static Dictionary<BaseUnityPlugin, Action<bool, string>> saveLoadActions = new Dictionary<BaseUnityPlugin, Action<bool, string>>();
+        private static Dictionary<BaseUnityPlugin, Action<bool, string>> unmanagedSaveLoadActions = new Dictionary<BaseUnityPlugin, Action<bool, string>>();
+
+        public const string UnmanagedFolderName = "!Unmanaged";
 
         /// <summary>
         /// Allows you to add an action to be called when the game saves and loads, please only use this system if you plan to save data.
@@ -24,14 +27,33 @@ namespace MTM101BaldAPI.SaveSystem
             saveLoadActions.Add(p,act);
         }
 
+        /// <summary>
+        /// Allows you to add an action to be called when the game saves and loads, please only use this system if you plan to save data.
+        /// Unlike AddSaveLoadAction, Unmanaged SaveLoad actions are all given the same directory regardless of who is playing.
+        /// The first value passed to the action is whether or not its saving (true if saving, false if loading)
+        /// The second is the path allocated to your mod to save your modded save data
+        /// </summary>
+        /// <param name="p"></param>
+        /// <param name="act"></param>
+        public static void AddUnmanagedSaveLoadAction(BaseUnityPlugin p, Action<bool, string> act)
+        {
+            unmanagedSaveLoadActions.Add(p, act);
+        }
+
         internal static void CallSaveLoadAction(PlayerFileManager instance, bool isSave)
         {
             string fName = instance.fileName;
             foreach (KeyValuePair<BaseUnityPlugin, Action<bool, string>> kvp in saveLoadActions)
             {
                 string curPath = GetSaveFolder(kvp.Key,fName);
-                Directory.CreateDirectory(curPath); // why would you use this system instead of just directly patching the save system if you didn't plan to put something here
-                kvp.Value.Invoke(isSave, curPath); // this used to only be called if there already was data. that is stupid.
+                Directory.CreateDirectory(curPath);
+                kvp.Value.Invoke(isSave, curPath);
+            }
+            foreach (KeyValuePair<BaseUnityPlugin, Action<bool, string>> kvp in unmanagedSaveLoadActions)
+            {
+                string curPath = GetSaveFolder(kvp.Key, UnmanagedFolderName);
+                Directory.CreateDirectory(curPath);
+                kvp.Value.Invoke(isSave, curPath);
             }
         }
 

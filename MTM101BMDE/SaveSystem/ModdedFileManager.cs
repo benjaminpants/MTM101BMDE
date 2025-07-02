@@ -56,6 +56,10 @@ namespace MTM101BaldAPI.SaveSystem
             _cgmbackupItems.SetValue(Singleton<CoreGameManager>.Instance,backupItems); //not sure if necessary.
             _cgmbackupLockerItems.SetValue(Singleton<CoreGameManager>.Instance, backupLockerItems);
             _cgmrestoreItemsOnSpawn.SetValue(Singleton<CoreGameManager>.Instance, true);
+            Singleton<CoreGameManager>.Instance.timeLimitChallenge = savedGameData.timeLimitChallenge;
+            Singleton<CoreGameManager>.Instance.mapChallenge = savedGameData.mapChallenge;
+            Singleton<CoreGameManager>.Instance.inventoryChallenge = savedGameData.inventoryChallenge;
+            Singleton<CoreGameManager>.Instance.lifeMode = savedGameData.lifeMode;
         }
 
         public void RegenerateTags()
