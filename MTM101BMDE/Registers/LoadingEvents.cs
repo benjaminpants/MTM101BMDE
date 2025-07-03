@@ -150,6 +150,7 @@ namespace MTM101BaldAPI.Registers
         /// </summary>
         /// <param name="info"></param>
         /// <param name="enumerator"></param>
+        [Obsolete("Please use RegisterOnAssetsLoaded with LoadingEventOrder of 'Start'!")]
         public static void RegisterOnLoadingScreenStart(PluginInfo info, IEnumerator enumerator)
         {
             RegisterOnAssetsLoaded(info, enumerator, LoadingEventOrder.Start);
