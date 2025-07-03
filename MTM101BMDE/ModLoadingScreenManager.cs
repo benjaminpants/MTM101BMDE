@@ -195,7 +195,7 @@ namespace MTM101BaldAPI
                 return false;
             }).ToArray();
             FieldTripObject[] foundTrips = Resources.FindObjectsOfTypeAll<FieldTripObject>().Where(x => x.tripHub != null).ToArray(); // ignore junk
-            yield return (5 + objs.Length) + LoadingEvents.LoadingEventsPost.Count + LoadingEvents.LoadingEventsPre.Count + LoadingEvents.LoadingEventsStart.Count + foundTrips.Length;
+            yield return (5 + objs.Length) + LoadingEvents.LoadingEventsPost.Count + LoadingEvents.LoadingEventsPre.Count + LoadingEvents.LoadingEventsStart.Count + foundTrips.Length + LoadingEvents.LoadingEventsFinal.Count;
             for (int i = 0; i < LoadingEvents.LoadingEventsStart.Count; i++)
             {
                 LoadingEvents.LoadingEvent load = LoadingEvents.LoadingEventsStart[i];
@@ -286,6 +286,13 @@ namespace MTM101BaldAPI
                 }
             }
             Singleton<HighScoreManager>.Instance.Load(); //reload
+            for (int i = 0; i < LoadingEvents.LoadingEventsFinal.Count; i++)
+            {
+                LoadingEvents.LoadingEvent load = LoadingEvents.LoadingEventsFinal[i];
+                modIdText.text = load.info.Metadata.GUID;
+                yield return "Invoking Mod Asset Finalizing... (" + i + "/" + LoadingEvents.LoadingEventsFinal.Count + ")";
+                yield return BeginLoadEnumerator(load.loadingNumerator, modLoadingBar, modLoadText);
+            }
             yield break;
         }
 
