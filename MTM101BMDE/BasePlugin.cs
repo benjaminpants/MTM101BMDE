@@ -902,7 +902,7 @@ PRESS ALT+F4 TO EXIT THE GAME.
             //set window title
             if (allowWindowTitleChange.Value)
             {
-                WindowTitle.SetText(Application.productName + " " + Application.version + " (Modded) | API " + VersionNumber);
+                WindowTitle.SetText(Application.productName + " (Modded)");
             }
         }
     }

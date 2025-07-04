@@ -202,7 +202,7 @@ namespace MTM101BaldAPI
                 modList[i].transform.SetParent(mainScreen.transform, false);
             }
 
-            warnText = CreateText("WarningText", "Deleting a saved game <i>CANNOT</i> be undone!\nAre you sure?", Vector2.down * 25f, BaldiFonts.ComicSans24, TextAlignmentOptions.Top, new Vector2(300f, 150f), Color.red, false);
+            warnText = CreateText("WarningText", "Deleting a saved game <i>CANNOT</i> be undone!\nAre you sure?", Vector2.down * 5f, BaldiFonts.ComicSans24, TextAlignmentOptions.Top, new Vector2(300f, 150f), Color.red, false);
             StandardMenuButton yesButton = CreateTextButton(() => { currentConfirmAction(); }, "YesButton", "<b>YES", new Vector2(-75f, -100f), BaldiFonts.ComicSans24, TextAlignmentOptions.Center, new Vector2(82f, 32f), Color.black);
             StandardMenuButton noButton = CreateTextButton(() => { SwitchToMain(true); }, "NoButton", "<b>NO", new Vector2(75f, -100f), BaldiFonts.ComicSans24, TextAlignmentOptions.Center, new Vector2(82f, 32f), Color.black);
 
@@ -215,8 +215,14 @@ namespace MTM101BaldAPI
 
         internal static void MenuHook(OptionsMenu __instance, CustomOptionsHandler handler)
         {
-            if (MTM101BaldiDevAPI.SaveGamesHandler != SavedGameDataHandler.Modded) return;
-            handler.AddCategory<SaveManagerMenu>("Modded\nSaved Games");
+            if (MTM101BaldiDevAPI.SaveGamesHandler == SavedGameDataHandler.Modded)
+            {
+                handler.AddCategory<SaveManagerMenu>("Modded\nSaved Games");
+            }
+            if (MTM101BaldiDevAPI.HighscoreHandler == SavedGameDataHandler.Modded)
+            {
+                handler.AddCategory<ModdedHighscoreMenu>("Modded\nHighscores");
+            }
         }
     }
 }

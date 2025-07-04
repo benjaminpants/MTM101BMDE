@@ -129,4 +129,50 @@ namespace MTM101BaldAPI.SaveSystem
             ModdedSaveSystem.DeleteFile(__instance, deleteName);
         }
     }
+
+    // protect save games from some places I missed
+
+    [HarmonyPatch(typeof(MainGameManager))]
+    [HarmonyPatch("BeginPlay")]
+    class MainBeginPlayPatch
+    {
+        static void Prefix(out bool? __state)
+        {
+            if (MTM101BaldiDevAPI.saveHandler == SavedGameDataHandler.Modded)
+            {
+                __state = Singleton<PlayerFileManager>.Instance.savedGameData.saveAvailable;
+                return;
+            }
+            __state = null;
+        }
+
+        static void Postfix(bool? __state)
+        {
+            if (__state == null) return;
+            Singleton<PlayerFileManager>.Instance.savedGameData.saveAvailable = __state.Value;
+            Singleton<PlayerFileManager>.Instance.Save();
+        }
+    }
+
+    [HarmonyPatch(typeof(PlaceholderWinManager))]
+    [HarmonyPatch("BeginPlay")]
+    class WinBeginPlayPatch
+    {
+        static void Prefix(out bool? __state)
+        {
+            if (MTM101BaldiDevAPI.saveHandler == SavedGameDataHandler.Modded)
+            {
+                __state = Singleton<PlayerFileManager>.Instance.savedGameData.saveAvailable;
+                return;
+            }
+            __state = null;
+        }
+
+        static void Postfix(bool? __state)
+        {
+            if (__state == null) return;
+            Singleton<PlayerFileManager>.Instance.savedGameData.saveAvailable = __state.Value;
+            Singleton<PlayerFileManager>.Instance.Save();
+        }
+    }
 }
