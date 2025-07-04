@@ -73,6 +73,8 @@ namespace MTM101BaldAPI
         internal ConfigEntry<bool> ignoringTagDisplays;
         internal ConfigEntry<bool> attemptOnline;
         internal ConfigEntry<bool> alwaysModdedSave;
+        internal ConfigEntry<bool> useOldAudioLoad;
+        internal ConfigEntry<bool> allowWindowTitleChange;
 
         internal Sprite[] questionMarkSprites;
 
@@ -80,8 +82,6 @@ namespace MTM101BaldAPI
         public static NPCMetaStorage npcMetadata = new NPCMetaStorage();
         public static RandomEventMetaStorage randomEventStorage = new RandomEventMetaStorage();
         public static SceneObjectMetaStorage sceneMeta = new SceneObjectMetaStorage();
-
-        internal ConfigEntry<bool> useOldAudioLoad;
 
         internal static AssetManager AssetMan = new AssetManager();
 
@@ -846,6 +846,11 @@ PRESS ALT+F4 TO EXIT THE GAME.
                 false,
                 "Whether or not the old legacy method of loading audio should be used. Do not turn on as it is not needed anymore.");
 
+            allowWindowTitleChange = Config.Bind("Technical",
+                "Allow Window Title Change",
+                true,
+                "Allow the API to change the game's window title to reflect the fact that it's been modded.");
+
             usingMidiFix = Config.Bind("Technical",
                 "Use Midi Fix",
                 true,
@@ -892,6 +897,12 @@ PRESS ALT+F4 TO EXIT THE GAME.
             if (attemptOnline.Value)
             {
                 StartCoroutine(GetCurrentGamebananaVersion());
+            }
+
+            //set window title
+            if (allowWindowTitleChange.Value)
+            {
+                WindowTitle.SetText(Application.productName + " " + Application.version + " (Modded) | API " + VersionNumber);
             }
         }
     }
