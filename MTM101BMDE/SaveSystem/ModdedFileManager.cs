@@ -28,6 +28,7 @@ namespace MTM101BaldAPI.SaveSystem
             ModdedSaveGame savedGameData = saveData;
             Singleton<CoreGameManager>.Instance.SetSeed(savedGameData.seed);
             Singleton<CoreGameManager>.Instance.SetLives(savedGameData.lives, true);
+            Singleton<CoreGameManager>.Instance.SetAttempts(savedGameData.attempts);
             Singleton<CoreGameManager>.Instance.AddPoints(savedGameData.ytps, 0, false, false);
             Singleton<CoreGameManager>.Instance.tripPlayed = savedGameData.fieldTripPlayed;
             Singleton<CoreGameManager>.Instance.johnnyHelped = savedGameData.johnnyHelped;
