@@ -849,7 +849,7 @@ PRESS ALT+F4 TO EXIT THE GAME.
             allowWindowTitleChange = Config.Bind("Technical",
                 "Allow Window Title Change",
                 true,
-                "Allow the API to change the game's window title to reflect the fact that it's been modded.");
+                "Allow the API to change the game's window title to reflect the fact that it's been modded.\nOnly works on Windows systems.");
 
             usingMidiFix = Config.Bind("Technical",
                 "Use Midi Fix",
@@ -900,10 +900,7 @@ PRESS ALT+F4 TO EXIT THE GAME.
             }
 
             //set window title
-            if (allowWindowTitleChange.Value)
-            {
-                WindowTitle.SetText(Application.productName + " (Modded)");
-            }
+            WindowTitle.SetText(Application.productName + " (Modded)");
         }
     }
 
