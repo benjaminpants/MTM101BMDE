@@ -900,7 +900,8 @@ PRESS ALT+F4 TO EXIT THE GAME.
             }
 
             //set window title
-            WindowTitle.SetText(Application.productName + " (Modded)");
+            if (MTM101BaldiDevAPI.Instance.allowWindowTitleChange.Value)
+                WindowTitle.SetText(Application.productName + " (Modded)");
         }
     }
 

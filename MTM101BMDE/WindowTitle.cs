@@ -43,7 +43,7 @@ namespace MTM101BaldAPI
             if (!osChecked)
             {
                 osChecked = true;
-                enabled = RuntimeInformation.IsOSPlatform(OSPlatform.Windows) && MTM101BaldiDevAPI.Instance.allowWindowTitleChange.Value;
+                enabled = RuntimeInformation.IsOSPlatform(OSPlatform.Windows);
             }
             if (enabled)
                 SetTextInternal(text);
