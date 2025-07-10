@@ -1,11 +1,9 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Runtime.InteropServices;
-using System.Text;
 
 namespace MTM101BaldAPI
 {
-    public class WindowTitle
+    public static class WindowTitle
     {
         private delegate bool EnumThreadDelegate(IntPtr hwnd, IntPtr lParam);
 
@@ -30,11 +28,25 @@ namespace MTM101BaldAPI
         [DllImport("user32.dll", EntryPoint = "SetWindowText")]
         private static extern bool SetWindowText(System.IntPtr hwnd, System.String lpString);
 
-        //SET FUNCTION
-        public static void SetText(string text)
+        private static void SetTextInternal(string text)
         {
             System.IntPtr handle = GetWindowHandle();
             SetWindowText(handle, text);
+        }
+
+        private static bool osChecked = false;
+        private static bool enabled;
+
+        //SET FUNCTION
+        public static void SetText(string text)
+        {
+            if (!osChecked)
+            {
+                osChecked = true;
+                enabled = RuntimeInformation.IsOSPlatform(OSPlatform.Windows);
+            }
+            if (enabled)
+                SetTextInternal(text);
         }
     }
 }
