@@ -56,7 +56,7 @@ namespace MTM101BaldAPI
     {
         internal static ManualLogSource Log = new ManualLogSource("Baldi's Basics Plus Dev API Pre Initialization");
         public const string ModGUID = "mtm101.rulerp.bbplus.baldidevapi";
-        public const string VersionNumber = "8.1.0.1";
+        public const string VersionNumber = "8.2.0.0";
 
         /// <summary>
         /// The version of the API, applicable when BepInEx cache messes up the version number.
@@ -725,7 +725,8 @@ namespace MTM101BaldAPI
 
         internal void ConvertAllLevelObjects()
         {
-            SceneObject[] sceneObjects = Resources.FindObjectsOfTypeAll<SceneObject>();
+            List<SceneObject> sceneObjects = Resources.FindObjectsOfTypeAll<SceneObject>().ToList();
+            sceneObjects.Sort((a, b) => a.name.StartsWith("Endless").CompareTo(b.name.StartsWith("Endless")));
             Dictionary<LevelObject, CustomLevelObject> oldToNewMapping = new Dictionary<LevelObject, CustomLevelObject>();
             foreach (SceneObject objct in sceneObjects)
             {
@@ -735,16 +736,33 @@ namespace MTM101BaldAPI
                     for (int i = 0; i < objct.randomizedLevelObject.Length; i++)
                     {
                         WeightedLevelObject curWeighted = objct.randomizedLevelObject[i];
+                        if (oldToNewMapping.ContainsKey(curWeighted.selection))
+                        {
+                            LevelObject cloneObj = ScriptableObject.Instantiate(curWeighted.selection);
+                            CustomLevelObject clonedCustomObject = ScriptableObjectHelpers.CloneScriptableObject<LevelObject, CustomLevelObject>(cloneObj);
+                            clonedCustomObject.name = curWeighted.selection.name + "_Clone";
+                            DestroyImmediate(cloneObj);
+                            curWeighted.selection = clonedCustomObject;
+                            curWeighted.selection.MarkAsNeverUnload();
+                            continue;
+                        }
                         CustomLevelObject customWObject = ScriptableObjectHelpers.CloneScriptableObject<LevelObject, CustomLevelObject>(curWeighted.selection);
                         customWObject.name = curWeighted.selection.name;
-                        if (!oldToNewMapping.ContainsKey(curWeighted.selection))
-                        {
-                            oldToNewMapping.Add(curWeighted.selection, customWObject);
-                        }
-                        objct.levelObject.MarkAsNeverUnload();
+                        oldToNewMapping.Add(curWeighted.selection, customWObject);
                         customWObject.MarkAsNeverUnload();
                         curWeighted.selection = customWObject;
                     }
+                    objct.MarkAsNeverUnload();
+                    continue;
+                }
+                if (oldToNewMapping.ContainsKey(objct.levelObject))
+                {
+                    LevelObject cloneObj = ScriptableObject.Instantiate(objct.levelObject);
+                    CustomLevelObject clonedCustomObject = ScriptableObjectHelpers.CloneScriptableObject<LevelObject, CustomLevelObject>(cloneObj);
+                    clonedCustomObject.name = objct.levelObject.name + "_Clone";
+                    DestroyImmediate(cloneObj);
+                    objct.levelObject = clonedCustomObject;
+                    objct.levelObject.MarkAsNeverUnload();
                     objct.MarkAsNeverUnload();
                     continue;
                 }
@@ -758,7 +776,7 @@ namespace MTM101BaldAPI
                 objct.levelObject.MarkAsNeverUnload();
                 objct.MarkAsNeverUnload();
             }
-            // destroy the old objects (do this in a seperate loop so we can preserve the keys until the very end
+            // destroy the old objects (do this in a seperate loop so we can preserve the keys until the very end)
             foreach (KeyValuePair<LevelObject, CustomLevelObject> kvp in oldToNewMapping)
             {
                 Destroy(kvp.Key);

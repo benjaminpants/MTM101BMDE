@@ -11,6 +11,9 @@ namespace MTM101BaldAPI
     {
         private Dictionary<string, Dictionary<string, object>> customModDatas = new Dictionary<string, Dictionary<string, object>>();
 
+        public WeightedItemObject[] additionalItems = new WeightedItemObject[0];
+        public List<ItemObject> additionalForcedItems = new List<ItemObject>();
+
         public object GetCustomModValue(string modUUID, string key)
         {
             if (!customModDatas.ContainsKey(modUUID)) return null;
@@ -59,6 +62,8 @@ namespace MTM101BaldAPI
                     SetCustomModValue(kvp.Key, internalKvp.Key, internalKvp.Value);
                 }
             }
+            potentialItems = potentialItems.AddRangeToArray(additionalItems);
+            forcedItems.AddRange(additionalForcedItems);
         }
     }
 
