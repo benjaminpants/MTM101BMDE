@@ -267,7 +267,7 @@ namespace MTM101BaldAPI
             {
                 fieldsToChange[i].SetValue(objectsToChange[i], result);
             }
-            UnityEngine.Object.Destroy(component);
+            UnityEngine.Object.DestroyImmediate(component);
             return result;
         }
     }
