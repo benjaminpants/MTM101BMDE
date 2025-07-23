@@ -227,6 +227,30 @@ namespace MTM101BaldAPI
         }
 
         /// <summary>
+        /// Gets all the fields belonging to the specified type, stopping at typeToStopAt and excluding static fields.
+        /// </summary>
+        /// <param name="type"></param>
+        /// <param name="typeToStopAt"></param>
+        /// <returns></returns>
+        public static FieldInfo[] GetAllFieldsIncludingPrivateAndInherited(this Type type, Type typeToStopAt)
+        {
+            List<FieldInfo> fieldInfos = new List<FieldInfo>();
+            fieldInfos.AddRange(type.GetFields(BindingFlags.Public | BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.DeclaredOnly));
+            Type currentType = type.BaseType;
+            if (!typeToStopAt.IsAssignableFrom(type))
+            {
+                throw new Exception(type.Name + " is not assignable from " + typeToStopAt.Name);
+            }
+            while (currentType != typeToStopAt)
+            {
+                fieldInfos.AddRange(currentType.GetFields(BindingFlags.Public | BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.DeclaredOnly));
+                if (currentType == currentType.BaseType) break;
+                currentType = currentType.BaseType;
+            }
+            return fieldInfos.ToArray();
+        }
+
+        /// <summary>
         /// Replaces the specified component one with the SwapTo
         /// An example of a use case is duplicating an already existing item prefab and making it use your version of the script.
         /// </summary>
@@ -246,7 +270,7 @@ namespace MTM101BaldAPI
                 Component[] components = me.GetComponents<Component>();
                 for (int i = 0; i < components.Length; i++)
                 {
-                    FieldInfo[] infos = components[i].GetType().GetFields(BindingFlags.Public | BindingFlags.Instance | BindingFlags.NonPublic);
+                    FieldInfo[] infos = components[i].GetType().GetAllFieldsIncludingPrivateAndInherited(typeof(MonoBehaviour));
                     for (int j = 0; j < infos.Length; j++)
                     {
                         if (infos[j].GetValue(components[i]) == component)
@@ -258,7 +282,7 @@ namespace MTM101BaldAPI
                 }
             }
             SwapTo result = me.AddComponent<SwapTo>();
-            FieldInfo[] compInfos = typeof(SwapFrom).GetFields(BindingFlags.Public | BindingFlags.Instance | BindingFlags.NonPublic);
+            FieldInfo[] compInfos = typeof(SwapFrom).GetAllFieldsIncludingPrivateAndInherited(typeof(MonoBehaviour));
             for (int i = 0; i < compInfos.Length; i++)
             {
                 compInfos[i].SetValue(result, compInfos[i].GetValue(component));
