@@ -139,6 +139,13 @@ namespace MTM101BaldAPI.Registers
             return true;
         }
 
+        public bool RemovePrefab(NPC toRemove)
+        {
+            NPCMetadata md = Get(toRemove);
+            if (md == null) return false;
+            return md.prefabs.Remove(md.prefabs.FirstOrDefault(x => x.Value == toRemove).Key);
+        }
+
         public override NPCMetadata Get(NPC npc)
         {
             return Get(npc.Character);

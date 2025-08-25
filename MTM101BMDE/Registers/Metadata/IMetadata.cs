@@ -72,7 +72,7 @@ namespace MTM101BaldAPI.Registers
             return metas.GetValueSafe(key);
         }
 
-        public bool Remove(T toRemove)
+        public virtual bool Remove(T toRemove)
         {
             return metas.Remove(toRemove);
         }
@@ -128,6 +128,11 @@ namespace MTM101BaldAPI.Registers
         public TMeta Get(TEnum key)
         {
             return metas.GetValueSafe(key);
+        }
+
+        public virtual bool Remove(TEnum toRemove)
+        {
+            return metas.Remove(toRemove);
         }
     }
 }

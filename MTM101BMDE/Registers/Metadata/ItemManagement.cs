@@ -144,5 +144,13 @@ namespace MTM101BaldAPI.Registers
                 return !x.flags.HasFlag(flag);
             }).Distinct().ToArray();
         }
+
+        public override bool Remove(ItemObject toRemove)
+        {
+            ItemMetaData meta = Get(toRemove);
+            if (meta == null) return false;
+            meta.itemObjects = meta.itemObjects.Where(x => x != toRemove).ToArray();
+            return true;
+        }
     }
 }
