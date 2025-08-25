@@ -18,51 +18,36 @@ namespace MTM101BaldAPI.Registers
         PluginInfo info { get; }
     }
 
-    public interface IMetadataStorage<TMeta, TKey, TClass> where TMeta : IMetadata<TClass>
+    public class BasicMetaStorage<MetaType, T> where MetaType : IMetadata<T>
     {
-        TMeta Get(TKey key);
+        private Dictionary<T, MetaType> metas = new Dictionary<T, MetaType>();
 
-        TMeta[] FindAllWithTags(bool matchAll, params string[] tags);
-
-        TMeta Find(Predicate<TMeta> predicate);
-
-        TMeta[] FindAll(Predicate<TMeta> predicate);
-
-        void Add(TMeta toAdd);
-
-        TMeta[] All();
-    }
-
-    public class BasicMetaStorage<T1, T2> : IMetadataStorage<T1, T2, T2> where T1 : IMetadata<T2>
-    {
-        private Dictionary<T2, T1> metas = new Dictionary<T2, T1>();
-
-        public virtual void Add(T1 toAdd)
+        public virtual void Add(MetaType toAdd)
         {
             Add(toAdd.value, toAdd);
         }
 
-        public virtual void Add(T2 itm, T1 toAdd)
+        public virtual void Add(T itm, MetaType toAdd)
         {
             metas.Add(itm, toAdd);
         }
 
-        public T1[] All()
+        public MetaType[] All()
         {
             return metas.Values.ToArray();
         }
 
-        public T1 Find(Predicate<T1> predicate)
+        public MetaType Find(Predicate<MetaType> predicate)
         {
             return FindAll(predicate).FirstOrDefault();
         }
 
-        public T1[] FindAll(Predicate<T1> predicate)
+        public MetaType[] FindAll(Predicate<MetaType> predicate)
         {
             return metas.Values.ToList().FindAll(predicate).Distinct().ToArray();
         }
 
-        public T1[] FindAllWithTags(bool matchAll, params string[] tags)
+        public MetaType[] FindAllWithTags(bool matchAll, params string[] tags)
         {
             return FindAll(x =>
             {
@@ -82,13 +67,18 @@ namespace MTM101BaldAPI.Registers
             });
         }
 
-        public T1 Get(T2 key)
+        public MetaType Get(T key)
         {
             return metas.GetValueSafe(key);
         }
+
+        public bool Remove(T toRemove)
+        {
+            return metas.Remove(toRemove);
+        }
     }
 
-    public abstract class MetaStorage<TEnum, TMeta, TType> : IMetadataStorage<TMeta, TEnum, TType> 
+    public abstract class MetaStorage<TEnum, TMeta, TType> 
         where TMeta : IMetadata<TType>
         where TEnum: Enum
     {
