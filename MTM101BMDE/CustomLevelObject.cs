@@ -1,5 +1,6 @@
 ﻿using BepInEx;
 using HarmonyLib;
+using MTM101BaldAPI.Registers;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -9,6 +10,16 @@ using UnityEngine;
 
 namespace MTM101BaldAPI
 {
+    [Flags]
+    public enum GenerationStageFlags
+    {
+        Invalid = 0,
+        Preparation = 1,
+        Base = 2,
+        Override = 4,
+        Addend = 8,
+        Finalizer = 16
+    }
 
     internal class FakeGameInit : GameInitializer
     {
@@ -77,6 +88,71 @@ namespace MTM101BaldAPI
     {
 
         internal Dictionary<string, Dictionary<string, object>> customModDatas = new Dictionary<string, Dictionary<string, object>>();
+        private Dictionary<string, GenerationStageFlags> markedModifieds = new Dictionary<string, GenerationStageFlags>();
+
+
+        /// <summary>
+        /// Returns true if this CustomLevelObject was modified by the specified mod.
+        /// </summary>
+        /// <param name="info"></param>
+        /// <returns></returns>
+        public bool ModifiedByMod(PluginInfo info)
+        {
+            return markedModifieds.ContainsKey(info.Metadata.GUID);
+        }
+
+
+        public bool ModifiedByMod(string modUUID)
+        {
+            return markedModifieds.ContainsKey(modUUID);
+        }
+
+        /// <summary>
+        /// Returns true if the specified mod modified this CustomLevelObject at this specific stage.
+        /// </summary>
+        /// <param name="info"></param>
+        /// <param name="atStage"></param>
+        /// <returns></returns>
+        public bool ModifiedByMod(PluginInfo info, GenerationStageFlags atStage)
+        {
+            return ModifiedByMod(info.Metadata.GUID, atStage);
+        }
+
+        public bool ModifiedByMod(string modUUID, GenerationStageFlags atStage)
+        {
+            if (!markedModifieds.ContainsKey(modUUID)) return false;
+            return (markedModifieds[modUUID] & atStage) > 0;
+        }
+
+        /// <summary>
+        /// Marks this as modified by the specified mod, with the stage being automatically set assuming this is running during the level generation modification stage.
+        /// </summary>
+        /// <param name="info"></param>
+        public void MarkAsModifiedByMod(PluginInfo info)
+        {
+            MarkAsModifiedByMod(info, GeneratorManagement.currentGenerationStepFlags);
+        }
+
+        /// <summary>
+        /// Marks this as modified by the specified mod at the specified stage.
+        /// </summary>
+        /// <param name="pluginInfo"></param>
+        /// <param name="markFlags"></param>
+        public void MarkAsModifiedByMod(PluginInfo pluginInfo, GenerationStageFlags markFlags)
+        {
+            MarkAsModifiedByMod(pluginInfo.Metadata.GUID, markFlags);
+        }
+
+        public void MarkAsModifiedByMod(string modUUID, GenerationStageFlags markFlags)
+        {
+            if (markFlags == GenerationStageFlags.Invalid) throw new InvalidOperationException("MarkAsModifiedByMod called with GenerationStageFlags.Invalid!");
+            if (!markedModifieds.ContainsKey(modUUID))
+            {
+                markedModifieds.Add(modUUID, markFlags);
+                return;
+            }
+            markedModifieds[modUUID] |= markFlags;
+        }
 
         public object GetCustomModValue(string modUUID, string key)
         {

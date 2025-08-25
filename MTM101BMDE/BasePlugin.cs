@@ -56,7 +56,7 @@ namespace MTM101BaldAPI
     {
         internal static ManualLogSource Log = new ManualLogSource("Baldi's Basics Plus Dev API Pre Initialization");
         public const string ModGUID = "mtm101.rulerp.bbplus.baldidevapi";
-        public const string VersionNumber = "8.2.1.0";
+        public const string VersionNumber = "9.0.0.0";
 
         /// <summary>
         /// The version of the API, applicable when BepInEx cache messes up the version number.
@@ -726,24 +726,18 @@ namespace MTM101BaldAPI
         internal void ConvertAllLevelObjects()
         {
             List<SceneObject> sceneObjects = Resources.FindObjectsOfTypeAll<SceneObject>().ToList();
-            sceneObjects.Sort((a, b) => a.name.StartsWith("Endless").CompareTo(b.name.StartsWith("Endless")));
             Dictionary<LevelObject, CustomLevelObject> oldToNewMapping = new Dictionary<LevelObject, CustomLevelObject>();
             foreach (SceneObject objct in sceneObjects)
             {
                 if (objct.levelObject == null)
                 {
-                    if (objct.randomizedLevelObject.Length == 0) continue;
+                    if (objct.randomizedLevelObject.Length == 0) continue; 
                     for (int i = 0; i < objct.randomizedLevelObject.Length; i++)
                     {
                         WeightedLevelObject curWeighted = objct.randomizedLevelObject[i];
                         if (oldToNewMapping.ContainsKey(curWeighted.selection))
                         {
-                            LevelObject cloneObj = ScriptableObject.Instantiate(curWeighted.selection);
-                            CustomLevelObject clonedCustomObject = ScriptableObjectHelpers.CloneScriptableObject<LevelObject, CustomLevelObject>(cloneObj);
-                            clonedCustomObject.name = curWeighted.selection.name + "_Clone";
-                            DestroyImmediate(cloneObj);
-                            curWeighted.selection = clonedCustomObject;
-                            curWeighted.selection.MarkAsNeverUnload();
+                            curWeighted.selection = oldToNewMapping[curWeighted.selection];
                             continue;
                         }
                         CustomLevelObject customWObject = ScriptableObjectHelpers.CloneScriptableObject<LevelObject, CustomLevelObject>(curWeighted.selection);
@@ -757,13 +751,7 @@ namespace MTM101BaldAPI
                 }
                 if (oldToNewMapping.ContainsKey(objct.levelObject))
                 {
-                    LevelObject cloneObj = ScriptableObject.Instantiate(objct.levelObject);
-                    CustomLevelObject clonedCustomObject = ScriptableObjectHelpers.CloneScriptableObject<LevelObject, CustomLevelObject>(cloneObj);
-                    clonedCustomObject.name = objct.levelObject.name + "_Clone";
-                    DestroyImmediate(cloneObj);
-                    objct.levelObject = clonedCustomObject;
-                    objct.levelObject.MarkAsNeverUnload();
-                    objct.MarkAsNeverUnload();
+                    objct.levelObject = oldToNewMapping[objct.levelObject];
                     continue;
                 }
                 CustomLevelObject customizedObject = ScriptableObjectHelpers.CloneScriptableObject<LevelObject, CustomLevelObject>(objct.levelObject);

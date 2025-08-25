@@ -815,8 +815,11 @@ namespace MTM101BaldAPI.AssetTools
         public static Cubemap CubemapFromTexture(Texture2D texture)
         {
             // Convert from FADE layout if texture's aspect ratio is 6x1, will likely be removed later on
-            if (texture.width/texture.height == 6)
+            if (texture.width / texture.height == 6)
+            {
+                MTM101BaldiDevAPI.Log.LogWarning("Attempting to load FADE cubemap! This will be removed soon!");
                 return CubemapFromTextureLegacy(texture);
+            }
 
             // MTM101API layout
             int width = texture.width / 4;

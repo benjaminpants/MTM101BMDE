@@ -14,27 +14,28 @@ namespace MTM101BaldAPI.Registers
         /// Runs before everything else, including base. This is the only time a new level type can be added or a level type can be removed from a SceneObject.
         /// Attempting it in any other GenerationModType will throw an error.
         /// </summary>
-        Preparation, // runs before base.
+        Preparation,
+
         /// <summary>
         /// This should be used for methods that override the majority of the generator properties, almost completely transforming the level.
         /// </summary>
-        Base, // runs second, expected to override everything
+        Base,
 
         /// <summary>
         /// This should be used for overriding only certain properties of the generator, such as changing exit counts.
         /// </summary>
-        Override, // overrides specific variables, such as items and whatnot
+        Override,
 
         /// <summary>
         /// This should be used for adding onto already existing properties, such as adding characters or items. Most mods will be using this.
         /// </summary>
-        Addend, // adds to already existing fields, such as adding new items
+        Addend,
 
         /// <summary>
         /// Useful for removing things that might've been added or changed by other mods, or if for one reason or another you need the final say on something. 
         /// <c>Use with caution.</c>
         /// </summary>
-        Finalizer // runs last, useful for subtracting/removing things or if you REALLY need the last say, use with caution!
+        Finalizer
     }
 
 
@@ -65,6 +66,8 @@ namespace MTM101BaldAPI.Registers
     public static class GeneratorManagement
     {
         private static Dictionary<BaseUnityPlugin, Dictionary<GenerationModType, Action<string, int, SceneObject>>> generationStuff = new Dictionary<BaseUnityPlugin, Dictionary<GenerationModType, Action<string, int, SceneObject>>>();
+
+        internal static GenerationStageFlags currentGenerationStepFlags = GenerationStageFlags.Invalid;
 
         internal static List<SceneObject> queuedModdedScenes = new List<SceneObject>();
 
@@ -158,27 +161,33 @@ namespace MTM101BaldAPI.Registers
                     actionsList[kvp3.Key].Add(kvp3.Value);
                 }
             }
+            currentGenerationStepFlags = GenerationStageFlags.Preparation;
             if (actionsList.ContainsKey(GenerationModType.Preparation))
             {
                 actionsList[GenerationModType.Preparation].Do(x => x.Invoke(name, floorNumber, obj));
             }
+            currentGenerationStepFlags = GenerationStageFlags.Base;
             CustomLevelObject[] oldObjects = obj.GetCustomLevelObjects();
             if (actionsList.ContainsKey(GenerationModType.Base))
             {
                 actionsList[GenerationModType.Base].Do(x => x.Invoke(name, floorNumber, obj));
             }
+            currentGenerationStepFlags = GenerationStageFlags.Override;
             if (actionsList.ContainsKey(GenerationModType.Override))
             {
                 actionsList[GenerationModType.Override].Do(x => x.Invoke(name, floorNumber, obj));
             }
+            currentGenerationStepFlags = GenerationStageFlags.Addend;
             if (actionsList.ContainsKey(GenerationModType.Addend))
             {
                 actionsList[GenerationModType.Addend].Do(x => x.Invoke(name, floorNumber, obj));
             }
+            currentGenerationStepFlags = GenerationStageFlags.Finalizer;
             if (actionsList.ContainsKey(GenerationModType.Finalizer))
             {
                 actionsList[GenerationModType.Finalizer].Do(x => x.Invoke(name, floorNumber, obj));
             }
+            currentGenerationStepFlags = GenerationStageFlags.Invalid;
             int matchingObjects = 0;
             CustomLevelObject[] newObjects = obj.GetCustomLevelObjects();
             if (newObjects.Length != oldObjects.Length)

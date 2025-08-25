@@ -150,6 +150,10 @@ namespace MTM101BaldAPI.Registers
             ItemMetaData meta = Get(toRemove);
             if (meta == null) return false;
             meta.itemObjects = meta.itemObjects.Where(x => x != toRemove).ToArray();
+            if (meta.itemObjects.Length == 0)
+            {
+                return base.Remove(toRemove);
+            }
             return true;
         }
     }
