@@ -8,7 +8,7 @@ using BepInEx;
 using BepInEx.Logging;
 using UnityEngine;
 using UnityEngine.SceneManagement;
-using HarmonyLib; //god im hoping i got the right version of harmony
+using HarmonyLib;
 using BepInEx.Configuration;
 using System.Linq;
 using System.Collections.Generic;
