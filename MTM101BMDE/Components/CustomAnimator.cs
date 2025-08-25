@@ -72,31 +72,13 @@ namespace MTM101BaldAPI.Components
         void Play(string name, float speed);
     }
 
-    public interface ICustomAnimator<TType, TAnimation, TFrame> where TAnimation : CustomAnimation<TFrame>
-    {
-        TType affectedObject { get; set; }
-
-        int currentFrameIndex { get; set; }
-
-        string currentAnimationName { get; }
-
-        void Play(string name, float speed);
-
-        void SetPause(bool paused);
-
-        void ChangeSpeed(float speed);
-
-        void Stop();
-
-    }
-
     /// <summary>
     /// A base for a monobehavior implementation of ICustomAnimator, including setting a default animation.
     /// </summary>
     /// <typeparam name="TType"></typeparam>
     /// <typeparam name="TAnimation"></typeparam>
     /// <typeparam name="TFrame"></typeparam>
-    public abstract class CustomAnimatorMono<TType, TAnimation, TFrame> : MonoBehaviour, IAnimationPlayer, ICustomAnimator<TType, TAnimation, TFrame> where TAnimation : CustomAnimation<TFrame>
+    public abstract class CustomAnimatorMono<TType, TAnimation, TFrame> : MonoBehaviour, IAnimationPlayer where TAnimation : CustomAnimation<TFrame>
     {
         /// <summary>
         /// Determines if this CustomAnimator should be affected by timescale.
