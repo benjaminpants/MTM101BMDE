@@ -40,7 +40,7 @@ namespace MTM101BaldAPI.PlusExtensions
 
     /// <summary>
     /// Used to store additional images to be overlayed ontop of text for posters.
-    /// Can be used obscure text or other purposes.
+    /// Can be used to obscure text or other purposes.
     /// </summary>
     [Serializable]
     public class PosterImageData

@@ -488,17 +488,15 @@ namespace MTM101BaldAPI
                     case RandomEventType.Snap:
                         RandomEventMetaStorage.Instance.Add(new RandomEventMetadata(MTM101BaldiDevAPI.Instance.Info, x, new Character[1] { Character.Baldi }));
                         break;
-                    case RandomEventType.Fog:
-                        RandomEventMetaStorage.Instance.Add(new RandomEventMetadata(MTM101BaldiDevAPI.Instance.Info, x));
-                        break;
+                    case RandomEventType.Flood:
                     case RandomEventType.Gravity:
+                    case RandomEventType.Fog:
+                    case RandomEventType.BalderDash:
+                    case RandomEventType.StudentShuffle:
                         RandomEventMetaStorage.Instance.Add(new RandomEventMetadata(MTM101BaldiDevAPI.Instance.Info, x));
                         break;
                     case RandomEventType.MysteryRoom:
                         RandomEventMetaStorage.Instance.Add(new RandomEventMetadata(MTM101BaldiDevAPI.Instance.Info, x, RandomEventFlags.AffectsGenerator));
-                        break;
-                    case RandomEventType.Flood:
-                        RandomEventMetaStorage.Instance.Add(new RandomEventMetadata(MTM101BaldiDevAPI.Instance.Info, x));
                         break;
                     case RandomEventType.Lockdown:
                         RandomEventMetaStorage.Instance.Add(new RandomEventMetadata(MTM101BaldiDevAPI.Instance.Info, x, RandomEventFlags.Permanent));
@@ -555,6 +553,9 @@ namespace MTM101BaldAPI
                         break;
                     case "Tutorial":
                         x.AddMeta(this, new string[] { "tutorial" });
+                        break;
+                    case "EventTest":
+                        x.AddMeta(this, new string[] { "debug", "unused" });
                         break;
                     default:
                         MTM101BaldiDevAPI.Log.LogWarning("Unknown root SceneObject: " + x.name + ". Unable to add meta!");

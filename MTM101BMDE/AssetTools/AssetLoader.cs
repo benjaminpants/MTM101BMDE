@@ -539,6 +539,40 @@ namespace MTM101BaldAPI.AssetTools
         }
 
         /// <summary>
+        /// Generates a spritesheet from the specified atlas, with the specified sprite count and size.
+        /// Left to right, top to bottom.
+        /// </summary>
+        /// <param name="atlas"></param>
+        /// <param name="spriteWidth"></param>
+        /// <param name="spriteHeight"></param>
+        /// <param name="totalSprites"></param>
+        /// <param name="pixelsPerUnit"></param>
+        /// <returns></returns>
+        public static Sprite[] SpritesFromSpriteSheetCount(Texture2D atlas, int spriteWidth, int spriteHeight, float pixelsPerUnit, int totalSprites = 0)
+        {
+            int horizontalTiles = atlas.width / spriteWidth;
+            int verticalTiles = atlas.height / spriteHeight;
+
+            if (totalSprites == 0)
+                totalSprites = horizontalTiles * verticalTiles;
+            Sprite[] array = new Sprite[totalSprites];
+
+            Vector2 center = Vector2.one / 2f;
+
+            int i = 0;
+            for (int y = verticalTiles - 1; y >= 0; y--)
+            {
+                for (int x = 0; x < horizontalTiles && i < totalSprites; x++)
+                {
+                    Sprite sprite = Sprite.Create(atlas, new Rect(x * spriteWidth, y * spriteHeight, spriteWidth, spriteHeight), center, pixelsPerUnit, 0u, SpriteMeshType.FullRect);
+                    sprite.name = atlas.name + "_" + i;
+                    array[i++] = sprite;
+                }
+            }
+            return array;
+        }
+
+        /// <summary>
         /// Convert a stream to a byte array.
         /// </summary>
         /// <param name="stream"></param>
