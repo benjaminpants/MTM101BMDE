@@ -92,17 +92,41 @@ namespace MTM101BaldAPI
 
 
         /// <summary>
-        /// Returns true if this CustomLevelObject was modified by the specified mod.
+        /// Returns true if this CustomLevelObject was modified by the specified mod, with the stage being automatically set assuming this is running during the level generation modification loading stage.
         /// </summary>
         /// <param name="info"></param>
         /// <returns></returns>
-        public bool ModifiedByMod(PluginInfo info)
+        public bool IsModifiedByMod(PluginInfo info)
+        {
+            return IsModifiedByMod(info, GeneratorManagement.currentGenerationStepFlags);
+        }
+
+        /// <summary>
+        /// Returns true if this CustomLevelObject was modified by the specified mod, with the stage being automatically set assuming this is running during the level generation modification loading stage.
+        /// </summary>
+        /// <param name="modUUID"></param>
+        /// <returns></returns>
+        public bool IsModifiedByMod(string modUUID)
+        {
+            return IsModifiedByMod(modUUID, GeneratorManagement.currentGenerationStepFlags);
+        }
+
+        /// <summary>
+        /// Returns true if this CustomLevelObject was modified at all by the specified mod.
+        /// </summary>
+        /// <param name="info"></param>
+        /// <returns></returns>
+        public bool IsModifiedByModAtAll(PluginInfo info)
         {
             return markedModifieds.ContainsKey(info.Metadata.GUID);
         }
 
-
-        public bool ModifiedByMod(string modUUID)
+        /// <summary>
+        /// Returns true if this CustomLevelObject was modified at all by the specified mod.
+        /// </summary>
+        /// <param name="modUUID"></param>
+        /// <returns></returns>
+        public bool IsModifiedByModAtAll(string modUUID)
         {
             return markedModifieds.ContainsKey(modUUID);
         }
@@ -113,19 +137,19 @@ namespace MTM101BaldAPI
         /// <param name="info"></param>
         /// <param name="atStage"></param>
         /// <returns></returns>
-        public bool ModifiedByMod(PluginInfo info, GenerationStageFlags atStage)
+        public bool IsModifiedByMod(PluginInfo info, GenerationStageFlags atStage)
         {
-            return ModifiedByMod(info.Metadata.GUID, atStage);
+            return IsModifiedByMod(info.Metadata.GUID, atStage);
         }
 
-        public bool ModifiedByMod(string modUUID, GenerationStageFlags atStage)
+        public bool IsModifiedByMod(string modUUID, GenerationStageFlags atStage)
         {
             if (!markedModifieds.ContainsKey(modUUID)) return false;
             return (markedModifieds[modUUID] & atStage) > 0;
         }
 
         /// <summary>
-        /// Marks this as modified by the specified mod, with the stage being automatically set assuming this is running during the level generation modification stage.
+        /// Marks this as modified by the specified mod, with the stage being automatically set assuming this is running during the level generation modification loading stage.
         /// </summary>
         /// <param name="info"></param>
         public void MarkAsModifiedByMod(PluginInfo info)
