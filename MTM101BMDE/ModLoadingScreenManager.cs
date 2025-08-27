@@ -246,6 +246,7 @@ namespace MTM101BaldAPI
                 GeneratorManagement.Invoke(obj.levelTitle, obj.levelNo, obj);
             }
             yield return "Changing modded SceneObjects...";
+            GeneratorManagement.queuedModdedScenes.Sort((a, b) => (b.manager is MainGameManager).CompareTo((a.manager is MainGameManager)));
             while (GeneratorManagement.queuedModdedScenes.Count > 0)
             {
                 SceneObject obj = GeneratorManagement.queuedModdedScenes[0];
