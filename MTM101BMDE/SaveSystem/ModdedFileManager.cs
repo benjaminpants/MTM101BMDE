@@ -370,8 +370,28 @@ namespace MTM101BaldAPI.SaveSystem
         }
     }
 
+    [HarmonyPatch(typeof(PlayerFileManager))]
+    [HarmonyPatch("AdvanceSeed")]
+    class AdvanceSeedPatch
+    {
+        static bool Prefix()
+        {
+            if (MTM101BaldiDevAPI.SaveGamesHandler != SavedGameDataHandler.Modded) return true;
+            if (Singleton<ModdedFileManager>.Instance.saveData == null)
+            {
+                Singleton<CoreGameManager>.Instance.Save();
+            }
+            Singleton<ModdedFileManager>.Instance.saveData.seed++;
+            if (Singleton<ModdedFileManager>.Instance.saveData.seed >= 2147483391)
+            {
+                Singleton<ModdedFileManager>.Instance.saveData.seed = -2147483647;
+            }
+            return false;
+        }
+    }
+
     [HarmonyPatch(typeof(CoreGameManager))]
-    [HarmonyPatch("SaveAndQuit")]
+    [HarmonyPatch("Save")]
     class SaveAndQuitModdedData
     {
         // override the function completely, if we make sure every reference is referring to ModdedSaveGame, this should leave vanilla games intact.
@@ -418,7 +438,6 @@ namespace MTM101BaldAPI.SaveSystem
             newSave.FillBlankModTags();
             Singleton<ModdedFileManager>.Instance.saveData = newSave;
             Singleton<PlayerFileManager>.Instance.Save();
-            __instance.Quit();
             return false;
         }
     }

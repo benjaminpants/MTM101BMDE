@@ -471,9 +471,7 @@ namespace MTM101BaldAPI
             NPCMetaStorage.Instance.Add(new NPCMetadata(MTM101BaldiDevAPI.Instance.Info, NPCs.Where(x => x.Character == Character.LookAt).ToArray(), "LookAt", NPCFlags.Standard));
             NPCMetaStorage.Instance.Add(new NPCMetadata(MTM101BaldiDevAPI.Instance.Info, NPCs.Where(x => x.Character == Character.Prize).ToArray(), "FirstPrize", NPCFlags.Standard | NPCFlags.MakeNoise));
             NPCMetaStorage.Instance.Add(new NPCMetadata(MTM101BaldiDevAPI.Instance.Info, NPCs.Where(x => x.Character == Character.DrReflex).ToArray(), "DrReflex", NPCFlags.StandardAndHear, new string[] { "faculty" }));
-            NPCMetadata studentMeta = new NPCMetadata(MTM101BaldiDevAPI.Instance.Info, NPCs.Where(x => x.name.StartsWith("Student") && x.Character == Character.Null).ToArray(), "Student_0", NPCFlags.Standard | NPCFlags.NonStandardSpawn, new string[] { "student" });
-            studentMeta.nameLocalizationKey = "Student"; // technically not true as these guys have no localization key but. just incase.
-            NPCMetaStorage.Instance.Add(studentMeta);
+            // students and other null npcs dont get metadata
 
             Resources.FindObjectsOfTypeAll<RandomEvent>().Do(x =>
             {

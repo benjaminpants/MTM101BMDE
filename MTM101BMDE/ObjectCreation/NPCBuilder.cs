@@ -56,7 +56,7 @@ namespace MTM101BaldAPI.ObjectCreation
         bool useHeatmap = false;
         bool ignorePlayerOnSpawn = false;
         bool grounded = true;
-        bool audioAffectedByTime = true;
+        TimeScaleType audioTimescaleType = TimeScaleType.Npc;
         float minAudioDistance = 10f;
         float maxAudioDistance = 250f;
         NPCFlags flags = NPCFlags.HasSprite | NPCFlags.CanMove;
@@ -138,11 +138,10 @@ namespace MTM101BaldAPI.ObjectCreation
             PropagatedAudioManager audMan = newNpc.GetComponent<PropagatedAudioManager>();
             _minDistance.SetValue(audMan, minAudioDistance);
             _maxDistance.SetValue(audMan, maxAudioDistance);
-            _pitchTimeScaleType.SetValue(audMan, audioAffectedByTime ? TimeScaleType.Npc : TimeScaleType.Null);
+            _pitchTimeScaleType.SetValue(audMan, audioTimescaleType);
             nav.npc = newNpc;
             _entity.SetValue(nav, npcEntity);
             _collider.SetValue(nav, newNpc.baseTrigger[0]);
-            //_ignoreBelts.SetValue(newNpc, ignoreBelts);
             _ignorePlayerOnSpawn.SetValue(newNpc, ignorePlayerOnSpawn);
             npcEntity.SetGrounded(grounded);
 
@@ -157,13 +156,14 @@ namespace MTM101BaldAPI.ObjectCreation
             newNpc.looker.distance = maxSightDistance;
 
             newNpc.gameObject.ConvertToPrefab(true);
-            NPCMetadata meta = newNpc.AddMeta(info.Instance, flags);
-            meta.tags.AddRange(tags);
-
-
-            if (npcName != null)
+            if (newNpc.Character != Character.Null)
             {
-                meta.nameLocalizationKey = npcName;
+                NPCMetadata meta = newNpc.AddMeta(info.Instance, flags);
+                meta.tags.AddRange(tags);
+                if (npcName != null)
+                {
+                    meta.nameLocalizationKey = npcName;
+                }
             }
 
             if (forceColor)
@@ -207,13 +207,25 @@ namespace MTM101BaldAPI.ObjectCreation
         }
 
         /// <summary>
-        /// Makes the audio this NPC creates not be affected by time.
+        /// Makes the PropagatedAudioManager for this NPC not be affected by time.
         /// This is done by setting the audio manager's pitchTimeScaleType to TimeScaleType.Null.
         /// </summary>
         /// <returns></returns>
+        [Obsolete("Use SetAudioTimescaleType(TimeScaleType.Null) instead!")]
         public NPCBuilder<T> DisableAudioTimeScaling()
         {
-            audioAffectedByTime = false;
+            audioTimescaleType = TimeScaleType.Null;
+            return this;
+        }
+
+        /// <summary>
+        /// Changes which timescale this NPC's PropagatedAudioManager scales by.
+        /// </summary>
+        /// <param name="type"></param>
+        /// <returns></returns>
+        public NPCBuilder<T> SetAudioTimescaleType(TimeScaleType type)
+        {
+            audioTimescaleType = type;
             return this;
         }
 
