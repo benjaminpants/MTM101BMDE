@@ -56,7 +56,7 @@ namespace MTM101BaldAPI
     {
         internal static ManualLogSource Log = new ManualLogSource("Baldi's Basics Plus Dev API Pre Initialization");
         public const string ModGUID = "mtm101.rulerp.bbplus.baldidevapi";
-        public const string VersionNumber = "9.0.0.0";
+        public const string VersionNumber = "9.0.1.0";
 
         /// <summary>
         /// The version of the API, applicable when BepInEx cache messes up the version number.
@@ -96,75 +96,6 @@ namespace MTM101BaldAPI
                 saveHandler = value ? (MTM101BaldiDevAPI.Instance.alwaysModdedSave.Value ? SavedGameDataHandler.Modded : (ModdedSaveGame.ModdedSaveGameHandlers.Count > 0 ? SavedGameDataHandler.Modded : SavedGameDataHandler.Vanilla)) : SavedGameDataHandler.None;
             }
         }
-
-        /*
-        internal static Dictionary<LevelType, Type[]> removeFromForced = new Dictionary<LevelType, Type[]>()
-        {
-            { LevelType.Schoolhouse, new Type[0] },
-            { LevelType.Maintenance, new Type[2] { typeof(Structure_PowerLever), typeof(Structure_SteamValves) } },
-            { LevelType.Laboratory, new Type[1] { typeof(Structure_TeleporterRoom) } },
-            { LevelType.Factory, new Type[2] { typeof(Structure_ConveyorBelt), typeof(Structure_Rotohalls) } },
-
-        };
-
-        
-        static void GeneratorChanges(string levelName, int levelNumber, SceneObject sceneObj)
-        {
-            SceneObjectMetadata meta = sceneObj.GetMeta();
-            // dont modify if no meta and dont modify if the scene wasn't added by the API.
-            if (meta == null) return;
-            if (meta.info != MTM101BaldiDevAPI.Instance.Info) return;
-            LevelObject[] allLevelObjects = sceneObj.GetCustomLevelObjects();
-
-            for (int i = 0; i < allLevelObjects.Length; i++)
-            {
-                LevelObject currentObject = allLevelObjects[i];
-                // a little slow but tbh i dont care
-                if (removeFromForced.ContainsKey(currentObject.type))
-                {
-                    Type[] removeFromThisObject = removeFromForced[currentObject.type];
-                    List<StructureWithParameters> removedDatas = new List<StructureWithParameters>();
-                    List<StructureWithParameters> forcedStructures = currentObject.forcedStructures.ToList();
-                    for (int j = forcedStructures.Count; j >= 0; j--)
-                    {
-                        if (removeFromThisObject.Contains(forcedStructures[i].prefab.GetType()))
-                        {
-                            removedDatas.Add(forcedStructures[i]);
-                            removedDatas.RemoveAt(i);
-                            continue;
-                        }
-                        // annoying hack for the Factory
-                        if (currentObject.type == LevelType.Factory)
-                        {
-                            if (forcedStructures[i].prefab.name == "LockdownDoorConstructor")
-                            {
-                                removedDatas.Add(forcedStructures[i]);
-                                removedDatas.RemoveAt(i);
-                            }
-                        }
-                    }
-
-                    currentObject.forcedStructures = forcedStructures.ToArray();
-
-                    if (currentObject.potentialStructures == null)
-                    {
-                        currentObject.potentialStructures = new WeightedStructureWithParameters[0];
-                    }
-
-                    for (int j = 0; j < removedDatas.Count; j++)
-                    {
-                        currentObject.potentialStructures = currentObject.potentialStructures.AddToArray(new WeightedStructureWithParameters()
-                        {
-                            selection = removedDatas[i],
-                            weight = 100
-                        });
-                    }
-                    currentObject.minSpecialBuilders += removedDatas.Count;
-                    currentObject.maxSpecialBuilders += removedDatas.Count;
-                }
-            }
-        }
-        */
 
         internal static IntrusiveAPIFeatures intrusiveFeatures = IntrusiveAPIFeatures.None;
         internal static bool tooLateForGeneratorBasedFeatures = false;
@@ -899,7 +830,12 @@ PRESS ALT+F4 TO EXIT THE GAME.
             harmony.PatchAllConditionals();
 
             Log = base.Logger;
-            if (attemptOnline.Value)
+
+            if (AppDomain.CurrentDomain.GetAssemblies().Where(x => x.FullName.StartsWith("Newtonsoft.Json")).Count() == 0)
+            {
+                AddWarningScreen("Newtonsoft.Json is not installed! It should be included with the API zip!", true);
+            }
+            else if (attemptOnline.Value)
             {
                 StartCoroutine(GetCurrentGamebananaVersion());
             }
