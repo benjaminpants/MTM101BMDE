@@ -56,7 +56,7 @@ namespace MTM101BaldAPI
     {
         internal static ManualLogSource Log = new ManualLogSource("Baldi's Basics Plus Dev API Pre Initialization");
         public const string ModGUID = "mtm101.rulerp.bbplus.baldidevapi";
-        public const string VersionNumber = "9.0.1.0";
+        public const string VersionNumber = "9.0.1.1";
 
         /// <summary>
         /// The version of the API, applicable when BepInEx cache messes up the version number.
@@ -831,11 +831,11 @@ PRESS ALT+F4 TO EXIT THE GAME.
 
             Log = base.Logger;
 
-            if (AppDomain.CurrentDomain.GetAssemblies().Where(x => x.FullName.StartsWith("Newtonsoft.Json")).Count() == 0)
+            /*if (AppDomain.CurrentDomain.GetAssemblies().Where(x => x.FullName.StartsWith("Newtonsoft.Json")).Count() == 0)
             {
                 AddWarningScreen("Newtonsoft.Json is not installed! It should be included with the API zip!", true);
             }
-            else if (attemptOnline.Value)
+            else */if (attemptOnline.Value)
             {
                 StartCoroutine(GetCurrentGamebananaVersion());
             }
