@@ -47,7 +47,15 @@ namespace MTM101BaldAPI.ObjectCreation
             item.itemType = itemEnum;
             if (itemEnumName != "")
             {
-                item.itemType = EnumExtensions.ExtendEnum<Items>(itemEnumName);
+                // stop the warning from occuring
+                if (EnumExtensions.EnumWithExtendedNameExists<Items>(itemEnumName))
+                {
+                    item.itemType = EnumExtensions.GetFromExtendedName<Items>(itemEnumName);
+                }
+                else
+                {
+                    item.itemType = EnumExtensions.ExtendEnum<Items>(itemEnumName);
+                }
             }
             item.itemSpriteSmall = smallSprite;
             item.itemSpriteLarge = largeSprite;
