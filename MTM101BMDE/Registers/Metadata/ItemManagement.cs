@@ -41,10 +41,13 @@ namespace MTM101BaldAPI.Registers
         /// </summary>
         HasTutorialVariant = 32,
         /// <summary>
-        /// This item is a runtime item, generated during the middle of a run.
-        /// It means that this item will automatically be cleaned up when the run is exited.
+        /// This item is unobtainable and should not be given to the player (or have its .item instantiated) in any circumstance.
         /// </summary>
-        RuntimeItem = 64
+        Unobtainable = 64,
+        /// <summary>
+        /// This item is a runtime item, generated during the middle of a run.
+        /// </summary>
+        RuntimeItem = 128
     }
 
     public class ItemMetaData : IMetadata<ItemObject>

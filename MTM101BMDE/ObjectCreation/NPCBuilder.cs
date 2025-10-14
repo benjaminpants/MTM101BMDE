@@ -39,6 +39,7 @@ namespace MTM101BaldAPI.ObjectCreation
         readonly static FieldInfo _overrideSubtitleColor = AccessTools.Field(typeof(AudioManager), "overrideSubtitleColor");
         readonly static FieldInfo _subtitleColor = AccessTools.Field(typeof(AudioManager), "subtitleColor");
         readonly static FieldInfo _pitchTimeScaleType = AccessTools.Field(typeof(PropagatedAudioManager), "pitchTimeScaleType");
+        readonly static FieldInfo _ignorePlayerVisibility = AccessTools.Field(typeof(Looker), "ignorePlayerVisibility");
 
 
         string objectName = "Unnamed Character";
@@ -70,6 +71,7 @@ namespace MTM101BaldAPI.ObjectCreation
         bool decelerate = false;
         bool forceColor = false;
         bool avoidRooms = true;
+        bool ignorePlayerVisibility = false;
         Color subtitleColor = Color.white;
         string npcName = null;
 
@@ -87,7 +89,15 @@ namespace MTM101BaldAPI.ObjectCreation
             Character character = characterEnum;
             if (characterEnumName != "")
             {
-                character = EnumExtensions.ExtendEnum<Character>(characterEnumName);
+                // stop the warning from occuring
+                if (EnumExtensions.EnumWithExtendedNameExists<Character>(characterEnumName))
+                {
+                    character = EnumExtensions.GetFromExtendedName<Character>(characterEnumName);
+                }
+                else
+                {
+                    character = EnumExtensions.ExtendEnum<Character>(characterEnumName);
+                }
             }
             _character.SetValue(newNpc, character);
             _navigator.SetValue(newNpc, nav);
@@ -150,6 +160,7 @@ namespace MTM101BaldAPI.ObjectCreation
                 _hasFov.SetValue(newNpc.looker, true);
                 _fieldOfView.SetValue(newNpc.looker, fieldOfView);
             }
+            _ignorePlayerVisibility.SetValue(newNpc.looker, ignorePlayerVisibility);
             _autoRotate.SetValue(newNpc.Navigator, autoRotate);
             _preciseTarget.SetValue(newNpc.Navigator, preciseTarget);
             _decelerate.SetValue(newNpc.Navigator, decelerate);
@@ -203,6 +214,16 @@ namespace MTM101BaldAPI.ObjectCreation
         public NPCBuilder<T> DisableNavigationPrecision()
         {
             preciseTarget = false;
+            return this;
+        }
+
+        /// <summary>
+        /// Makes the NPC able to see the player, even when the player is invisible.
+        /// </summary>
+        /// <returns></returns>
+        public NPCBuilder<T> IgnorePlayerVisibility()
+        {
+            ignorePlayerVisibility = true;
             return this;
         }
 

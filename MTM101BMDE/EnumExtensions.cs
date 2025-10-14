@@ -120,5 +120,24 @@ namespace MTM101BaldAPI
             return (T)(object)(value.valueOffset + index);
         }
 
+        /// <summary>
+        /// Returns true if the specified Enum exists.
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="name"></param>
+        /// <returns></returns>
+        public static bool EnumWithExtendedNameExists<T>(string name) where T : Enum
+        {
+            if (Enum.IsDefined(typeof(T), name))
+            {
+                return true;
+            }
+            bool success = ExtendedData.TryGetValue(typeof(T), out ExtendedEnumData value);
+            if (!success) return false;
+            int index = value.Enums.FindIndex(x => x == name);
+            if (index == -1) return false;
+            return true;
+        }
+
 	}
 }

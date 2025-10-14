@@ -56,7 +56,7 @@ namespace MTM101BaldAPI
     {
         internal static ManualLogSource Log = new ManualLogSource("Baldi's Basics Plus Dev API Pre Initialization");
         public const string ModGUID = "mtm101.rulerp.bbplus.baldidevapi";
-        public const string VersionNumber = "9.0.1.1";
+        public const string VersionNumber = "9.1.0.0";
 
         /// <summary>
         /// The version of the API, applicable when BepInEx cache messes up the version number.
@@ -244,7 +244,7 @@ namespace MTM101BaldAPI
                 switch (x.itemType)
                 {
                     case Items.PortalPoster:
-                        x.AddMeta(MTM101BaldiDevAPI.Instance, ItemFlags.None);
+                        x.AddMeta(this, ItemFlags.None);
                         break;
                     case Items.GrapplingHook:
                         if ((grapplingHook == null) &&
@@ -255,67 +255,67 @@ namespace MTM101BaldAPI
                         break;
                     case Items.DietBsoda:
                     case Items.Bsoda:
-                        ItemMetaData bm = x.AddMeta(MTM101BaldiDevAPI.Instance, ItemFlags.Persists | ItemFlags.CreatesEntity);
+                        ItemMetaData bm = x.AddMeta(this, ItemFlags.Persists | ItemFlags.CreatesEntity);
                         bm.tags.Add("food");
                         bm.tags.Add("drink");
                         break;
                     case Items.AlarmClock:
-                        x.AddMeta(MTM101BaldiDevAPI.Instance, ItemFlags.Persists | ItemFlags.CreatesEntity).tags.AddRange(new string[] { "technology", "makes_noise" });
+                        x.AddMeta(this, ItemFlags.Persists | ItemFlags.CreatesEntity).tags.AddRange(new string[] { "technology", "makes_noise" });
                         break;
                     case Items.ChalkEraser:
-                        x.AddMeta(MTM101BaldiDevAPI.Instance, ItemFlags.Persists | ItemFlags.CreatesEntity);
+                        x.AddMeta(this, ItemFlags.Persists | ItemFlags.CreatesEntity);
                         break;
                     case Items.Boots:
-                        x.AddMeta(MTM101BaldiDevAPI.Instance, ItemFlags.Persists).tags.Add("clothing");
+                        x.AddMeta(this, ItemFlags.Persists).tags.Add("clothing");
                         break;
                     case Items.Teleporter:
-                        x.AddMeta(MTM101BaldiDevAPI.Instance, ItemFlags.Persists).tags.Add("technology");
+                        x.AddMeta(this, ItemFlags.Persists).tags.Add("technology");
                         break;
                     case Items.ReachExtender:
-                        x.AddMeta(MTM101BaldiDevAPI.Instance, ItemFlags.Persists).tags.Add("clothing");
+                        x.AddMeta(this, ItemFlags.Persists).tags.Add("clothing");
                         break;
                     case Items.InvisibilityElixir:
-                        ItemMetaData elixerMeta = x.AddMeta(MTM101BaldiDevAPI.Instance, ItemFlags.Persists);
+                        ItemMetaData elixerMeta = x.AddMeta(this, ItemFlags.Persists);
                         elixerMeta.tags.Add("food");
                         elixerMeta.tags.Add("drink");
                         break;
                     case Items.Nametag:
-                        x.AddMeta(MTM101BaldiDevAPI.Instance, ItemFlags.Persists);
+                        x.AddMeta(this, ItemFlags.Persists);
                         break;
                     case Items.Apple:
-                        x.AddMeta(MTM101BaldiDevAPI.Instance, ItemFlags.NoUses).tags.Add("food");
+                        x.AddMeta(this, ItemFlags.NoUses).tags.Add("food");
                         break;
                     case Items.None:
-                        x.AddMeta(MTM101BaldiDevAPI.Instance, ItemFlags.NoUses);
+                        x.AddMeta(this, ItemFlags.NoUses);
                         break;
                     case Items.ZestyBar:
-                        x.AddMeta(MTM101BaldiDevAPI.Instance, ItemFlags.None).tags.Add("food");
+                        x.AddMeta(this, ItemFlags.None).tags.Add("food");
                         break;
                     case Items.Quarter:
-                        x.AddMeta(MTM101BaldiDevAPI.Instance, ItemFlags.None).tags.Add("currency");
+                        x.AddMeta(this, ItemFlags.None).tags.Add("currency");
                         break;
                     case Items.Scissors:
-                        x.AddMeta(MTM101BaldiDevAPI.Instance, ItemFlags.None).tags.Add("sharp");
+                        x.AddMeta(this, ItemFlags.None).tags.Add("sharp");
                         break;
                     case Items.Wd40:
                     case Items.DetentionKey:
                     case Items.Tape:
                     case Items.PrincipalWhistle:
                     case Items.DoorLock:
-                        x.AddMeta(MTM101BaldiDevAPI.Instance, ItemFlags.None);
+                        x.AddMeta(this, ItemFlags.None);
                         break;
                     case Items.NanaPeel:
-                        ItemMetaData bana = x.AddMeta(MTM101BaldiDevAPI.Instance, ItemFlags.Persists | ItemFlags.CreatesEntity);
+                        ItemMetaData bana = x.AddMeta(this, ItemFlags.Persists | ItemFlags.CreatesEntity);
                         bana.tags.Add("food");
                         break;
                     case Items.Points:
                         pointObjects.Add(x);
                         break;
                     case Items.Map:
-                        x.AddMeta(MTM101BaldiDevAPI.Instance, ItemFlags.InstantUse).tags.Add("shop_dummy");
+                        x.AddMeta(this, ItemFlags.InstantUse).tags.Add("shop_dummy");
                         break;
                     case Items.BusPass:
-                        x.AddMeta(MTM101BaldiDevAPI.Instance, ItemFlags.NoUses);
+                        x.AddMeta(this, ItemFlags.NoUses);
                         break;
                     // MYSTMAN12 WHY
                     case Items.lostItem0:
@@ -328,7 +328,7 @@ namespace MTM101BaldAPI
                     case Items.lostItem7:
                     case Items.lostItem8:
                     case Items.lostItem9:
-                        x.AddMeta(MTM101BaldiDevAPI.Instance, ItemFlags.NoUses).tags.Add("lost_item");
+                        x.AddMeta(this, ItemFlags.NoUses).tags.Add("lost_item");
                         break;
                     case Items.CircleKey:
                     case Items.TriangleKey:
@@ -336,7 +336,7 @@ namespace MTM101BaldAPI
                     case Items.PentagonKey:
                     case Items.HexagonKey:
                     case Items.WeirdKey:
-                        x.AddMeta(MTM101BaldiDevAPI.Instance, ItemFlags.None).tags.Add("shape_key");
+                        x.AddMeta(this, ItemFlags.None).tags.Add("shape_key");
                         break;
                     default:
                         // modded items start at 256, so we somehow have initialized after the mod in question, ignore the data.
@@ -347,7 +347,7 @@ namespace MTM101BaldAPI
                         break;
                 }
             });
-            ItemMetaData grappleMeta = new ItemMetaData(MTM101BaldiDevAPI.Instance.Info, (ItemObject[])((ITM_GrapplingHook)grapplingHook.item).ReflectionGetVariable("allVersions"));
+            ItemMetaData grappleMeta = new ItemMetaData(Info, (ItemObject[])((ITM_GrapplingHook)grapplingHook.item).ReflectionGetVariable("allVersions"));
             grappleMeta.itemObjects = grappleMeta.itemObjects.AddItem(grapplingHook).ToArray();
             grappleMeta.flags = ItemFlags.CreatesEntity | ItemFlags.MultipleUse | ItemFlags.Persists;
             grappleMeta.itemObjects.Do(x =>
@@ -359,7 +359,7 @@ namespace MTM101BaldAPI
             {
                 return ((int)a.ReflectionGetVariable("value")).CompareTo((int)b.ReflectionGetVariable("value"));
             });
-            ItemMetaData pointItemData = new ItemMetaData(MTM101BaldiDevAPI.Instance.Info, pointObjects.ToArray());
+            ItemMetaData pointItemData = new ItemMetaData(Info, pointObjects.ToArray());
             pointItemData.flags = ItemFlags.InstantUse;
             pointObjects.ForEach(x =>
             {
@@ -389,19 +389,19 @@ namespace MTM101BaldAPI
             });
             // INITIALIZE CHARACTER METADATA
             NPC[] NPCs = Resources.FindObjectsOfTypeAll<NPC>();
-            NPCMetaStorage.Instance.Add(new NPCMetadata(MTM101BaldiDevAPI.Instance.Info, NPCs.Where(x => x.Character == Character.Baldi).ToArray(), "Baldi", NPCFlags.StandardAndHear, new string[] { "teacher", "faculty" }));
-            NPCMetaStorage.Instance.Add(new NPCMetadata(MTM101BaldiDevAPI.Instance.Info, NPCs.Where(x => x.Character == Character.Principal).ToArray(), "Principal", NPCFlags.Standard, new string[] { "faculty" }));
-            NPCMetaStorage.Instance.Add(new NPCMetadata(MTM101BaldiDevAPI.Instance.Info, NPCs.Where(x => x.Character == Character.Beans).ToArray(), "Beans", NPCFlags.Standard, new string[] { "student" }));
-            NPCMetaStorage.Instance.Add(new NPCMetadata(MTM101BaldiDevAPI.Instance.Info, NPCs.Where(x => x.Character == Character.Chalkles).ToArray(), "ChalkFace", NPCFlags.StandardNoCollide | NPCFlags.MakeNoise));
-            NPCMetaStorage.Instance.Add(new NPCMetadata(MTM101BaldiDevAPI.Instance.Info, NPCs.Where(x => x.Character == Character.Cumulo).ToArray(), "CloudyCopter", NPCFlags.Standard)); // they do have a trigger it just doesn't do anything
-            NPCMetaStorage.Instance.Add(new NPCMetadata(MTM101BaldiDevAPI.Instance.Info, NPCs.Where(x => x.Character == Character.Bully).ToArray(), "Bully", (NPCFlags.Standard | NPCFlags.IsBlockade) & ~NPCFlags.CanMove, new string[] { "student" }));
-            NPCMetaStorage.Instance.Add(new NPCMetadata(MTM101BaldiDevAPI.Instance.Info, NPCs.Where(x => x.Character == Character.Pomp).ToArray(), "Mrs Pomp", NPCFlags.Standard | NPCFlags.MakeNoise, new string[] { "teacher", "faculty" }));
-            NPCMetaStorage.Instance.Add(new NPCMetadata(MTM101BaldiDevAPI.Instance.Info, NPCs.Where(x => x.Character == Character.Playtime).ToArray(), "Playtime", NPCFlags.Standard, new string[] { "student" }));
-            NPCMetaStorage.Instance.Add(new NPCMetadata(MTM101BaldiDevAPI.Instance.Info, NPCs.Where(x => x.Character == Character.Crafters).ToArray(), "Arts and Crafters", NPCFlags.Standard | NPCFlags.MakeNoise));
-            NPCMetaStorage.Instance.Add(new NPCMetadata(MTM101BaldiDevAPI.Instance.Info, NPCs.Where(x => x.Character == Character.Sweep).ToArray(), "Gotta Sweep", NPCFlags.Standard, new string[] { "faculty" }));
-            NPCMetaStorage.Instance.Add(new NPCMetadata(MTM101BaldiDevAPI.Instance.Info, NPCs.Where(x => x.Character == Character.LookAt).ToArray(), "LookAt", NPCFlags.Standard));
-            NPCMetaStorage.Instance.Add(new NPCMetadata(MTM101BaldiDevAPI.Instance.Info, NPCs.Where(x => x.Character == Character.Prize).ToArray(), "FirstPrize", NPCFlags.Standard | NPCFlags.MakeNoise));
-            NPCMetaStorage.Instance.Add(new NPCMetadata(MTM101BaldiDevAPI.Instance.Info, NPCs.Where(x => x.Character == Character.DrReflex).ToArray(), "DrReflex", NPCFlags.StandardAndHear, new string[] { "faculty" }));
+            NPCMetaStorage.Instance.Add(new NPCMetadata(Info, NPCs.Where(x => x.Character == Character.Baldi).ToArray(), "Baldi", NPCFlags.StandardAndHear, new string[] { "teacher", "faculty" }));
+            NPCMetaStorage.Instance.Add(new NPCMetadata(Info, NPCs.Where(x => x.Character == Character.Principal).ToArray(), "Principal", NPCFlags.Standard, new string[] { "faculty" }));
+            NPCMetaStorage.Instance.Add(new NPCMetadata(Info, NPCs.Where(x => x.Character == Character.Beans).ToArray(), "Beans", NPCFlags.Standard, new string[] { "student" }));
+            NPCMetaStorage.Instance.Add(new NPCMetadata(Info, NPCs.Where(x => x.Character == Character.Chalkles).ToArray(), "ChalkFace", NPCFlags.StandardNoCollide | NPCFlags.MakeNoise));
+            NPCMetaStorage.Instance.Add(new NPCMetadata(Info, NPCs.Where(x => x.Character == Character.Cumulo).ToArray(), "CloudyCopter", NPCFlags.Standard)); // they do have a trigger it just doesn't do anything
+            NPCMetaStorage.Instance.Add(new NPCMetadata(Info, NPCs.Where(x => x.Character == Character.Bully).ToArray(), "Bully", (NPCFlags.Standard | NPCFlags.IsBlockade) & ~NPCFlags.CanMove, new string[] { "student" }));
+            NPCMetaStorage.Instance.Add(new NPCMetadata(Info, NPCs.Where(x => x.Character == Character.Pomp).ToArray(), "Mrs Pomp", NPCFlags.Standard | NPCFlags.MakeNoise, new string[] { "teacher", "faculty" }));
+            NPCMetaStorage.Instance.Add(new NPCMetadata(Info, NPCs.Where(x => x.Character == Character.Playtime).ToArray(), "Playtime", NPCFlags.Standard, new string[] { "student" }));
+            NPCMetaStorage.Instance.Add(new NPCMetadata(Info, NPCs.Where(x => x.Character == Character.Crafters).ToArray(), "Arts and Crafters", NPCFlags.Standard | NPCFlags.MakeNoise));
+            NPCMetaStorage.Instance.Add(new NPCMetadata(Info, NPCs.Where(x => x.Character == Character.Sweep).ToArray(), "Gotta Sweep", NPCFlags.Standard, new string[] { "faculty" }));
+            NPCMetaStorage.Instance.Add(new NPCMetadata(Info, NPCs.Where(x => x.Character == Character.LookAt).ToArray(), "LookAt", NPCFlags.Standard));
+            NPCMetaStorage.Instance.Add(new NPCMetadata(Info, NPCs.Where(x => x.Character == Character.Prize).ToArray(), "FirstPrize", NPCFlags.Standard | NPCFlags.MakeNoise));
+            NPCMetaStorage.Instance.Add(new NPCMetadata(Info, NPCs.Where(x => x.Character == Character.DrReflex).ToArray(), "DrReflex", NPCFlags.StandardAndHear, new string[] { "faculty" }));
             // students and other null npcs dont get metadata
 
             Resources.FindObjectsOfTypeAll<RandomEvent>().Do(x =>
@@ -412,26 +412,26 @@ namespace MTM101BaldAPI
                         MTM101BaldiDevAPI.Log.LogWarning("Unknown random event type: " + x.Type.ToStringExtended() + ". Unable to add meta!");
                         break;
                     case RandomEventType.Party:
-                        RandomEventMetaStorage.Instance.Add(new RandomEventMetadata(MTM101BaldiDevAPI.Instance.Info, x, new RoomCategory[1] { RoomCategory.Office }));
+                        RandomEventMetaStorage.Instance.Add(new RandomEventMetadata(Info, x, new RoomCategory[1] { RoomCategory.Office }));
                         break;
                     case RandomEventType.Snap:
-                        RandomEventMetaStorage.Instance.Add(new RandomEventMetadata(MTM101BaldiDevAPI.Instance.Info, x, new Character[1] { Character.Baldi }));
+                        RandomEventMetaStorage.Instance.Add(new RandomEventMetadata(Info, x, new Character[1] { Character.Baldi }));
                         break;
                     case RandomEventType.Flood:
                     case RandomEventType.Gravity:
                     case RandomEventType.Fog:
                     case RandomEventType.BalderDash:
                     case RandomEventType.StudentShuffle:
-                        RandomEventMetaStorage.Instance.Add(new RandomEventMetadata(MTM101BaldiDevAPI.Instance.Info, x));
+                        RandomEventMetaStorage.Instance.Add(new RandomEventMetadata(Info, x));
                         break;
                     case RandomEventType.MysteryRoom:
-                        RandomEventMetaStorage.Instance.Add(new RandomEventMetadata(MTM101BaldiDevAPI.Instance.Info, x, RandomEventFlags.AffectsGenerator));
+                        RandomEventMetaStorage.Instance.Add(new RandomEventMetadata(Info, x, RandomEventFlags.AffectsGenerator));
                         break;
                     case RandomEventType.Lockdown:
-                        RandomEventMetaStorage.Instance.Add(new RandomEventMetadata(MTM101BaldiDevAPI.Instance.Info, x, RandomEventFlags.Permanent));
+                        RandomEventMetaStorage.Instance.Add(new RandomEventMetadata(Info, x, RandomEventFlags.Permanent));
                         break;
                     case RandomEventType.TimeOut:
-                        RandomEventMetaStorage.Instance.Add(new RandomEventMetadata(MTM101BaldiDevAPI.Instance.Info, x, RandomEventFlags.Special));
+                        RandomEventMetaStorage.Instance.Add(new RandomEventMetadata(Info, x, RandomEventFlags.Special));
                         break;
                 }
             });
@@ -509,7 +509,7 @@ namespace MTM101BaldAPI
                 stream.Dispose();
             }
 
-            MTM101BaldiDevAPI.Instance.AssetsLoadPre();
+            AssetsLoadPre();
 
             // loading screen
             CursorController.Instance.DisableClick(true);
@@ -841,7 +841,7 @@ PRESS ALT+F4 TO EXIT THE GAME.
             }
 
             //set window title
-            if (MTM101BaldiDevAPI.Instance.allowWindowTitleChange.Value)
+            if (allowWindowTitleChange.Value)
                 WindowTitle.SetText(Application.productName + " (Modded)");
         }
     }
