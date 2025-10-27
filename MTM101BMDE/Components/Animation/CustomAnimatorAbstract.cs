@@ -163,6 +163,7 @@ namespace MTM101BaldAPI.Components.Animation
             sAnims = null;
             sTimes = null;
             sCounts = null;
+            animationKeys = null;
         }
 
         protected string currentAnimationId = null;
