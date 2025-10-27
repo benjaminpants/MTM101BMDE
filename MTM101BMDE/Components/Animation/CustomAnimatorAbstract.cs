@@ -102,14 +102,68 @@ namespace MTM101BaldAPI.Components.Animation
         }
     }
 
-    public abstract class CustomAnimator<AnimationType, Frame, UnderlyingType> : MonoBehaviour, ISimpleAnimator where AnimationType : CustomAnimation<Frame, UnderlyingType> where Frame : CustomAnimationFrame<UnderlyingType>, new()
+    public abstract class CustomAnimator<AnimationType, Frame, UnderlyingType> : MonoBehaviour, ISimpleAnimator, ISerializationCallbackReceiver where AnimationType : CustomAnimation<Frame, UnderlyingType>, new() where Frame : CustomAnimationFrame<UnderlyingType>, new()
     {
 
-        [SerializeField]
-        protected string[] animationKeys = new string[0];
+        protected Dictionary<string, AnimationType> animations = new Dictionary<string, AnimationType>();
 
         [SerializeField]
-        protected AnimationType[] animationsValues;
+        private string[] animationKeys;
+        [SerializeField]
+        private int[] sCounts;
+        [SerializeField]
+        private List<UnderlyingType> sAnims;
+        [SerializeField]
+        private List<float> sTimes;
+
+        public void OnBeforeSerialize()
+        {
+            // written kind of weird because before i was already trying to use a string and AnimationType array to get it to serialize, so this code is mostly written like that is still the case
+            // i do believe it'd only be a minor refactor to adjust it to be more proper with the dictionary, but i have already spent way too long on this
+            animationKeys = new string[animations.Count];
+            AnimationType[] animationsValues = new AnimationType[animations.Count];
+            int totalIndex = 0;
+            foreach (var kvp in animations)
+            {
+                animationKeys[totalIndex] = kvp.Key;
+                animationsValues[totalIndex] = kvp.Value;
+                totalIndex++;
+            }
+            sAnims = new List<UnderlyingType>();
+            sTimes = new List<float>();
+            sCounts = new int[animationsValues.Length];
+            for (int i = 0; i < animationsValues.Length; i++)
+            {
+                sCounts[i] = animationsValues[i].frames.Length;
+                for (int j = 0; j < animationsValues[i].frames.Length; j++)
+                {
+                    sAnims.Add(animationsValues[i].frames[j].value);
+                    sTimes.Add(animationsValues[i].frames[j].time);
+                }
+            }
+        }
+
+        public void OnAfterDeserialize()
+        {
+            int totalIndex = 0;
+            for (int i = 0; i < sCounts.Length; i++)
+            {
+                AnimationType anim = new AnimationType();
+                anim.frames = new Frame[sCounts[i]];
+                for (int j = 0; j < sCounts[i]; j++)
+                {
+                    anim.frames[j] = new Frame();
+                    anim.frames[j].value = sAnims[totalIndex];
+                    anim.frames[j].time = sTimes[totalIndex];
+                    anim.animationLength += sTimes[totalIndex];
+                    totalIndex++;
+                }
+                animations.Add(animationKeys[i], anim);
+            }
+            sAnims = null;
+            sTimes = null;
+            sCounts = null;
+        }
 
         protected string currentAnimationId = null;
         protected int currentAnimationFrame = 0;
@@ -151,11 +205,6 @@ namespace MTM101BaldAPI.Components.Animation
             }
         }
 
-        protected AnimationType GetAnimation(string key)
-        {
-            return animationsValues[Array.IndexOf(animationKeys, key)];
-        }
-
         public TimeScaleType timeScale = TimeScaleType.Environment;
         public EnvironmentController ec;
         public float GetTimeScale()
@@ -181,21 +230,12 @@ namespace MTM101BaldAPI.Components.Animation
         /// <param name="animations"></param>
         public void LoadAnimations(Dictionary<string, AnimationType> animations)
         {
-            int index = 0;
-            animationKeys = new string[animations.Count];
-            animationsValues = new AnimationType[animations.Count];
-            foreach (var key in animations.Keys)
-            {
-                animationKeys[index] = key;
-                animationsValues[index] = animations[key];
-                index++;
-            }
+            this.animations = new Dictionary<string, AnimationType>(animations);
         }
 
         public void AddAnimation(string key, AnimationType anim)
         {
-            animationKeys = animationKeys.AddToArray(key);
-            animationsValues = animationsValues.AddToArray(anim);
+            animations.Add(key, anim);
         }
 
         public abstract void ApplyFrame(UnderlyingType frame);
@@ -219,7 +259,7 @@ namespace MTM101BaldAPI.Components.Animation
             }
             else
             {
-                currentAnimation = GetAnimation(currentAnimationId);
+                currentAnimation = animations[currentAnimationId];
             }
             currentAnimationTime = 0f;
             currentAnimationFrame = 0;
@@ -227,7 +267,7 @@ namespace MTM101BaldAPI.Components.Animation
 
         public void Play(string id, float speed)
         {
-            Play(id, speed);
+            Play(id, speed, false);
         }
 
         /// <summary>
@@ -278,7 +318,7 @@ namespace MTM101BaldAPI.Components.Animation
             {
                 currentAnimationTime = Mathf.Max(0f, currentAnimationTime - currentAnimation.frames[currentAnimationFrame].time);
                 currentAnimationFrame++;
-                if (currentAnimationFrame > currentAnimation.frames.Length)
+                if (currentAnimationFrame >= currentAnimation.frames.Length)
                 {
                     if (looping)
                     {
