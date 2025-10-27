@@ -235,10 +235,6 @@ namespace MTM101BaldAPI.Components.Animation
 
         public void AddAnimation(string key, AnimationType anim)
         {
-            if (animations == null)
-            {
-                animations = new Dictionary<string, AnimationType>();
-            }
             animations.Add(key, anim);
         }
 
@@ -315,7 +311,7 @@ namespace MTM101BaldAPI.Components.Animation
         void Update()
         {
             if (currentAnimation == null) return;
-            if (animationKeys.Length == 0) return;
+            if (animations.Count == 0) return;
             if (paused) return;
             currentAnimationTime += Time.deltaTime * GetTimeScale() * AnimationSpeed;
             while (currentAnimationTime >= currentAnimation.frames[currentAnimationFrame].time)
