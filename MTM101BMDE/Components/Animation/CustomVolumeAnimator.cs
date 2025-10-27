@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Text;
 using UnityEngine;
 
-namespace MTM101BaldAPI.Components
+namespace MTM101BaldAPI.Components.Animation
 {
     public class CustomVolumeAnimator : MonoBehaviour
     {
@@ -18,7 +18,7 @@ namespace MTM101BaldAPI.Components
                     clipData = new float[currentClip.samples * currentClip.channels];
                     currentClip.GetData(clipData, 0);
                     lastSample = 0;
-                    sampleBuffer = Mathf.RoundToInt((float)currentClip.samples / currentClip.length * bufferTime);
+                    sampleBuffer = Mathf.RoundToInt(currentClip.samples / currentClip.length * bufferTime);
                 }
                 volume = 0f;
                 int num = Mathf.Max(lastSample - sampleBuffer, 0);
@@ -61,7 +61,7 @@ namespace MTM101BaldAPI.Components
         /// </summary>
         public AnimationCurve sensitivity;
 
-        public IAnimationPlayer animator;
+        public ISimpleAnimator animator;
 
         public AudioSource audioSource;
 

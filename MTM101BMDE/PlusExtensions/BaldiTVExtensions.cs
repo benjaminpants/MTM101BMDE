@@ -1,5 +1,5 @@
 ﻿using HarmonyLib;
-using MTM101BaldAPI.Components;
+using MTM101BaldAPI.Components.Animation;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -163,10 +163,10 @@ namespace MTM101BaldAPI.PlusExtensions
             volAnim.animations = new string[animation.Length];
             for (int i = 0; i < animation.Length; i++)
             {
-                anim.animations.Add(i.ToString(), new CustomAnimation<Sprite>(new Sprite[1] { animation[i] }, 1f));
+                anim.AddAnimation(i.ToString(), new SpriteAnimation(new Sprite[1] { animation[i] }, 1f));
                 volAnim.animations[i] = i.ToString();
             }
-            anim.affectedObject = image;
+            anim.image = image;
             volAnim.animator = anim;
             volAnim.audioSource = audMan.audioDevice;
             volAnim.sensitivity = sensitivity;

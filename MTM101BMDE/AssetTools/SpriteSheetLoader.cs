@@ -1,6 +1,6 @@
 ﻿using BepInEx;
 using HarmonyLib;
-using MTM101BaldAPI.Components;
+using MTM101BaldAPI.Components.Animation;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
@@ -21,7 +21,7 @@ namespace MTM101BaldAPI.AssetTools.SpriteSheets
         /// <param name="pixelsPerUnit"></param>
         /// <param name="pivot"></param>
         /// <returns></returns>
-        public static Dictionary<string, CustomAnimation<Sprite>> LoadAsepriteAnimationsFromFile(string path, float pixelsPerUnit, Vector2 pivot)
+        public static Dictionary<string, SpriteAnimation> LoadAsepriteAnimationsFromFile(string path, float pixelsPerUnit, Vector2 pivot)
         {
             AsepriteSheet sheet = JsonConvert.DeserializeObject<AsepriteSheet>(File.ReadAllText(path));
             sheet.PopulateFrames();
@@ -37,16 +37,16 @@ namespace MTM101BaldAPI.AssetTools.SpriteSheets
         /// <param name="pivot"></param>
         /// <param name="paths"></param>
         /// <returns></returns>
-        public static Dictionary<string, CustomAnimation<Sprite>> LoadAsepriteAnimationsFromMod(BaseUnityPlugin plugin, float pixelsPerUnit, Vector2 pivot, params string[] paths)
+        public static Dictionary<string, SpriteAnimation> LoadAsepriteAnimationsFromMod(BaseUnityPlugin plugin, float pixelsPerUnit, Vector2 pivot, params string[] paths)
         {
             List<string> pathz = paths.ToList();
             pathz.Insert(0, AssetLoader.GetModPath(plugin));
             return LoadAsepriteAnimationsFromFile(Path.Combine(pathz.ToArray()), pixelsPerUnit, pivot);
         }
 
-        internal static Dictionary<string, CustomAnimation<Sprite>> AsepriteConvertSheetToAnimations(AsepriteSheet sheet, float pixelsPerUnit, Vector2 pivot)
+        internal static Dictionary<string, SpriteAnimation> AsepriteConvertSheetToAnimations(AsepriteSheet sheet, float pixelsPerUnit, Vector2 pivot)
         {
-            Dictionary<string, CustomAnimation<Sprite>> result = new Dictionary<string, CustomAnimation<Sprite>>();
+            Dictionary<string, SpriteAnimation> result = new Dictionary<string, SpriteAnimation>();
             foreach (FrameTag tag in sheet.meta.frameTags)
             {
                 result.Add(tag.name, AsepriteCreateAnimationFromTag(sheet.texture, pixelsPerUnit, pivot, sheet.frames, tag));
@@ -54,16 +54,16 @@ namespace MTM101BaldAPI.AssetTools.SpriteSheets
             return result;
         }
 
-        internal static CustomAnimation<Sprite> AsepriteCreateAnimationFromTag(Texture2D texture, float pixelsPerUnit, Vector2 pivot, KeyValuePair<string, Frame>[] frames, FrameTag tag)
+        internal static SpriteAnimation AsepriteCreateAnimationFromTag(Texture2D texture, float pixelsPerUnit, Vector2 pivot, KeyValuePair<string, Frame>[] frames, FrameTag tag)
         {
             KeyValuePair<string, Frame>[] selectedFrames = frames.Skip(tag.from).Take((tag.to - tag.from) + 1).ToArray();
-            CustomAnimationFrame<Sprite>[] animationFrames = new CustomAnimationFrame<Sprite>[selectedFrames.Length];
+            SpriteFrame[] animationFrames = new SpriteFrame[selectedFrames.Length];
             for (int i = 0; i < selectedFrames.Length; i++)
             {
                 KeyValuePair<string, Frame> currentFrame = selectedFrames[i];
                 Sprite sprite = Sprite.Create(texture, currentFrame.Value.frame.rect, pivot, pixelsPerUnit);
                 sprite.name = currentFrame.Key;
-                animationFrames[i] = new CustomAnimationFrame<Sprite>(sprite, currentFrame.Value.duration / 1000f);
+                animationFrames[i] = new SpriteFrame(sprite, currentFrame.Value.duration / 1000f);
             }
             // handle direction and repeat stuff, stupid.
             switch (tag.direction)
@@ -76,7 +76,7 @@ namespace MTM101BaldAPI.AssetTools.SpriteSheets
                     break;
                 case "pingpong_reverse":
                 case "pingpong":
-                    List<CustomAnimationFrame<Sprite>> reversedPing = animationFrames.Reverse().ToList();
+                    List<SpriteFrame> reversedPing = animationFrames.Reverse().ToList();
                     animationFrames = animationFrames.AddRangeToArray(reversedPing.ToArray()).ToArray();
                     if (tag.direction == "pingpong_reverse")
                     {
@@ -87,12 +87,12 @@ namespace MTM101BaldAPI.AssetTools.SpriteSheets
                     MTM101BaldiDevAPI.Log.LogWarning("Unknown tag direction: " + tag.direction);
                     break;
             }
-            CustomAnimationFrame<Sprite>[] animationFramesOriginal = animationFrames;
+            SpriteFrame[] animationFramesOriginal = animationFrames;
             for (int i = 1; i < tag.repeat; i++)
             {
                 animationFrames = animationFrames.AddRangeToArray(animationFramesOriginal);
             }
-            return new CustomAnimation<Sprite>(animationFrames);
+            return new SpriteAnimation(animationFrames);
         }
     }
 

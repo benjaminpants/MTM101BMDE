@@ -7,24 +7,10 @@ using UnityEngine;
 
 namespace MTM101BaldAPI.Components
 {
-    /// <summary>
-    /// A custom animator for entities with rotating sprites.
-    /// EX: First-Prize and Dr. Reflex
-    /// </summary>
+    /*
     public class RotatedSpriteAnimator : CustomAnimatorMono<SpriteRotator, CustomAnimation<Sprite[]>, Sprite[]>
     {
-        public override SpriteRotator affectedObject
-        {
-            get
-            {
-                return this.rotator;
-            }
-            set
-            {
-                this.rotator = value;
-            }
-        }
-        SpriteRotator rotator;
+        public SpriteRotator rotator;
 
         protected override void UpdateFrame()
         {
@@ -38,5 +24,5 @@ namespace MTM101BaldAPI.Components
             _sprites.SetValue(affectedObject, sprites);
             _angleRange.SetValue(affectedObject, (float)(360 / sprites.Length));
         }
-    }
+    }*/
 }
