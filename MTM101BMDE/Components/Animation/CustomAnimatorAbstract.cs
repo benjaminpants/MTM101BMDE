@@ -235,6 +235,10 @@ namespace MTM101BaldAPI.Components.Animation
 
         public void AddAnimation(string key, AnimationType anim)
         {
+            if (animations == null)
+            {
+                animations = new Dictionary<string, AnimationType>();
+            }
             animations.Add(key, anim);
         }
 
