@@ -116,7 +116,7 @@ namespace MTM101BaldAPI.Components.Animation
         [SerializeField]
         private List<float> sTimes;
 
-        public void OnBeforeSerialize()
+        public virtual void OnBeforeSerialize()
         {
             // written kind of weird because before i was already trying to use a string and AnimationType array to get it to serialize, so this code is mostly written like that is still the case
             // i do believe it'd only be a minor refactor to adjust it to be more proper with the dictionary, but i have already spent way too long on this
@@ -143,7 +143,7 @@ namespace MTM101BaldAPI.Components.Animation
             }
         }
 
-        public void OnAfterDeserialize()
+        public virtual void OnAfterDeserialize()
         {
             int totalIndex = 0;
             for (int i = 0; i < sCounts.Length; i++)
