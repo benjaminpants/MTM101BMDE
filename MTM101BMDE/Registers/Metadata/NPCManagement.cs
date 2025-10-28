@@ -65,8 +65,8 @@ namespace MTM101BaldAPI.Registers
 
         public NPC value => prefabs[defaultKey];
 
-        public List<string> tags => _tags;
-        private List<string> _tags = new List<string>();
+        public HashSet<string> tags => _tags;
+        private HashSet<string> _tags = new HashSet<string>();
 
         public PluginInfo info => _info;
         private PluginInfo _info;
@@ -98,7 +98,7 @@ namespace MTM101BaldAPI.Registers
 
         public NPCMetadata(PluginInfo info, NPC[] prefabs, string defKey, NPCFlags flags, string[] tags) : this(info, prefabs, defKey, flags)
         {
-            _tags.AddRange(tags);
+            _tags.UnionWith(tags);
         }
     }
 

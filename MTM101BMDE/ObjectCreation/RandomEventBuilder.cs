@@ -55,8 +55,8 @@ namespace MTM101BaldAPI.ObjectCreation
             _eventJingleOverride.SetValue(evnt, _jingle);
             eventObject.name = _eventName;
             RandomEventMetadata meta = new RandomEventMetadata(_info, evnt, _flags);
-            meta.tags.AddRange(_tags);
-            meta.tags.AddRange(characters);
+            meta.tags.UnionWith(_tags);
+            meta.tags.UnionWith(characters);
             RandomEventMetaStorage.Instance.Add(meta);
             evnt.gameObject.ConvertToPrefab(true);
             return evnt;

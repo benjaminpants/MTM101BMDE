@@ -88,7 +88,7 @@ namespace MTM101BaldAPI.ObjectCreation
                 return item;
             }
             ItemMetaData itemMeta = new ItemMetaData(info, item);
-            itemMeta.tags.AddRange(tags);
+            itemMeta.tags.UnionWith(tags);
             itemMeta.flags = flags;
             item.AddMeta(itemMeta);
             return item;

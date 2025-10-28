@@ -48,8 +48,8 @@ namespace MTM101BaldAPI.Registers
 
         public string descKey => introSound.soundKey;
 
-        public List<string> tags => _tags;
-        private List<string> _tags = new List<string>();
+        public HashSet<string> tags => _tags;
+        private HashSet<string> _tags = new HashSet<string>();
 
         public PluginInfo info => _info;
         private PluginInfo _info;
@@ -64,12 +64,11 @@ namespace MTM101BaldAPI.Registers
         public Character[] GetRequiredCharacters()
         {
             List<Character> characters = new List<Character>();
-            for (int i = 0; i < _tags.Count; i++)
+            foreach (var currentTag in tags)
             {
-                string currentTag = _tags[i];
                 if (currentTag.Contains("requiredC_"))
                 {
-                    characters.Add(EnumExtensions.GetFromExtendedName<Character>(currentTag.Replace("requiredC_","")));
+                    characters.Add(EnumExtensions.GetFromExtendedName<Character>(currentTag.Replace("requiredC_", "")));
                 }
             }
             return characters.ToArray();
@@ -78,9 +77,8 @@ namespace MTM101BaldAPI.Registers
         public RoomCategory[] GetRequiredRooms()
         {
             List<RoomCategory> rooms = new List<RoomCategory>();
-            for (int i = 0; i < _tags.Count; i++)
+            foreach (var currentTag in tags)
             {
-                string currentTag = _tags[i];
                 if (currentTag.Contains("requiredR_"))
                 {
                     rooms.Add(EnumExtensions.GetFromExtendedName<RoomCategory>(currentTag.Replace("requiredR_", "")));

@@ -82,6 +82,7 @@ namespace MTM101BaldAPI
         public static NPCMetaStorage npcMetadata = new NPCMetaStorage();
         public static RandomEventMetaStorage randomEventStorage = new RandomEventMetaStorage();
         public static SceneObjectMetaStorage sceneMeta = new SceneObjectMetaStorage();
+        public static StickerMetaStorage stickerMeta = new StickerMetaStorage();
 
         internal static AssetManager AssetMan = new AssetManager();
 
@@ -260,7 +261,7 @@ namespace MTM101BaldAPI
                         bm.tags.Add("drink");
                         break;
                     case Items.AlarmClock:
-                        x.AddMeta(this, ItemFlags.Persists | ItemFlags.CreatesEntity).tags.AddRange(new string[] { "technology", "makes_noise" });
+                        x.AddMeta(this, ItemFlags.Persists | ItemFlags.CreatesEntity).tags.UnionWith(new string[] { "technology", "makes_noise" });
                         break;
                     case Items.ChalkEraser:
                         x.AddMeta(this, ItemFlags.Persists | ItemFlags.CreatesEntity);
@@ -337,6 +338,9 @@ namespace MTM101BaldAPI
                     case Items.HexagonKey:
                     case Items.WeirdKey:
                         x.AddMeta(this, ItemFlags.None).tags.Add("shape_key");
+                        break;
+                    case Items.StickerPack:
+                        x.AddMeta(this, ItemFlags.InstantUse);
                         break;
                     default:
                         // modded items start at 256, so we somehow have initialized after the mod in question, ignore the data.
@@ -483,6 +487,7 @@ namespace MTM101BaldAPI
                     case "Tutorial":
                         x.AddMeta(this, new string[] { "tutorial" });
                         break;
+                    case "LightTest":
                     case "EventTest":
                         x.AddMeta(this, new string[] { "debug", "unused" });
                         break;
@@ -491,6 +496,31 @@ namespace MTM101BaldAPI
                         break;
                 }
             });
+
+            // sticker metadata
+            StickerManager stickerMan = Resources.FindObjectsOfTypeAll<StickerManager>().First(x => x.GetInstanceID() >= 0);
+            StickerData[] stickerData = (StickerData[])stickerMan.ReflectionGetVariable("stickerData");
+            for (int i = 0; i < stickerData.Length; i++)
+            {
+                if (stickerData[i].sprite == null)
+                {
+                    Log.LogDebug("Sticker: " + stickerData[i].sticker.ToString() + " has no sprite, assuming unused!");
+                    continue;
+                }
+                stickerMeta.AddSticker(Info, new ExtendedStickerData()
+                {
+                    affectsLevelGeneration = stickerData[i].affectsLevelGeneration,
+                    sprite = stickerData[i].sprite,
+                    duplicateOddsMultiplier = stickerData[i].duplicateOddsMultiplier,
+                    sticker = stickerData[i].sticker
+                });
+            }
+            for (int i = 0; i < stickerMan.activeStickerData.Length; i++)
+            {
+                stickerMan.activeStickerData[i] = new ExtendedStickerStateData(stickerMan.activeStickerData[i].sticker, stickerMan.activeStickerData[i].activeLevel, stickerMan.activeStickerData[i].opened);
+            }
+            stickerMan.applyStickers = false; // ??
+            //stickerMan.ReflectionSetVariable("stickerData", null);
 
             MTM101BaldiDevAPI.CalledInitialize = true;
 

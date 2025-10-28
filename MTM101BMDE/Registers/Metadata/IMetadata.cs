@@ -13,7 +13,7 @@ namespace MTM101BaldAPI.Registers
     {
         T value { get; }
 
-        List<string> tags { get; }
+        HashSet<string> tags { get; }
 
         PluginInfo info { get; }
     }

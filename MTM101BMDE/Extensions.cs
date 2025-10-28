@@ -313,7 +313,7 @@ namespace MTM101BaldAPI.Registers
         {
             SceneObjectMetadata meta = new SceneObjectMetadata(plugin.Info, me);
             tags = tags ?? new string[0];
-            meta.tags.AddRange(tags);
+            meta.tags.UnionWith(tags);
             MTM101BaldiDevAPI.sceneMeta.Add(me, meta);
             return meta;
         }

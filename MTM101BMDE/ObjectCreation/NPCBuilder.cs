@@ -170,7 +170,7 @@ namespace MTM101BaldAPI.ObjectCreation
             if (newNpc.Character != Character.Null)
             {
                 NPCMetadata meta = newNpc.AddMeta(info.Instance, flags);
-                meta.tags.AddRange(tags);
+                meta.tags.UnionWith(tags);
                 if (npcName != null)
                 {
                     meta.nameLocalizationKey = npcName;

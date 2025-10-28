@@ -28,8 +28,8 @@ namespace MTM101BaldAPI.Registers
         public int number => _value.levelNo;
         public string title => _value.levelTitle;
 
-        public List<string> tags => _tags;
-        private List<string> _tags = new List<string>();
+        public HashSet<string> tags => _tags;
+        private HashSet<string> _tags = new HashSet<string>();
 
         public PluginInfo info => _info;
         private PluginInfo _info;
