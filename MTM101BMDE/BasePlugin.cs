@@ -507,7 +507,7 @@ namespace MTM101BaldAPI
                     Log.LogDebug("Sticker: " + stickerData[i].sticker.ToString() + " has no sprite, assuming unused!");
                     continue;
                 }
-                stickerMeta.AddSticker(Info, new ExtendedStickerData()
+                stickerMeta.AddSticker(Info, new VanillaCompatibleExtendedStickerData()
                 {
                     affectsLevelGeneration = stickerData[i].affectsLevelGeneration,
                     sprite = stickerData[i].sprite,

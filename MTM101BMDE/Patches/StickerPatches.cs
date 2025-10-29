@@ -13,8 +13,6 @@ namespace MTM101BaldAPI.Patches
 
     }
 
-    // TODO: consider just. making the methods that take in an ExtendedStickerStateData take in a StickerStateData instead.
-    // TODO: implement saving
     [HarmonyPatch]
     class StickerPatches
     {
@@ -24,7 +22,6 @@ namespace MTM101BaldAPI.Patches
         [HarmonyPriority(Priority.Last)]
         static void StickerUpdatePrefix(StickerManager __instance)
         {
-            if (MTM101BaldiDevAPI.SaveGamesHandler == SavedGameDataHandler.Vanilla) return;
             if (!__instance.TryGetComponent<StickerInitFixRan>(out _))
             {
                 for (int i = 0; i < __instance.activeStickerData.Length; i++)
@@ -46,7 +43,6 @@ namespace MTM101BaldAPI.Patches
         [HarmonyPriority(Priority.Last)]
         static bool ApplyStickerPrefix(Sticker sticker, int slot, StickerManager __instance, StickerManager.StickerAppliedDelegate ___OnStickerApplied)
         {
-            if (MTM101BaldiDevAPI.SaveGamesHandler == SavedGameDataHandler.Vanilla) return true;
             __instance.activeStickerData[slot] = StickerMetaStorage.Instance.Get(sticker).value.CreateStickerData(Singleton<BaseGameManager>.Instance.CurrentLevel, true);
             ___OnStickerApplied.Invoke();
             return false;
@@ -58,8 +54,7 @@ namespace MTM101BaldAPI.Patches
         [HarmonyPriority(Priority.Last)]
         static bool StickerCanBeCoveredPrefix(int slot, StickerManager __instance, ref bool __result)
         {
-            if (MTM101BaldiDevAPI.SaveGamesHandler == SavedGameDataHandler.Vanilla) return true;
-            __result = StickerMetaStorage.Instance.Get(__instance.activeStickerData[slot].sticker).value.CanBeCovered((ExtendedStickerStateData)__instance.activeStickerData[slot]);
+            __result = StickerMetaStorage.Instance.Get(__instance.activeStickerData[slot].sticker).value.CanBeCovered(__instance.activeStickerData[slot]);
             return false;
         }
 
@@ -69,7 +64,6 @@ namespace MTM101BaldAPI.Patches
         [HarmonyPriority(Priority.Last)]
         static bool StickerCanBeAppliedPrefix(Sticker sticker, StickerManager __instance, ref bool __result)
         {
-            if (MTM101BaldiDevAPI.SaveGamesHandler == SavedGameDataHandler.Vanilla) return true;
             __result = StickerMetaStorage.Instance.Get(sticker).value.CanBeApplied();
             return false;
         }
@@ -80,7 +74,6 @@ namespace MTM101BaldAPI.Patches
         [HarmonyPriority(Priority.Last)]
         static void StickerValuePostfix(Sticker sticker, ref int __result)
         {
-            if (MTM101BaldiDevAPI.SaveGamesHandler == SavedGameDataHandler.Vanilla) return;
             __result = Mathf.Min(__result, StickerMetaStorage.Instance.Get(sticker).value.stickerValueCap);
         }
 
@@ -90,8 +83,7 @@ namespace MTM101BaldAPI.Patches
         [HarmonyPriority(Priority.Last)]
         static bool GetAppliedStickerSpritePrefix(StickerManager __instance, int inventoryId, ref Sprite __result)
         {
-            if (MTM101BaldiDevAPI.SaveGamesHandler == SavedGameDataHandler.Vanilla) return true;
-            __result = StickerMetaStorage.Instance.Get(__instance.activeStickerData[inventoryId].sticker).value.GetAppliedSprite((ExtendedStickerStateData)__instance.activeStickerData[inventoryId]);
+            __result = StickerMetaStorage.Instance.Get(__instance.activeStickerData[inventoryId].sticker).value.GetAppliedSprite(__instance.activeStickerData[inventoryId]);
             return false;
         }
 
@@ -101,7 +93,6 @@ namespace MTM101BaldAPI.Patches
         [HarmonyPriority(Priority.Last)]
         static bool GetInventoryStickerSpritePrefix(StickerManager __instance, int inventoryId, ref Sprite __result)
         {
-            if (MTM101BaldiDevAPI.SaveGamesHandler == SavedGameDataHandler.Vanilla) return true;
             if (!__instance.stickerInventory[inventoryId].opened) return true;
             __result = StickerMetaStorage.Instance.Get(__instance.stickerInventory[inventoryId].sticker).value.sprite;
             return false;
@@ -113,8 +104,7 @@ namespace MTM101BaldAPI.Patches
         [HarmonyPriority(Priority.Last)]
         static bool GetLocalizedAppliedStickerDescriptionPrefix(StickerManager __instance, int slot, ref string __result)
         {
-            if (MTM101BaldiDevAPI.SaveGamesHandler == SavedGameDataHandler.Vanilla) return true;
-            __result = StickerMetaStorage.Instance.Get(__instance.activeStickerData[slot].sticker).value.GetLocalizedAppliedStickerDescription((ExtendedStickerStateData)__instance.activeStickerData[slot]);
+            __result = StickerMetaStorage.Instance.Get(__instance.activeStickerData[slot].sticker).value.GetLocalizedAppliedStickerDescription(__instance.activeStickerData[slot]);
             return false;
         }
 
@@ -124,9 +114,8 @@ namespace MTM101BaldAPI.Patches
         [HarmonyPriority(Priority.Last)]
         static bool GetLocalizedInventoryStickerDescriptionPrefix(StickerManager __instance, int slot, ref string __result)
         {
-            if (MTM101BaldiDevAPI.SaveGamesHandler == SavedGameDataHandler.Vanilla) return true;
             if (!__instance.stickerInventory[slot].opened) return true;
-            __result = StickerMetaStorage.Instance.Get(__instance.stickerInventory[slot].sticker).value.GetLocalizedInventoryStickerDescription((ExtendedStickerStateData)__instance.stickerInventory[slot]);
+            __result = StickerMetaStorage.Instance.Get(__instance.stickerInventory[slot].sticker).value.GetLocalizedInventoryStickerDescription(__instance.stickerInventory[slot]);
             return false;
         }
 
@@ -136,7 +125,6 @@ namespace MTM101BaldAPI.Patches
         [HarmonyPriority(Priority.Last)]
         static bool OpenUnopenedStickerPacketsPrefix(StickerManager __instance, bool animation)
         {
-            if (MTM101BaldiDevAPI.SaveGamesHandler == SavedGameDataHandler.Vanilla) return true;
             for (int i = 0; i < __instance.stickerInventory.Count; i++)
             {
                 if (__instance.stickerInventory[i].opened) continue;
@@ -155,7 +143,6 @@ namespace MTM101BaldAPI.Patches
         [HarmonyPriority(Priority.Last)]
         static bool GiveRandomStickerPrefix()
         {
-            if (MTM101BaldiDevAPI.SaveGamesHandler == SavedGameDataHandler.Vanilla) return true;
             Sticker chosenSticker = WeightedSelection<Sticker>.RandomSelection(Singleton<CoreGameManager>.Instance.sceneObject.potentialStickers);
             Singleton<StickerManager>.Instance.AddSticker(chosenSticker, false, false);
             return false;
@@ -167,7 +154,6 @@ namespace MTM101BaldAPI.Patches
         [HarmonyPriority(Priority.Last)]
         static bool PitstopGiveRandomStickerPrefix()
         {
-            if (MTM101BaldiDevAPI.SaveGamesHandler == SavedGameDataHandler.Vanilla) return true;
             Sticker chosenSticker = WeightedSelection<Sticker>.RandomSelection(Singleton<CoreGameManager>.Instance.nextLevel.potentialStickers);
             Singleton<StickerManager>.Instance.AddSticker(chosenSticker, true, true);
             return false;

@@ -1,5 +1,7 @@
-﻿using System;
+﻿using HarmonyLib;
+using System;
 using System.Collections.Generic;
+using System.Reflection;
 using System.Text;
 using UnityEngine;
 using UnityEngine.UI;
@@ -67,6 +69,49 @@ namespace MTM101BaldAPI.Components.Animation
 
         public Texture2DAnimation(Texture2D[] frames, float totalTime) : base(frames, totalTime)
         {
+        }
+    }
+
+    public class SpriteArrayFrame : CustomAnimationFrame<Sprite[]>
+    {
+        public SpriteArrayFrame()
+        {
+        }
+
+        public SpriteArrayFrame(Sprite[] value, float time) : base(value, time)
+        {
+        }
+    }
+
+    public class SpriteArrayAnimation : CustomAnimation<SpriteArrayFrame, Sprite[]>
+    {
+        public SpriteArrayAnimation()
+        {
+        }
+
+        public SpriteArrayAnimation(SpriteArrayFrame[] frames) : base(frames)
+        {
+        }
+
+        public SpriteArrayAnimation(int fps, Sprite[][] frames) : base(fps, frames)
+        {
+        }
+
+        public SpriteArrayAnimation(Sprite[][] frames, float totalTime) : base(frames, totalTime)
+        {
+        }
+    }
+
+    public class CustomRotatedSpriteAnimator : CustomAnimator<SpriteArrayAnimation, SpriteArrayFrame, Sprite[]>
+    {
+        public SpriteRotator rotator;
+
+        static FieldInfo _angleRange = AccessTools.Field(typeof(SpriteRotator), "angleRange");
+        static FieldInfo _sprites = AccessTools.Field(typeof(SpriteRotator), "sprites");
+        public override void ApplyFrame(Sprite[] frame)
+        {
+            _sprites.SetValue(rotator, frame);
+            _angleRange.SetValue(rotator, (float)(360 / frame.Length));
         }
     }
 

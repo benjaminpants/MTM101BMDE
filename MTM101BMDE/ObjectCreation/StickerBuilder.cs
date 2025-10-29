@@ -7,7 +7,7 @@ using UnityEngine;
 
 namespace MTM101BaldAPI.ObjectCreation
 {
-    public class StickerBuilder<T> where T : ExtendedStickerData
+    public class StickerBuilder<T> where T : ExtendedStickerData, new()
     {
         PluginInfo info;
         string stickerEnumName = "";
@@ -79,9 +79,9 @@ namespace MTM101BaldAPI.ObjectCreation
             return this;
         }
 
-        public ExtendedStickerData Build()
+        public T Build()
         {
-            ExtendedStickerData stickerData = new ExtendedStickerData();
+            T stickerData = new T();
             stickerData.sprite = sprite;
             if (stickerEnumName == "")
             {

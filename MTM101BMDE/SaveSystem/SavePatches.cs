@@ -149,6 +149,7 @@ namespace MTM101BaldAPI.SaveSystem
         static void Postfix(bool? __state)
         {
             if (__state == null) return;
+            Singleton<ModdedFileManager>.Instance.saveData.saveAvailable = false;
             Singleton<PlayerFileManager>.Instance.savedGameData.saveAvailable = __state.Value;
             Singleton<PlayerFileManager>.Instance.Save();
         }
@@ -171,6 +172,7 @@ namespace MTM101BaldAPI.SaveSystem
         static void Postfix(bool? __state)
         {
             if (__state == null) return;
+            Singleton<ModdedFileManager>.Instance.saveData.saveAvailable = false;
             Singleton<PlayerFileManager>.Instance.savedGameData.saveAvailable = __state.Value;
             Singleton<PlayerFileManager>.Instance.Save();
         }

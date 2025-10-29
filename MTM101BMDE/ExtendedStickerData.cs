@@ -26,7 +26,7 @@ namespace MTM101BaldAPI
         /// </summary>
         /// <param name="data"></param>
         /// <returns></returns>
-        public virtual Sprite GetAppliedSprite(ExtendedStickerStateData data)
+        public virtual Sprite GetAppliedSprite(StickerStateData data)
         {
             return sprite;
         }
@@ -36,7 +36,7 @@ namespace MTM101BaldAPI
         /// </summary>
         /// <param name="data"></param>
         /// <returns></returns>
-        public virtual bool CanBeCovered(ExtendedStickerStateData data)
+        public virtual bool CanBeCovered(StickerStateData data)
         {
             if (!affectsLevelGeneration) return true;
             return data.activeLevel != Singleton<BaseGameManager>.Instance.CurrentStickerLevel();
@@ -46,7 +46,7 @@ namespace MTM101BaldAPI
         /// Returns the localized string used when this sticker is applied.
         /// </summary>
         /// <returns></returns>
-        public virtual string GetLocalizedAppliedStickerDescription(ExtendedStickerStateData data)
+        public virtual string GetLocalizedAppliedStickerDescription(StickerStateData data)
         {
             return string.Format("{0}<br><br>{1}", Singleton<LocalizationManager>.Instance.GetLocalizedText(string.Format("StickerTitle_{0}", EnumExtensions.GetExtendedName<Sticker>((int)sticker))), Singleton<LocalizationManager>.Instance.GetLocalizedText(string.Format("StickerDescription_{0}", EnumExtensions.GetExtendedName<Sticker>((int)sticker))));
         }
@@ -55,7 +55,7 @@ namespace MTM101BaldAPI
         /// Returns the localized string used when this sticker is in the sticker inventory.
         /// </summary>
         /// <returns></returns>
-        public virtual string GetLocalizedInventoryStickerDescription(ExtendedStickerStateData data)
+        public virtual string GetLocalizedInventoryStickerDescription(StickerStateData data)
         {
             return string.Format("{0}<br><br>{1}", Singleton<LocalizationManager>.Instance.GetLocalizedText(string.Format("StickerTitle_{0}", EnumExtensions.GetExtendedName<Sticker>((int)sticker))), Singleton<LocalizationManager>.Instance.GetLocalizedText(string.Format("StickerDescription_{0}", EnumExtensions.GetExtendedName<Sticker>((int)sticker))));
         }
@@ -66,9 +66,20 @@ namespace MTM101BaldAPI
         /// <param name="activeLevel"></param>
         /// <param name="opened"></param>
         /// <returns></returns>
-        public virtual ExtendedStickerStateData CreateStickerData(int activeLevel, bool opened)
+        public virtual StickerStateData CreateStickerData(int activeLevel, bool opened)
         {
             return new ExtendedStickerStateData(sticker, activeLevel, opened);
+        }
+    }
+
+    /// <summary>
+    /// A version of ExtendedStickerData, but it returns a regular StickerStateData instead.
+    /// </summary>
+    public class VanillaCompatibleExtendedStickerData : ExtendedStickerData
+    {
+        public override StickerStateData CreateStickerData(int activeLevel, bool opened)
+        {
+            return new StickerStateData(sticker, activeLevel, opened);
         }
     }
 
@@ -96,9 +107,9 @@ namespace MTM101BaldAPI
 
     public static class StickerManagerExtensions
     {
-        public static ExtendedStickerStateData AddSticker(this StickerManager me, Sticker sticker, bool opened, bool animation)
+        public static StickerStateData AddSticker(this StickerManager me, Sticker sticker, bool opened, bool animation)
         {
-            ExtendedStickerStateData data = StickerMetaStorage.Instance.Get(sticker).value.CreateStickerData(0, opened);
+            StickerStateData data = StickerMetaStorage.Instance.Get(sticker).value.CreateStickerData(0, opened);
             me.stickerInventory.Add(data);
             if (animation && opened)
             {
