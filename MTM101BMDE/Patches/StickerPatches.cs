@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Reflection;
 using System.Text;
 using HarmonyLib;
 using MTM101BaldAPI.Registers;
@@ -16,6 +17,27 @@ namespace MTM101BaldAPI.Patches
     [HarmonyPatch]
     class StickerPatches
     {
+
+        static MethodInfo _DestroyStickers = AccessTools.Method(typeof(StickerScreenController), "DestroyStickers");
+        static MethodInfo _InitializeStickers = AccessTools.Method(typeof(StickerScreenController), "InitializeStickers");
+        [HarmonyPrefix]
+        [HarmonyPatch(typeof(StickerScreenController))]
+        [HarmonyPatch("ApplyHeldSticker")]
+        [HarmonyPriority(Priority.Last)]
+        static bool ApplyHeldStickerPrefix(StickerScreenController __instance, int slot, ref bool ___holdingSticker, int ___heldStickerId, GameObject ___dropStickerButton)
+        {
+            if (___holdingSticker && Singleton<StickerManager>.Instance.StickerCanBeCovered(slot))
+            {
+                ___holdingSticker = false;
+                Singleton<StickerManager>.Instance.ApplyExistingSticker(StickerMetaStorage.Instance.Get(Singleton<StickerManager>.Instance.stickerInventory[___heldStickerId].sticker).value.CreateOrGetAppliedStateData(Singleton<StickerManager>.Instance.stickerInventory[___heldStickerId]), slot);
+                Singleton<StickerManager>.Instance.RemoveStickerFromInventory(___heldStickerId);
+                _DestroyStickers.Invoke(__instance, null);
+                _InitializeStickers.Invoke(__instance, null);
+                ___dropStickerButton.SetActive(false);
+            }
+            return false;
+        }
+
         [HarmonyPrefix]
         [HarmonyPatch(typeof(StickerManager))]
         [HarmonyPatch("Update")]
@@ -29,7 +51,7 @@ namespace MTM101BaldAPI.Patches
                     if (__instance.activeStickerData[i].GetType() == typeof(StickerStateData))
                     {
                         Debug.Log("Correcting " + i + "!");
-                        __instance.activeStickerData[i] = StickerMetaStorage.Instance.Get(__instance.activeStickerData[i].sticker).value.CreateStickerData(__instance.activeStickerData[i].activeLevel, __instance.activeStickerData[i].opened);
+                        __instance.activeStickerData[i] = StickerMetaStorage.Instance.Get(__instance.activeStickerData[i].sticker).value.CreateStateData(__instance.activeStickerData[i].activeLevel, __instance.activeStickerData[i].opened);
                     }
                 }
                 __instance.gameObject.AddComponent<StickerInitFixRan>();
@@ -43,7 +65,7 @@ namespace MTM101BaldAPI.Patches
         [HarmonyPriority(Priority.Last)]
         static bool ApplyStickerPrefix(Sticker sticker, int slot, StickerManager __instance, StickerManager.StickerAppliedDelegate ___OnStickerApplied)
         {
-            __instance.activeStickerData[slot] = StickerMetaStorage.Instance.Get(sticker).value.CreateStickerData(Singleton<BaseGameManager>.Instance.CurrentLevel, true);
+            __instance.activeStickerData[slot] = StickerMetaStorage.Instance.Get(sticker).value.CreateStateData(Singleton<BaseGameManager>.Instance.CurrentLevel, true);
             ___OnStickerApplied.Invoke();
             return false;
         }

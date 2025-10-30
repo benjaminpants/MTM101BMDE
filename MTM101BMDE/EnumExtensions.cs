@@ -110,14 +110,37 @@ namespace MTM101BaldAPI
             bool success = ExtendedData.TryGetValue(typeof(T),out ExtendedEnumData value);
             if (!success)
             {
-                throw new KeyNotFoundException();
+                throw new KeyNotFoundException("No enum extensions for" + typeof(T).Name + "exist!");
             }
             int index = value.Enums.FindIndex(x => x == name);
             if (index == -1)
             {
-                throw new KeyNotFoundException();
+                throw new KeyNotFoundException("Could not find extended enum with: " + name + "!");
             }
             return (T)(object)(value.valueOffset + index);
+        }
+
+        public static void GetFromExtendedNameSafe<T>(string name, out T? result) where T : struct, Enum
+        {
+            if (Enum.IsDefined(typeof(T), name))
+            {
+                result = (T)Enum.Parse(typeof(T), name);
+                return;
+            }
+            bool success = ExtendedData.TryGetValue(typeof(T), out ExtendedEnumData value);
+            if (!success)
+            {
+                result = null;
+                return;
+            }
+            int index = value.Enums.FindIndex(x => x == name);
+            if (index == -1)
+            {
+                result = null;
+                return;
+            }
+            result = (T)(object)(value.valueOffset + index);
+            return;
         }
 
         /// <summary>

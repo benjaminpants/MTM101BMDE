@@ -26,6 +26,9 @@ namespace MTM101BaldAPI.SaveSystem
         {
             UnityEngine.Object.Instantiate<CoreGameManager>(loader.cgmPre);
             ModdedSaveGame savedGameData = saveData;
+
+            Singleton<StickerManager>.Instance.activeStickerData = savedGameData.activeStickerData.Select(x => x.MakeCopy()).ToArray();
+            Singleton<StickerManager>.Instance.stickerInventory = savedGameData.stickerInventory.Select(x => x.MakeCopy()).ToList();
             Singleton<CoreGameManager>.Instance.SetSeed(savedGameData.seed);
             Singleton<CoreGameManager>.Instance.SetLives(savedGameData.lives, true);
             Singleton<CoreGameManager>.Instance.SetAttempts(savedGameData.attempts);
@@ -246,7 +249,7 @@ namespace MTM101BaldAPI.SaveSystem
                     MTM101BaldiDevAPI.Log.LogWarning("Failed to load save because the tags were mismatched!");
                     Singleton<ModdedFileManager>.Instance.saveData.saveAvailable = false;
                     break;
-                case ModdedSaveLoadStatus.MissingItems:
+                case ModdedSaveLoadStatus.MissingItemsOrStickers:
                     if (ItemMetaStorage.Instance.All().Length == 0) break; //item metadata hasnt loaded yet!
                     MTM101BaldiDevAPI.Log.LogWarning("Failed to load save because one or more items couldn't be found!");
                     Singleton<ModdedFileManager>.Instance.saveData.saveAvailable = false;
@@ -435,6 +438,8 @@ namespace MTM101BaldAPI.SaveSystem
             newSave.foundMapTiles = ___foundTilesToRestore.ConvertTo1d(___savedMapSize.x, ___savedMapSize.z);
             newSave.mapSizeX = ___savedMapSize.x;
             newSave.mapSizeZ = ___savedMapSize.z;
+            newSave.stickerInventory.AddRange(Singleton<StickerManager>.Instance.stickerInventory.Select(x => x.MakeCopy()));
+            newSave.activeStickerData.AddRange(Singleton<StickerManager>.Instance.activeStickerData.Select(x => x.MakeCopy()));
             newSave.FillBlankModTags();
             Singleton<ModdedFileManager>.Instance.saveData = newSave;
             Singleton<PlayerFileManager>.Instance.Save();
