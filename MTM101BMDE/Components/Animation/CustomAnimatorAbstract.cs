@@ -321,11 +321,8 @@ namespace MTM101BaldAPI.Components.Animation
                 currentAnimationFrame++;
                 if (currentAnimationFrame >= currentAnimation.frames.Length)
                 {
-                    if (looping)
-                    {
-                        currentAnimationFrame = 0;
-                    }
-                    else
+                    currentAnimationFrame = 0;
+                    if (!looping)
                     {
                         Stop();
                     }
