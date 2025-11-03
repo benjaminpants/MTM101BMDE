@@ -61,6 +61,7 @@ namespace MTM101BaldAPI.Components.Animation
         /// </summary>
         public AnimationCurve sensitivity;
 
+        [SerializeReference]
         public ISimpleAnimator animator;
 
         public AudioSource audioSource;

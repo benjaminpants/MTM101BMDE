@@ -1,6 +1,7 @@
 ﻿using HarmonyLib;
 using System;
 using System.Collections.Generic;
+using System.Reflection;
 using System.Text;
 using UnityEngine;
 using UnityEngine.Events;
@@ -102,74 +103,50 @@ namespace MTM101BaldAPI.Components.Animation
         }
     }
 
-    public abstract class CustomAnimator<AnimationType, Frame, UnderlyingType> : MonoBehaviour, ISimpleAnimator, ISerializationCallbackReceiver where AnimationType : CustomAnimation<Frame, UnderlyingType>, new() where Frame : CustomAnimationFrame<UnderlyingType>, new()
+    public abstract class CustomAnimator<AnimationType, Frame, UnderlyingType> : MonoBehaviour, ISerializationCallbackReceiver, ISimpleAnimator where AnimationType : CustomAnimation<Frame, UnderlyingType>, new() where Frame : CustomAnimationFrame<UnderlyingType>, new()
     {
 
         protected Dictionary<string, AnimationType> animations = new Dictionary<string, AnimationType>();
 
         [SerializeField]
-        private string[] animationKeys;
+        protected string[] animationKeys;
+
         [SerializeField]
-        private int[] sCounts;
-        [SerializeField]
-        private List<UnderlyingType> sAnims;
-        [SerializeField]
-        private List<float> sTimes;
+        protected AnimationType[] animationTypes;
 
         public virtual void OnBeforeSerialize()
         {
             // written kind of weird because before i was already trying to use a string and AnimationType array to get it to serialize, so this code is mostly written like that is still the case
             // i do believe it'd only be a minor refactor to adjust it to be more proper with the dictionary, but i have already spent way too long on this
             animationKeys = new string[animations.Count];
-            AnimationType[] animationsValues = new AnimationType[animations.Count];
-            int totalIndex = 0;
-            foreach (var kvp in animations)
+            animationTypes = new AnimationType[animations.Count];
+            int index = 0;
+            foreach (var item in animations)
             {
-                animationKeys[totalIndex] = kvp.Key;
-                animationsValues[totalIndex] = kvp.Value;
-                totalIndex++;
-            }
-            sAnims = new List<UnderlyingType>();
-            sTimes = new List<float>();
-            sCounts = new int[animationsValues.Length];
-            for (int i = 0; i < animationsValues.Length; i++)
-            {
-                sCounts[i] = animationsValues[i].frames.Length;
-                for (int j = 0; j < animationsValues[i].frames.Length; j++)
-                {
-                    sAnims.Add(animationsValues[i].frames[j].value);
-                    sTimes.Add(animationsValues[i].frames[j].time);
-                }
+                animationKeys[index] = item.Key;
+                animationTypes[index] = item.Value;
+                index++;
             }
         }
 
         public virtual void OnAfterDeserialize()
         {
-            int totalIndex = 0;
-            for (int i = 0; i < sCounts.Length; i++)
+            for (int i = 0; i < animationKeys.Length; i++)
             {
-                AnimationType anim = new AnimationType();
-                anim.frames = new Frame[sCounts[i]];
-                for (int j = 0; j < sCounts[i]; j++)
-                {
-                    anim.frames[j] = new Frame();
-                    anim.frames[j].value = sAnims[totalIndex];
-                    anim.frames[j].time = sTimes[totalIndex];
-                    anim.animationLength += sTimes[totalIndex];
-                    totalIndex++;
-                }
-                animations.Add(animationKeys[i], anim);
+                animations.Add(animationKeys[i], animationTypes[i]);
             }
-            sAnims = null;
-            sTimes = null;
-            sCounts = null;
             animationKeys = null;
+            animationTypes = null;
         }
 
-        protected string currentAnimationId = null;
         protected int currentAnimationFrame = 0;
         protected float currentAnimationTime = 0f;
+
+        [SerializeField]
+        protected string currentAnimationId = null;
+        [SerializeField]
         protected bool looping = false;
+        [SerializeField]
         protected float currentSpeed = 1f;
 
         protected AnimationType currentAnimation;
@@ -253,6 +230,8 @@ namespace MTM101BaldAPI.Components.Animation
             if (speed < 0f) throw new InvalidOperationException("Attempted to play: " + id + " with invalid speed " + speed + " in custom animator!");
             looping = loop;
             currentAnimationId = id;
+            currentAnimationTime = 0f;
+            currentAnimationFrame = 0;
             if (string.IsNullOrEmpty(currentAnimationId))
             {
                 currentAnimationId = null;
@@ -262,8 +241,7 @@ namespace MTM101BaldAPI.Components.Animation
             {
                 currentAnimation = animations[currentAnimationId];
             }
-            currentAnimationTime = 0f;
-            currentAnimationFrame = 0;
+            ChangeSpeed(speed);
         }
 
         public void Play(string id, float speed)
@@ -289,6 +267,11 @@ namespace MTM101BaldAPI.Components.Animation
             looping = loop;
         }
 
+        protected virtual void OnAnimationFinished()
+        {
+
+        }
+
         public void SetDefaultAnimation(string animation, float speed)
         {
             defaultAnimation = animation;
@@ -299,28 +282,47 @@ namespace MTM101BaldAPI.Components.Animation
             }
         }
 
-        public void ChangeSpeed(float speed)
+        public virtual void ChangeSpeed(float speed)
         {
             currentSpeed = speed;
         }
 
-        void Start()
+        void Awake()
+        {
+            VirtualAwake();
+        }
+
+        protected virtual void VirtualAwake()
         {
 
         }
 
         void Update()
         {
-            if (currentAnimation == null) return;
-            if (animations.Count == 0) return;
-            if (paused) return;
-            currentAnimationTime += Time.deltaTime * GetTimeScale() * AnimationSpeed;
+            if (currentAnimation == null) { VirtualUpdate(); return; }
+            if (animations.Count == 0) { VirtualUpdate(); return; }
+            if (paused) { VirtualUpdate(); return; }
+            currentAnimationTime += Time.deltaTime * AnimationSpeed;
+            // sanity check logs for debugging
+            if (currentAnimation.frames == null)
+            {
+                MTM101BaldiDevAPI.Log.LogWarning("currentAnimation.frames is null for: " + (currentAnimationId) + " (" + name + ")");
+            }
+            if (currentAnimation.frames[currentAnimationFrame] == null)
+            {
+                MTM101BaldiDevAPI.Log.LogWarning("currentAnimation.frames[" + currentAnimationFrame + "] is null for: " + (currentAnimationId) + " (" + name + ")");
+            }
+            if (currentAnimationFrame >= currentAnimation.frames.Length)
+            {
+                MTM101BaldiDevAPI.Log.LogWarning("currentAnimationFrame out of bounds: " + currentAnimationId + "," + currentAnimation.frames.Length + "," + currentAnimationFrame + " (" + name + ")");
+            }
             while (currentAnimationTime >= currentAnimation.frames[currentAnimationFrame].time)
             {
                 currentAnimationTime = Mathf.Max(0f, currentAnimationTime - currentAnimation.frames[currentAnimationFrame].time);
                 currentAnimationFrame++;
                 if (currentAnimationFrame >= currentAnimation.frames.Length)
                 {
+                    OnAnimationFinished();
                     currentAnimationFrame = 0;
                     if (!looping)
                     {
@@ -329,6 +331,12 @@ namespace MTM101BaldAPI.Components.Animation
                 }
             }
             ApplyFrame(currentAnimation.frames[currentAnimationFrame].value);
+            VirtualUpdate();
+        }
+
+        protected virtual void VirtualUpdate()
+        {
+
         }
     }
 }

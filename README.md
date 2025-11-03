@@ -21,3 +21,4 @@ The API features a lot of useful features for modders.
 # Credits/Thanks
 PixelGuy for various minor portions of the codebase (Especially during it's early days)
 Dummiesman for OBJ Importer, which was adapted for use in the API.
+Thanks to [This project](https://github.com/xiaoxiao921/FixPluginTypesSerialization) for allowing for serialization to work correctly for custom classes, thus letting the CustomAnimator components serialize correctly.
