@@ -56,7 +56,7 @@ namespace MTM101BaldAPI
     {
         internal static ManualLogSource Log = new ManualLogSource("Baldi's Basics Plus Dev API Pre Initialization");
         public const string ModGUID = "mtm101.rulerp.bbplus.baldidevapi";
-        public const string VersionNumber = "10.0.0";
+        public const string VersionNumber = "10.0.0.0";
 
         /// <summary>
         /// The version of the API, applicable when BepInEx cache messes up the version number.
@@ -73,7 +73,6 @@ namespace MTM101BaldAPI
         internal ConfigEntry<bool> ignoringTagDisplays;
         internal ConfigEntry<bool> attemptOnline;
         internal ConfigEntry<bool> alwaysModdedSave;
-        internal ConfigEntry<bool> useOldAudioLoad;
         internal ConfigEntry<bool> allowWindowTitleChange;
 
         internal Sprite[] questionMarkSprites;
@@ -807,11 +806,6 @@ PRESS ALT+F4 TO EXIT THE GAME.
                 Singleton<ModdedFileManager>.Instance.UpdateCurrentPartialSave();
             });
 
-            useOldAudioLoad = Config.Bind("Technical",
-                "Use Old Audio Loading Method",
-                false,
-                "Whether or not the old legacy method of loading audio should be used. Do not turn on as it is not needed anymore.");
-
             allowWindowTitleChange = Config.Bind("Technical",
                 "Allow Window Title Change",
                 true,
@@ -821,11 +815,6 @@ PRESS ALT+F4 TO EXIT THE GAME.
                 "Use Midi Fix",
                 true,
                 "Whether or not the midi fix should be used to increase the amount of instruments available to the midi player, there shouldn't be a reason for you to disable this.");
-
-            if (useOldAudioLoad.Value)
-            {
-                AddWarningScreen("Old Audio Loading is <b>on!</b>\nYou should not need this anymore as of API 4.0!\nTurn it off, and if mods are still broken, report it to MTM101!", false);
-            }
 
             alwaysModdedSave = Config.Bind("General",
                 "Always Use Modded Save System",
@@ -861,6 +850,11 @@ PRESS ALT+F4 TO EXIT THE GAME.
 
             Log = base.Logger;
 
+            if (!RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+            {
+                AddWarningScreen($"Due to reliance on Windows-exclusive patchers, the API won't be able to run in non-Windows builds of BB+.\nIf you still wish to run the API in your current OS, then install <color=yellow>BepInEx</color> into a Windows build and run it through <color=yellow>Wine</color>/<color=yellow>Proton</color>.", true);
+                return;
+            }
             /*if (AppDomain.CurrentDomain.GetAssemblies().Where(x => x.FullName.StartsWith("Newtonsoft.Json")).Count() == 0)
             {
                 AddWarningScreen("Newtonsoft.Json is not installed! It should be included with the API zip!", true);

@@ -387,12 +387,6 @@ namespace MTM101BaldAPI.AssetTools
         /// <returns></returns>
         public static AudioClip AudioClipFromFile(string path)
         {
-            if (MTM101BaldiDevAPI.Instance == null)
-            {
-                MTM101BaldiDevAPI.Log.LogWarning("useOldAudioLoad not working properly, todo: FIX! For now, HACK HACK HACK!"); //this message doesnt even work lol
-                return AudioClipFromFile(path, GetAudioType(path));
-            }
-            if (MTM101BaldiDevAPI.Instance.useOldAudioLoad.Value) return AudioClipFromFileLegacy(path);
             return AudioClipFromFile(path, GetAudioType(path));
         }
 
@@ -438,36 +432,6 @@ namespace MTM101BaldAPI.AssetTools
             }
 
             throw new Exception(errorMessage);
-        }
-
-        private static AudioClip AudioClipFromFileLegacy(string path)
-        {
-            AudioType typeToUse;
-            string fileType = Path.GetExtension(path).ToLower().Remove(0, 1).Trim(); //what the fuck WHY DOES GET EXTENSION ADD THE FUCKING PERIOD.
-            switch (fileType)
-            {
-                case "mp2":
-                case "mp3":
-                    typeToUse = AudioType.MPEG;
-                    break;
-                case "wav":
-                    typeToUse = AudioType.WAV;
-                    break;
-                case "ogg":
-                    typeToUse = AudioType.OGGVORBIS;
-                    break;
-                case "aiff":
-                    typeToUse = AudioType.AIFF;
-                    break;
-                default:
-                    throw new NotImplementedException("Unknown audio file type:" + fileType + "!");
-            }
-            UnityWebRequest request = UnityWebRequestMultimedia.GetAudioClip(Path.Combine("File:///", path), typeToUse);
-            request.SendWebRequest();
-            while (!request.isDone) { };
-            AudioClip clip = DownloadHandlerAudioClip.GetContent(request);
-            clip.name = Path.GetFileNameWithoutExtension(path);
-            return clip;
         }
 
         /// <summary>
