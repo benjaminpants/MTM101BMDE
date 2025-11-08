@@ -11,6 +11,7 @@ namespace MTM101BaldAPI
 {
     public class ExtendedStickerData : StickerData
     {
+        public Sticker sticker;
         public int stickerValueCap = int.MaxValue;
 
         /// <summary>
@@ -53,7 +54,7 @@ namespace MTM101BaldAPI
         /// <returns></returns>
         public virtual StickerStateData CreateOrGetAppliedStateData(StickerStateData inventoryState)
         {
-            return CreateStateData(Singleton<BaseGameManager>.Instance.CurrentLevel, true);
+            return CreateStateData(Singleton<BaseGameManager>.Instance.CurrentLevel, true, false);
         }
 
         /// <summary>
@@ -79,10 +80,11 @@ namespace MTM101BaldAPI
         /// </summary>
         /// <param name="activeLevel"></param>
         /// <param name="opened"></param>
+        /// <param name="sticky"></param>
         /// <returns></returns>
-        public virtual StickerStateData CreateStateData(int activeLevel, bool opened)
+        public virtual StickerStateData CreateStateData(int activeLevel, bool opened, bool sticky)
         {
-            return new ExtendedStickerStateData(sticker, activeLevel, opened);
+            return new ExtendedStickerStateData(sticker, activeLevel, opened, sticky);
         }
     }
 
@@ -91,16 +93,16 @@ namespace MTM101BaldAPI
     /// </summary>
     public class VanillaCompatibleExtendedStickerData : ExtendedStickerData
     {
-        public override StickerStateData CreateStateData(int activeLevel, bool opened)
+        public override StickerStateData CreateStateData(int activeLevel, bool opened, bool sticky)
         {
-            return new StickerStateData(sticker, activeLevel, opened);
+            return new StickerStateData(sticker, activeLevel, opened, sticky);
         }
     }
 
     [Serializable]
     public class ExtendedStickerStateData : StickerStateData
     {
-        public ExtendedStickerStateData(Sticker sticker, int activeLevel, bool opened) : base(sticker, activeLevel, opened)
+        public ExtendedStickerStateData(Sticker sticker, int activeLevel, bool opened, bool sticky) : base(sticker, activeLevel, opened, sticky)
         {
         }
 
@@ -116,16 +118,19 @@ namespace MTM101BaldAPI
 
         public static void WriteDefault(BinaryWriter writer, StickerStateData data)
         {
-            writer.Write((byte)0);
+            writer.Write((byte)1);
             writer.Write(data.activeLevel);
             writer.Write(data.opened);
+            writer.Write(data.sticky);
         }
 
         public static void ReadDefault(BinaryReader reader, StickerStateData data)
         {
-            reader.ReadByte(); // version
+            byte version = reader.ReadByte(); // version
             data.activeLevel = reader.ReadInt32();
             data.opened = reader.ReadBoolean();
+            if (version == 0) return;
+            data.sticky = reader.ReadBoolean();
         }
     }
 
@@ -133,7 +138,7 @@ namespace MTM101BaldAPI
     {
         public static StickerStateData AddSticker(this StickerManager me, Sticker sticker, bool opened, bool animation)
         {
-            return AddExistingSticker(me, StickerMetaStorage.Instance.Get(sticker).value.CreateStateData(0, opened), opened, animation);
+            return AddExistingSticker(me, StickerMetaStorage.Instance.Get(sticker).value.CreateStateData(0, opened, false), opened, animation);
         }
 
         public static StickerStateData AddExistingSticker(this StickerManager me, StickerStateData data, bool opened, bool animation)
@@ -164,12 +169,12 @@ namespace MTM101BaldAPI
                 ((ExtendedStickerStateData)me).Write(writer);
                 writer.Dispose();
                 memoryStream.Position = 0;
-                ExtendedStickerStateData newData = (ExtendedStickerStateData)StickerMetaStorage.Instance.Get(me.sticker).value.CreateStateData(me.activeLevel, me.opened);
+                ExtendedStickerStateData newData = (ExtendedStickerStateData)StickerMetaStorage.Instance.Get(me.sticker).value.CreateStateData(me.activeLevel, me.opened, me.sticky);
                 BinaryReader reader = new BinaryReader(memoryStream);
                 newData.ReadInto(reader);
                 return newData;
             }
-            return new StickerStateData(me.sticker, me.activeLevel, me.opened);
+            return new StickerStateData(me.sticker, me.activeLevel, me.opened, me.sticky);
         }
     }
 }

@@ -51,7 +51,7 @@ namespace MTM101BaldAPI.Patches
                     if (__instance.activeStickerData[i].GetType() == typeof(StickerStateData))
                     {
                         Debug.Log("Correcting " + i + "!");
-                        __instance.activeStickerData[i] = StickerMetaStorage.Instance.Get(__instance.activeStickerData[i].sticker).value.CreateStateData(__instance.activeStickerData[i].activeLevel, __instance.activeStickerData[i].opened);
+                        __instance.activeStickerData[i] = StickerMetaStorage.Instance.Get(__instance.activeStickerData[i].sticker).value.CreateStateData(__instance.activeStickerData[i].activeLevel, __instance.activeStickerData[i].opened, __instance.activeStickerData[i].sticky);
                     }
                 }
                 __instance.gameObject.AddComponent<StickerInitFixRan>();
@@ -65,7 +65,7 @@ namespace MTM101BaldAPI.Patches
         [HarmonyPriority(Priority.Last)]
         static bool ApplyStickerPrefix(Sticker sticker, int slot, StickerManager __instance, StickerManager.StickerAppliedDelegate ___OnStickerApplied)
         {
-            __instance.activeStickerData[slot] = StickerMetaStorage.Instance.Get(sticker).value.CreateStateData(Singleton<BaseGameManager>.Instance.CurrentLevel, true);
+            __instance.activeStickerData[slot] = StickerMetaStorage.Instance.Get(sticker).value.CreateStateData(Singleton<BaseGameManager>.Instance.CurrentLevel, true, false);
             ___OnStickerApplied.Invoke();
             return false;
         }

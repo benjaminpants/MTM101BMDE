@@ -504,7 +504,7 @@ namespace MTM101BaldAPI
             {
                 if (stickerData[i].sprite == null)
                 {
-                    Log.LogDebug("Sticker: " + stickerData[i].sticker.ToString() + " has no sprite, assuming unused!");
+                    Log.LogDebug("Sticker: " + ((Sticker)i).ToString() + " has no sprite, assuming unused!");
                     continue;
                 }
                 stickerMeta.AddSticker(Info, new VanillaCompatibleExtendedStickerData()
@@ -512,12 +512,12 @@ namespace MTM101BaldAPI
                     affectsLevelGeneration = stickerData[i].affectsLevelGeneration,
                     sprite = stickerData[i].sprite,
                     duplicateOddsMultiplier = stickerData[i].duplicateOddsMultiplier,
-                    sticker = stickerData[i].sticker
+                    sticker = (Sticker)i // okay
                 });
             }
             for (int i = 0; i < stickerMan.activeStickerData.Length; i++)
             {
-                stickerMan.activeStickerData[i] = new ExtendedStickerStateData(stickerMan.activeStickerData[i].sticker, stickerMan.activeStickerData[i].activeLevel, stickerMan.activeStickerData[i].opened);
+                stickerMan.activeStickerData[i] = new ExtendedStickerStateData(stickerMan.activeStickerData[i].sticker, stickerMan.activeStickerData[i].activeLevel, stickerMan.activeStickerData[i].opened, stickerMan.activeStickerData[i].sticky);
             }
             stickerMan.applyStickers = false; // ??
             //stickerMan.ReflectionSetVariable("stickerData", null);

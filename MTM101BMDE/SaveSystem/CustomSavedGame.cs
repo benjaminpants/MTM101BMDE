@@ -541,7 +541,7 @@ namespace MTM101BaldAPI.SaveSystem
                     {
                         return ModdedSaveLoadStatus.MissingItemsOrStickers;
                     }
-                    StickerStateData state = meta.value.CreateStateData(0,true);
+                    StickerStateData state = meta.value.CreateStateData(0,true,false);
                     if (state is ExtendedStickerStateData)
                     {
                         ((ExtendedStickerStateData)state).ReadInto(reader);
@@ -566,7 +566,7 @@ namespace MTM101BaldAPI.SaveSystem
                     {
                         return ModdedSaveLoadStatus.MissingItemsOrStickers;
                     }
-                    StickerStateData state = meta.value.CreateStateData(0, true);
+                    StickerStateData state = meta.value.CreateStateData(0, true, false);
                     if (state is ExtendedStickerStateData)
                     {
                         ((ExtendedStickerStateData)state).ReadInto(reader);
