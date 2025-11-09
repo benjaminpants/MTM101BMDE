@@ -31,6 +31,8 @@ using UnityEngine.Networking;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using MTM101BaldAPI.ErrorHandler;
+using System.Linq.Expressions;
+using BepInEx.Bootstrap;
 
 namespace MTM101BaldAPI
 {
@@ -73,7 +75,6 @@ namespace MTM101BaldAPI
         internal ConfigEntry<bool> ignoringTagDisplays;
         internal ConfigEntry<bool> attemptOnline;
         internal ConfigEntry<bool> alwaysModdedSave;
-        internal ConfigEntry<bool> useOldAudioLoad;
         internal ConfigEntry<bool> allowWindowTitleChange;
 
         internal Sprite[] questionMarkSprites;
@@ -807,11 +808,6 @@ PRESS ALT+F4 TO EXIT THE GAME.
                 Singleton<ModdedFileManager>.Instance.UpdateCurrentPartialSave();
             });
 
-            useOldAudioLoad = Config.Bind("Technical",
-                "Use Old Audio Loading Method",
-                false,
-                "Whether or not the old legacy method of loading audio should be used. Do not turn on as it is not needed anymore.");
-
             allowWindowTitleChange = Config.Bind("Technical",
                 "Allow Window Title Change",
                 true,
@@ -821,11 +817,6 @@ PRESS ALT+F4 TO EXIT THE GAME.
                 "Use Midi Fix",
                 true,
                 "Whether or not the midi fix should be used to increase the amount of instruments available to the midi player, there shouldn't be a reason for you to disable this.");
-
-            if (useOldAudioLoad.Value)
-            {
-                AddWarningScreen("Old Audio Loading is <b>on!</b>\nYou should not need this anymore as of API 4.0!\nTurn it off, and if mods are still broken, report it to MTM101!", false);
-            }
 
             alwaysModdedSave = Config.Bind("General",
                 "Always Use Modded Save System",
@@ -861,6 +852,13 @@ PRESS ALT+F4 TO EXIT THE GAME.
 
             Log = base.Logger;
 
+            SerializationTest test = new GameObject("Serialization Test", typeof(SerializationTest)).GetComponent<SerializationTest>();
+            test.serializable.boolVal = false;
+            if (Instantiate(test).serializable.boolVal != test.serializable.boolVal)
+            {
+                AddWarningScreen("The <color=yellow>FixPluginTypesSerialization</color> patcher plugin did not load properly!\nMake sure you have it installed in your <color=yellow>BepInEx > patchers</color> folder and try again.\nIf this persists, then it's incompatible with your OS's build of BB+. As such, try running the API in a <color=#00bfff>Windows</color> build of the game under <color=yellow>Wine</color>/<color=yellow>Proton</color>.<line-height=50%>", true);
+                return;
+            }
             /*if (AppDomain.CurrentDomain.GetAssemblies().Where(x => x.FullName.StartsWith("Newtonsoft.Json")).Count() == 0)
             {
                 AddWarningScreen("Newtonsoft.Json is not installed! It should be included with the API zip!", true);
@@ -873,6 +871,23 @@ PRESS ALT+F4 TO EXIT THE GAME.
             //set window title
             if (allowWindowTitleChange.Value)
                 WindowTitle.SetText(Application.productName + " (Modded)");
+        }
+    }
+
+    // This setup is pretty hacky, but I personally did not have anything more ideal -l
+    internal class SerializationTest : MonoBehaviour
+    {
+        [Serializable]
+        internal class TestSerializable
+        {
+            public bool boolVal = true;
+        }
+
+        public TestSerializable serializable = new TestSerializable();
+
+        private void Start()
+        {
+            DestroyImmediate(gameObject);
         }
     }
 

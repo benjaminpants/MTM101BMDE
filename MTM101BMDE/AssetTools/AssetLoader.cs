@@ -365,6 +365,11 @@ namespace MTM101BaldAPI.AssetTools
             { AudioType.XMA, new string[] { "xma" } }
         };
         
+        /// <summary>
+        /// Assume the AudioType from a file name/path.
+        /// </summary>
+        /// <param name="path"></param>
+        /// <returns></returns>
         public static AudioType GetAudioType(string path)
         {
             string extension = Path.GetExtension(path).ToLower().Remove(0, 1).Trim(); // Remove the period provided by default
@@ -387,16 +392,13 @@ namespace MTM101BaldAPI.AssetTools
         /// <returns></returns>
         public static AudioClip AudioClipFromFile(string path)
         {
-            if (MTM101BaldiDevAPI.Instance == null)
-            {
-                MTM101BaldiDevAPI.Log.LogWarning("useOldAudioLoad not working properly, todo: FIX! For now, HACK HACK HACK!"); //this message doesnt even work lol
-                return AudioClipFromFile(path, GetAudioType(path));
-            }
-            if (MTM101BaldiDevAPI.Instance.useOldAudioLoad.Value) return AudioClipFromFileLegacy(path);
+            if (!File.Exists(path))
+                throw new FileNotFoundException(path);
+
             return AudioClipFromFile(path, GetAudioType(path));
         }
 
-        private static string[] fallbacks = new string[]
+        private static readonly string[] fallbacks = new string[]
         {
             "",
             "file://",
@@ -414,6 +416,9 @@ namespace MTM101BaldAPI.AssetTools
         /// <exception cref="Exception"></exception>
         public static AudioClip AudioClipFromFile(string path, AudioType type)
         {
+            if (!File.Exists(path))
+                throw new FileNotFoundException(path);
+
             AudioClip clip;
             UnityWebRequest audioClip;
             string errorMessage = "";
@@ -438,36 +443,6 @@ namespace MTM101BaldAPI.AssetTools
             }
 
             throw new Exception(errorMessage);
-        }
-
-        private static AudioClip AudioClipFromFileLegacy(string path)
-        {
-            AudioType typeToUse;
-            string fileType = Path.GetExtension(path).ToLower().Remove(0, 1).Trim(); //what the fuck WHY DOES GET EXTENSION ADD THE FUCKING PERIOD.
-            switch (fileType)
-            {
-                case "mp2":
-                case "mp3":
-                    typeToUse = AudioType.MPEG;
-                    break;
-                case "wav":
-                    typeToUse = AudioType.WAV;
-                    break;
-                case "ogg":
-                    typeToUse = AudioType.OGGVORBIS;
-                    break;
-                case "aiff":
-                    typeToUse = AudioType.AIFF;
-                    break;
-                default:
-                    throw new NotImplementedException("Unknown audio file type:" + fileType + "!");
-            }
-            UnityWebRequest request = UnityWebRequestMultimedia.GetAudioClip(Path.Combine("File:///", path), typeToUse);
-            request.SendWebRequest();
-            while (!request.isDone) { };
-            AudioClip clip = DownloadHandlerAudioClip.GetContent(request);
-            clip.name = Path.GetFileNameWithoutExtension(path);
-            return clip;
         }
 
         /// <summary>

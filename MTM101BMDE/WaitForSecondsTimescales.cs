@@ -47,7 +47,7 @@ namespace MTM101BaldAPI
             {
                 if (!actM) return false; // actM somehow null
                 timeRemaining -= Time.deltaTime * actM.Multiplier;
-                return (timeRemaining >= 0);
+                return timeRemaining >= 0;
             }
         }
     }
