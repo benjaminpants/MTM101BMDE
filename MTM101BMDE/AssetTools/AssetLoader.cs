@@ -365,6 +365,11 @@ namespace MTM101BaldAPI.AssetTools
             { AudioType.XMA, new string[] { "xma" } }
         };
         
+        /// <summary>
+        /// Assume the AudioType from a file name/path.
+        /// </summary>
+        /// <param name="path"></param>
+        /// <returns></returns>
         public static AudioType GetAudioType(string path)
         {
             string extension = Path.GetExtension(path).ToLower().Remove(0, 1).Trim(); // Remove the period provided by default
@@ -387,10 +392,13 @@ namespace MTM101BaldAPI.AssetTools
         /// <returns></returns>
         public static AudioClip AudioClipFromFile(string path)
         {
+            if (!File.Exists(path))
+                throw new FileNotFoundException(path);
+
             return AudioClipFromFile(path, GetAudioType(path));
         }
 
-        private static string[] fallbacks = new string[]
+        private static readonly string[] fallbacks = new string[]
         {
             "",
             "file://",
@@ -408,6 +416,9 @@ namespace MTM101BaldAPI.AssetTools
         /// <exception cref="Exception"></exception>
         public static AudioClip AudioClipFromFile(string path, AudioType type)
         {
+            if (!File.Exists(path))
+                throw new FileNotFoundException(path);
+
             AudioClip clip;
             UnityWebRequest audioClip;
             string errorMessage = "";
