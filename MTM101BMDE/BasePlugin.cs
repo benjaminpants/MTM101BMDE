@@ -31,6 +31,8 @@ using UnityEngine.Networking;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using MTM101BaldAPI.ErrorHandler;
+using System.Linq.Expressions;
+using BepInEx.Bootstrap;
 
 namespace MTM101BaldAPI
 {
@@ -850,9 +852,11 @@ PRESS ALT+F4 TO EXIT THE GAME.
 
             Log = base.Logger;
 
-            if (!RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+            SerializationTest test = new GameObject("Serialization Test", typeof(SerializationTest)).GetComponent<SerializationTest>();
+            test.serializable.boolVal = false;
+            if (Instantiate(test).serializable.boolVal != test.serializable.boolVal)
             {
-                AddWarningScreen($"Due to reliance on Windows-exclusive patchers, the API won't be able to run in non-Windows builds of BB+.\nIf you still wish to run the API in your current OS, then install <color=yellow>BepInEx</color> into a Windows build and run it through <color=yellow>Wine</color>/<color=yellow>Proton</color>.", true);
+                AddWarningScreen("The <color=yellow>FixPluginTypesSerialization</color> patcher plugin did not load properly!\nMake sure you have it installed in your <color=yellow>BepInEx > patchers</color> folder and try again.\nIf this persists, then it's incompatible with your OS's build of BB+. As such, try running the API in a <color=#00bfff>Windows</color> build of the game under <color=yellow>Wine</color>/<color=yellow>Proton</color>.<line-height=50%>", true);
                 return;
             }
             /*if (AppDomain.CurrentDomain.GetAssemblies().Where(x => x.FullName.StartsWith("Newtonsoft.Json")).Count() == 0)
@@ -867,6 +871,23 @@ PRESS ALT+F4 TO EXIT THE GAME.
             //set window title
             if (allowWindowTitleChange.Value)
                 WindowTitle.SetText(Application.productName + " (Modded)");
+        }
+    }
+
+    // This setup is pretty hacky, but I personally did not have anything more ideal -l
+    internal class SerializationTest : MonoBehaviour
+    {
+        [Serializable]
+        internal class TestSerializable
+        {
+            public bool boolVal = true;
+        }
+
+        public TestSerializable serializable = new TestSerializable();
+
+        private void Start()
+        {
+            DestroyImmediate(gameObject);
         }
     }
 

@@ -34,18 +34,18 @@ namespace MTM101BaldAPI
             SetWindowText(handle, text);
         }
 
-        //private static bool osChecked = false;
-        //private static bool enabled;
+        private static bool osChecked = false;
+        private static bool enabled;
 
         //SET FUNCTION
         public static void SetText(string text)
         {
-            /*if (!osChecked)
+            if (!osChecked)
             {
                 osChecked = true;
                 enabled = RuntimeInformation.IsOSPlatform(OSPlatform.Windows);
             }
-            if (enabled)*/
+            if (enabled)
                 SetTextInternal(text);
         }
     }
