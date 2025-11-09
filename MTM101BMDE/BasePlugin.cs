@@ -508,6 +508,17 @@ namespace MTM101BaldAPI
                     Log.LogDebug("Sticker: " + ((Sticker)i).ToString() + " has no sprite, assuming unused!");
                     continue;
                 }
+                if (((Sticker)i) == Sticker.GlueStick)
+                {
+                    stickerMeta.AddSticker(Info, new ExtendedGluestickData()
+                    {
+                        affectsLevelGeneration = stickerData[i].affectsLevelGeneration,
+                        sprite = stickerData[i].sprite,
+                        duplicateOddsMultiplier = stickerData[i].duplicateOddsMultiplier,
+                        sticker = (Sticker)i // okay
+                    });
+                    continue;
+                }
                 stickerMeta.AddSticker(Info, new VanillaCompatibleExtendedStickerData()
                 {
                     affectsLevelGeneration = stickerData[i].affectsLevelGeneration,

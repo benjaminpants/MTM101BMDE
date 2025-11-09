@@ -54,7 +54,7 @@ namespace MTM101BaldAPI
         /// <returns></returns>
         public virtual StickerStateData CreateOrGetAppliedStateData(StickerStateData inventoryState)
         {
-            return CreateStateData(Singleton<BaseGameManager>.Instance.CurrentLevel, true, false);
+            return CreateStateData(Singleton<BaseGameManager>.Instance.CurrentLevel, true, inventoryState.sticky);
         }
 
         /// <summary>
@@ -85,6 +85,26 @@ namespace MTM101BaldAPI
         public virtual StickerStateData CreateStateData(int activeLevel, bool opened, bool sticky)
         {
             return new ExtendedStickerStateData(sticker, activeLevel, opened, sticky);
+        }
+
+        /// <summary>
+        /// This is called when the sticker is actually going to be applied.
+        /// This just calls CreateOrGetAppliedStateData and sets the slot to the return value.
+        /// </summary>
+        /// <param name="manager"></param>
+        /// <param name="inventoryState"></param>
+        /// <param name="slot"></param>
+        public virtual void ApplySticker(StickerManager manager, StickerStateData inventoryState, int slot)
+        {
+            manager.activeStickerData[slot] = CreateStateData(Singleton<BaseGameManager>.Instance.CurrentLevel, true, inventoryState.sticky);
+        }
+    }
+
+    public class ExtendedGluestickData : VanillaCompatibleExtendedStickerData
+    {
+        public override void ApplySticker(StickerManager manager, StickerStateData inventoryState, int slot)
+        {
+            manager.UpgradeSlot(slot);
         }
     }
 
@@ -136,9 +156,14 @@ namespace MTM101BaldAPI
 
     public static class StickerManagerExtensions
     {
-        public static StickerStateData AddSticker(this StickerManager me, Sticker sticker, bool opened, bool animation)
+        public static StickerStateData AddSticker(this StickerManager me, Sticker sticker, bool opened, bool sticky, bool animation)
         {
-            return AddExistingSticker(me, StickerMetaStorage.Instance.Get(sticker).value.CreateStateData(0, opened, false), opened, animation);
+            return AddExistingSticker(me, StickerMetaStorage.Instance.Get(sticker).value.CreateStateData(0, opened, sticky), opened, animation);
+        }
+
+        public static StickerStateData AddRandomSticker(this StickerManager me, WeightedSticker[] potentialStickers, bool opened, bool sticky, bool animation)
+        {
+            return AddSticker(me, WeightedSticker.RandomSelection(potentialStickers), opened, sticky, animation);
         }
 
         public static StickerStateData AddExistingSticker(this StickerManager me, StickerStateData data, bool opened, bool animation)

@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Reflection;
+using System.Reflection.Emit;
 using System.Text;
 using HarmonyLib;
 using MTM101BaldAPI.Registers;
@@ -63,9 +65,9 @@ namespace MTM101BaldAPI.Patches
         [HarmonyPatch(typeof(StickerManager))]
         [HarmonyPatch("ApplySticker")]
         [HarmonyPriority(Priority.Last)]
-        static bool ApplyStickerPrefix(Sticker sticker, int slot, StickerManager __instance, StickerManager.StickerAppliedDelegate ___OnStickerApplied)
+        static bool ApplyStickerPrefix(StickerStateData sticker, int slot, StickerManager __instance, StickerManager.StickerAppliedDelegate ___OnStickerApplied)
         {
-            __instance.activeStickerData[slot] = StickerMetaStorage.Instance.Get(sticker).value.CreateStateData(Singleton<BaseGameManager>.Instance.CurrentLevel, true, false);
+            StickerMetaStorage.Instance.Get(sticker.sticker).value.ApplySticker(__instance, sticker, slot);
             ___OnStickerApplied.Invoke();
             return false;
         }
@@ -166,7 +168,7 @@ namespace MTM101BaldAPI.Patches
         static bool GiveRandomStickerPrefix()
         {
             Sticker chosenSticker = WeightedSelection<Sticker>.RandomSelection(Singleton<CoreGameManager>.Instance.sceneObject.potentialStickers);
-            Singleton<StickerManager>.Instance.AddSticker(chosenSticker, false, false);
+            Singleton<StickerManager>.Instance.AddSticker(chosenSticker, false, false, false);
             return false;
         }
 
@@ -177,8 +179,65 @@ namespace MTM101BaldAPI.Patches
         static bool PitstopGiveRandomStickerPrefix()
         {
             Sticker chosenSticker = WeightedSelection<Sticker>.RandomSelection(Singleton<CoreGameManager>.Instance.nextLevel.potentialStickers);
-            Singleton<StickerManager>.Instance.AddSticker(chosenSticker, true, true);
+            Singleton<StickerManager>.Instance.AddSticker(chosenSticker, true, false, true);
             return false;
+        }
+
+        static FieldInfo _stickerInventory = AccessTools.Field(typeof(StickerManager), "stickerInventory");
+        static MethodInfo _AddSticker = AccessTools.Method(typeof(StickerPatches), "AddSticker");
+
+        static void AddSticker(StickerManager manager, Sticker sticker)
+        {
+            manager.AddSticker(sticker, true, false, false);
+        }
+
+        [HarmonyTranspiler]
+        [HarmonyPatch(typeof(StickerManager))]
+        [HarmonyPatch("GiveIdenticalRandomStickers")]
+        [HarmonyPriority(Priority.First)]
+        static IEnumerable<CodeInstruction> GiveIdenticalStickersTranspiler(IEnumerable<CodeInstruction> instructionsE)
+        {
+            CodeInstruction[] instructions = instructionsE.ToArray();
+            bool patched = false;
+            for (int i = 0; i < instructions.Length; i++)
+            {
+                Debug.Log(instructions[i].opcode);
+                Debug.Log(instructions[i].operand);
+                if ((i + 7) >= instructions.Length)
+                {
+                    yield return instructions[i];
+                    continue;
+                }
+                if ((instructions[i].opcode == OpCodes.Ldarg_0)
+                    &&
+                    ((instructions[i + 1].opcode == OpCodes.Ldfld) && ((FieldInfo)instructions[i + 1].operand == _stickerInventory))
+                    &&
+                    (instructions[i + 2].opcode == OpCodes.Ldloc_0)
+                    &&
+                    (instructions[i + 3].opcode == OpCodes.Ldc_I4_0)
+                    &&
+                    (instructions[i + 4].opcode == OpCodes.Ldarg_3)
+                    &&
+                    (instructions[i + 5].opcode == OpCodes.Ldc_I4_0)
+                    &&
+                    (instructions[i + 6].opcode == OpCodes.Newobj)
+                    &&
+                    (instructions[i + 7].opcode == OpCodes.Callvirt))
+                {
+                    patched = true;
+                    instructions[i + 0] = new CodeInstruction(OpCodes.Ldarg_0); // this
+                    instructions[i + 1] = new CodeInstruction(OpCodes.Ldloc_0); // sticker
+                    instructions[i + 2] = new CodeInstruction(OpCodes.Call, _AddSticker);
+                    instructions[i + 3] = new CodeInstruction(OpCodes.Nop);
+                    instructions[i + 4] = new CodeInstruction(OpCodes.Nop);
+                    instructions[i + 5] = new CodeInstruction(OpCodes.Nop);
+                    instructions[i + 6] = new CodeInstruction(OpCodes.Nop);
+                    instructions[i + 7] = new CodeInstruction(OpCodes.Nop);
+                }
+                yield return instructions[i];
+            }
+            if (!patched) throw new NotImplementedException("Unable to patch StickerManager.GiveIdenticalRandomStickers!");
+            yield break;
         }
     }
 }
