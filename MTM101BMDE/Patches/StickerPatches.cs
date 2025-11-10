@@ -233,28 +233,19 @@ namespace MTM101BaldAPI.Patches
         [HarmonyPatch(typeof(StickerManager))]
         [HarmonyPatch("GiveNormalRandomStickers")]
         [HarmonyPriority(Priority.First)]
-        static IEnumerable<CodeInstruction> GiveNormalRandomStickersTranspiler(IEnumerable<CodeInstruction> instructionsE)
-        {
-            return GenericGiveRandomStickersTranspiler(instructionsE, "GiveNormalRandomStickers");
-        }
+        static IEnumerable<CodeInstruction> GiveNormalRandomStickersTranspiler(IEnumerable<CodeInstruction> instructionsE) => GenericGiveRandomStickersTranspiler(instructionsE, "GiveNormalRandomStickers");
 
         [HarmonyTranspiler]
         [HarmonyPatch(typeof(StickerManager))]
         [HarmonyPatch("GiveRandomBonusStickers")]
         [HarmonyPriority(Priority.First)]
-        static IEnumerable<CodeInstruction> GiveRandomBonusStickersTranspiler(IEnumerable<CodeInstruction> instructionsE)
-        {
-            return GenericGiveRandomStickersTranspiler(instructionsE, "GiveRandomBonusStickers");
-        }
+        static IEnumerable<CodeInstruction> GiveRandomBonusStickersTranspiler(IEnumerable<CodeInstruction> instructionsE) => GenericGiveRandomStickersTranspiler(instructionsE, "GiveRandomBonusStickers");
 
         [HarmonyTranspiler]
         [HarmonyPatch(typeof(StickerManager))]
         [HarmonyPatch("GiveNewRandomStickers")]
         [HarmonyPriority(Priority.First)]
-        static IEnumerable<CodeInstruction> GiveNewRandomStickersTranspiler(IEnumerable<CodeInstruction> instructionsE)
-        {
-            return GenericGiveRandomStickersTranspiler(instructionsE, "GiveNewRandomStickers");
-        }
+        static IEnumerable<CodeInstruction> GiveNewRandomStickersTranspiler(IEnumerable<CodeInstruction> instructionsE) => GenericGiveRandomStickersTranspiler(instructionsE, "GiveNewRandomStickers");
 
         static IEnumerable<CodeInstruction> GenericGiveRandomStickersTranspiler(IEnumerable<CodeInstruction> instructionsE, string message)
         {
