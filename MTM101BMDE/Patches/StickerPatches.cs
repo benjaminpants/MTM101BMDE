@@ -128,7 +128,7 @@ namespace MTM101BaldAPI.Patches
         static bool GetInventoryStickerSpritePrefix(StickerManager __instance, int inventoryId, ref Sprite __result)
         {
             if (!__instance.stickerInventory[inventoryId].opened) return true;
-            __result = StickerMetaStorage.Instance.Get(__instance.stickerInventory[inventoryId].sticker).value.sprite;
+            __result = StickerMetaStorage.Instance.Get(__instance.stickerInventory[inventoryId].sticker).value.GetInventorySprite(__instance.activeStickerData[inventoryId]);
             return false;
         }
 

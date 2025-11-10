@@ -53,6 +53,16 @@ namespace MTM101BaldAPI
         }
 
         /// <summary>
+        /// Returns the sprite this sticker uses when in the inventory.
+        /// </summary>
+        /// <param name="data"></param>
+        /// <returns></returns>
+        public virtual Sprite GetInventorySprite(StickerStateData data)
+        {
+            return sprite;
+        }
+
+        /// <summary>
         /// Returns true if this sticker can be covered/replaced.
         /// </summary>
         /// <param name="data"></param>
