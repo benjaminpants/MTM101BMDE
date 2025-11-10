@@ -162,33 +162,27 @@ namespace MTM101BaldAPI.Patches
         }
 
         [HarmonyPrefix]
-        [HarmonyPatch(typeof(BaseGameManager))]
-        [HarmonyPatch("GiveRandomSticker")]
+        [HarmonyPatch(typeof(StickerManager))]
+        [HarmonyPatch("GetStickerOddsMultiplier")]
         [HarmonyPriority(Priority.Last)]
-        static bool GiveRandomStickerPrefix()
+        static bool GetStickerOddsMultiplierPrefix(StickerManager __instance, Sticker sticker, ref float __result)
         {
-            Sticker chosenSticker = WeightedSelection<Sticker>.RandomSelection(Singleton<CoreGameManager>.Instance.sceneObject.potentialStickers);
-            Singleton<StickerManager>.Instance.AddSticker(chosenSticker, false, false, false);
-            return false;
-        }
-
-        [HarmonyPrefix]
-        [HarmonyPatch(typeof(PitstopGameManager))]
-        [HarmonyPatch("GiveRandomSticker")]
-        [HarmonyPriority(Priority.Last)]
-        static bool PitstopGiveRandomStickerPrefix()
-        {
-            Sticker chosenSticker = WeightedSelection<Sticker>.RandomSelection(Singleton<CoreGameManager>.Instance.nextLevel.potentialStickers);
-            Singleton<StickerManager>.Instance.AddSticker(chosenSticker, true, false, true);
+            __result = StickerMetaStorage.Instance.Get(sticker).value.CalculateDuplicateOddsMultiplier(__instance);
             return false;
         }
 
         static FieldInfo _stickerInventory = AccessTools.Field(typeof(StickerManager), "stickerInventory");
         static MethodInfo _AddSticker = AccessTools.Method(typeof(StickerPatches), "AddSticker");
+        static MethodInfo _AddRandomSticker = AccessTools.Method(typeof(StickerPatches), "AddRandomSticker");
 
         static void AddSticker(StickerManager manager, Sticker sticker)
         {
             manager.AddSticker(sticker, true, false, false);
+        }
+
+        static void AddRandomSticker(StickerManager manager, Sticker sticker, bool openNow, bool sticky)
+        {
+            manager.AddSticker(sticker, openNow, sticky, false);
         }
 
         [HarmonyTranspiler]
@@ -201,9 +195,7 @@ namespace MTM101BaldAPI.Patches
             bool patched = false;
             for (int i = 0; i < instructions.Length; i++)
             {
-                Debug.Log(instructions[i].opcode);
-                Debug.Log(instructions[i].operand);
-                if ((i + 7) >= instructions.Length)
+                if (((i + 9) >= instructions.Length) || patched)
                 {
                     yield return instructions[i];
                     continue;
@@ -225,18 +217,92 @@ namespace MTM101BaldAPI.Patches
                     (instructions[i + 7].opcode == OpCodes.Callvirt))
                 {
                     patched = true;
-                    instructions[i + 0] = new CodeInstruction(OpCodes.Ldarg_0); // this
-                    instructions[i + 1] = new CodeInstruction(OpCodes.Ldloc_0); // sticker
-                    instructions[i + 2] = new CodeInstruction(OpCodes.Call, _AddSticker);
-                    instructions[i + 3] = new CodeInstruction(OpCodes.Nop);
-                    instructions[i + 4] = new CodeInstruction(OpCodes.Nop);
-                    instructions[i + 5] = new CodeInstruction(OpCodes.Nop);
-                    instructions[i + 6] = new CodeInstruction(OpCodes.Nop);
-                    instructions[i + 7] = new CodeInstruction(OpCodes.Nop);
+                    yield return instructions[i];
+                    yield return instructions[i + 2];
+                    yield return new CodeInstruction(OpCodes.Call, _AddSticker);
+                    i += 7;
+                    continue;
                 }
                 yield return instructions[i];
             }
             if (!patched) throw new NotImplementedException("Unable to patch StickerManager.GiveIdenticalRandomStickers!");
+            yield break;
+        }
+
+        [HarmonyTranspiler]
+        [HarmonyPatch(typeof(StickerManager))]
+        [HarmonyPatch("GiveNormalRandomStickers")]
+        [HarmonyPriority(Priority.First)]
+        static IEnumerable<CodeInstruction> GiveNormalRandomStickersTranspiler(IEnumerable<CodeInstruction> instructionsE)
+        {
+            return GenericGiveRandomStickersTranspiler(instructionsE, "GiveNormalRandomStickers");
+        }
+
+        [HarmonyTranspiler]
+        [HarmonyPatch(typeof(StickerManager))]
+        [HarmonyPatch("GiveRandomBonusStickers")]
+        [HarmonyPriority(Priority.First)]
+        static IEnumerable<CodeInstruction> GiveRandomBonusStickersTranspiler(IEnumerable<CodeInstruction> instructionsE)
+        {
+            return GenericGiveRandomStickersTranspiler(instructionsE, "GiveRandomBonusStickers");
+        }
+
+        [HarmonyTranspiler]
+        [HarmonyPatch(typeof(StickerManager))]
+        [HarmonyPatch("GiveNewRandomStickers")]
+        [HarmonyPriority(Priority.First)]
+        static IEnumerable<CodeInstruction> GiveNewRandomStickersTranspiler(IEnumerable<CodeInstruction> instructionsE)
+        {
+            return GenericGiveRandomStickersTranspiler(instructionsE, "GiveNewRandomStickers");
+        }
+
+        static IEnumerable<CodeInstruction> GenericGiveRandomStickersTranspiler(IEnumerable<CodeInstruction> instructionsE, string message)
+        {
+            CodeInstruction[] instructions = instructionsE.ToArray();
+            bool patched = false;
+            for (int i = 0; i < instructions.Length; i++)
+            {
+                if ((i + 9) >= instructions.Length)
+                {
+                    yield return instructions[i];
+                    continue;
+                }
+                if ((instructions[i].opcode == OpCodes.Ldarg_0)
+                    &&
+                    ((instructions[i + 1].opcode == OpCodes.Ldfld) && ((FieldInfo)instructions[i + 1].operand == _stickerInventory))
+                    &&
+                    (instructions[i + 2].opcode == OpCodes.Ldarg_0)
+                    &&
+                    (instructions[i + 3].opcode == OpCodes.Ldfld)
+                    &&
+                    (instructions[i + 4].opcode == OpCodes.Call)
+                    &&
+                    (instructions[i + 5].opcode == OpCodes.Ldc_I4_0)
+                    &&
+                    (instructions[i + 6].opcode == OpCodes.Ldarg_3)
+                    &&
+                    ((instructions[i + 7].opcode == OpCodes.Ldarg_S) || (instructions[i + 7].opcode == OpCodes.Ldc_I4_0))
+                    &&
+                    (instructions[i + 8].opcode == OpCodes.Newobj)
+                    &&
+                    (instructions[i + 9].opcode == OpCodes.Callvirt))
+                {
+                    Debug.Log("Patching at: " + i);
+                    patched = true;
+                    // two this' as the first one gets popped for _potentialStickersToAdd
+                    yield return instructions[i]; // this
+                    yield return instructions[i + 2]; // this
+                    yield return instructions[i + 3]; // _potentialStickersToAdd
+                    yield return instructions[i + 4]; // call RandomSelection
+                    yield return instructions[i + 6]; // openNow
+                    yield return instructions[i + 7]; // depending on what we are patching either 0 or sticky parameter
+                    yield return new CodeInstruction(OpCodes.Call, _AddRandomSticker);
+                    i += 9;
+                    continue;
+                }
+                yield return instructions[i];
+            }
+            if (!patched) throw new NotImplementedException("Unable to patch " + message + "!");
             yield break;
         }
     }

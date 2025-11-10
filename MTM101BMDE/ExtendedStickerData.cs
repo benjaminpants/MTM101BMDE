@@ -15,6 +15,24 @@ namespace MTM101BaldAPI
         public int stickerValueCap = int.MaxValue;
 
         /// <summary>
+        /// Calculates the multiplier to multiply the weights by.
+        /// </summary>
+        /// <param name="manager"></param>
+        /// <returns></returns>
+        public virtual float CalculateDuplicateOddsMultiplier(StickerManager manager)
+        {
+            int power = manager.StickerValue(sticker);
+            for (int i = 0; i < manager.stickerInventory.Count; i++)
+            {
+                if (manager.stickerInventory[i].sticker == sticker)
+                {
+                    power++;
+                }
+            }
+            return Mathf.Pow(duplicateOddsMultiplier, power);
+        }
+
+        /// <summary>
         /// Returns true if this sticker can be applied.
         /// </summary>
         /// <returns></returns>

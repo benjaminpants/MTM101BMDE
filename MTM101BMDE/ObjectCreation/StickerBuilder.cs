@@ -14,6 +14,7 @@ namespace MTM101BaldAPI.ObjectCreation
         Sticker stickerEnum = Sticker.Nothing;
         Sprite sprite = null;
         bool affectsGenerator = false;
+        float duplicateOdds = 1f;
         int cap = int.MaxValue;
 
         public StickerBuilder(PluginInfo info)
@@ -70,6 +71,17 @@ namespace MTM101BaldAPI.ObjectCreation
         }
 
         /// <summary>
+        /// Sets the multiplier for duplicate odds for this sticker, ranging from 0-1, where the value is raised to the power of how many stickers of that type the player already has.
+        /// </summary>
+        /// <param name="odds"></param>
+        /// <returns></returns>
+        public StickerBuilder<T> SetDuplicateOddsMultiplier(float odds)
+        {
+            duplicateOdds = odds;
+            return this;
+        }
+
+        /// <summary>
         /// Marks this sticker as affecting the generator
         /// </summary>
         /// <returns></returns>
@@ -94,6 +106,7 @@ namespace MTM101BaldAPI.ObjectCreation
             }
             stickerData.stickerValueCap = cap;
             stickerData.affectsLevelGeneration = affectsGenerator;
+            stickerData.duplicateOddsMultiplier = duplicateOdds;
             StickerMetaStorage.Instance.AddSticker(info, stickerData);
             return stickerData;
         }
