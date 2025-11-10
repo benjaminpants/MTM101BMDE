@@ -278,7 +278,7 @@ namespace MTM101BaldAPI.Patches
                     &&
                     (instructions[i + 9].opcode == OpCodes.Callvirt))
                 {
-                    Debug.Log("Patching at: " + i);
+                    MTM101BaldiDevAPI.Log.LogDebug(message + " patched at instruction: " + i);
                     patched = true;
                     // two this' as the first one gets popped for _potentialStickersToAdd
                     yield return instructions[i]; // this
