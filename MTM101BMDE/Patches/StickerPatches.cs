@@ -103,6 +103,11 @@ namespace MTM101BaldAPI.Patches
         [HarmonyPriority(Priority.Last)]
         static void StickerValuePostfix(Sticker sticker, ref int __result)
         {
+            if (StickerMetaStorage.Instance.Get(sticker) == null)
+            {
+                MTM101BaldiDevAPI.Log.LogWarning(sticker.ToStringExtended() + " has no meta! Unused?");
+                return;
+            }
             __result = Mathf.Min(__result, StickerMetaStorage.Instance.Get(sticker).value.stickerValueCap);
         }
 
@@ -246,11 +251,62 @@ namespace MTM101BaldAPI.Patches
         [HarmonyPriority(Priority.First)]
         static IEnumerable<CodeInstruction> GiveRandomBonusStickersTranspiler(IEnumerable<CodeInstruction> instructionsE) => GenericGiveRandomStickersTranspiler(instructionsE, "GiveRandomBonusStickers");
 
+        [HarmonyPrefix]
+        [HarmonyPatch(typeof(StickerManager))]
+        [HarmonyPatch("GiveNewRandomStickers")]
+        [HarmonyPriority(Priority.Last)]
+        static bool GiveNewRandomStickers(StickerManager __instance, WeightedSticker[] potentialStickers, int amount, bool openNow, List<WeightedSticker> ____potentialStickersToAdd)
+        {
+            // TODO: remember to update when mystman12 fixes the bugs with this
+            Dictionary<Sticker, int> totalInPossesion = new Dictionary<Sticker, int>();
+            for (int i = 0; i < amount; i++)
+            {
+                ____potentialStickersToAdd.Clear();
+                totalInPossesion.Clear();
+                StickerMetaData[] allStickers = StickerMetaStorage.Instance.All();
+                for (int j = 0; j < allStickers.Length; j++)
+                {
+                    totalInPossesion.Add(allStickers[j].value.sticker, __instance.TotalInPosession(allStickers[j].value.sticker));
+                }
+                int minValue = int.MaxValue;
+                foreach (var kvp in totalInPossesion)
+                {
+                    minValue = Mathf.Min(minValue, kvp.Value);
+                }
+                foreach (WeightedSticker weightedSticker in potentialStickers)
+                {
+                    if (__instance.TotalInPosession(weightedSticker.selection) <= minValue)
+                    {
+                        ____potentialStickersToAdd.Add(new WeightedSticker(weightedSticker.selection, Mathf.RoundToInt((float)weightedSticker.weight * __instance.GetStickerOddsMultiplier(weightedSticker.selection))));
+                    }
+                }
+                if (____potentialStickersToAdd.Count == 0)
+                {
+                    MTM101BaldiDevAPI.Log.LogWarning("Game would've exceptioned here, out of fresh stickers, increasing odds...");
+                    while (____potentialStickersToAdd.Count == 0)
+                    {
+                        minValue++;
+                        foreach (WeightedSticker weightedSticker in potentialStickers)
+                        {
+                            if (__instance.TotalInPosession(weightedSticker.selection) <= minValue)
+                            {
+                                ____potentialStickersToAdd.Add(new WeightedSticker(weightedSticker.selection, Mathf.RoundToInt((float)weightedSticker.weight * __instance.GetStickerOddsMultiplier(weightedSticker.selection))));
+                            }
+                        }
+                    }
+                }
+                __instance.AddSticker(____potentialStickersToAdd.RandomSelection(), openNow, false, openNow);
+                //AddRandomSticker(__instance, ____potentialStickersToAdd.RandomSelection(), openNow, false);
+            }
+            return false;
+        }
+
+        /*
         [HarmonyTranspiler]
         [HarmonyPatch(typeof(StickerManager))]
         [HarmonyPatch("GiveNewRandomStickers")]
         [HarmonyPriority(Priority.First)]
-        static IEnumerable<CodeInstruction> GiveNewRandomStickersTranspiler(IEnumerable<CodeInstruction> instructionsE) => GenericGiveRandomStickersTranspiler(instructionsE, "GiveNewRandomStickers");
+        static IEnumerable<CodeInstruction> GiveNewRandomStickersTranspiler(IEnumerable<CodeInstruction> instructionsE) => GenericGiveRandomStickersTranspiler(instructionsE, "GiveNewRandomStickers");*/
 
         static IEnumerable<CodeInstruction> GenericGiveRandomStickersTranspiler(IEnumerable<CodeInstruction> instructionsE, string message)
         {

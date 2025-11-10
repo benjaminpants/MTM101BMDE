@@ -195,7 +195,7 @@ namespace MTM101BaldAPI
     {
         public static StickerStateData AddSticker(this StickerManager me, Sticker sticker, bool opened, bool sticky, bool animation)
         {
-            return AddExistingSticker(me, StickerMetaStorage.Instance.Get(sticker).value.CreateStateData(0, opened, sticky), opened, animation);
+            return AddExistingSticker(me, StickerMetaStorage.Instance.Get(sticker).value.CreateStateData(0, opened, sticky), animation && opened);
         }
 
         public static StickerStateData AddRandomSticker(this StickerManager me, WeightedSticker[] potentialStickers, bool opened, bool sticky, bool animation)
@@ -203,10 +203,10 @@ namespace MTM101BaldAPI
             return AddSticker(me, WeightedSticker.RandomSelection(potentialStickers), opened, sticky, animation);
         }
 
-        public static StickerStateData AddExistingSticker(this StickerManager me, StickerStateData data, bool opened, bool animation)
+        public static StickerStateData AddExistingSticker(this StickerManager me, StickerStateData data, bool animation)
         {
             me.stickerInventory.Add(data);
-            if (animation && opened)
+            if (animation)
             {
                 Singleton<CoreGameManager>.Instance.GetHud(0).ShowCollectedSticker(me.GetInventoryStickerSprite(me.stickerInventory.Count - 1));
             }
