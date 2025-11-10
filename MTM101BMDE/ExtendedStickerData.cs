@@ -128,7 +128,7 @@ namespace MTM101BaldAPI
         /// <param name="slot"></param>
         public virtual void ApplySticker(StickerManager manager, StickerStateData inventoryState, int slot)
         {
-            manager.activeStickerData[slot] = CreateStateData(Singleton<BaseGameManager>.Instance.CurrentLevel, true, inventoryState.sticky);
+            manager.activeStickerData[slot] = CreateOrGetAppliedStateData(inventoryState);
         }
     }
 
