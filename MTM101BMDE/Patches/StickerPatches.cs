@@ -28,12 +28,13 @@ namespace MTM101BaldAPI.Patches
         [HarmonyPriority(Priority.Last)]
         static bool ApplyHeldStickerPrefix(StickerScreenController __instance, int slot, ref bool ___holdingSticker, int ___heldStickerId, GameObject ___dropStickerButton, SoundObject ___audApply, Sprite ___cursorOpenSprite)
         {
+            if (!___holdingSticker) return false;
             StickerStateData heldData = Singleton<StickerManager>.Instance.stickerInventory[___heldStickerId];
-            if (!StickerMetaStorage.Instance.Get(heldData.sticker).value.CouldCoverSticker(Singleton<StickerManager>.Instance, heldData, Singleton<StickerManager>.Instance.stickerInventory[___heldStickerId], ___heldStickerId, slot)) return false;
-            if (___holdingSticker && Singleton<StickerManager>.Instance.StickerCanBeCovered(slot))
+            if (!StickerMetaStorage.Instance.Get(heldData.sticker).value.CouldCoverSticker(Singleton<StickerManager>.Instance, heldData, Singleton<StickerManager>.Instance.activeStickerData[slot], ___heldStickerId, slot)) return false;
+            if (Singleton<StickerManager>.Instance.StickerCanBeCovered(slot))
             {
                 ___holdingSticker = false;
-                Singleton<StickerManager>.Instance.ApplyExistingSticker(StickerMetaStorage.Instance.Get(Singleton<StickerManager>.Instance.stickerInventory[___heldStickerId].sticker).value.CreateOrGetAppliedStateData(Singleton<StickerManager>.Instance.stickerInventory[___heldStickerId]), slot);
+                Singleton<StickerManager>.Instance.ApplySticker(Singleton<StickerManager>.Instance.stickerInventory[___heldStickerId], slot);
                 Singleton<StickerManager>.Instance.RemoveStickerFromInventory(___heldStickerId);
                 _DestroyStickers.Invoke(__instance, null);
                 _InitializeStickers.Invoke(__instance, null);

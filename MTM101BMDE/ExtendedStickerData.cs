@@ -215,13 +215,6 @@ namespace MTM101BaldAPI
 
         static FieldInfo _OnStickerApplied = AccessTools.Field(typeof(StickerManager), "OnStickerApplied");
 
-        public static StickerStateData ApplyExistingSticker(this StickerManager me, StickerStateData data, int slot)
-        {
-            me.activeStickerData[slot] = data;
-            ((StickerManager.StickerAppliedDelegate)_OnStickerApplied.GetValue(me)).Invoke();
-            return data;
-        }
-
         public static StickerStateData MakeCopy(this StickerStateData me)
         {
             if (me is ExtendedStickerStateData)

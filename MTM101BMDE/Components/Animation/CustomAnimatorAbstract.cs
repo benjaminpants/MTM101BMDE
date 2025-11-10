@@ -303,19 +303,6 @@ namespace MTM101BaldAPI.Components.Animation
             if (animations.Count == 0) { VirtualUpdate(); return; }
             if (paused) { VirtualUpdate(); return; }
             currentAnimationTime += Time.deltaTime * AnimationSpeed;
-            // sanity check logs for debugging
-            if (currentAnimation.frames == null)
-            {
-                MTM101BaldiDevAPI.Log.LogWarning("currentAnimation.frames is null for: " + (currentAnimationId) + " (" + name + ")");
-            }
-            if (currentAnimation.frames[currentAnimationFrame] == null)
-            {
-                MTM101BaldiDevAPI.Log.LogWarning("currentAnimation.frames[" + currentAnimationFrame + "] is null for: " + (currentAnimationId) + " (" + name + ")");
-            }
-            if (currentAnimationFrame >= currentAnimation.frames.Length)
-            {
-                MTM101BaldiDevAPI.Log.LogWarning("currentAnimationFrame out of bounds: " + currentAnimationId + "," + currentAnimation.frames.Length + "," + currentAnimationFrame + " (" + name + ")");
-            }
             while (currentAnimationTime >= currentAnimation.frames[currentAnimationFrame].time)
             {
                 currentAnimationTime = Mathf.Max(0f, currentAnimationTime - currentAnimation.frames[currentAnimationFrame].time);
@@ -327,9 +314,11 @@ namespace MTM101BaldAPI.Components.Animation
                     if (!looping)
                     {
                         Stop();
+                        break;
                     }
                 }
             }
+            if (currentAnimation == null) return;
             ApplyFrame(currentAnimation.frames[currentAnimationFrame].value);
             VirtualUpdate();
         }
