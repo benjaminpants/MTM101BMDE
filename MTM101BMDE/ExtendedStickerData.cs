@@ -64,6 +64,20 @@ namespace MTM101BaldAPI
         }
 
         /// <summary>
+        /// Returns true if the held sticker(sticker of this class) could cover another sticker, assuming the other sticker can be covered.
+        /// </summary>
+        /// <param name="manager"></param>
+        /// <param name="heldSticker"></param>
+        /// <param name="otherSticker"></param>
+        /// <param name="heldStickerSlot"></param>
+        /// <param name="otherStickerSlot"></param>
+        /// <returns></returns>
+        public virtual bool CouldCoverSticker(StickerManager manager, StickerStateData heldSticker, StickerStateData otherSticker, int heldStickerSlot, int otherStickerSlot)
+        {
+            return true;
+        }
+
+        /// <summary>
         /// The state that gets put into the active stickers array.
         /// The default behavior is to use CreateStickerData to make a copy of inventoryState,
         /// but you may want to override this method.
@@ -123,6 +137,11 @@ namespace MTM101BaldAPI
         public override void ApplySticker(StickerManager manager, StickerStateData inventoryState, int slot)
         {
             manager.UpgradeSlot(slot);
+        }
+
+        public override bool CouldCoverSticker(StickerManager manager, StickerStateData heldSticker, StickerStateData otherSticker, int heldStickerSlot, int otherStickerSlot)
+        {
+            return !manager.SlotUpgraded(otherStickerSlot);
         }
     }
 

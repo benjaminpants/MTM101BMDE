@@ -26,8 +26,10 @@ namespace MTM101BaldAPI.Patches
         [HarmonyPatch(typeof(StickerScreenController))]
         [HarmonyPatch("ApplyHeldSticker")]
         [HarmonyPriority(Priority.Last)]
-        static bool ApplyHeldStickerPrefix(StickerScreenController __instance, int slot, ref bool ___holdingSticker, int ___heldStickerId, GameObject ___dropStickerButton)
+        static bool ApplyHeldStickerPrefix(StickerScreenController __instance, int slot, ref bool ___holdingSticker, int ___heldStickerId, GameObject ___dropStickerButton, SoundObject ___audApply, Sprite ___cursorOpenSprite)
         {
+            StickerStateData heldData = Singleton<StickerManager>.Instance.stickerInventory[___heldStickerId];
+            if (!StickerMetaStorage.Instance.Get(heldData.sticker).value.CouldCoverSticker(Singleton<StickerManager>.Instance, heldData, Singleton<StickerManager>.Instance.stickerInventory[___heldStickerId], ___heldStickerId, slot)) return false;
             if (___holdingSticker && Singleton<StickerManager>.Instance.StickerCanBeCovered(slot))
             {
                 ___holdingSticker = false;
@@ -36,6 +38,8 @@ namespace MTM101BaldAPI.Patches
                 _DestroyStickers.Invoke(__instance, null);
                 _InitializeStickers.Invoke(__instance, null);
                 ___dropStickerButton.SetActive(false);
+                Singleton<MusicManager>.Instance.PlaySoundEffect(___audApply);
+                CursorController.Instance.SetSprite(___cursorOpenSprite);
             }
             return false;
         }

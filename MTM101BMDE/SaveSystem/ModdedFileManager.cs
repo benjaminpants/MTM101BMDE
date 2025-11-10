@@ -21,6 +21,7 @@ namespace MTM101BaldAPI.SaveSystem
         static FieldInfo _cgmbackupItems = AccessTools.Field(typeof(CoreGameManager), "backupItems");
         static FieldInfo _cgmbackupLockerItems = AccessTools.Field(typeof(CoreGameManager), "backupLockerItems");
         static FieldInfo _cgmrestoreItemsOnSpawn = AccessTools.Field(typeof(CoreGameManager), "restoreItemsOnSpawn");
+        static FieldInfo _slotUpgraded = AccessTools.Field(typeof(StickerManager), "slotUpgraded");
 
         public void CreateSavedGameCoreManager(GameLoader loader)
         {
@@ -29,6 +30,7 @@ namespace MTM101BaldAPI.SaveSystem
 
             Singleton<StickerManager>.Instance.activeStickerData = savedGameData.activeStickerData.Select(x => x.MakeCopy()).ToArray();
             Singleton<StickerManager>.Instance.stickerInventory = savedGameData.stickerInventory.Select(x => x.MakeCopy()).ToList();
+            _slotUpgraded.SetValue(Singleton<StickerManager>.Instance, savedGameData.stickerUpgradeSlots.ToArray());
             Singleton<CoreGameManager>.Instance.SetSeed(savedGameData.seed);
             Singleton<CoreGameManager>.Instance.SetLives(savedGameData.lives, true);
             Singleton<CoreGameManager>.Instance.SetAttempts(savedGameData.attempts);
@@ -395,8 +397,9 @@ namespace MTM101BaldAPI.SaveSystem
 
     [HarmonyPatch(typeof(CoreGameManager))]
     [HarmonyPatch("Save")]
-    class SaveAndQuitModdedData
+    class SaveModdedData
     {
+        static FieldInfo _slotUpgraded = AccessTools.Field(typeof(StickerManager), "slotUpgraded");
         // override the function completely, if we make sure every reference is referring to ModdedSaveGame, this should leave vanilla games intact.
         static bool Prefix(CoreGameManager __instance, ref int ___lives, ref int ___seed, ref bool[,] ___foundTilesToRestore, ref IntVector2 ___savedMapSize, ref List<Vector2> ___markerPositions, ref List<int> ___markerIds, ref int ___attempts)
         {
@@ -440,6 +443,7 @@ namespace MTM101BaldAPI.SaveSystem
             newSave.mapSizeZ = ___savedMapSize.z;
             newSave.stickerInventory.AddRange(Singleton<StickerManager>.Instance.stickerInventory.Select(x => x.MakeCopy()));
             newSave.activeStickerData.AddRange(Singleton<StickerManager>.Instance.activeStickerData.Select(x => x.MakeCopy()));
+            newSave.stickerUpgradeSlots = ((bool[])_slotUpgraded.GetValue(Singleton<StickerManager>.Instance)).ToList();
             newSave.FillBlankModTags();
             Singleton<ModdedFileManager>.Instance.saveData = newSave;
             Singleton<PlayerFileManager>.Instance.Save();

@@ -175,6 +175,7 @@ namespace MTM101BaldAPI.SaveSystem
 
         public List<StickerStateData> activeStickerData = new List<StickerStateData>();
         public List<StickerStateData> stickerInventory = new List<StickerStateData>();
+        public List<bool> stickerUpgradeSlots = new List<bool>();
 
         public Dictionary<string, string[]> modTags = new Dictionary<string, string[]>();
         private SceneObjectIdentifier _level;
@@ -207,7 +208,7 @@ namespace MTM101BaldAPI.SaveSystem
         public int lives = 2;
         public int attempts = 0;
         public int seed = 0;
-        public const int version = 7;
+        public const int version = 8;
         public bool saveAvailable = false;
         public bool fieldTripPlayed = false;
         public bool johnnyHelped = false;
@@ -302,6 +303,11 @@ namespace MTM101BaldAPI.SaveSystem
             {
                 items[i].Write(writer);
             }
+            writer.Write(lockerItems.Count);
+            for (int i = 0; i < lockerItems.Count; i++)
+            {
+                lockerItems[i].Write(writer);
+            }
             writer.Write(activeStickerData.Count);
             for (int i = 0; i < activeStickerData.Count; i++)
             {
@@ -330,10 +336,10 @@ namespace MTM101BaldAPI.SaveSystem
                     ExtendedStickerStateData.WriteDefault(writer, stickerInventory[i]);
                 }
             }
-            writer.Write(lockerItems.Count);
-            for (int i = 0; i < lockerItems.Count; i++)
+            writer.Write(stickerUpgradeSlots.Count);
+            for (int i = 0; i < stickerUpgradeSlots.Count; i++)
             {
-                lockerItems[i].Write(writer);
+                writer.Write(stickerUpgradeSlots[i]);
             }
             foreach (KeyValuePair<string, ModdedSaveGameIOBinary> kvp in ModdedSaveGameHandlers)
             {
@@ -576,6 +582,14 @@ namespace MTM101BaldAPI.SaveSystem
                         ExtendedStickerStateData.ReadDefault(reader, state);
                     }
                     stickerInventory.Add(state);
+                }
+            }
+            if (version >= 8)
+            {
+                int stickerUpgradeSlotCount = reader.ReadInt32();
+                for (int i = 0; i < stickerUpgradeSlotCount; i++)
+                {
+                    stickerUpgradeSlots.Add(reader.ReadBoolean());
                 }
             }
             // seperate the verification from the actual reading part so we dont partially load mod stuff.
