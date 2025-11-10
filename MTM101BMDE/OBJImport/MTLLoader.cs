@@ -185,8 +185,8 @@ public class MTLLoader {
             //diffuse color
             if (splitLine[0] == "Kd" || splitLine[0] == "kd")
             {
-                var currentColor = currentMaterial.GetColor("_Color");
-                var kdColor = OBJLoaderHelper.ColorFromStrArray(splitLine);
+               // var currentColor = currentMaterial.GetColor("_Color");
+               // var kdColor = OBJLoaderHelper.ColorFromStrArray(splitLine);
 
                 //currentMaterial.SetColor("_Color", new Color(kdColor.r, kdColor.g, kdColor.b, currentColor.a));
                 continue;
