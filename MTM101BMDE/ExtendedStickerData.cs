@@ -163,12 +163,22 @@ namespace MTM101BaldAPI
         {
         }
 
-        public virtual void Write(BinaryWriter writer)
+        /// <summary>
+        /// The method used to write the variables belonging to this object to the custom save system.
+        /// The sticker enum has already been written.
+        /// </summary>
+        /// <param name="writer"></param>
+        public virtual void VirtualWrite(BinaryWriter writer)
         {
             WriteDefault(writer, this);
         }
 
-        public virtual void ReadInto(BinaryReader reader)
+        /// <summary>
+        /// The method used to read the variables belonging to this object to the custom save system.
+        /// The sticker enum has already been read.
+        /// </summary>
+        /// <param name="reader"></param>
+        public virtual void VirtualReadInto(BinaryReader reader)
         {
             ReadDefault(reader, this);
         }
@@ -193,6 +203,42 @@ namespace MTM101BaldAPI
 
     public static class StickerManagerExtensions
     {
+        /// <summary>
+        /// Writes the data for the specified StickerStateData.
+        /// Does not write the enum.
+        /// </summary>
+        /// <param name="me"></param>
+        /// <param name="writer"></param>
+        public static void Write(this StickerStateData me, BinaryWriter writer)
+        {
+            if (me is ExtendedStickerStateData)
+            {
+                ((ExtendedStickerStateData)me).VirtualWrite(writer);
+            }
+            else
+            {
+                ExtendedStickerStateData.WriteDefault(writer, me);
+            }
+        }
+
+        /// <summary>
+        /// Reads the data for the specified StickerStateData.
+        /// Does not read the enum
+        /// </summary>
+        /// <param name="me"></param>
+        /// <param name="reader"></param>
+        public static void ReadInto(this StickerStateData me, BinaryReader reader)
+        {
+            if (me is ExtendedStickerStateData)
+            {
+                ((ExtendedStickerStateData)me).VirtualReadInto(reader);
+            }
+            else
+            {
+                ExtendedStickerStateData.ReadDefault(reader, me);
+            }
+        }
+
         public static StickerStateData AddSticker(this StickerManager me, Sticker sticker, bool opened, bool sticky, bool animation)
         {
             return AddExistingSticker(me, StickerMetaStorage.Instance.Get(sticker).value.CreateStateData(0, opened, sticky), animation && opened);
@@ -221,10 +267,10 @@ namespace MTM101BaldAPI
             {
                 MemoryStream memoryStream = new MemoryStream();
                 BinaryWriter writer = new BinaryWriter(memoryStream, Encoding.Default, true);
-                ((ExtendedStickerStateData)me).Write(writer);
+                me.Write(writer);
                 writer.Dispose();
                 memoryStream.Position = 0;
-                ExtendedStickerStateData newData = (ExtendedStickerStateData)StickerMetaStorage.Instance.Get(me.sticker).value.CreateStateData(me.activeLevel, me.opened, me.sticky);
+                StickerStateData newData = StickerMetaStorage.Instance.Get(me.sticker).value.CreateStateData(me.activeLevel, me.opened, me.sticky);
                 BinaryReader reader = new BinaryReader(memoryStream);
                 newData.ReadInto(reader);
                 return newData;

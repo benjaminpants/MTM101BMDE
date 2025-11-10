@@ -313,28 +313,14 @@ namespace MTM101BaldAPI.SaveSystem
             {
                 // enums are used to identify stickers
                 writer.Write(EnumExtensions.GetExtendedName<Sticker>((int)activeStickerData[i].sticker));
-                if (activeStickerData[i] is ExtendedStickerStateData)
-                {
-                    ((ExtendedStickerStateData)activeStickerData[i]).Write(writer);
-                }
-                else
-                {
-                    ExtendedStickerStateData.WriteDefault(writer, activeStickerData[i]);
-                }
+                activeStickerData[i].Write(writer);
             }
             writer.Write(stickerInventory.Count);
             for (int i = 0; i < stickerInventory.Count; i++)
             {
                 // enums are used to identify stickers
                 writer.Write(EnumExtensions.GetExtendedName<Sticker>((int)stickerInventory[i].sticker));
-                if (stickerInventory[i] is ExtendedStickerStateData)
-                {
-                    ((ExtendedStickerStateData)stickerInventory[i]).Write(writer);
-                }
-                else
-                {
-                    ExtendedStickerStateData.WriteDefault(writer, stickerInventory[i]);
-                }
+                stickerInventory[i].Write(writer);
             }
             writer.Write(stickerUpgradeSlots.Count);
             for (int i = 0; i < stickerUpgradeSlots.Count; i++)
@@ -548,14 +534,7 @@ namespace MTM101BaldAPI.SaveSystem
                         return ModdedSaveLoadStatus.MissingItemsOrStickers;
                     }
                     StickerStateData state = meta.value.CreateStateData(0,true,false);
-                    if (state is ExtendedStickerStateData)
-                    {
-                        ((ExtendedStickerStateData)state).ReadInto(reader);
-                    }
-                    else
-                    {
-                        ExtendedStickerStateData.ReadDefault(reader, state);
-                    }
+                    state.ReadInto(reader);
                     activeStickerData.Add(state);
                 }
                 int inventoryStickerCount = reader.ReadInt32();
@@ -573,14 +552,7 @@ namespace MTM101BaldAPI.SaveSystem
                         return ModdedSaveLoadStatus.MissingItemsOrStickers;
                     }
                     StickerStateData state = meta.value.CreateStateData(0, true, false);
-                    if (state is ExtendedStickerStateData)
-                    {
-                        ((ExtendedStickerStateData)state).ReadInto(reader);
-                    }
-                    else
-                    {
-                        ExtendedStickerStateData.ReadDefault(reader, state);
-                    }
+                    state.ReadInto(reader);
                     stickerInventory.Add(state);
                 }
             }
