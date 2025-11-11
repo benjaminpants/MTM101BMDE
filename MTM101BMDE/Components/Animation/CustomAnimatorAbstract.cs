@@ -319,19 +319,12 @@ namespace MTM101BaldAPI.Components.Animation
                 if (currentAnimationFrame >= currentAnimation.frames.Length)
                 {
                     OnAnimationFinished();
-                    // if we are looping, just reset the frame
-                    if (looping)
-                    {
-                        currentAnimationFrame = 0;
-                        continue;
-                    }
-                    // otherwise, apply the current frame and stop
-                    // if we dont do this here, we will either not play the last frame or throw an exception due to currentAnimation becoming null.
-                    ApplyFrame(currentAnimation.frames[currentAnimationFrame].value);
-                    VirtualUpdate();
                     currentAnimationFrame = 0;
-                    Stop();
-                    break;
+                    if (!looping)
+                    {
+                        Stop();
+                        break;
+                    }
                 }
             }
             if (currentAnimation == null) return;
