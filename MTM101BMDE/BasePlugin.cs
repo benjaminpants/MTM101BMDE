@@ -241,6 +241,7 @@ namespace MTM101BaldAPI
             // INITIALIZE ITEM METADATA
             ItemObject grapplingHook = null;
             List<ItemObject> pointObjects = new List<ItemObject>();
+            List<ItemObject> stickerObjects = new List<ItemObject>();
             Resources.FindObjectsOfTypeAll<ItemObject>().Where(x => !x.name.EndsWith("Tutorial")).Do(x =>
             {
                 switch (x.itemType)
@@ -341,7 +342,8 @@ namespace MTM101BaldAPI
                         x.AddMeta(this, ItemFlags.None).tags.Add("shape_key");
                         break;
                     case Items.StickerPack:
-                        x.AddMeta(this, ItemFlags.InstantUse);
+                        stickerObjects.Add(x);
+                        //x.AddMeta(this, ItemFlags.InstantUse);
                         break;
                     default:
                         // modded items start at 256, so we somehow have initialized after the mod in question, ignore the data.
@@ -352,6 +354,23 @@ namespace MTM101BaldAPI
                         break;
                 }
             });
+            // handle sticker metadata
+            List<ItemObject> sortedStickerItemMeta = new List<ItemObject>()
+            {
+                stickerObjects.Find(x => x.name == "StickerPack_Normal"),
+                stickerObjects.Find(x => x.name == "StickerPack_Large"),
+                stickerObjects.Find(x => x.name == "StickerPack_Twin"),
+                stickerObjects.Find(x => x.name == "StickerPack_Bonus"),
+                stickerObjects.Find(x => x.name == "StickerPack_Fresh"),
+                stickerObjects.Find(x => x.name == "GlueStick")
+            };
+            stickerObjects.RemoveAll(x => sortedStickerItemMeta.Contains(x));
+            sortedStickerItemMeta.InsertRange(sortedStickerItemMeta.Count - 2, stickerObjects);
+            sortedStickerItemMeta.Reverse();
+            ItemMetaData stickerItemMeta = new ItemMetaData(Info, sortedStickerItemMeta.ToArray());
+            stickerItemMeta.flags = ItemFlags.InstantUse;
+            stickerItemMeta.itemObjects.Do(x => x.AddMeta(stickerItemMeta));
+
             ItemMetaData grappleMeta = new ItemMetaData(Info, (ItemObject[])((ITM_GrapplingHook)grapplingHook.item).ReflectionGetVariable("allVersions"));
             grappleMeta.itemObjects = grappleMeta.itemObjects.AddItem(grapplingHook).ToArray();
             grappleMeta.flags = ItemFlags.CreatesEntity | ItemFlags.MultipleUse | ItemFlags.Persists;

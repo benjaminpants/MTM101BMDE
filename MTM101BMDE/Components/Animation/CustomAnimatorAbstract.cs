@@ -175,18 +175,24 @@ namespace MTM101BaldAPI.Components.Animation
             }
         }
 
-        public float AnimationSpeed
+        public virtual float AnimationSpeed
         {
             get
             {
+                if (!useScaledTime)
+                {
+                    return paused ? 0f : 1f * currentSpeed;
+                }
                 return paused ? 0f : GetTimeScale() * Time.timeScale * currentSpeed;
             }
         }
 
         public TimeScaleType timeScale = TimeScaleType.Environment;
+        public bool useScaledTime = true;
         public EnvironmentController ec;
-        public float GetTimeScale()
+        public virtual float GetTimeScale()
         {
+            if (!useScaledTime) return 1f;
             if (ec == null) return 1f;
             switch (timeScale)
             {
@@ -302,7 +308,7 @@ namespace MTM101BaldAPI.Components.Animation
             if (currentAnimation == null) { VirtualUpdate(); return; }
             if (animations.Count == 0) { VirtualUpdate(); return; }
             if (paused) { VirtualUpdate(); return; }
-            currentAnimationTime += Time.deltaTime * AnimationSpeed;
+            currentAnimationTime += Time.unscaledDeltaTime * AnimationSpeed;
             while (currentAnimationTime >= currentAnimation.frames[currentAnimationFrame].time)
             {
                 currentAnimationTime = Mathf.Max(0f, currentAnimationTime - currentAnimation.frames[currentAnimationFrame].time);
