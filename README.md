@@ -2,7 +2,7 @@
 # MissingTextureMan101's Baldi Modding Dev API
 
 An API designed for the development and cross-compatibility between multiple Baldi's Basics Plus mods.
-You'll need [BepInEx 5](https://github.com/BepInEx/BepInEx/releases/tag/v5.4.23.2) to utilize this API. Documentation is still very sparse and WIP, and may be out of date.
+You'll need [BepInEx 5](https://github.com/BepInEx/BepInEx/releases/tag/v5.4.23.2) to utilize this API, and [FixPluginTypesSerialization](https://github.com/xiaoxiao921/FixPluginTypesSerialization) for all custom components to behave correctly. Documentation is still very sparse and WIP, and may be out of date.
 I suggest looking at my [content packs](https://github.com/benjaminpants/BaldiContentPacks) or other similar mods for a decent reference.
 
 ## Features
@@ -21,4 +21,4 @@ The API features a lot of useful features for modders.
 # Credits/Thanks
 PixelGuy for various minor portions of the codebase (Especially during it's early days)
 Dummiesman for OBJ Importer, which was adapted for use in the API.
-Thanks to [This project](https://github.com/xiaoxiao921/FixPluginTypesSerialization) for allowing for serialization to work correctly for custom classes, thus letting the CustomAnimator components serialize correctly.
+Thanks to [this project](https://github.com/xiaoxiao921/FixPluginTypesSerialization) for allowing for serialization to work correctly for custom classes, thus letting the CustomAnimator components serialize correctly.
