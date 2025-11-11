@@ -520,6 +520,7 @@ namespace MTM101BaldAPI
             // sticker metadata
             StickerManager stickerMan = Resources.FindObjectsOfTypeAll<StickerManager>().First(x => x.GetInstanceID() >= 0);
             StickerData[] stickerData = (StickerData[])stickerMan.ReflectionGetVariable("stickerData");
+            List<Sticker> bonusStickers = (List<Sticker>)stickerMan.ReflectionGetVariable("bonusStickers");
             for (int i = 0; i < stickerData.Length; i++)
             {
                 if (stickerData[i].sprite == null)
@@ -544,7 +545,7 @@ namespace MTM101BaldAPI
                     sprite = stickerData[i].sprite,
                     duplicateOddsMultiplier = stickerData[i].duplicateOddsMultiplier,
                     sticker = (Sticker)i // okay
-                });
+                }).flags |= (bonusStickers.Contains((Sticker)i) ? StickerFlags.IsBonus : StickerFlags.None);
             }
             for (int i = 0; i < stickerMan.activeStickerData.Length; i++)
             {

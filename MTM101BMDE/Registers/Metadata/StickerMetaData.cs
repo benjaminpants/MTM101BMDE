@@ -5,6 +5,15 @@ using System.Text;
 
 namespace MTM101BaldAPI.Registers
 {
+
+    [Flags]
+    public enum StickerFlags
+    {
+        None = 0,
+        AffectsLevelGeneration = 1,
+        IsBonus = 2
+    }
+
     public class StickerMetaData : IMetadata<ExtendedStickerData>
     {
         private ExtendedStickerData _value;
@@ -18,10 +27,16 @@ namespace MTM101BaldAPI.Registers
 
         public Sticker type => _value.sticker;
 
+        public StickerFlags flags = StickerFlags.None;
+
         public StickerMetaData(PluginInfo info, ExtendedStickerData sticker)
         {
             _value = sticker;
             _info = info;
+            if (sticker.affectsLevelGeneration)
+            {
+                flags |= StickerFlags.AffectsLevelGeneration;
+            }
         }
     }
 
@@ -34,9 +49,11 @@ namespace MTM101BaldAPI.Registers
             metas.Add(toAdd.type, toAdd);
         }
 
-        public void AddSticker(PluginInfo info, ExtendedStickerData sticker)
+        public StickerMetaData AddSticker(PluginInfo info, ExtendedStickerData sticker)
         {
-            metas.Add(sticker.sticker, new StickerMetaData(info, sticker));
+            StickerMetaData meta = new StickerMetaData(info, sticker);
+            metas.Add(sticker.sticker, meta);
+            return meta;
         }
 
         public override StickerMetaData Get(ExtendedStickerData value)
