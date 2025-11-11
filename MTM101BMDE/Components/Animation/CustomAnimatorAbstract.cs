@@ -6,7 +6,6 @@ using System.Text;
 using UnityEngine;
 using UnityEngine.Events;
 using UnityEngine.UI;
-using static System.Net.Mime.MediaTypeNames;
 
 namespace MTM101BaldAPI.Components.Animation
 {
@@ -295,6 +294,10 @@ namespace MTM101BaldAPI.Components.Animation
 
         void Awake()
         {
+            if (defaultAnimation != null)
+            {
+                Play(defaultAnimation, defaultSpeed, true);
+            }
             VirtualAwake();
         }
 
@@ -316,12 +319,19 @@ namespace MTM101BaldAPI.Components.Animation
                 if (currentAnimationFrame >= currentAnimation.frames.Length)
                 {
                     OnAnimationFinished();
-                    currentAnimationFrame = 0;
-                    if (!looping)
+                    // if we are looping, just reset the frame
+                    if (looping)
                     {
-                        Stop();
-                        break;
+                        currentAnimationFrame = 0;
+                        continue;
                     }
+                    // otherwise, apply the current frame and stop
+                    // if we dont do this here, we will either not play the last frame or throw an exception due to currentAnimation becoming null.
+                    ApplyFrame(currentAnimation.frames[currentAnimationFrame].value);
+                    VirtualUpdate();
+                    currentAnimationFrame = 0;
+                    Stop();
+                    break;
                 }
             }
             if (currentAnimation == null) return;
