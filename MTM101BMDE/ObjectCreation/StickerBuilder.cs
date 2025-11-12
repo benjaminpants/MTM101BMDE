@@ -16,6 +16,7 @@ namespace MTM101BaldAPI.ObjectCreation
         bool affectsGenerator = false;
         float duplicateOdds = 1f;
         int cap = int.MaxValue;
+        bool isBonus = false;
 
         public StickerBuilder(PluginInfo info)
         {
@@ -91,6 +92,16 @@ namespace MTM101BaldAPI.ObjectCreation
             return this;
         }
 
+        /// <summary>
+        /// Marks this sticker as affecting the generator
+        /// </summary>
+        /// <returns></returns>
+        public StickerBuilder<T> SetAsBonusSticker()
+        {
+            isBonus = true;
+            return this;
+        }
+
         public T Build()
         {
             T stickerData = new T();
@@ -107,7 +118,7 @@ namespace MTM101BaldAPI.ObjectCreation
             stickerData.stickerValueCap = cap;
             stickerData.affectsLevelGeneration = affectsGenerator;
             stickerData.duplicateOddsMultiplier = duplicateOdds;
-            StickerMetaStorage.Instance.AddSticker(info, stickerData);
+            StickerMetaStorage.Instance.AddSticker(info, stickerData).flags |= (isBonus ? StickerFlags.IsBonus : StickerFlags.None);
             return stickerData;
         }
     }
