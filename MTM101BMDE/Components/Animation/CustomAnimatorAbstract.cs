@@ -279,7 +279,7 @@ namespace MTM101BaldAPI.Components.Animation
 
         public void SetDefaultAnimation(string animation, float speed)
         {
-            SetDefaultAnimation(animation, speed);
+            SetDefaultAnimation(animation, speed, false);
         }
 
         public void SetDefaultAnimation(string animation, float speed, bool play)
