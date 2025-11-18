@@ -15,7 +15,7 @@ namespace MTM101BaldAPI.Patches
         private static void Postfix(PlayerManager __instance)
         {
             __instance.GetMovementStatModifier();
-            __instance.gameObject.AddComponent<DummyPlayerFixers>();
+            __instance.gameObject.AddComponent<PlayerDestroyTracker>().itm = __instance.itm;
         }
     }
 }

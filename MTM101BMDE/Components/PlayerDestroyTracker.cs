@@ -2,13 +2,9 @@
 
 namespace MTM101BaldAPI.Components
 {
-    internal class DummyPlayerFixers : MonoBehaviour
+    internal class PlayerDestroyTracker : MonoBehaviour
     {
-        private ItemManager itm;
-        private void Awake()
-        {
-            itm = GetComponent<ItemManager>();
-        }
+        public ItemManager itm;
         private void OnDestroy()
         {
             if (StickerManager.Instance != null)
