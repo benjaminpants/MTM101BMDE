@@ -1,4 +1,5 @@
 ﻿using HarmonyLib;
+using MTM101BaldAPI.Components;
 using MTM101BaldAPI.PlusExtensions;
 using System;
 using System.Collections.Generic;
@@ -14,6 +15,7 @@ namespace MTM101BaldAPI.Patches
         private static void Postfix(PlayerManager __instance)
         {
             __instance.GetMovementStatModifier();
+            __instance.gameObject.AddComponent<DummyPlayerFixers>();
         }
     }
 }
