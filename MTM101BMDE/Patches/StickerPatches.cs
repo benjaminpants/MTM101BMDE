@@ -26,16 +26,16 @@ namespace MTM101BaldAPI.Patches
         [HarmonyPatch(typeof(StickerScreenController))]
         [HarmonyPatch("ApplyHeldSticker")]
         [HarmonyPriority(Priority.Last)]
-        static bool ApplyHeldStickerPrefix(StickerScreenController __instance, int slot, ref bool ___holdingSticker, int ___heldStickerId, GameObject ___dropStickerButton, SoundObject ___audApply, Sprite ___cursorOpenSprite)
+        static bool ApplyHeldStickerPrefix(StickerScreenController __instance, int slot, ref bool ___holdingSticker, int ___heldStickerInventoryId, GameObject ___dropStickerButton, SoundObject ___audApply, Sprite ___cursorOpenSprite)
         {
             if (!___holdingSticker) return false;
-            StickerStateData heldData = Singleton<StickerManager>.Instance.stickerInventory[___heldStickerId];
-            if (!StickerMetaStorage.Instance.Get(heldData.sticker).value.CouldCoverSticker(Singleton<StickerManager>.Instance, heldData, Singleton<StickerManager>.Instance.activeStickerData[slot], ___heldStickerId, slot)) return false;
+            StickerStateData heldData = Singleton<StickerManager>.Instance.stickerInventory[___heldStickerInventoryId];
+            if (!StickerMetaStorage.Instance.Get(heldData.sticker).value.CouldCoverSticker(Singleton<StickerManager>.Instance, heldData, Singleton<StickerManager>.Instance.activeStickerData[slot], ___heldStickerInventoryId, slot)) return false;
             if (Singleton<StickerManager>.Instance.StickerCanBeCovered(slot))
             {
                 ___holdingSticker = false;
-                Singleton<StickerManager>.Instance.ApplySticker(Singleton<StickerManager>.Instance.stickerInventory[___heldStickerId], slot);
-                Singleton<StickerManager>.Instance.RemoveStickerFromInventory(___heldStickerId);
+                Singleton<StickerManager>.Instance.ApplySticker(Singleton<StickerManager>.Instance.stickerInventory[___heldStickerInventoryId], slot);
+                Singleton<StickerManager>.Instance.RemoveStickerFromInventory(___heldStickerInventoryId);
                 _DestroyStickers.Invoke(__instance, null);
                 _InitializeStickers.Invoke(__instance, null);
                 ___dropStickerButton.SetActive(false);
