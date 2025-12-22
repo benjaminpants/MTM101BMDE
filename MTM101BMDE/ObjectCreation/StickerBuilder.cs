@@ -17,6 +17,7 @@ namespace MTM101BaldAPI.ObjectCreation
         float duplicateOdds = 1f;
         int cap = int.MaxValue;
         bool isBonus = false;
+        string[] tags = new string[0];
 
         public StickerBuilder(PluginInfo info)
         {
@@ -102,6 +103,27 @@ namespace MTM101BaldAPI.ObjectCreation
             return this;
         }
 
+        /// <summary>
+        /// Sets the metadata tags for this sticker
+        /// </summary>
+        /// <param name="tags"></param>
+        /// <returns></returns>
+        public StickerBuilder<T> SetTagsArray(string[] tags)
+        {
+            this.tags = tags;
+            return this;
+        }
+
+        /// <summary>
+        /// Sets the metadata tags for this sticker
+        /// </summary>
+        /// <param name="tag"></param>
+        /// <returns></returns>
+        public StickerBuilder<T> SetTags(params string[] tag)
+        {
+            return SetTagsArray(tag);
+        }
+
         public T Build()
         {
             T stickerData = new T();
@@ -118,7 +140,9 @@ namespace MTM101BaldAPI.ObjectCreation
             stickerData.stickerValueCap = cap;
             stickerData.affectsLevelGeneration = affectsGenerator;
             stickerData.duplicateOddsMultiplier = duplicateOdds;
-            StickerMetaStorage.Instance.AddSticker(info, stickerData).flags |= (isBonus ? StickerFlags.IsBonus : StickerFlags.None);
+            StickerMetaData tagsData = StickerMetaStorage.Instance.AddSticker(info, stickerData);
+            tagsData.flags |= (isBonus ? StickerFlags.IsBonus : StickerFlags.None);
+            tagsData.tags.UnionWith(tags);
             return stickerData;
         }
     }

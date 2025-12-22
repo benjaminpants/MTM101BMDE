@@ -63,6 +63,17 @@ namespace MTM101BaldAPI
         }
 
         /// <summary>
+        /// Returns true if this sticker should stack with another sticker.
+        /// </summary>
+        /// <param name="thisSticker"></param>
+        /// <param name="otherSticker"></param>
+        /// <returns></returns>
+        public virtual BooleanHandshake CanStackWith(StickerStateData thisSticker, StickerStateData otherSticker)
+        {
+            return (thisSticker.sticker == otherSticker.sticker) ? BooleanHandshake.TrueIfAgree : BooleanHandshake.FalseIfAgree;
+        }
+
+        /// <summary>
         /// Returns true if this sticker can be covered/replaced.
         /// </summary>
         /// <param name="data"></param>
@@ -269,6 +280,17 @@ namespace MTM101BaldAPI
             return data;
         }
 
+        public static int GetStickerStackSize(this StickerManager me, StickerStateData toCount)
+        {
+            int count = 1;
+            foreach (StickerStateData state in me.stickerInventory)
+            {
+                if (state == toCount) continue; // we can stack with ourselves, even if the method returns false
+                if (toCount.CanStackWith(state)) count++;
+            }
+            return count;
+        }
+
         static FieldInfo _OnStickerApplied = AccessTools.Field(typeof(StickerManager), "OnStickerApplied");
 
         public static StickerStateData MakeCopy(this StickerStateData me)
@@ -286,6 +308,11 @@ namespace MTM101BaldAPI
                 return newData;
             }
             return new StickerStateData(me.sticker, me.activeLevel, me.opened, me.sticky);
+        }
+
+        public static bool CanStackWith(this StickerStateData me, StickerStateData other)
+        {
+            return me.GetMeta().value.CanStackWith(me, other).CompareIfAgree(other.GetMeta().value.CanStackWith(other, me));
         }
     }
 }

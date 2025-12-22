@@ -7,6 +7,7 @@ using System.Text;
 using HarmonyLib;
 using MTM101BaldAPI.Registers;
 using UnityEngine;
+using UnityEngine.UI;
 
 namespace MTM101BaldAPI.Patches
 {
@@ -180,6 +181,29 @@ namespace MTM101BaldAPI.Patches
             return false;
         }
 
+        // set sprites
+        [HarmonyPostfix]
+        [HarmonyPatch(typeof(InventorySticker))]
+        [HarmonyPatch("SetInventoryId")]
+        [HarmonyPriority(Priority.First)]
+        static void SetInventoryIdPostfix(InventorySticker __instance, Image ___image, int ___inventoryId)
+        {
+            ___image.sprite = Singleton<StickerManager>.Instance.GetInventoryStickerSprite(___inventoryId);
+        }
+
+        // set sprites
+        [HarmonyPostfix]
+        [HarmonyPatch(typeof(StickerScreenController))]
+        [HarmonyPatch("UpdateStickerInventoryPositions")]
+        [HarmonyPriority(Priority.First)]
+        static void UpdateStickerInventoryPositionsPostfix(StickerScreenController __instance, List<InventorySticker> ___inventoryStickers)
+        {
+            for (int i = 0; i < ___inventoryStickers.Count; i++)
+            {
+                ___inventoryStickers[i].SetValue(Singleton<StickerManager>.Instance.GetStickerStackSize(Singleton<StickerManager>.Instance.stickerInventory[(int)_inventoryId.GetValue(___inventoryStickers[i])]));
+            }
+        }
+
         [HarmonyPrefix]
         [HarmonyPatch(typeof(StickerManager))]
         [HarmonyPatch("GetStickerOddsMultiplier")]
@@ -203,6 +227,68 @@ namespace MTM101BaldAPI.Patches
         {
             manager.AddSticker(sticker, openNow, sticky, false);
         }
+
+        static MethodInfo _CompareStickers = AccessTools.Method(typeof(StickerPatches), "CompareStickers");
+
+        static FieldInfo _inventoryId = AccessTools.Field(typeof(InventorySticker), "inventoryId");
+
+        static bool CompareStickers(InventorySticker sticker, StickerStateData otherSticker)
+        {
+            int inventoryId = (int)_inventoryId.GetValue(sticker);
+            StickerStateData invSticker = Singleton<StickerManager>.Instance.stickerInventory[inventoryId];
+            return invSticker.CanStackWith(otherSticker);
+        }
+
+        [HarmonyTranspiler]
+        [HarmonyPatch(typeof(StickerScreenController))]
+        [HarmonyPatch("InitializeStickers")]
+        [HarmonyPriority(Priority.First)]
+        static IEnumerable<CodeInstruction> InitializeStickersTranspiler(IEnumerable<CodeInstruction> instructionsE)
+        {
+            CodeInstruction[] instructions = instructionsE.ToArray();
+            bool patched = false;
+            for (int i = 0; i < instructions.Length; i++)
+            {
+                if (((i + 8) >= instructions.Length) || patched)
+                {
+                    yield return instructions[i];
+                    continue;
+                }
+                if ((instructions[i].opcode == OpCodes.Ldloc_S)
+                    &&
+                    ((instructions[i + 1].opcode == OpCodes.Callvirt))
+                    &&
+                    (instructions[i + 2].opcode == OpCodes.Call)
+                    &&
+                    (instructions[i + 3].opcode == OpCodes.Ldfld)
+                    &&
+                    (instructions[i + 4].opcode == OpCodes.Ldloc_1)
+                    &&
+                    (instructions[i + 5].opcode == OpCodes.Callvirt)
+                    &&
+                    (instructions[i + 6].opcode == OpCodes.Ldfld)
+                    &&
+                    (instructions[i + 7].opcode == OpCodes.Bne_Un))
+                {
+                    patched = true;
+                    yield return instructions[i]; // pass in inventory sticker
+                    //yield return new CodeInstruction(OpCodes.Nop);
+                    yield return instructions[i + 2]; // StickerManager GetInstance
+                    yield return instructions[i + 3]; // stickerInventory
+                    yield return instructions[i + 4]; // load i
+                    yield return instructions[i + 5]; // get
+                    yield return new CodeInstruction(OpCodes.Call, _CompareStickers);
+                    instructions[i + 7].opcode = OpCodes.Brfalse;
+                    yield return instructions[i + 7];
+                    i += 7;
+                    continue;
+                }
+                yield return instructions[i];
+            }
+            if (!patched) throw new NotImplementedException("Unable to patch StickerScreenController.InitializeStickers!");
+            yield break;
+        }
+
 
         [HarmonyTranspiler]
         [HarmonyPatch(typeof(StickerManager))]
