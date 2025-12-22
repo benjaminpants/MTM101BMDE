@@ -6,7 +6,6 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Text;
 using UnityEngine;
 using static MTM101BaldAPI.AssetTools.SpriteSheets.AsepriteSheet;
 
@@ -72,15 +71,20 @@ namespace MTM101BaldAPI.AssetTools.SpriteSheets
                     break;
                 case "reverse":
                 case "backward":
-                    animationFrames = animationFrames.Reverse().ToArray();
+                    List<SpriteFrame> reversedFrames = new List<SpriteFrame>(animationFrames); 
+                    reversedFrames.Reverse();
+                    animationFrames = reversedFrames.ToArray();
                     break;
                 case "pingpong_reverse":
                 case "pingpong":
-                    List<SpriteFrame> reversedPing = animationFrames.Reverse().ToList();
+                    List<SpriteFrame> reversedPing = animationFrames.ToList();
+                    reversedPing.Reverse();
                     animationFrames = animationFrames.AddRangeToArray(reversedPing.ToArray()).ToArray();
                     if (tag.direction == "pingpong_reverse")
                     {
-                        animationFrames = animationFrames.Reverse().ToArray();
+                        reversedPing = animationFrames.ToList();
+                        reversedPing.Reverse();
+                        animationFrames = reversedPing.ToArray();
                     }
                     break;
                 default:

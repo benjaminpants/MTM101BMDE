@@ -403,7 +403,9 @@ namespace MTM101BaldAPI
                 meta.flags |= ItemFlags.HasTutorialVariant;
                 if (x.itemType == Items.GrapplingHook)
                 {
-                    meta.itemObjects = meta.itemObjects.Reverse().AddItem(x).Reverse().ToArray();
+                    List<ItemObject> itms = new List<ItemObject>(meta.itemObjects);
+                    itms.Insert(0,x);
+                    meta.itemObjects = itms.ToArray();
                 }
                 else
                 {
@@ -960,6 +962,8 @@ PRESS ALT+F4 TO EXIT THE GAME.
         static void Postfix(MainMenu __instance)
         {
             Transform reminder = __instance.transform.Find("Reminder");
+            if (!reminder) return;
+            
             TMPro.TMP_Text text = reminder.gameObject.GetComponent<TMPro.TMP_Text>();
             text.gameObject.SetActive(true); // so the pre-releases don't hide the version number
             text.text = "Modding API " + MTM101BaldiDevAPI.VersionNumber;
