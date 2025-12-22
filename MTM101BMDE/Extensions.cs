@@ -388,6 +388,16 @@ namespace MTM101BaldAPI.Registers
             return NPCMetaStorage.Instance.Get(me.Character);
         }
 
+        public static StickerMetaData GetMeta(this Sticker sticker)
+        {
+            return StickerMetaStorage.Instance.Get(sticker);
+        }
+
+        public static StickerMetaData GetMeta(this StickerStateData sticker)
+        {
+            return StickerMetaStorage.Instance.Get(sticker.sticker);
+        }
+
         public static bool AddMetaPrefab(this NPC me)
         {
             return NPCMetaStorage.Instance.AddPrefab(me);
