@@ -80,9 +80,14 @@ namespace MTM101BaldAPI.Patches
         [HarmonyPatch(typeof(StickerManager))]
         [HarmonyPatch("ApplySticker")]
         [HarmonyPriority(Priority.Last)]
-        static bool ApplyStickerPrefix(StickerStateData sticker, int slot, StickerManager __instance, StickerManager.StickerAppliedDelegate ___OnStickerApplied)
+        static bool ApplyStickerPrefix(StickerStateData sticker, int slot, StickerManager __instance, int[] ___appliedStickerRemainingNotebooks, StickerManager.StickerAppliedDelegate ___OnStickerApplied)
         {
             StickerMetaStorage.Instance.Get(sticker.sticker).value.ApplySticker(__instance, sticker, slot);
+            // doing it like this should avoid accidental incompatabilities with 10.2.0.0 due to me. not knowing this was down
+            if (__instance.notebooksDecayStickers)
+            {
+                ___appliedStickerRemainingNotebooks[slot] = 5;
+            }
             ___OnStickerApplied.Invoke();
             return false;
         }
