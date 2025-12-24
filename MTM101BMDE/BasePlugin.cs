@@ -28,7 +28,6 @@ using MTM101BaldAPI.Patches;
 using MTM101BaldAPI.Components;
 using System.Runtime.InteropServices;
 using UnityEngine.Networking;
-using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using MTM101BaldAPI.ErrorHandler;
 using System.Linq.Expressions;
@@ -892,11 +891,21 @@ PRESS ALT+F4 TO EXIT THE GAME.
                 AddWarningScreen("The <color=yellow>FixPluginTypesSerialization</color> patcher plugin did not load properly!\nMake sure you have it installed in your <color=yellow>BepInEx > patchers</color> folder and try again.\nIf this persists, then it's incompatible with your OS's build of BB+. As such, try running the API in a <color=#00bfff>Windows</color> build of the game under <color=yellow>Wine</color>/<color=yellow>Proton</color>.<line-height=50%>", true);
                 return;
             }
+            try
+            {
+                TestForNewton();
+            }
+            catch (Exception e)
+            {
+                //AddWarningScreen("INSTALL NEWTONSOFT JSON ITS INCLUDED IN THE DOWNLOAD WHY DID YOU NOT INSTALL IT I EVEN PUT IT IN A CONVIENT PLACE ITS A DRAG AND DROP NOW HOW DO YOU MESS THIS UP IS THERE LIKE SOME SHITTY HORRIBLY OUTDATED TUTORIAL PEOPLE ARE FOLLOWING I DO NOT UNDERSTAND HOW THIS IS STILL AN ISSUE", true);
+                AddWarningScreen("Newtonsoft.JSON was not installed correctly. It is included in the mod download and should go in plugins. Please put it there and stop following old tutorials.", true);
+            }
             /*if (AppDomain.CurrentDomain.GetAssemblies().Where(x => x.FullName.StartsWith("Newtonsoft.Json")).Count() == 0)
             {
                 AddWarningScreen("Newtonsoft.Json is not installed! It should be included with the API zip!", true);
             }
-            else */if (attemptOnline.Value)
+            else */
+            if (attemptOnline.Value)
             {
                 StartCoroutine(GetCurrentGamebananaVersion());
             }
@@ -904,6 +913,11 @@ PRESS ALT+F4 TO EXIT THE GAME.
             //set window title
             if (allowWindowTitleChange.Value)
                 WindowTitle.SetText(Application.productName + " (Modded)");
+        }
+
+        void TestForNewton()
+        {
+            JToken.Parse("{}");
         }
     }
 
