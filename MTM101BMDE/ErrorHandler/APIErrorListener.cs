@@ -1,7 +1,5 @@
 ﻿using BepInEx.Logging;
 using System;
-using System.Collections.Generic;
-using System.Text;
 
 namespace MTM101BaldAPI.ErrorHandler
 {
@@ -9,7 +7,7 @@ namespace MTM101BaldAPI.ErrorHandler
     {
         public void Dispose()
         {
-            
+
         }
 
         public void LogEvent(object sender, LogEventArgs eventArgs)

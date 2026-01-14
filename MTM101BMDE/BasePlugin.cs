@@ -1,8 +1,5 @@
 ﻿using System;
-using System.Diagnostics;
 using System.Reflection;
-using System.Runtime.CompilerServices;
-using System.Net;
 //BepInEx stuff
 using BepInEx;
 using BepInEx.Logging;
@@ -49,10 +46,11 @@ namespace MTM101BaldAPI
     /// </summary>
     public enum IntrusiveAPIFeatures
     {
-        None=0,
+        None = 0,
     }
 
     [BepInPlugin(ModGUID, "Baldi's Basics Plus Dev API", VersionNumber)]
+    [BepInDependency("pixelguy.pixelmodding.bepinex.soft", BepInDependency.DependencyFlags.SoftDependency)]
     public class MTM101BaldiDevAPI : BaseUnityPlugin
     {
         internal static ManualLogSource Log = new ManualLogSource("Baldi's Basics Plus Dev API Pre Initialization");
@@ -127,18 +125,18 @@ namespace MTM101BaldAPI
                 default:
                     intrusiveFeatures |= feature;
                     return true;
-                // probably will implement as a seperate mod later
-                /*
-                case IntrusiveAPIFeatures.RemoveForcedStructuresInLevelStyles:
-                    if (tooLateForGeneratorBasedFeatures)
-                    {
-                        MTM101BaldiDevAPI.Log.LogWarning("Attempted to enable \"RemoveForcedStructuresInLevelStyles\", despite it being too late for generator changes!");
-                        return false;
-                    }
-                    GeneratorManagement.Register(MTM101BaldiDevAPI.Instance, GenerationModType.Preparation, GeneratorChanges);
-                    intrusiveFeatures |= feature;
-                    return true;
-                */
+                    // probably will implement as a seperate mod later
+                    /*
+                    case IntrusiveAPIFeatures.RemoveForcedStructuresInLevelStyles:
+                        if (tooLateForGeneratorBasedFeatures)
+                        {
+                            MTM101BaldiDevAPI.Log.LogWarning("Attempted to enable \"RemoveForcedStructuresInLevelStyles\", despite it being too late for generator changes!");
+                            return false;
+                        }
+                        GeneratorManagement.Register(MTM101BaldiDevAPI.Instance, GenerationModType.Preparation, GeneratorChanges);
+                        intrusiveFeatures |= feature;
+                        return true;
+                    */
             }
         }
 
@@ -277,9 +275,9 @@ namespace MTM101BaldAPI
                         x.AddMeta(this, ItemFlags.Persists).tags.Add("clothing");
                         break;
                     case Items.InvisibilityElixir:
-                        ItemMetaData elixerMeta = x.AddMeta(this, ItemFlags.Persists);
-                        elixerMeta.tags.Add("food");
-                        elixerMeta.tags.Add("drink");
+                        ItemMetaData elixirMeta = x.AddMeta(this, ItemFlags.Persists);
+                        elixirMeta.tags.Add("food");
+                        elixirMeta.tags.Add("drink");
                         break;
                     case Items.Nametag:
                         x.AddMeta(this, ItemFlags.Persists);
@@ -366,8 +364,10 @@ namespace MTM101BaldAPI
             stickerObjects.RemoveAll(x => sortedStickerItemMeta.Contains(x));
             sortedStickerItemMeta.InsertRange(sortedStickerItemMeta.Count - 2, stickerObjects);
             sortedStickerItemMeta.Reverse();
-            ItemMetaData stickerItemMeta = new ItemMetaData(Info, sortedStickerItemMeta.ToArray());
-            stickerItemMeta.flags = ItemFlags.InstantUse;
+            ItemMetaData stickerItemMeta = new ItemMetaData(Info, sortedStickerItemMeta.ToArray())
+            {
+                flags = ItemFlags.InstantUse
+            };
             stickerItemMeta.itemObjects.Do(x => x.AddMeta(stickerItemMeta));
 
             ItemMetaData grappleMeta = new ItemMetaData(Info, (ItemObject[])((ITM_GrapplingHook)grapplingHook.item).ReflectionGetVariable("allVersions"));
@@ -403,7 +403,7 @@ namespace MTM101BaldAPI
                 if (x.itemType == Items.GrapplingHook)
                 {
                     List<ItemObject> itms = new List<ItemObject>(meta.itemObjects);
-                    itms.Insert(0,x);
+                    itms.Insert(0, x);
                     meta.itemObjects = itms.ToArray();
                 }
                 else
@@ -679,7 +679,7 @@ namespace MTM101BaldAPI
             AssetMan.Add<GameObject>("TemplateNPC", templateObject);
             MTM101BaldAPI.Registers.Buttons.ButtonColorManager.InitializeButtonColors();
             Sprite[] allSprites = Resources.FindObjectsOfTypeAll<Sprite>();
-            AssetMan.Add<Sprite>("MenuArrowLeft",allSprites.First(x => x.name == "MenuArrowSheet_2"));
+            AssetMan.Add<Sprite>("MenuArrowLeft", allSprites.First(x => x.name == "MenuArrowSheet_2"));
             AssetMan.Add<Sprite>("MenuArrowLeftHighlight", allSprites.First(x => x.name == "MenuArrowSheet_0"));
             AssetMan.Add<Sprite>("MenuArrowRight", allSprites.Where(x => x.name == "MenuArrowSheet_3").First());
             AssetMan.Add<Sprite>("MenuArrowRightHighlight", allSprites.First(x => x.name == "MenuArrowSheet_1"));
@@ -708,8 +708,8 @@ namespace MTM101BaldAPI
                 img.transform.SetParent(texGenCanvas, false); // unity wont let me parent it directly
                 img.name = "OverlayImage" + i;
                 img.rectTransform.pivot = new Vector2(0f, 1f);
-                img.rectTransform.anchorMin = new Vector2(0f,1f);
-                img.rectTransform.anchorMax = new Vector2(0f,1f);
+                img.rectTransform.anchorMin = new Vector2(0f, 1f);
+                img.rectTransform.anchorMax = new Vector2(0f, 1f);
             }
 
             // setup loading for default crazy machines
@@ -724,7 +724,7 @@ namespace MTM101BaldAPI
             {
                 if (objct.levelObject == null)
                 {
-                    if (objct.randomizedLevelObject.Length == 0) continue; 
+                    if (objct.randomizedLevelObject.Length == 0) continue;
                     for (int i = 0; i < objct.randomizedLevelObject.Length; i++)
                     {
                         WeightedLevelObject curWeighted = objct.randomizedLevelObject[i];
@@ -815,6 +815,19 @@ PRESS ALT+F4 TO EXIT THE GAME.
 
         void Awake()
         {
+            // Anything below that requires newtonsoft will use this boolean to not be triggered if it is false
+            bool newtonsoftInstalled = false;
+            try
+            {
+                TestForNewton();
+                newtonsoftInstalled = true;
+            }
+            catch
+            {
+                //AddWarningScreen("INSTALL NEWTONSOFT JSON ITS INCLUDED IN THE DOWNLOAD WHY DID YOU NOT INSTALL IT I EVEN PUT IT IN A CONVIENT PLACE ITS A DRAG AND DROP NOW HOW DO YOU MESS THIS UP IS THERE LIKE SOME SHITTY HORRIBLY OUTDATED TUTORIAL PEOPLE ARE FOLLOWING I DO NOT UNDERSTAND HOW THIS IS STILL AN ISSUE", true);
+                AddWarningScreen("Newtonsoft.JSON was not installed correctly. It is included in the mod download and should go in plugins. Please put it there and stop following old tutorials.", true);
+                newtonsoftInstalled = false;
+            }
 #if DEBUG
             CustomOptionsCore.OnMenuInitialize += OnMen;
 #endif
@@ -888,24 +901,17 @@ PRESS ALT+F4 TO EXIT THE GAME.
             test.serializable.boolVal = false;
             if (Instantiate(test).serializable.boolVal != test.serializable.boolVal)
             {
-                AddWarningScreen("The <color=yellow>FixPluginTypesSerialization</color> patcher plugin did not load properly!\nMake sure you have it installed in your <color=yellow>BepInEx > patchers</color> folder and try again.\nIf this persists, then it's incompatible with your OS's build of BB+. As such, try running the API in a <color=#00bfff>Windows</color> build of the game under <color=yellow>Wine</color>/<color=yellow>Proton</color>.<line-height=50%>", true);
+                // Using Path.Combine to show the right System Dir Separator
+                AddWarningScreen($"<color=red>The serialization test failed!</color>\nThis means <color=yellow>BepInSoft.NET</color> must be unavailable or didn't loaded properly!\nMake sure to install this plugin and put it in the {Path.Combine("BepInEx", "plugins")} folder.<line-height=50%>", true);
                 return;
             }
-            try
-            {
-                TestForNewton();
-            }
-            catch (Exception e)
-            {
-                //AddWarningScreen("INSTALL NEWTONSOFT JSON ITS INCLUDED IN THE DOWNLOAD WHY DID YOU NOT INSTALL IT I EVEN PUT IT IN A CONVIENT PLACE ITS A DRAG AND DROP NOW HOW DO YOU MESS THIS UP IS THERE LIKE SOME SHITTY HORRIBLY OUTDATED TUTORIAL PEOPLE ARE FOLLOWING I DO NOT UNDERSTAND HOW THIS IS STILL AN ISSUE", true);
-                AddWarningScreen("Newtonsoft.JSON was not installed correctly. It is included in the mod download and should go in plugins. Please put it there and stop following old tutorials.", true);
-            }
+
             /*if (AppDomain.CurrentDomain.GetAssemblies().Where(x => x.FullName.StartsWith("Newtonsoft.Json")).Count() == 0)
             {
                 AddWarningScreen("Newtonsoft.Json is not installed! It should be included with the API zip!", true);
             }
             else */
-            if (attemptOnline.Value)
+            if (attemptOnline.Value && newtonsoftInstalled)
             {
                 StartCoroutine(GetCurrentGamebananaVersion());
             }
@@ -977,11 +983,11 @@ PRESS ALT+F4 TO EXIT THE GAME.
         {
             Transform reminder = __instance.transform.Find("Reminder");
             if (!reminder) return;
-            
+
             TMPro.TMP_Text text = reminder.gameObject.GetComponent<TMPro.TMP_Text>();
             text.gameObject.SetActive(true); // so the pre-releases don't hide the version number
             text.text = "Modding API " + MTM101BaldiDevAPI.VersionNumber;
-            text.gameObject.transform.position += new Vector3(-11f,0f, 0f);
+            text.gameObject.transform.position += new Vector3(-11f, 0f, 0f);
             if (!MTM101BaldiDevAPI.Instance.attemptOnline.Value)
             {
                 return;

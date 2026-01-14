@@ -1,11 +1,6 @@
-﻿using HarmonyLib;
-using System;
+﻿using System;
 using System.Collections.Generic;
-using System.Reflection;
-using System.Text;
 using UnityEngine;
-using UnityEngine.Events;
-using UnityEngine.UI;
 
 namespace MTM101BaldAPI.Components.Animation
 {
@@ -15,129 +10,223 @@ namespace MTM101BaldAPI.Components.Animation
     }
 
 
-    [Serializable]
-    public abstract class CustomAnimationFrame<T>
+    // ########## STUB CLASS TO TRICK THE MODS INTO THINKING THIS IS THE REAL GENERIC ANIMATOR CLASS #########
+    [Obsolete("Stub class. Use CustomAnimator instead.", true)]
+    public abstract class CustomAnimator<AnimationType, Frame, UnderlyingType> : MonoBehaviour where AnimationType : CustomAnimation, new() where Frame : CustomAnimationFrame, new()
     {
-        [SerializeField]
-        public T value;
+        // LIMITATIONS FROM THIS APPROACH:
+        // The class literally cannot have a body for fields or any getters. Unity crashes if so.
+        // No method should call the other inside the class; everything is isolated. Otherwise, Unity crashes.
+        // Everything needs to be type-safe, since we don't know what's the type being accepted here.
 
-        [SerializeField]
+        public void LoadAnimations(Dictionary<string, AnimationType> animations)
+        {
+            if (TryGetComponent<CustomAnimator>(out var _customAnimator))
+            {
+                _customAnimator.timeScale = timeScale;
+                _customAnimator.ec = ec;
+                _customAnimator.useScaledTime = useScaledTime;
+                if (animations is Dictionary<string, CustomAnimation> safeAnimations)
+                {
+                    _customAnimator.LoadAnimations(safeAnimations);
+                }
+            }
+        }
+
+        public void AddAnimation(string key, AnimationType anim)
+        {
+            if (TryGetComponent<CustomAnimator>(out var _customAnimator))
+            {
+                _customAnimator.timeScale = timeScale;
+                _customAnimator.ec = ec;
+                _customAnimator.useScaledTime = useScaledTime;
+                _customAnimator.AddAnimation(key, anim);
+            }
+        }
+
+        public void ApplyFrame(UnderlyingType frame)
+        {
+            if (TryGetComponent<CustomAnimator>(out var _customAnimator))
+            {
+                _customAnimator.timeScale = timeScale;
+                _customAnimator.ec = ec;
+                _customAnimator.useScaledTime = useScaledTime;
+                _customAnimator.ApplyFrame(frame);
+            }
+        }
+
+        public void Play(string id, float speed, bool loop)
+        {
+            if (TryGetComponent<CustomAnimator>(out var _customAnimator))
+            {
+                _customAnimator.timeScale = timeScale;
+                _customAnimator.ec = ec;
+                _customAnimator.useScaledTime = useScaledTime;
+                _customAnimator.Play(id, speed, loop);
+            }
+        }
+
+        public void Play(string id, float speed)
+        {
+            if (TryGetComponent<CustomAnimator>(out var _customAnimator))
+            {
+                _customAnimator.timeScale = timeScale;
+                _customAnimator.ec = ec;
+                _customAnimator.useScaledTime = useScaledTime;
+                _customAnimator.Play(id, speed);
+            }
+        }
+
+        public void Stop()
+        {
+            if (TryGetComponent<CustomAnimator>(out var _customAnimator))
+            {
+                _customAnimator.timeScale = timeScale;
+                _customAnimator.ec = ec;
+                _customAnimator.useScaledTime = useScaledTime;
+                _customAnimator.Stop();
+            }
+        }
+
+        public void SetPause(bool paused)
+        {
+            if (TryGetComponent<CustomAnimator>(out var _customAnimator))
+            {
+                _customAnimator.timeScale = timeScale;
+                _customAnimator.ec = ec;
+                _customAnimator.useScaledTime = useScaledTime;
+                _customAnimator.SetPause(paused);
+            }
+        }
+
+        public void SetLoop(bool loop)
+        {
+            if (TryGetComponent<CustomAnimator>(out var _customAnimator))
+            {
+                _customAnimator.timeScale = timeScale;
+                _customAnimator.ec = ec;
+                _customAnimator.useScaledTime = useScaledTime;
+                _customAnimator.SetLoop(loop);
+            }
+        }
+
+        public void SetDefaultAnimation(string animation, float speed)
+        {
+            if (TryGetComponent<CustomAnimator>(out var _customAnimator))
+            {
+                _customAnimator.timeScale = timeScale;
+                _customAnimator.ec = ec;
+                _customAnimator.useScaledTime = useScaledTime;
+                _customAnimator.SetDefaultAnimation(animation, speed);
+            }
+        }
+
+        public void SetDefaultAnimation(string animation, float speed, bool play)
+        {
+            if (TryGetComponent<CustomAnimator>(out var _customAnimator))
+            {
+                _customAnimator.timeScale = timeScale;
+                _customAnimator.ec = ec;
+                _customAnimator.useScaledTime = useScaledTime;
+                _customAnimator.SetDefaultAnimation(animation, speed, play);
+            }
+        }
+
+        public virtual void ChangeSpeed(float speed)
+        {
+            if (TryGetComponent<CustomAnimator>(out var _customAnimator))
+            {
+                _customAnimator.timeScale = timeScale;
+                _customAnimator.ec = ec;
+                _customAnimator.useScaledTime = useScaledTime;
+                _customAnimator.ChangeSpeed(speed);
+            }
+        }
+
+        public string AnimationId
+        {
+            get
+            {
+                if (TryGetComponent<CustomAnimator>(out var _customAnimator))
+                    return _customAnimator.AnimationId;
+                return string.Empty;
+            }
+        }
+
+        public int AnimationFrame
+        {
+            get
+            {
+                if (TryGetComponent<CustomAnimator>(out var _customAnimator))
+                    return _customAnimator.AnimationFrame;
+                return -1;
+            }
+        }
+
+        public virtual float AnimationSpeed
+        {
+            get
+            {
+                if (TryGetComponent<CustomAnimator>(out var _customAnimator))
+                    return _customAnimator.AnimationSpeed;
+                return 1f;
+            }
+        }
+
+        public TimeScaleType timeScale = TimeScaleType.Environment;
+        public bool useScaledTime = true;
+        public EnvironmentController ec;
+        public virtual float GetTimeScale()
+        {
+            if (TryGetComponent<CustomAnimator>(out var _customAnimator))
+            {
+                _customAnimator.timeScale = timeScale;
+                _customAnimator.ec = ec;
+                _customAnimator.useScaledTime = useScaledTime;
+                return _customAnimator.GetTimeScale();
+            }
+            return 1f;
+        }
+    }
+
+    [Serializable]
+    public abstract class CustomAnimationFrame
+    {
         public float time;
 
-        public CustomAnimationFrame()
-        {
-            value = default;
-            time = 0f;
-        }
+        // This allows the Animator to access the value without knowing the type
+        // It's an object because SpriteArrayFrame exists and it's an array, not something assignable from UnityEngine.Object
+        public abstract object RawValue { get; }
 
-        public CustomAnimationFrame(T value, float time)
-        {
-            this.value = value;
-            this.time = time;
-        }
+        public CustomAnimationFrame() { time = 0f; }
+        public CustomAnimationFrame(float time) { this.time = time; }
     }
 
     [Serializable]
-    public abstract class CustomAnimation<Frame, UnderlyingType> where Frame : CustomAnimationFrame<UnderlyingType>, new()
+    public abstract class CustomAnimation
     {
-        /// <summary>
-        /// The amount of frames in the animation
-        /// </summary>
-        public Frame[] frames;
-
-        /// <summary>
-        /// The length of the animation in seconds.
-        /// </summary>
         public float animationLength;
 
-        /// <summary>
-        /// Create an animation with the specified FPS
-        /// </summary>
-        /// <param name="fps"></param>
-        /// <param name="frames"></param>
-        public CustomAnimation(int fps, UnderlyingType[] frames)
-        {
-            this.frames = new Frame[frames.Length];
-            float timePerFrame = 1000f / fps / 1000f;
-            for (int i = 0; i < this.frames.Length; i++)
-            {
-                this.frames[i] = new Frame();
-                this.frames[i].value = frames[i];
-                this.frames[i].time = timePerFrame;
-            }
-            animationLength = frames.Length / (float)fps;
-        }
+        // Abstract method to get frames so the animator can iterate over them
+        public abstract CustomAnimationFrame[] GetBaseFrames();
 
-        /// <summary>
-        /// Create an animation that is totalTime long.
-        /// </summary>
-        /// <param name="frames"></param>
-        /// <param name="totalTime"></param>
-        public CustomAnimation(UnderlyingType[] frames, float totalTime)
+        protected float CalculateLength(CustomAnimationFrame[] frames)
         {
-            this.frames = new Frame[frames.Length];
-            float timePerFrame = totalTime / frames.Length;
-            for (int i = 0; i < this.frames.Length; i++)
-            {
-                this.frames[i] = new Frame();
-                this.frames[i].value = frames[i];
-                this.frames[i].time = timePerFrame;
-            }
-            animationLength = totalTime;
-        }
-
-        public CustomAnimation(Frame[] frames)
-        {
-            this.frames = frames;
-            for (int i = 0; i < this.frames.Length; i++)
-            {
-                animationLength += this.frames[i].time;
-            }
-        }
-
-        public CustomAnimation()
-        {
-            this.frames = new Frame[0];
-            this.animationLength = 0f;
+            float length = 0;
+            for (int i = 0; i < frames.Length; i++) length += frames[i].time;
+            return length;
         }
     }
 
-    public abstract class CustomAnimator<AnimationType, Frame, UnderlyingType> : MonoBehaviour, ISerializationCallbackReceiver, ISimpleAnimator where AnimationType : CustomAnimation<Frame, UnderlyingType>, new() where Frame : CustomAnimationFrame<UnderlyingType>, new()
+
+    // ###### REAL NON-GENERIC CLASS ######
+    public abstract class CustomAnimator : MonoBehaviour, ISimpleAnimator
     {
-
-        protected Dictionary<string, AnimationType> animations = new Dictionary<string, AnimationType>();
-
+        // Dictionary now uses the concrete Non-Generic CustomAnimation class (and it's serialized!!!)
         [SerializeField]
-        protected string[] animationKeys;
+        protected Dictionary<string, CustomAnimation> animations = new Dictionary<string, CustomAnimation>();
 
-        [SerializeField]
-        protected AnimationType[] animationTypes;
-
-        public virtual void OnBeforeSerialize()
-        {
-            // written kind of weird because before i was already trying to use a string and AnimationType array to get it to serialize, so this code is mostly written like that is still the case
-            // i do believe it'd only be a minor refactor to adjust it to be more proper with the dictionary, but i have already spent way too long on this
-            animationKeys = new string[animations.Count];
-            animationTypes = new AnimationType[animations.Count];
-            int index = 0;
-            foreach (var item in animations)
-            {
-                animationKeys[index] = item.Key;
-                animationTypes[index] = item.Value;
-                index++;
-            }
-        }
-
-        public virtual void OnAfterDeserialize()
-        {
-            for (int i = 0; i < animationKeys.Length; i++)
-            {
-                animations.Add(animationKeys[i], animationTypes[i]);
-            }
-            animationKeys = null;
-            animationTypes = null;
-        }
-
+        protected CustomAnimation currentAnimation;
         protected int currentAnimationFrame = 0;
         protected float currentAnimationTime = 0f;
 
@@ -148,8 +237,6 @@ namespace MTM101BaldAPI.Components.Animation
         [SerializeField]
         protected float currentSpeed = 1f;
 
-        protected AnimationType currentAnimation;
-
         protected bool paused = false;
 
         [SerializeField]
@@ -158,21 +245,8 @@ namespace MTM101BaldAPI.Components.Animation
         [SerializeField]
         protected float defaultSpeed = 1f;
 
-        public string AnimationId
-        {
-            get
-            {
-                return currentAnimationId;
-            }
-        }
-
-        public int AnimationFrame
-        {
-            get
-            {
-                return currentAnimationFrame;
-            }
-        }
+        public string AnimationId => currentAnimationId;
+        public int AnimationFrame => currentAnimationFrame;
 
         public virtual float AnimationSpeed
         {
@@ -189,47 +263,35 @@ namespace MTM101BaldAPI.Components.Animation
         public TimeScaleType timeScale = TimeScaleType.Environment;
         public bool useScaledTime = true;
         public EnvironmentController ec;
+
         public virtual float GetTimeScale()
         {
             if (!useScaledTime) return 1f;
             if (ec == null) return 1f;
             switch (timeScale)
             {
-                case TimeScaleType.Null:
-                    return 1f;
-                case TimeScaleType.Npc:
-                    return ec.NpcTimeScale;
-                case TimeScaleType.Player:
-                    return ec.PlayerTimeScale;
-                case TimeScaleType.Environment:
-                    return ec.EnvironmentTimeScale;
+                case TimeScaleType.Null: return 1f;
+                case TimeScaleType.Npc: return ec.NpcTimeScale;
+                case TimeScaleType.Player: return ec.PlayerTimeScale;
+                case TimeScaleType.Environment: return ec.EnvironmentTimeScale;
             }
             return 1f;
         }
 
-        /// <summary>
-        /// Loads the animations into the CustomAnimator
-        /// </summary>
-        /// <param name="animations"></param>
-        public void LoadAnimations(Dictionary<string, AnimationType> animations)
+        public void LoadAnimations(Dictionary<string, CustomAnimation> animations)
         {
-            this.animations = new Dictionary<string, AnimationType>(animations);
+            this.animations = new Dictionary<string, CustomAnimation>(animations);
         }
 
-        public void AddAnimation(string key, AnimationType anim)
+        public void AddAnimation(string key, CustomAnimation anim)
         {
-            animations.Add(key, anim);
+            if (!animations.ContainsKey(key))
+                animations.Add(key, anim);
         }
 
-        public abstract void ApplyFrame(UnderlyingType frame);
+        // Abstract method now takes UnityEngine.Object
+        public abstract void ApplyFrame(object frame);
 
-        /// <summary>
-        /// Plays the animation with the specified id if it exists.
-        /// </summary>
-        /// <param name="id"></param>
-        /// <param name="speed"></param>
-        /// <param name="loop"></param>
-        /// <exception cref="InvalidOperationException"></exception>
         public void Play(string id, float speed, bool loop)
         {
             if (speed < 0f) throw new InvalidOperationException("Attempted to play: " + id + " with invalid speed " + speed + " in custom animator!");
@@ -237,7 +299,8 @@ namespace MTM101BaldAPI.Components.Animation
             currentAnimationId = id;
             currentAnimationTime = 0f;
             currentAnimationFrame = 0;
-            if (string.IsNullOrEmpty(currentAnimationId))
+
+            if (string.IsNullOrEmpty(currentAnimationId) || !animations.ContainsKey(currentAnimationId))
             {
                 currentAnimationId = null;
                 currentAnimation = null;
@@ -247,6 +310,14 @@ namespace MTM101BaldAPI.Components.Animation
                 currentAnimation = animations[currentAnimationId];
             }
             ChangeSpeed(speed);
+
+            // Immediate update to show first frame
+            if (currentAnimation != null)
+            {
+                CustomAnimationFrame[] frames = currentAnimation.GetBaseFrames();
+                if (frames.Length != 0)
+                    ApplyFrame(frames[0].RawValue);
+            }
         }
 
         public void Play(string id, float speed)
@@ -254,9 +325,6 @@ namespace MTM101BaldAPI.Components.Animation
             Play(id, speed, false);
         }
 
-        /// <summary>
-        /// Stops the currently running animation and returns to the default animation if specified.
-        /// </summary>
         public void Stop()
         {
             Play(defaultAnimation, defaultSpeed, true);
@@ -272,10 +340,7 @@ namespace MTM101BaldAPI.Components.Animation
             looping = loop;
         }
 
-        protected virtual void OnAnimationFinished()
-        {
-
-        }
+        protected virtual void OnAnimationFinished() { }
 
         public void SetDefaultAnimation(string animation, float speed)
         {
@@ -297,31 +362,36 @@ namespace MTM101BaldAPI.Components.Animation
             currentSpeed = speed;
         }
 
-        void Awake()
+        private void Awake()
         {
+            VirtualAwake();
             if (defaultAnimation != null)
             {
                 Play(defaultAnimation, defaultSpeed, true);
             }
-            VirtualAwake();
         }
 
-        protected virtual void VirtualAwake()
-        {
-
-        }
+        protected virtual void VirtualAwake() { }
 
         void Update()
         {
             if (currentAnimation == null) { VirtualUpdate(); return; }
-            if (animations.Count == 0) { VirtualUpdate(); return; }
-            if (paused) { VirtualUpdate(); return; }
+
+            var frames = currentAnimation.GetBaseFrames();
+
+            // Skip if the animation or frame is invalid
+            if (animations.Count == 0 || paused) { VirtualUpdate(); return; }
+            if (frames == null || frames.Length == 0) { VirtualUpdate(); return; }
+
             currentAnimationTime += Time.unscaledDeltaTime * AnimationSpeed;
-            while (currentAnimationTime >= currentAnimation.frames[currentAnimationFrame].time)
+
+
+            while (currentAnimationTime >= frames[currentAnimationFrame].time)
             {
-                currentAnimationTime = Mathf.Max(0f, currentAnimationTime - currentAnimation.frames[currentAnimationFrame].time);
+                currentAnimationTime = Mathf.Max(0f, currentAnimationTime - frames[currentAnimationFrame].time);
                 currentAnimationFrame++;
-                if (currentAnimationFrame >= currentAnimation.frames.Length)
+
+                if (currentAnimationFrame >= frames.Length)
                 {
                     OnAnimationFinished();
                     currentAnimationFrame = 0;
@@ -332,14 +402,13 @@ namespace MTM101BaldAPI.Components.Animation
                     }
                 }
             }
-            if (currentAnimation == null) return;
-            ApplyFrame(currentAnimation.frames[currentAnimationFrame].value);
+
+            // Update the frame at the end
+            ApplyFrame(frames[currentAnimationFrame].RawValue);
+
             VirtualUpdate();
         }
 
-        protected virtual void VirtualUpdate()
-        {
-
-        }
+        protected virtual void VirtualUpdate() { }
     }
 }
