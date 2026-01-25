@@ -1,208 +1,162 @@
 ﻿using HarmonyLib;
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using System.Text;
 using UnityEngine;
 using UnityEngine.UI;
 
 namespace MTM101BaldAPI.Components.Animation
 {
     [Serializable]
-    public class SpriteFrame : CustomAnimationFrame
+    public class SpriteFrame : CustomAnimationFrame<Sprite>
     {
-        public Sprite value;
-        public override object RawValue => value;
-
-        public SpriteFrame() : base() { }
-        public SpriteFrame(Sprite value, float time) : base(time) { this.value = value; }
-    }
-
-    [Serializable]
-    public class SpriteAnimation : CustomAnimation
-    {
-        public SpriteFrame[] frames;
-        public override CustomAnimationFrame[] GetBaseFrames() => frames;
-
-        public SpriteAnimation() { frames = new SpriteFrame[0]; }
-
-        public SpriteAnimation(SpriteFrame[] frames)
+        public SpriteFrame()
         {
-            this.frames = frames;
-            for (int i = 0; i < this.frames.Length; i++)
-            {
-                animationLength += this.frames[i].time;
-            }
-        }
-        public SpriteAnimation(int fps, Sprite[] spriteValues)
-        {
-            frames = new SpriteFrame[spriteValues.Length];
-            float timePerFrame = 1f / fps;
-            for (int i = 0; i < frames.Length; i++)
-                frames[i] = new SpriteFrame(spriteValues[i], timePerFrame);
-            animationLength = spriteValues.Length / (float)fps;
         }
 
-        public SpriteAnimation(Sprite[] spriteValues, float totalTime)
+        public SpriteFrame(Sprite value, float time) : base(value, time)
         {
-            frames = new SpriteFrame[spriteValues.Length];
-            float timePerFrame = totalTime / spriteValues.Length;
-            for (int i = 0; i < frames.Length; i++)
-                frames[i] = new SpriteFrame(spriteValues[i], timePerFrame);
-            animationLength = totalTime;
         }
     }
 
     [Serializable]
-    public class Texture2DFrame : CustomAnimationFrame
+    public class SpriteAnimation : CustomAnimation<SpriteFrame, Sprite>
     {
-        public Texture2D value;
-        public override object RawValue => value;
-
-        public Texture2DFrame() : base() { }
-        public Texture2DFrame(Texture2D value, float time) : base(time) { this.value = value; }
-    }
-
-    [Serializable]
-    public class Texture2DAnimation : CustomAnimation
-    {
-        public Texture2DFrame[] frames;
-        public override CustomAnimationFrame[] GetBaseFrames() => frames;
-
-        public Texture2DAnimation() { frames = new Texture2DFrame[0]; }
-
-        public Texture2DAnimation(Texture2DFrame[] frames)
+        public SpriteAnimation()
         {
-            this.frames = frames;
-            for (int i = 0; i < this.frames.Length; i++)
-            {
-                animationLength += this.frames[i].time;
-            }
         }
 
-        public Texture2DAnimation(Texture2D[] frames, float totalTime)
+        public SpriteAnimation(SpriteFrame[] frames) : base(frames)
         {
-            this.frames = new Texture2DFrame[frames.Length];
-            float timePerFrame = totalTime / frames.Length;
-            for (int i = 0; i < frames.Length; i++)
-                this.frames[i] = new Texture2DFrame(frames[i], timePerFrame);
-            animationLength = totalTime;
         }
 
-        public Texture2DAnimation(int fps, Texture2D[] textureValues)
+        public SpriteAnimation(int fps, Sprite[] frames) : base(fps, frames)
         {
-            frames = new Texture2DFrame[textureValues.Length];
-            float timePerFrame = 1f / fps;
-            for (int i = 0; i < frames.Length; i++)
-                frames[i] = new Texture2DFrame(textureValues[i], timePerFrame);
-            animationLength = textureValues.Length / (float)fps;
+        }
+
+        public SpriteAnimation(Sprite[] frames, float totalTime) : base(frames, totalTime)
+        {
         }
     }
 
     [Serializable]
-    public class SpriteArrayFrame : CustomAnimationFrame
+    public class Texture2DFrame : CustomAnimationFrame<Texture2D>
     {
-        public Sprite[] value;
-        public override object RawValue => value;
-
-        public SpriteArrayFrame() : base() { }
-        public SpriteArrayFrame(Sprite[] value, float time) : base(time) { this.value = value; }
-    }
-
-    [Serializable]
-    public class SpriteArrayAnimation : CustomAnimation
-    {
-        public SpriteArrayFrame[] frames;
-        public override CustomAnimationFrame[] GetBaseFrames() => frames;
-
-        public SpriteArrayAnimation() { frames = new SpriteArrayFrame[0]; }
-
-        public SpriteArrayAnimation(SpriteArrayFrame[] frames)
+        public Texture2DFrame()
         {
-            this.frames = frames;
-            for (int i = 0; i < this.frames.Length; i++)
-            {
-                animationLength += this.frames[i].time;
-            }
         }
 
-        public SpriteArrayAnimation(Sprite[][] frames, float totalTime)
+        public Texture2DFrame(Texture2D value, float time) : base(value, time)
         {
-            this.frames = new SpriteArrayFrame[frames.Length];
-            float timePerFrame = totalTime / frames.Length;
-            for (int i = 0; i < frames.Length; i++)
-                this.frames[i] = new SpriteArrayFrame(frames[i], timePerFrame);
-            animationLength = totalTime;
-        }
-
-        public SpriteArrayAnimation(int fps, Sprite[][] spriteArrays)
-        {
-            frames = new SpriteArrayFrame[spriteArrays.Length];
-            float timePerFrame = 1f / fps;
-            for (int i = 0; i < frames.Length; i++)
-                frames[i] = new SpriteArrayFrame(spriteArrays[i], timePerFrame);
-            animationLength = spriteArrays.Length / (float)fps;
         }
     }
 
     [Serializable]
-    public class CustomRotatedSpriteAnimator : CustomAnimator
+    public class Texture2DAnimation : CustomAnimation<Texture2DFrame, Texture2D>
+    {
+        public Texture2DAnimation()
+        {
+        }
+
+        public Texture2DAnimation(Texture2DFrame[] frames) : base(frames)
+        {
+        }
+
+        public Texture2DAnimation(int fps, Texture2D[] frames) : base(fps, frames)
+        {
+        }
+
+        public Texture2DAnimation(Texture2D[] frames, float totalTime) : base(frames, totalTime)
+        {
+        }
+    }
+
+    [Serializable]
+    public class SpriteArrayFrame : CustomAnimationFrame<Sprite[]>
+    {
+        public SpriteArrayFrame()
+        {
+        }
+
+        public SpriteArrayFrame(Sprite[] value, float time) : base(value, time)
+        {
+
+        }
+    }
+
+    [Serializable]
+    public class SpriteArrayAnimation : CustomAnimation<SpriteArrayFrame, Sprite[]>
+    {
+        public SpriteArrayAnimation()
+        {
+        }
+
+        public SpriteArrayAnimation(SpriteArrayFrame[] frames) : base(frames)
+        {
+        }
+
+        public SpriteArrayAnimation(int fps, Sprite[][] frames) : base(fps, frames)
+        {
+        }
+
+        public SpriteArrayAnimation(Sprite[][] frames, float totalTime) : base(frames, totalTime)
+        {
+        }
+    }
+
+    [Serializable]
+    public class CustomRotatedSpriteAnimator : CustomAnimator<SpriteArrayAnimation, SpriteArrayFrame, Sprite[]>
     {
         public SpriteRotator rotator;
 
         static FieldInfo _angleRange = AccessTools.Field(typeof(SpriteRotator), "angleRange");
         static FieldInfo _sprites = AccessTools.Field(typeof(SpriteRotator), "sprites");
-        public override void ApplyFrame(object frame)
+        public override void ApplyFrame(Sprite[] frame)
         {
-            if (!(frame is Sprite[] spriteArray)) return;
-
-            _sprites.SetValue(rotator, spriteArray);
-            _angleRange.SetValue(rotator, (float)(360 / spriteArray.Length));
+            _sprites.SetValue(rotator, frame);
+            _angleRange.SetValue(rotator, (float)(360 / frame.Length));
         }
 
         protected override void VirtualAwake()
         {
-            SpriteArrayFrame[] frames = null;
             if (string.IsNullOrEmpty(defaultAnimation))
             {
-                frames = animations.First().Value.GetBaseFrames() as SpriteArrayFrame[];
                 MTM101BaldiDevAPI.Log.LogWarning(string.Format("CustomRotatedSpriteAnimator: {0} did not have a defaultAnimation assigned, sprite may be seemingly random until an animation plays.", name));
-                if (frames != null)
-                    ApplyFrame(frames[0].value);
+                ApplyFrame(animations.First().Value.frames[0].value);
                 return;
             }
-            frames = animations[defaultAnimation].GetBaseFrames() as SpriteArrayFrame[];
-            if (frames != null)
-                ApplyFrame(frames[0].value);
+            ApplyFrame(animations[defaultAnimation].frames[0].value);
         }
     }
 
     [Serializable]
-    public class CustomSpriteRendererAnimator : CustomAnimator
+    public class CustomSpriteRendererAnimator : CustomAnimator<SpriteAnimation, SpriteFrame, Sprite>
     {
         public SpriteRenderer renderer;
-        public override void ApplyFrame(object frame)
+        public override void ApplyFrame(Sprite frame)
         {
-            // Can be null or not
-            renderer.sprite = frame as Sprite;
+            renderer.sprite = frame;
         }
     }
 
     [Serializable]
-    public class CustomImageAnimator : CustomAnimator
+    public class CustomImageAnimator : CustomAnimator<SpriteAnimation, SpriteFrame, Sprite>
     {
         public Image image;
-        public override void ApplyFrame(object frame)
+        public override void ApplyFrame(Sprite frame)
         {
-            image.sprite = frame as Sprite;
+            image.sprite = frame;
         }
     }
 
-    public class CustomRawImageAnimator : CustomAnimator
+    public class CustomRawImageAnimator : CustomAnimator<Texture2DAnimation, Texture2DFrame, Texture2D>
     {
         public RawImage image;
-        public override void ApplyFrame(object frame)
+        public override void ApplyFrame(Texture2D frame)
         {
-            image.texture = frame as Texture2D;
+            image.texture = frame;
         }
     }
 }

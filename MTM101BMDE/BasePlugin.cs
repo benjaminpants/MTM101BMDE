@@ -50,7 +50,7 @@ namespace MTM101BaldAPI
     }
 
     [BepInPlugin(ModGUID, "Baldi's Basics Plus Dev API", VersionNumber)]
-    [BepInDependency("pixelguy.pixelmodding.bepinex.soft", BepInDependency.DependencyFlags.SoftDependency)]
+    [BepInDependency("pixelguy.pixelmodding.bepinex.serializer", BepInDependency.DependencyFlags.SoftDependency)]
     public class MTM101BaldiDevAPI : BaseUnityPlugin
     {
         internal static ManualLogSource Log = new ManualLogSource("Baldi's Basics Plus Dev API Pre Initialization");
@@ -902,7 +902,7 @@ PRESS ALT+F4 TO EXIT THE GAME.
             if (Instantiate(test).serializable.boolVal != test.serializable.boolVal)
             {
                 // Using Path.Combine to show the right System Dir Separator
-                AddWarningScreen($"<color=red>The serialization test failed!</color>\nThis means <color=yellow>BepInSoft.NET</color> must be unavailable or didn't loaded properly!\nMake sure to install this plugin and put it in the {Path.Combine("BepInEx", "plugins")} folder.<line-height=50%>", true);
+                AddWarningScreen($"<color=red>The serialization test failed!</color>\nThis means <color=yellow>BepInSerializer</color> must be unavailable or didn't loaded properly!\nMake sure to install this plugin and put it in the {Path.Combine("BepInEx", "plugins")} folder.<line-height=50%>", true);
                 return;
             }
 
