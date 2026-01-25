@@ -65,7 +65,7 @@ namespace MTM101BaldAPI.ErrorHandler
             while (fadeTime < 1f)
             {
                 fadeTime += Time.unscaledDeltaTime;
-                text.color = new Color(1f,0f,0f,Mathf.Round((1f - fadeTime) * 8f) / 8f);
+                text.color = new Color(1f, 0f, 0f, Mathf.Round((1f - fadeTime) * 8f) / 8f);
                 yield return null;
             }
             text.gameObject.SetActive(false);
@@ -75,12 +75,15 @@ namespace MTM101BaldAPI.ErrorHandler
 
         public void ShowError(string text, float time)
         {
+            // Text can be null if the error log it detects is inside an instantiation patch (BepInSoft logs, for example)
+            if (this.text == null) return;
             if (currentError != null)
             {
                 StopCoroutine(currentError);
             }
             currentError = ErrorCoroutine(text, time);
             StartCoroutine(currentError);
+            // If timeScale is 0, then there's no point to play the error sound (the ErrorCoroutine even ignores timeScale)
             if (audSource.isPlaying) return;
             audSource.PlayOneShot(errorSound);
         }

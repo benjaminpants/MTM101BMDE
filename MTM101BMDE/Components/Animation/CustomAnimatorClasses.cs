@@ -82,7 +82,7 @@ namespace MTM101BaldAPI.Components.Animation
 
         public SpriteArrayFrame(Sprite[] value, float time) : base(value, time)
         {
-            
+
         }
     }
 

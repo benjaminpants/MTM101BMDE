@@ -102,41 +102,11 @@ namespace MTM101BaldAPI.Components.Animation
         }
     }
 
-    public abstract class CustomAnimator<AnimationType, Frame, UnderlyingType> : MonoBehaviour, ISerializationCallbackReceiver, ISimpleAnimator where AnimationType : CustomAnimation<Frame, UnderlyingType>, new() where Frame : CustomAnimationFrame<UnderlyingType>, new()
+    public abstract class CustomAnimator<AnimationType, Frame, UnderlyingType> : MonoBehaviour, ISimpleAnimator where AnimationType : CustomAnimation<Frame, UnderlyingType>, new() where Frame : CustomAnimationFrame<UnderlyingType>, new()
     {
-
+        // * BepInSerializer feature *
+        [SerializeField]
         protected Dictionary<string, AnimationType> animations = new Dictionary<string, AnimationType>();
-
-        [SerializeField]
-        protected string[] animationKeys;
-
-        [SerializeField]
-        protected AnimationType[] animationTypes;
-
-        public virtual void OnBeforeSerialize()
-        {
-            // written kind of weird because before i was already trying to use a string and AnimationType array to get it to serialize, so this code is mostly written like that is still the case
-            // i do believe it'd only be a minor refactor to adjust it to be more proper with the dictionary, but i have already spent way too long on this
-            animationKeys = new string[animations.Count];
-            animationTypes = new AnimationType[animations.Count];
-            int index = 0;
-            foreach (var item in animations)
-            {
-                animationKeys[index] = item.Key;
-                animationTypes[index] = item.Value;
-                index++;
-            }
-        }
-
-        public virtual void OnAfterDeserialize()
-        {
-            for (int i = 0; i < animationKeys.Length; i++)
-            {
-                animations.Add(animationKeys[i], animationTypes[i]);
-            }
-            animationKeys = null;
-            animationTypes = null;
-        }
 
         protected int currentAnimationFrame = 0;
         protected float currentAnimationTime = 0f;
