@@ -6,7 +6,7 @@ using UnityEngine;
 
 namespace MTM101BaldAPI.AssetTools
 {
-    /*
+    
     public static class AssetFinder
     {
         public static T[] FindAllOfType<T>(bool vanillaNonInstantiatedOnly) where T : UnityEngine.Object
@@ -18,5 +18,11 @@ namespace MTM101BaldAPI.AssetTools
         {
             return FindAllOfType<T>(vanillaNonInstantiatedOnly).Where(x => x.name == name).ToArray();
         }
-    }*/
+
+        public static T FindOfTypeWithName<T>(string name, bool vanillaNonInstantiatedOnly) where T : UnityEngine.Object
+        {
+            T[] canidates = FindAllOfTypeWithName<T>(name, vanillaNonInstantiatedOnly);
+            return canidates.First();
+        }
+    }
 }
