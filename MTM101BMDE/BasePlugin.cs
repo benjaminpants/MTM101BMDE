@@ -57,7 +57,7 @@ namespace MTM101BaldAPI
     {
         internal static ManualLogSource Log = new ManualLogSource("Baldi's Basics Plus Dev API Pre Initialization");
         public const string ModGUID = "mtm101.rulerp.bbplus.baldidevapi";
-        public const string VersionNumber = "10.2.0.1";
+        public const string VersionNumber = "11.0.0.0";
 
         /// <summary>
         /// The version of the API, applicable when BepInEx cache messes up the version number.
@@ -895,7 +895,7 @@ PRESS ALT+F4 TO EXIT THE GAME.
             {
                 TestForNewton();
             }
-            catch (Exception e)
+            catch
             {
                 //AddWarningScreen("INSTALL NEWTONSOFT JSON ITS INCLUDED IN THE DOWNLOAD WHY DID YOU NOT INSTALL IT I EVEN PUT IT IN A CONVIENT PLACE ITS A DRAG AND DROP NOW HOW DO YOU MESS THIS UP IS THERE LIKE SOME SHITTY HORRIBLY OUTDATED TUTORIAL PEOPLE ARE FOLLOWING I DO NOT UNDERSTAND HOW THIS IS STILL AN ISSUE", true);
                 AddWarningScreen("Newtonsoft.JSON was not installed correctly. It is included in the mod download and should go in plugins. Please put it there and stop following old tutorials.", true);

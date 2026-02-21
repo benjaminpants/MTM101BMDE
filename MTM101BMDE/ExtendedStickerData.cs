@@ -73,29 +73,15 @@ namespace MTM101BaldAPI
             return (thisSticker.sticker == otherSticker.sticker) ? BooleanHandshake.TrueIfAgree : BooleanHandshake.FalseIfAgree;
         }
 
-        /// <summary>
-        /// Returns true if this sticker can be covered/replaced.
-        /// </summary>
-        /// <param name="data"></param>
-        /// <returns></returns>
-        public virtual bool CanBeCovered(StickerStateData data)
+        public virtual BooleanHandshake CanBeCovered(StickerStateData thisSticker, StickerStateData coveringSticker)
         {
-            if (!affectsLevelGeneration) return true;
-            return data.activeLevel != Singleton<BaseGameManager>.Instance.CurrentStickerLevel();
+            if (!affectsLevelGeneration) return BooleanHandshake.TrueIfAgree;
+            return (thisSticker.activeLevel != Singleton<BaseGameManager>.Instance.CurrentStickerLevel()) ? BooleanHandshake.TrueIfAgree : BooleanHandshake.FalseIfAgree;
         }
 
-        /// <summary>
-        /// Returns true if the held sticker(sticker of this class) could cover another sticker, assuming the other sticker can be covered.
-        /// </summary>
-        /// <param name="manager"></param>
-        /// <param name="heldSticker"></param>
-        /// <param name="otherSticker"></param>
-        /// <param name="heldStickerSlot"></param>
-        /// <param name="otherStickerSlot"></param>
-        /// <returns></returns>
-        public virtual bool CouldCoverSticker(StickerManager manager, StickerStateData heldSticker, StickerStateData otherSticker, int heldStickerSlot, int otherStickerSlot)
+        public virtual BooleanHandshake CanCoverSticker(StickerStateData thisSticker, StickerStateData otherSticker, int heldStickerSlot, int otherStickerSlot)
         {
-            return true;
+            return BooleanHandshake.TrueIfAgree;
         }
 
         /// <summary>
@@ -160,9 +146,9 @@ namespace MTM101BaldAPI
             manager.UpgradeSlot(slot);
         }
 
-        public override bool CouldCoverSticker(StickerManager manager, StickerStateData heldSticker, StickerStateData otherSticker, int heldStickerSlot, int otherStickerSlot)
+        public override BooleanHandshake CanCoverSticker(StickerStateData thisSticker, StickerStateData otherSticker, int heldStickerSlot, int otherStickerSlot)
         {
-            return !manager.SlotUpgraded(otherStickerSlot);
+            return (!Singleton<StickerManager>.Instance.SlotUpgraded(otherStickerSlot)) ? BooleanHandshake.AlwaysTrue : BooleanHandshake.AlwaysFalse;
         }
     }
 
@@ -313,6 +299,11 @@ namespace MTM101BaldAPI
         public static bool CanStackWith(this StickerStateData me, StickerStateData other)
         {
             return me.GetMeta().value.CanStackWith(me, other).CompareIfAgree(other.GetMeta().value.CanStackWith(other, me));
+        }
+
+        public static bool CanCover(this StickerStateData me, StickerStateData tryingToCover, int heldStickerSlot, int otherStickerSlot)
+        {
+            return me.GetMeta().value.CanCoverSticker(me, tryingToCover, heldStickerSlot, otherStickerSlot).CompareIfAgree(tryingToCover.GetMeta().value.CanBeCovered(tryingToCover, me));
         }
     }
 }

@@ -31,18 +31,15 @@ namespace MTM101BaldAPI.Patches
         {
             if (!___holdingSticker) return false;
             StickerStateData heldData = Singleton<StickerManager>.Instance.stickerInventory[___heldStickerInventoryId];
-            if (!StickerMetaStorage.Instance.Get(heldData.sticker).value.CouldCoverSticker(Singleton<StickerManager>.Instance, heldData, Singleton<StickerManager>.Instance.activeStickerData[slot], ___heldStickerInventoryId, slot)) return false;
-            if (Singleton<StickerManager>.Instance.StickerCanBeCovered(slot))
-            {
-                ___holdingSticker = false;
-                Singleton<StickerManager>.Instance.ApplySticker(Singleton<StickerManager>.Instance.stickerInventory[___heldStickerInventoryId], slot);
-                Singleton<StickerManager>.Instance.RemoveStickerFromInventory(___heldStickerInventoryId);
-                _DestroyStickers.Invoke(__instance, null);
-                _InitializeStickers.Invoke(__instance, null);
-                ___dropStickerButton.SetActive(false);
-                Singleton<MusicManager>.Instance.PlaySoundEffect(___audApply);
-                CursorController.Instance.SetSprite(___cursorOpenSprite);
-            }
+            if (!heldData.CanCover(Singleton<StickerManager>.Instance.activeStickerData[slot], ___heldStickerInventoryId, slot)) return false;
+            ___holdingSticker = false;
+            Singleton<StickerManager>.Instance.ApplySticker(Singleton<StickerManager>.Instance.stickerInventory[___heldStickerInventoryId], slot);
+            Singleton<StickerManager>.Instance.RemoveStickerFromInventory(___heldStickerInventoryId);
+            _DestroyStickers.Invoke(__instance, null);
+            _InitializeStickers.Invoke(__instance, null);
+            ___dropStickerButton.SetActive(false);
+            Singleton<MusicManager>.Instance.PlaySoundEffect(___audApply);
+            CursorController.Instance.SetSprite(___cursorOpenSprite);
             return false;
         }
 
@@ -96,10 +93,9 @@ namespace MTM101BaldAPI.Patches
         [HarmonyPatch(typeof(StickerManager))]
         [HarmonyPatch("StickerCanBeCovered")]
         [HarmonyPriority(Priority.Last)]
-        static bool StickerCanBeCoveredPrefix(int slot, StickerManager __instance, ref bool __result)
+        static void StickerCanBeCoveredPrefix(int slot, StickerManager __instance)
         {
-            __result = StickerMetaStorage.Instance.Get(__instance.activeStickerData[slot].sticker).value.CanBeCovered(__instance.activeStickerData[slot]);
-            return false;
+            throw new Exception("Do not call StickerCanBeCovered, as the API has obsoleted this method. Call [TODO] instead!");
         }
 
         [HarmonyPrefix]
