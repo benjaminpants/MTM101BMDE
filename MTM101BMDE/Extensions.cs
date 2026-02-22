@@ -294,6 +294,23 @@ namespace MTM101BaldAPI
             UnityEngine.Object.DestroyImmediate(component);
             return result;
         }
+
+        private static FieldInfo
+            _spriteSheet = AccessTools.DeclaredField(typeof(SpriteRotationMap), "spriteSheet"),
+            _overrideSpriteSheet = AccessTools.DeclaredField(typeof(SpriteRotationMap), "overrideSpriteSheet");
+        /// <summary>
+        /// Sets the sprite array to a <see cref="SpriteRotationMap"/> that consists of sprites rotated from the front, to the left, to the behind, to the right, and then to the front.
+        /// </summary>
+        /// <param name="spriteRotationMap"></param>
+        /// <param name="sprites">The sprite array that contains an axis of sprites</param>
+        public static void AssignRotationMapSprites(this SpriteRotationMap spriteRotationMap, Sprite[] sprites) => _spriteSheet.SetValue(spriteRotationMap, sprites);
+        /// <summary>
+        /// Sets the sprite array to a <see cref="SpriteRotationMap"/> that can override an already assigned sprite sheet map.
+		/// <para>This is useful for student variants since Student_0's sprites are used for the target sprites and the other student sprites overrides Student_0's sprite sheet map.</para>
+        /// </summary>
+        /// <param name="spriteRotationMap"></param>
+        /// <param name="sprites">The sprite array that contains an axis of sprites</param>
+        public static void AssignRotationMapOverrideSprites(this SpriteRotationMap spriteRotationMap, Sprite[] sprites) => _overrideSpriteSheet.SetValue(spriteRotationMap, sprites);
     }
 }
 

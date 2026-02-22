@@ -3,7 +3,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
-using System.Text;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -107,6 +106,29 @@ namespace MTM101BaldAPI.Components.Animation
     }
 
     [Serializable]
+    public class SpriteRotatedAnimation : CustomAnimation<SpriteFrame, Sprite> // I don't get it... It's used in one part.
+    {
+        public readonly int angleCount;
+        public SpriteRotatedAnimation(int angleCount)
+        {
+            this.angleCount = angleCount;
+        }
+        public SpriteRotatedAnimation(SpriteFrame[] frames, int angleCount) : base(frames)
+        {
+            this.angleCount = angleCount;
+        }
+        public SpriteRotatedAnimation(int fps, Sprite[] frames, int angleCount) : base(fps, frames)
+        {
+            this.angleCount = angleCount;
+        }
+
+        public SpriteRotatedAnimation(Sprite[] frames, float totalTime, int angleCount) : base(frames, totalTime)
+        {
+            this.angleCount = angleCount;
+        }
+    }
+
+    [Serializable]
     public class CustomRotatedSpriteAnimator : CustomAnimator<SpriteArrayAnimation, SpriteArrayFrame, Sprite[]>
     {
         public SpriteRotator rotator;
@@ -128,6 +150,58 @@ namespace MTM101BaldAPI.Components.Animation
                 return;
             }
             ApplyFrame(animations[defaultAnimation].frames[0].value);
+        }
+    }
+
+    [Serializable]
+    public class CustomSpriteRotatorAnimator : CustomAnimator<SpriteAnimation, SpriteFrame, Sprite>
+    {
+        public AnimatedSpriteRotator renderer;
+
+        private static FieldInfo
+            _renderer = AccessTools.DeclaredField(typeof(AnimatedSpriteRotator), "renderer"),
+            _spriteSheet = AccessTools.DeclaredField(typeof(SpriteRotationMap), "spriteSheet"),
+            _spriteMap = AccessTools.DeclaredField(typeof(AnimatedSpriteRotator), "spriteMap");
+
+        [SerializeField] private List<SpriteRotationMap> spriteMap = new List<SpriteRotationMap>();
+
+        public override void ApplyFrame(Sprite frame) => renderer.targetSprite = frame; // Any front facing sprites is the frame that is applied to the component.
+
+        private List<Sprite> AddAngledAnimation(int angleCount, List<Sprite> frames)
+        {
+            var map = new SpriteRotationMap()
+            {
+                angleCount = angleCount,
+            };
+            _spriteSheet.SetValue(map, frames.ToArray());
+            spriteMap.Add(map);
+            List<Sprite> frontFrames = new List<Sprite>(frames);
+            for (int i = frontFrames.Count - 1; i >= 0; i--)
+            {
+                if (!((i % angleCount) == 0))
+                    frontFrames.RemoveAt(i);
+            }
+            return frontFrames;
+        }
+
+        public void AddAngledAnimation(string key, int angleCount, List<Sprite> frames, int fps) => animations.Add(key, new SpriteAnimation(fps, AddAngledAnimation(angleCount, frames).ToArray()));
+        public void AddAngledAnimation(string key, int angleCount, List<Sprite> frames, float totalTime) => animations.Add(key, new SpriteAnimation(AddAngledAnimation(angleCount, frames).ToArray(), totalTime));
+        /// <summary>
+        /// Loads the animations into the CustomAnimator
+        /// </summary>
+        public void LoadAngledAnimations(Dictionary<string, SpriteRotatedAnimation> animations)
+        {
+            this.animations = new Dictionary<string, SpriteAnimation>();
+            foreach (var animation in animations)
+                this.animations.Add(animation.Key, new SpriteAnimation(AddAngledAnimation(animation.Value.angleCount, animation.Value.frames.Select(x => x.value).ToList()).ToArray(), animation.Value.animationLength));
+        }
+
+        public void SetSpriteRenderer(SpriteRenderer sprRenderer) => _renderer.SetValue(renderer, sprRenderer);
+
+        protected override void VirtualAwake()
+        {
+            if (renderer != null)
+                _spriteMap.SetValue(renderer, spriteMap.ToArray());
         }
     }
 
