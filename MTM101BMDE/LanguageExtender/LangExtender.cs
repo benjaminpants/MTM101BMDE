@@ -14,7 +14,7 @@ using System.Collections.Generic;
 using MTM101BaldAPI;
 using MTM101BaldAPI.AssetTools;
 
-namespace MTM101BaldAPI.LangExtender
+namespace MTM101BaldAPI
 {
 	[HarmonyPatch(typeof(LocalizationManager))]
 	[HarmonyPatch("LoadLocalizedText")]
