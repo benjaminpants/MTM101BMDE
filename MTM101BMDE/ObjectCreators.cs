@@ -120,6 +120,14 @@ namespace MTM101BaldAPI
             return obj;
 		}
 
+		public static PosterObject CreateLevelTypeChalkboard(string nameKey)
+		{
+            PosterObject obj = ScriptableObject.Instantiate<PosterObject>(MTM101BaldiDevAPI.AssetMan.Get<PosterObject>("LevelTypePosterTemplate"));
+            obj.name = "Chk_Lvl_" + nameKey;
+			obj.textData[1].textKey = nameKey;
+			return obj;
+        }
+
         public static PosterObject CreatePosterObject(Texture2D[] postertexs)
         {
 			if (postertexs.Length == 0) throw new ArgumentNullException();
