@@ -101,7 +101,6 @@ namespace MTM101BaldAPI
 
         internal static IntrusiveAPIFeatures intrusiveFeatures = IntrusiveAPIFeatures.None;
         internal static bool tooLateForGeneratorBasedFeatures = false;
-        internal FakeGameInit fakeInit;
 
         public static IntrusiveAPIFeatures EnabledFeatures
         {
@@ -229,11 +228,6 @@ namespace MTM101BaldAPI
 
         internal void OnSceneUnload()
         {
-            // create the fake GameInitializer
-            GameObject fakeInitObject = new GameObject("FakeGameInitializer");
-            fakeInitObject.gameObject.SetActive(false);
-            DontDestroyOnLoad(fakeInitObject.gameObject);
-            fakeInit = fakeInitObject.AddComponent<FakeGameInit>();
             // load the resources we need and stop the transition
             AssetMan.Add<CursorController>("cursorController", Resources.FindObjectsOfTypeAll<CursorController>().First(x => x.name == "CursorOrigin"));
             gameLoader = Resources.FindObjectsOfTypeAll<GameLoader>().First(x => x.GetInstanceID() >= 0);

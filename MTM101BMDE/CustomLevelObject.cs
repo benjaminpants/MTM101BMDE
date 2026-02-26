@@ -73,9 +73,7 @@ namespace MTM101BaldAPI
         {
             if (Singleton<CoreGameManager>.Instance == null) return null;
             if (me.randomizedLevelObject.Length == 0) return (CustomLevelObject)me.levelObject;
-            FakeGameInit fInit = MTM101BaldiDevAPI.Instance.fakeInit;
-            _sceneObject.SetValue(fInit, me);
-            CustomLevelObject clm = (CustomLevelObject)_GetControlledRandomLevelData.Invoke(fInit, null);
+            CustomLevelObject clm = (CustomLevelObject)GameInitializer.GetControlledRandomLevelData(me);
             return clm;
         }
     }
