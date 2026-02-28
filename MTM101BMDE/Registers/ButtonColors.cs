@@ -171,10 +171,10 @@ namespace MTM101BaldAPI.Registers.Buttons
 
             // buttons
             AddButtonColorHandler(typeof(GameButton), new ButtonColorHandlerInfo(new (Material, FieldInfo, string)[] {
-                (materials.Find(x => x.name == "Button_Red_Unpressed"), AccessTools.Field(typeof(GameButton), "unPressed"), "Button_{0}_Unpressed"),
-                (materials.Find(x => x.name == "Button_Red_Pressed"), AccessTools.Field(typeof(GameButton), "pressed"), "Button_{0}_Pressed"),
-                (materials.Find(x => x.name == "Button_RedOff_Unpressed"), AccessTools.Field(typeof(GameButton), "unPressedOff"), "Button_{0}Off_Unpressed"),
-                (materials.Find(x => x.name == "Button_RedOff_Pressed"), AccessTools.Field(typeof(GameButton), "pressedOff"), "Button_{0}Off_Pressed")
+                (materials.Find(x => x.name == "Button_Red_Unpressed"), AccessTools.Field(typeof(GameButton), "unPressedMaterial"), "Button_{0}_Unpressed"),
+                (materials.Find(x => x.name == "Button_Red_Pressed"), AccessTools.Field(typeof(GameButton), "pressedMaterial"), "Button_{0}_Pressed"),
+                (materials.Find(x => x.name == "Button_RedOff_Unpressed"), AccessTools.Field(typeof(GameButton), "unPressedOffMaterial"), "Button_{0}Off_Unpressed"),
+                (materials.Find(x => x.name == "Button_RedOff_Pressed"), AccessTools.Field(typeof(GameButton), "pressedOffMaterial"), "Button_{0}Off_Pressed")
             },
             AccessTools.Field(typeof(GameButton), "meshRenderer"), // the accesstool for getting the target mesh renderer
             null));
