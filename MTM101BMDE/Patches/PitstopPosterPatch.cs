@@ -15,7 +15,7 @@ namespace MTM101BaldAPI.Patches
         static IEnumerable<CodeInstruction> Transpiler(IEnumerable<CodeInstruction> instructionsE)
         {
             CodeInstruction[] instructions = instructionsE.ToArray();
-            for (int i = 42; i < instructions.Length; i++)
+            for (int i = 38; i < instructions.Length; i++)
             {
                 yield return instructions[i];
             }
