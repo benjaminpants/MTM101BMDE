@@ -193,7 +193,7 @@ namespace MTM101BaldAPI.Components.Animation
         {
             this.animations = new Dictionary<string, SpriteAnimation>();
             foreach (var animation in animations)
-                this.animations.Add(animation.Key, new SpriteAnimation(AddAngledAnimation(animation.Value.angleCount, animation.Value.frames.Select(x => x.value).ToList()).ToArray(), animation.Value.animationLength));
+                this.animations.Add(animation.Key, new SpriteAnimation(AddAngledAnimation(animation.Value.angleCount, animation.Value.frames.Select(x => x.value).ToList()).ToArray(), animation.Value.animationLength / animation.Value.angleCount));
         }
 
         public void SetSpriteRenderer(SpriteRenderer sprRenderer) => _renderer.SetValue(renderer, sprRenderer);
