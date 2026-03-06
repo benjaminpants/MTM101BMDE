@@ -43,26 +43,6 @@ namespace MTM101BaldAPI.Patches
             return false;
         }
 
-        [HarmonyPrefix]
-        [HarmonyPatch(typeof(StickerManager))]
-        [HarmonyPatch("Update")]
-        [HarmonyPriority(Priority.Last)]
-        static void StickerUpdatePrefix(StickerManager __instance)
-        {
-            if (!__instance.TryGetComponent<StickerInitFixRan>(out _))
-            {
-                for (int i = 0; i < __instance.activeStickerData.Length; i++)
-                {
-                    if (__instance.activeStickerData[i].GetType() == typeof(StickerStateData))
-                    {
-                        MTM101BaldiDevAPI.Log.LogDebug("Correcting sticker state data of: " + i + "!");
-                        __instance.activeStickerData[i] = StickerMetaStorage.Instance.Get(__instance.activeStickerData[i].sticker).value.CreateStateData(__instance.activeStickerData[i].activeLevel, __instance.activeStickerData[i].opened, __instance.activeStickerData[i].sticky);
-                    }
-                }
-                __instance.gameObject.AddComponent<StickerInitFixRan>();
-            }
-        }
-
         [HarmonyPostfix]
         [HarmonyPatch(typeof(StickerManager))]
         [HarmonyPatch("AwakeFunction")]
