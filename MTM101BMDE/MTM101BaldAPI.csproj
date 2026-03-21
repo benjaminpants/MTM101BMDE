@@ -76,12 +76,6 @@
     <Reference Include="Unity.Analytics.DataPrivacy">
       <HintPath>..\Dependencies\Unity.Analytics.DataPrivacy.dll</HintPath>
     </Reference>
-    <Reference Include="Unity.Analytics.StandardEvents">
-      <HintPath>..\Dependencies\Unity.Analytics.StandardEvents.dll</HintPath>
-    </Reference>
-    <Reference Include="Unity.Analytics.Tracker">
-      <HintPath>..\Dependencies\Unity.Analytics.Tracker.dll</HintPath>
-    </Reference>
     <Reference Include="Unity.ProGrids">
       <HintPath>..\Dependencies\Unity.ProGrids.dll</HintPath>
     </Reference>
@@ -198,36 +192,6 @@
     </Reference>
     <Reference Include="UnityEngine.ProfilerModule">
       <HintPath>..\Dependencies\UnityEngine.ProfilerModule.dll</HintPath>
-    </Reference>
-    <Reference Include="UnityEngine.Purchasing">
-      <HintPath>..\Dependencies\UnityEngine.Purchasing.dll</HintPath>
-    </Reference>
-    <Reference Include="UnityEngine.Purchasing.AppleCore">
-      <HintPath>..\Dependencies\UnityEngine.Purchasing.AppleCore.dll</HintPath>
-    </Reference>
-    <Reference Include="UnityEngine.Purchasing.AppleMacosStub">
-      <HintPath>..\Dependencies\UnityEngine.Purchasing.AppleMacosStub.dll</HintPath>
-    </Reference>
-    <Reference Include="UnityEngine.Purchasing.AppleStub">
-      <HintPath>..\Dependencies\UnityEngine.Purchasing.AppleStub.dll</HintPath>
-    </Reference>
-    <Reference Include="UnityEngine.Purchasing.Codeless">
-      <HintPath>..\Dependencies\UnityEngine.Purchasing.Codeless.dll</HintPath>
-    </Reference>
-    <Reference Include="UnityEngine.Purchasing.SecurityCore">
-      <HintPath>..\Dependencies\UnityEngine.Purchasing.SecurityCore.dll</HintPath>
-    </Reference>
-    <Reference Include="UnityEngine.Purchasing.SecurityStub">
-      <HintPath>..\Dependencies\UnityEngine.Purchasing.SecurityStub.dll</HintPath>
-    </Reference>
-    <Reference Include="UnityEngine.Purchasing.Stores">
-      <HintPath>..\Dependencies\UnityEngine.Purchasing.Stores.dll</HintPath>
-    </Reference>
-    <Reference Include="UnityEngine.Purchasing.WinRTCore">
-      <HintPath>..\Dependencies\UnityEngine.Purchasing.WinRTCore.dll</HintPath>
-    </Reference>
-    <Reference Include="UnityEngine.Purchasing.WinRTStub">
-      <HintPath>..\Dependencies\UnityEngine.Purchasing.WinRTStub.dll</HintPath>
     </Reference>
     <Reference Include="UnityEngine.RuntimeInitializeOnLoadManagerInitializerModule">
       <HintPath>..\Dependencies\UnityEngine.RuntimeInitializeOnLoadManagerInitializerModule.dll</HintPath>
