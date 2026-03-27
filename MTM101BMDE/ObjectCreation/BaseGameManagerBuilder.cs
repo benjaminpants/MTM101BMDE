@@ -35,8 +35,10 @@ namespace MTM101BaldAPI.ObjectCreation
         private int levelNo = 0;
         private string managerNameKey = null;
         private string name;
+        private float finishLevelDelay = 1f;
         private ElevatorScreen customElevatorScreen;
         protected bool beginPlayImmediately = false;
+        private bool completeMapOnReady = false;
         protected GameManagerNPCAutomaticSpawn npcSpawnMode = GameManagerNPCAutomaticSpawn.OnSpawnExit;
 
         /// <summary>
@@ -108,6 +110,30 @@ namespace MTM101BaldAPI.ObjectCreation
         }
 
         /// <summary>
+        /// Sets the delay from when the level is completed to when it is actually completed.
+        /// Defaults to 1 second.
+        /// </summary>
+        /// <param name="delay"></param>
+        /// <returns></returns>
+        public BaseGameManagerBuilder<T> SetLevelFinishDelay(float delay)
+        {
+            finishLevelDelay = delay;
+            return this;
+        }
+
+        /// <summary>
+        /// Sets if the map should complete automatically.
+        /// Defaults to false.
+        /// </summary>
+        /// <param name="val"></param>
+        /// <returns></returns>
+        public BaseGameManagerBuilder<T> SetAutomaticMapCompletion(bool val)
+        {
+            completeMapOnReady = val;
+            return this;
+        }
+
+        /// <summary>
         /// Sets the level number for this GameManager.
         /// </summary>
         /// <param name="value"></param>
@@ -123,6 +149,8 @@ namespace MTM101BaldAPI.ObjectCreation
         static FieldInfo _levelNo = AccessTools.Field(typeof(BaseGameManager), "levelNo");
         static FieldInfo _managerNameKey = AccessTools.Field(typeof(BaseGameManager), "managerNameKey");
         static FieldInfo _elevatorScreenPre = AccessTools.Field(typeof(BaseGameManager), "elevatorScreenPre");
+        static FieldInfo _finishLevelDelay = AccessTools.Field(typeof(BaseGameManager), "finishLevelDelay");
+        static FieldInfo _completeMapOnReady = AccessTools.Field(typeof(BaseGameManager), "completeMapOnReady");
 
         /// <summary>
         /// Creates the BaseGameManager prefab.
@@ -144,6 +172,8 @@ namespace MTM101BaldAPI.ObjectCreation
             _gradeValue.SetValue(comp, gradeValue);
             _notebookAngerVal.SetValue(comp, notebookAngerVal);
             _levelNo.SetValue(comp, levelNo);
+            _finishLevelDelay.SetValue(comp, finishLevelDelay);
+            _completeMapOnReady.SetValue(comp, completeMapOnReady);
             if (managerNameKey == null)
             {
                 if ((typeof(T).IsSubclassOf(typeof(MainGameManager))) || (typeof(T) == typeof(MainGameManager)))

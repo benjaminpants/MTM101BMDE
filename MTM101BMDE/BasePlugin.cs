@@ -57,7 +57,7 @@ namespace MTM101BaldAPI
     {
         internal static ManualLogSource Log = new ManualLogSource("Baldi's Basics Plus Dev API Pre Initialization");
         public const string ModGUID = "mtm101.rulerp.bbplus.baldidevapi";
-        public const string VersionNumber = "11.0.0.4";
+        public const string VersionNumber = "11.1.0.0";
 
         /// <summary>
         /// The version of the API, applicable when BepInEx cache messes up the version number.
