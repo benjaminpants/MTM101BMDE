@@ -57,7 +57,7 @@ namespace MTM101BaldAPI
     {
         internal static ManualLogSource Log = new ManualLogSource("Baldi's Basics Plus Dev API Pre Initialization");
         public const string ModGUID = "mtm101.rulerp.bbplus.baldidevapi";
-        public const string VersionNumber = "11.0.0.3";
+        public const string VersionNumber = "11.0.0.4";
 
         /// <summary>
         /// The version of the API, applicable when BepInEx cache messes up the version number.
@@ -809,6 +809,8 @@ PRESS ALT+F4 TO EXIT THE GAME.
             error.gameObject.SetActive(true);
             throw e; //rethrow the error
         }
+
+        public static bool hasPassedWarningScreen { get; internal set; } = false;
 
         public static void AddWarningScreen(string text, bool fatal)
         {

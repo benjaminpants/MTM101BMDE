@@ -58,6 +58,7 @@ namespace MTM101BaldAPI.Patches
         {
             if (WarningScreenContainer.currentPage >= WarningScreenContainer.screens.Length)
             {
+                MTM101BaldiDevAPI.hasPassedWarningScreen = true;
                 return true;
             }
             if ((WarningScreenContainer.screens[WarningScreenContainer.currentPage].Item2) && ((WarningScreenContainer.currentPage + 1) >= WarningScreenContainer.screens.Length))
@@ -67,6 +68,7 @@ namespace MTM101BaldAPI.Patches
             WarningScreenContainer.currentPage++;
             if (WarningScreenContainer.currentPage >= WarningScreenContainer.screens.Length)
             {
+                MTM101BaldiDevAPI.hasPassedWarningScreen = true;
                 return true;
             }
             Singleton<GlobalCam>.Instance.Transition(UiTransition.Dither, 0.01666667f);

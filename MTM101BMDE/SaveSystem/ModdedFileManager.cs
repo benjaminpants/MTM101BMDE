@@ -110,7 +110,31 @@ namespace MTM101BaldAPI.SaveSystem
             saveDatas.Clear();
             if (File.Exists(Path.Combine(myPath, "availableSlots.txt")))
             {
-                saveIndexes.AddRange(File.ReadAllLines(Path.Combine(myPath, "availableSlots.txt")).Select(x => int.Parse(x)));
+                try
+                {
+                    saveIndexes.AddRange(File.ReadAllLines(Path.Combine(myPath, "availableSlots.txt")).Select(x => int.Parse(x)));
+                }
+                catch (Exception e)
+                {
+                    saveIndexes.Clear();
+                    int i = 1;
+                    while (File.Exists(Path.Combine(myPath, "savedgame" + i + ".bbapi")))
+                    {
+                        saveIndexes.Add(i);
+                        i++;
+                    }
+                    saveIndexes.Sort();
+                    SaveFileList(myPath);
+                    if (MTM101BaldiDevAPI.hasPassedWarningScreen)
+                    {
+                        MTM101BaldiDevAPI.CauseCrash(MTM101BaldiDevAPI.Instance.Info, e);
+                    }
+                    else
+                    {
+                        MTM101BaldiDevAPI.AddWarningScreen("Error occured while loading modded saves!\nAn attempt at recovery has been made!\nPlease restart the game.", true);
+                    }
+                    throw e;
+                }
             }
             else
             {
