@@ -36,7 +36,7 @@ namespace MTM101BaldAPI.AssetTools.SpriteSheets
         /// <param name="pivot"></param>
         /// <param name="paths"></param>
         /// <returns></returns>
-        public static Dictionary<string, SpriteAnimation> LoadAsepriteAnimationsFromMod(BaseUnityPlugin plugin, float pixelsPerUnit, Vector2 pivot, params string[] paths)
+        public static Dictionary<string, SpriteAnimation> LoadAsepriteAnimationsFromMod(PluginInfo plugin, float pixelsPerUnit, Vector2 pivot, params string[] paths)
         {
             List<string> pathz = paths.ToList();
             pathz.Insert(0, AssetLoader.GetModPath(plugin));

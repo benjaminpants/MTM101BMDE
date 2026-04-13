@@ -20,7 +20,7 @@ namespace MTM101BaldAPI.AssetTools
     public static class AssetLoader
     {
 
-        private static List<BaseUnityPlugin> queuedModsForLanguage = new List<BaseUnityPlugin>();
+        private static List<PluginInfo> queuedModsForLanguage = new List<PluginInfo>();
         private static List<(Language, string)> queuedFilesForLanguage = new List<(Language, string)>();
         private static FieldInfo _localizedText = AccessTools.Field(typeof(LocalizationManager), "localizedText");
         private static FieldInfo _currentSubLang = AccessTools.Field(typeof(LocalizationManager), "currentSubLang");
@@ -29,7 +29,7 @@ namespace MTM101BaldAPI.AssetTools
         internal static void LoadAllQueuedLocalization(Language language)
         {
             if (Singleton<LocalizationManager>.Instance == null) return;
-            foreach (BaseUnityPlugin plugin in queuedModsForLanguage)
+            foreach (PluginInfo plugin in queuedModsForLanguage)
             {
                 string rootPath = Path.Combine(GetModPath(plugin), "Language", language.ToString());
                 if (!Directory.Exists(rootPath)) continue;
@@ -106,7 +106,7 @@ namespace MTM101BaldAPI.AssetTools
         /// Use this if you are porting a mod from a version before 6.0.0.0
         /// (AKA: Put JSON files in Language/English/)
         /// </summary>
-        public static void LocalizationFromMod(BaseUnityPlugin plugin)
+        public static void LocalizationFromMod(PluginInfo plugin)
         {
             queuedModsForLanguage.Add(plugin);
         }
@@ -136,14 +136,14 @@ namespace MTM101BaldAPI.AssetTools
             return obj;
         }
 
-        public static GameObject ModelFromMod(BaseUnityPlugin plugin, params string[] paths)
+        public static GameObject ModelFromMod(PluginInfo plugin, params string[] paths)
         {
             List<string> pathz = paths.ToList();
             pathz.Insert(0, GetModPath(plugin));
             return ModelFromFile(Path.Combine(pathz.ToArray()));
         }
 
-        public static GameObject ModelFromModManualMaterials(BaseUnityPlugin plugin, Dictionary<string, Material> materials, params string[] paths)
+        public static GameObject ModelFromModManualMaterials(PluginInfo plugin, Dictionary<string, Material> materials, params string[] paths)
         {
             List<string> pathz = paths.ToList();
             pathz.Insert(0, GetModPath(plugin));
@@ -210,7 +210,7 @@ namespace MTM101BaldAPI.AssetTools
         /// <param name="search"></param>
         /// <param name="paths"></param>
         /// <returns></returns>
-        public static Texture2D[] TexturesFromMod(BaseUnityPlugin plugin, string search, params string[] paths)
+        public static Texture2D[] TexturesFromMod(PluginInfo plugin, string search, params string[] paths)
         {
             List<string> pathz = paths.ToList();
             pathz.Insert(0, GetModPath(plugin));
@@ -598,7 +598,7 @@ namespace MTM101BaldAPI.AssetTools
         /// <param name="pixelsPerUnit">The pixels per unit, a hallway in BB+ is 10 units.</param>
         /// <param name="center">The center of the sprite, where 0,0 is the top left and 1,1 is the bottom right.</param>
         /// <returns></returns>
-        public static Sprite SpriteFromMod(BaseUnityPlugin plug, Vector2 center, float pixelsPerUnit, params string[] paths)
+        public static Sprite SpriteFromMod(PluginInfo plug, Vector2 center, float pixelsPerUnit, params string[] paths)
         {
             List<string> pathz = paths.ToList();
             pathz.Insert(0, GetModPath(plug));
@@ -625,7 +625,7 @@ namespace MTM101BaldAPI.AssetTools
         /// <param name="plug"></param>
         /// <param name="paths"></param>
         /// <returns></returns>
-        public static Texture2D TextureFromMod(BaseUnityPlugin plug, params string[] paths)
+        public static Texture2D TextureFromMod(PluginInfo plug, params string[] paths)
         {
             List<string> pathz = paths.ToList();
             pathz.Insert(0, GetModPath(plug));
@@ -638,7 +638,7 @@ namespace MTM101BaldAPI.AssetTools
         /// <param name="plug"></param>
         /// <param name="paths"></param>
         /// <returns></returns>
-        public static AudioClip AudioClipFromMod(BaseUnityPlugin plug, params string[] paths)
+        public static AudioClip AudioClipFromMod(PluginInfo plug, params string[] paths)
         {
             List<string> pathz = paths.ToList();
             pathz.Insert(0, GetModPath(plug));
@@ -648,11 +648,11 @@ namespace MTM101BaldAPI.AssetTools
         /// <summary>
         /// Get a mod's mod path. (Currently StreamingAssets/Modded/[MOD GUID])
         /// </summary>
-        /// <param name="plug"></param>
+        /// <param name="info"></param>
         /// <returns></returns>
-        public static string GetModPath(BaseUnityPlugin plug)
+        public static string GetModPath(PluginInfo info)
         {
-            return Path.Combine(Application.streamingAssetsPath, "Modded", plug.Info.Metadata.GUID);
+            return Path.Combine(Application.streamingAssetsPath, "Modded", info.Metadata.GUID);
         }
 
         internal static Dictionary<string, byte[]> MidiDatas = new Dictionary<string, byte[]>();
@@ -704,7 +704,7 @@ namespace MTM101BaldAPI.AssetTools
         /// <param name="plug">The modpath to get.</param>
         /// <param name="paths">The folders to go through starting from the modpath.</param>
         /// <returns>The string that can be used in the midi player to play the midi.</returns>
-        public static string MidiFromMod(string id, BaseUnityPlugin plug, params string[] paths)
+        public static string MidiFromMod(string id, PluginInfo plug, params string[] paths)
         {
             List<string> pathz = paths.ToList();
             pathz.Insert(0, GetModPath(plug));
@@ -799,7 +799,7 @@ namespace MTM101BaldAPI.AssetTools
         /// <param name="plugin"></param>
         /// <param name="paths"></param>
         /// <returns></returns>
-        public static Cubemap CubemapFromMod(BaseUnityPlugin plugin, params string[] paths)
+        public static Cubemap CubemapFromMod(PluginInfo plugin, params string[] paths)
         {
             List<string> pathz = paths.ToList();
             pathz.Insert(0, GetModPath(plugin));
@@ -936,7 +936,7 @@ namespace MTM101BaldAPI.AssetTools
             return asset;
         }
 
-        public static TMP_FontAsset TMPAssetFromMod(BaseUnityPlugin plugin, string[] paths, int pointSize, int atlasPadding, GlyphRenderMode renderMode = GlyphRenderMode.RASTER_HINTED, int aW = 1024, int aH = 1024, AtlasPopulationMode mode = AtlasPopulationMode.Dynamic)
+        public static TMP_FontAsset TMPAssetFromMod(PluginInfo plugin, string[] paths, int pointSize, int atlasPadding, GlyphRenderMode renderMode = GlyphRenderMode.RASTER_HINTED, int aW = 1024, int aH = 1024, AtlasPopulationMode mode = AtlasPopulationMode.Dynamic)
         {
             List<string> pathz = paths.ToList();
             pathz.Insert(0, GetModPath(plugin));

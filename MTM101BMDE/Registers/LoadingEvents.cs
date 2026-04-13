@@ -18,11 +18,15 @@ namespace MTM101BaldAPI.Registers
         /// <summary>
         /// Occurs before level generator changes are performed.
         /// </summary>
-        Pre,
+        PreAssetsLoaded,
+        /// <summary>
+        /// 
+        /// </summary>
+        PostAssetsLoaded,
         /// <summary>
         /// Occurs after level generator changes are performed.
         /// </summary>
-        Post,
+        PostGeneratorChanges,
         /// <summary>
         /// Occurs after localization has been loaded and the API's highscore mode has been determined.
         /// Use sparingly, in most cases you will want to use Post instead.
@@ -72,10 +76,10 @@ namespace MTM101BaldAPI.Registers
                 case LoadingEventOrder.Start:
                     LoadingEventsStart.Add(evnt);
                     break;
-                case LoadingEventOrder.Pre:
+                case LoadingEventOrder.PreAssetsLoaded:
                     LoadingEventsPre.Add(evnt);
                     break;
-                case LoadingEventOrder.Post:
+                case LoadingEventOrder.PostGeneratorChanges:
                     LoadingEventsPost.Add(evnt);
                     break;
                 case LoadingEventOrder.Final:
