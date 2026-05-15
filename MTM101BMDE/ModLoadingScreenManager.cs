@@ -102,7 +102,7 @@ namespace MTM101BaldAPI
 
         IEnumerator LoadEnumerator()
         {
-            yield return BeginLoadEnumerator(MainLoad(), apiLoadingBar, apiLoadText);
+            yield return BeginLoadEnumerator(MTM101BaldiDevAPI.Instance.Info, MainLoad(), apiLoadingBar, apiLoadText);
             apiLoadText.text = "Done!";
             modIdText.text = "";
             modLoadText.text = "";
@@ -111,22 +111,21 @@ namespace MTM101BaldAPI
             yield break;
         }
 
-        IEnumerator BeginLoadEnumerator(IEnumerator numerator, LoadingBar barToAdjust, TMP_Text textToChange)
+        IEnumerator BeginLoadEnumerator(PluginInfo info, IEnumerator numerator, LoadingBar barToAdjust, TMP_Text textToChange)
         {
-            if (!numerator.MoveNext())
-            {
-                throw new Exception("IEnumerator provided to loading ended before expected time!");
-            }
-            int maxSteps = ((int)numerator.Current); // loading method calculated max, yeah.
-            if (!numerator.MoveNext())
-            {
-                throw new Exception("IEnumerator provided to loading ended before expected time!");
-            }
-            textToChange.text = (string)numerator.Current;
+            if (!MoveNextButCrashWhenExcepted(info, numerator))
+                MTM101BaldiDevAPI.CauseCrash(info, new Exception("IEnumerator provided to loading ended before expected time!"));
+            int maxSteps = (int)numerator.Current; // loading method calculated max, yeah.
+
+            if (!MoveNextButCrashWhenExcepted(info, numerator))
+                MTM101BaldiDevAPI.CauseCrash(info, new Exception("IEnumerator provided to loading ended before expected time!"));
+            if (numerator.Current.GetType() == typeof(string))
+                textToChange.text = (string)numerator.Current;
+
             int totalSteps = 0;
             SetBarValue(barToAdjust, 0f);
             yield return null; // not having this here caused an issue where if something only took a brief moment the old text would carry over
-            while (numerator.MoveNext())
+            while (MoveNextButCrashWhenExcepted(info, numerator))
             {
                 if (numerator.Current.GetType() != typeof(string))
                 {
@@ -151,6 +150,21 @@ namespace MTM101BaldAPI
             }
             SetBarValue(barToAdjust, 1f); //incase it returns early, still set the bar to full
             yield break;
+        }
+
+        private bool MoveNextButCrashWhenExcepted(PluginInfo info, IEnumerator numerator)
+        {
+            try
+            {
+                return numerator.MoveNext();
+            }
+            catch (Exception e)
+            {
+                if (e.InnerException != null)
+                    e = e.InnerException;
+                MTM101BaldiDevAPI.CauseCrash(info, e);
+                throw e;
+            }
         }
 
         static readonly FieldInfo _potentialItems = AccessTools.Field(typeof(FieldTripBaseRoomFunction), "potentialItems");
@@ -204,7 +218,7 @@ namespace MTM101BaldAPI
                 LoadingEvents.LoadingEvent load = LoadingEvents.LoadingEventsStart[i];
                 modIdText.text = load.info.Metadata.GUID;
                 yield return "Loading Mod Assets... (" + i + "/" + LoadingEvents.LoadingEventsStart.Count + ")";
-                yield return BeginLoadEnumerator(load.loadingNumerator, modLoadingBar, modLoadText);
+                yield return BeginLoadEnumerator(load.info, load.loadingNumerator, modLoadingBar, modLoadText);
             }
             modLoadText.text = "";
             modIdText.text = "";
@@ -215,7 +229,7 @@ namespace MTM101BaldAPI
                 LoadingEvents.LoadingEvent load = LoadingEvents.LoadingEventsPre[i];
                 modIdText.text = load.info.Metadata.GUID;
                 yield return "Invoking Mod Asset Pre-Loading... (" + i + "/" + LoadingEvents.LoadingEventsPre.Count + ")";
-                yield return BeginLoadEnumerator(load.loadingNumerator, modLoadingBar, modLoadText);
+                yield return BeginLoadEnumerator(load.info, load.loadingNumerator, modLoadingBar, modLoadText);
             }
             modLoadText.text = "";
             modIdText.text = "";
@@ -258,7 +272,7 @@ namespace MTM101BaldAPI
             foreach (FieldTripObject trip in foundTrips)
             {
                 yield return "Changing " + trip.name + " loot...";
-                yield return BeginLoadEnumerator(ModifyFieldtripLoot(trip), modLoadingBar, modLoadText);
+                yield return BeginLoadEnumerator(MTM101BaldiDevAPI.Instance.Info, ModifyFieldtripLoot(trip), modLoadingBar, modLoadText);
             }
             modLoadText.text = "";
             modIdText.text = "";
@@ -273,7 +287,7 @@ namespace MTM101BaldAPI
                 LoadingEvents.LoadingEvent load = LoadingEvents.LoadingEventsPost[i];
                 modIdText.text = load.info.Metadata.GUID;
                 yield return "Invoking Mod Asset Post-Loading... (" + i + "/" + LoadingEvents.LoadingEventsPost.Count + ")";
-                yield return BeginLoadEnumerator(load.loadingNumerator, modLoadingBar, modLoadText);
+                yield return BeginLoadEnumerator(load.info, load.loadingNumerator, modLoadingBar, modLoadText);
             }
             yield return "Reloading Localization...";
             Singleton<LocalizationManager>.Instance.ReflectionInvoke("Start", null);
@@ -295,7 +309,7 @@ namespace MTM101BaldAPI
                 LoadingEvents.LoadingEvent load = LoadingEvents.LoadingEventsFinal[i];
                 modIdText.text = load.info.Metadata.GUID;
                 yield return "Invoking Mod Asset Finalizing... (" + i + "/" + LoadingEvents.LoadingEventsFinal.Count + ")";
-                yield return BeginLoadEnumerator(load.loadingNumerator, modLoadingBar, modLoadText);
+                yield return BeginLoadEnumerator(load.info, load.loadingNumerator, modLoadingBar, modLoadText);
             }
             yield break;
         }
