@@ -31,7 +31,7 @@ namespace MTM101BaldAPI.AssetTools
             if (Singleton<LocalizationManager>.Instance == null) return;
             foreach (BaseUnityPlugin plugin in queuedModsForLanguage)
             {
-                string rootPath = Path.Combine(GetModPath(plugin), "Language", language.ToString());
+                string rootPath = Path.Combine(GetModPath(plugin), "Language", language.ToStringExtended());
                 if (!Directory.Exists(rootPath)) continue;
                 string[] paths = Directory.GetFiles(rootPath, "*.json");
                 foreach (string path in paths)

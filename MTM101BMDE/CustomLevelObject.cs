@@ -21,14 +21,6 @@ namespace MTM101BaldAPI
         Finalizer = 16
     }
 
-    internal class FakeGameInit : GameInitializer
-    {
-        public override void Initialize()
-        {
-            // how about NO
-        }
-    }
-
     public static class CustomLevelObjectExtensions
     {
         /// <summary>

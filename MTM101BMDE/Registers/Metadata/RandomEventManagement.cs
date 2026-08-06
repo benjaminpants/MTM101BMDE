@@ -30,7 +30,11 @@ namespace MTM101BaldAPI.Registers
         /// <summary>
         /// This event isn't called through regular means, and shouldn't be added to the random event pool.
         /// </summary>
-        Special = 16
+        Special = 16,
+        /// <summary>
+        /// This event uses the event curtains.
+        /// </summary>
+        UsesCurtains = 32 | AffectsGenerator
     }
 
 

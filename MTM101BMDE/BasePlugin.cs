@@ -57,7 +57,7 @@ namespace MTM101BaldAPI
     {
         internal static ManualLogSource Log = new ManualLogSource("Baldi's Basics Plus Dev API Pre Initialization");
         public const string ModGUID = "mtm101.rulerp.bbplus.baldidevapi";
-        public const string VersionNumber = "11.1.0.2";
+        public const string VersionNumber = "11.1.1.0";
 
         /// <summary>
         /// The version of the API, applicable when BepInEx cache messes up the version number.
@@ -440,9 +440,11 @@ namespace MTM101BaldAPI
                     case RandomEventType.Flood:
                     case RandomEventType.Gravity:
                     case RandomEventType.Fog:
+                        RandomEventMetaStorage.Instance.Add(new RandomEventMetadata(Info, x));
+                        break;
                     case RandomEventType.BalderDash:
                     case RandomEventType.StudentShuffle:
-                        RandomEventMetaStorage.Instance.Add(new RandomEventMetadata(Info, x));
+                        RandomEventMetaStorage.Instance.Add(new RandomEventMetadata(Info, x, RandomEventFlags.UsesCurtains));
                         break;
                     case RandomEventType.MysteryRoom:
                         RandomEventMetaStorage.Instance.Add(new RandomEventMetadata(Info, x, RandomEventFlags.AffectsGenerator));
@@ -1018,7 +1020,7 @@ PRESS ALT+F4 TO EXIT THE GAME.
             }
             else
             {
-                text.text += "\nUnable to connect!";
+                text.text += "\nUnable to check for updates.";
             }
             button.OnPress.AddListener(() => { Application.OpenURL("https://gamebanana.com/mods/383711"); });
         }

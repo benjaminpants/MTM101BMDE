@@ -11,6 +11,7 @@ namespace MTM101BaldAPI.AssetTools
     /// A builder for procedural textures, AKA textures generated with other textures.
     /// <b>This is slow! Please avoid using this for real time applications, preferably use when loading your mod!</b>
     /// </summary>
+    [Obsolete("Will be removed in future API revisions.")]
     public class ProceduralTextureBuilder
     {
         Dictionary<string, List<Texture2D>> internalTextures = new Dictionary<string, List<Texture2D>>();

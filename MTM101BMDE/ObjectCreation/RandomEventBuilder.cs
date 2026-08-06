@@ -55,6 +55,10 @@ namespace MTM101BaldAPI.ObjectCreation
             _eventJingleOverride.SetValue(evnt, _jingle);
             eventObject.name = _eventName;
             RandomEventMetadata meta = new RandomEventMetadata(_info, evnt, _flags);
+            if (meta.flags.HasFlag(RandomEventFlags.UsesCurtains))
+            {
+                evnt.requiresSpawnerRooms = true;
+            }
             meta.tags.UnionWith(_tags);
             meta.tags.UnionWith(characters);
             RandomEventMetaStorage.Instance.Add(meta);
@@ -133,6 +137,12 @@ namespace MTM101BaldAPI.ObjectCreation
                 selection = asset,
                 weight = weight
             });
+            return this;
+        }
+
+        public RandomEventBuilder<T> AddCurtainsRequirement()
+        {
+            _flags |= RandomEventFlags.UsesCurtains;
             return this;
         }
 
