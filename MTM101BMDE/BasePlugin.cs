@@ -781,11 +781,15 @@ namespace MTM101BaldAPI
         public static void CauseCrash(PluginInfo plug, Exception e)
         {
             Canvas template = MTM101BaldiDevAPI.AssetMan.Get<Canvas>("ErrorTemplate");
-            if (template == null)
+            if (!template)
             {
                 MTM101BaldiDevAPI.Log.LogError("Attempted to cause a crash before the ErrorTemplate was found!");
                 return;
             }
+            if (hasCrashed) // Just throw the exception if a crash has already happened
+                throw e;
+
+            hasCrashed = true;
             GameObject error = GameObject.Instantiate<Canvas>(template).gameObject;
             error.GetComponent<Canvas>().sortingOrder = 99; //make this appear above everything
             TextMeshProUGUI text = error.GetComponentInChildren<TextMeshProUGUI>();
@@ -810,6 +814,7 @@ PRESS ALT+F4 TO EXIT THE GAME.
             throw e; //rethrow the error
         }
 
+        public static bool hasCrashed { get; internal set; } = false;
         public static bool hasPassedWarningScreen { get; internal set; } = false;
 
         public static void AddWarningScreen(string text, bool fatal)
