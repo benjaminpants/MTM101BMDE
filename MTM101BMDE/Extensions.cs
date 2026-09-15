@@ -32,10 +32,22 @@ namespace MTM101BaldAPI
             }
         }
 
+        /// <summary>
+        /// Returns true if this object is a prefab/on disk.
+        /// </summary>
+        /// <param name="me"></param>
+        /// <returns></returns>
+        public static bool IsPrefab(this UnityEngine.Object me)
+        {
+            return me.GetInstanceID() >= 0;
+        }
+
         public static T GetOrAddComponent<T>(this GameObject me) where T : Component
         {
-            T foundComponent = me.GetComponent<T>();
-            if (foundComponent) return foundComponent;
+            if (me.TryGetComponent(out T foundComponent))
+            {
+                return foundComponent;
+            }
             return me.AddComponent<T>();
         }
 
@@ -270,7 +282,7 @@ namespace MTM101BaldAPI
                 Component[] components = me.GetComponents<Component>();
                 for (int i = 0; i < components.Length; i++)
                 {
-                    FieldInfo[] infos = components[i].GetType().GetAllFieldsIncludingPrivateAndInherited(typeof(MonoBehaviour));
+                    FieldInfo[] infos = components[i].GetType().GetAllFieldsIncludingPrivateAndInherited(typeof(Component));
                     for (int j = 0; j < infos.Length; j++)
                     {
                         if (infos[j].GetValue(components[i]) == component)
@@ -282,7 +294,7 @@ namespace MTM101BaldAPI
                 }
             }
             SwapTo result = me.AddComponent<SwapTo>();
-            FieldInfo[] compInfos = typeof(SwapFrom).GetAllFieldsIncludingPrivateAndInherited(typeof(MonoBehaviour));
+            FieldInfo[] compInfos = typeof(SwapFrom).GetAllFieldsIncludingPrivateAndInherited(typeof(Component));
             for (int i = 0; i < compInfos.Length; i++)
             {
                 compInfos[i].SetValue(result, compInfos[i].GetValue(component));

@@ -102,7 +102,7 @@ namespace MTM101BaldAPI
         /// <returns></returns>
         public virtual string GetLocalizedAppliedStickerDescription(StickerStateData data)
         {
-            return string.Format("{0}<br><br>{1}", Singleton<LocalizationManager>.Instance.GetLocalizedText(string.Format("StickerTitle_{0}", EnumExtensions.GetExtendedName<Sticker>((int)sticker))), Singleton<LocalizationManager>.Instance.GetLocalizedText(string.Format("StickerDescription_{0}", EnumExtensions.GetExtendedName<Sticker>((int)sticker))));
+            return string.Format("{0}<br><br>{1}", GetLocalizedStickerTitle(data), GetLocalizedStickerDescription(data));
         }
 
         /// <summary>
@@ -111,7 +111,27 @@ namespace MTM101BaldAPI
         /// <returns></returns>
         public virtual string GetLocalizedInventoryStickerDescription(StickerStateData data)
         {
-            return string.Format("{0}<br><br>{1}", Singleton<LocalizationManager>.Instance.GetLocalizedText(string.Format("StickerTitle_{0}", EnumExtensions.GetExtendedName<Sticker>((int)sticker))), Singleton<LocalizationManager>.Instance.GetLocalizedText(string.Format("StickerDescription_{0}", EnumExtensions.GetExtendedName<Sticker>((int)sticker))));
+            return string.Format("{0}<br><br>{1}", GetLocalizedStickerTitle(data), GetLocalizedStickerDescription(data));
+        }
+
+        /// <summary>
+        /// Returns the localized string used for this stickers title. data may be null.
+        /// </summary>
+        /// <param name="data"></param>
+        /// <returns></returns>
+        public virtual string GetLocalizedStickerTitle(StickerStateData data)
+        {
+            return Singleton<LocalizationManager>.Instance.GetLocalizedText(string.Format("StickerTitle_{0}", EnumExtensions.GetExtendedName<Sticker>((int)sticker)));
+        }
+
+        /// <summary>
+        /// Returns the localized string used for this stickers description. data may be null.
+        /// </summary>
+        /// <param name="data"></param>
+        /// <returns></returns>
+        public virtual string GetLocalizedStickerDescription(StickerStateData data)
+        {
+            return Singleton<LocalizationManager>.Instance.GetLocalizedText(string.Format("StickerDescription_{0}", EnumExtensions.GetExtendedName<Sticker>((int)sticker)));
         }
 
         /// <summary>

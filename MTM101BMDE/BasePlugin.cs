@@ -57,7 +57,7 @@ namespace MTM101BaldAPI
     {
         internal static ManualLogSource Log = new ManualLogSource("Baldi's Basics Plus Dev API Pre Initialization");
         public const string ModGUID = "mtm101.rulerp.bbplus.baldidevapi";
-        public const string VersionNumber = "11.1.2.0";
+        public const string VersionNumber = "11.2.0.0";
 
         /// <summary>
         /// The version of the API, applicable when BepInEx cache messes up the version number.
@@ -230,7 +230,7 @@ namespace MTM101BaldAPI
         {
             // load the resources we need and stop the transition
             AssetMan.Add<CursorController>("cursorController", Resources.FindObjectsOfTypeAll<CursorController>().First(x => x.name == "CursorOrigin"));
-            gameLoader = Resources.FindObjectsOfTypeAll<GameLoader>().First(x => x.GetInstanceID() >= 0);
+            gameLoader = Resources.FindObjectsOfTypeAll<GameLoader>().First(x => x.IsPrefab());
             Singleton<GlobalCam>.Instance.StopCurrentTransition();
             // INITIALIZE ITEM METADATA
             ItemObject grapplingHook = null;
@@ -260,7 +260,7 @@ namespace MTM101BaldAPI
                         x.AddMeta(this, ItemFlags.Persists | ItemFlags.CreatesEntity).tags.UnionWith(new string[] { "technology", "makes_noise" });
                         break;
                     case Items.ChalkEraser:
-                        x.AddMeta(this, ItemFlags.Persists | ItemFlags.CreatesEntity);
+                        x.AddMeta(this, ItemFlags.Persists);
                         break;
                     case Items.Boots:
                         x.AddMeta(this, ItemFlags.Persists).tags.Add("clothing");
@@ -409,14 +409,14 @@ namespace MTM101BaldAPI
             });
             // INITIALIZE CHARACTER METADATA
             NPC[] NPCs = Resources.FindObjectsOfTypeAll<NPC>();
-            NPCMetaStorage.Instance.Add(new NPCMetadata(Info, NPCs.Where(x => x.Character == Character.Baldi).ToArray(), "Baldi", NPCFlags.StandardAndHear, new string[] { "teacher", "faculty" }));
-            NPCMetaStorage.Instance.Add(new NPCMetadata(Info, NPCs.Where(x => x.Character == Character.Principal).ToArray(), "Principal", NPCFlags.Standard, new string[] { "faculty" }));
+            NPCMetaStorage.Instance.Add(new NPCMetadata(Info, NPCs.Where(x => x.Character == Character.Baldi).ToArray(), "Baldi", NPCFlags.StandardAndHear, new string[] { "teacher", "faculty", "lethal" }));
+            NPCMetaStorage.Instance.Add(new NPCMetadata(Info, NPCs.Where(x => x.Character == Character.Principal).ToArray(), "Principal", NPCFlags.Standard | NPCFlags.MakeNoise, new string[] { "faculty" }));
             NPCMetaStorage.Instance.Add(new NPCMetadata(Info, NPCs.Where(x => x.Character == Character.Beans).ToArray(), "Beans", NPCFlags.Standard, new string[] { "student" }));
             NPCMetaStorage.Instance.Add(new NPCMetadata(Info, NPCs.Where(x => x.Character == Character.Chalkles).ToArray(), "ChalkFace", NPCFlags.StandardNoCollide | NPCFlags.MakeNoise));
             NPCMetaStorage.Instance.Add(new NPCMetadata(Info, NPCs.Where(x => x.Character == Character.Cumulo).ToArray(), "CloudyCopter", NPCFlags.Standard)); // they do have a trigger it just doesn't do anything
             NPCMetaStorage.Instance.Add(new NPCMetadata(Info, NPCs.Where(x => x.Character == Character.Bully).ToArray(), "Bully", (NPCFlags.Standard | NPCFlags.IsBlockade) & ~NPCFlags.CanMove, new string[] { "student" }));
             NPCMetaStorage.Instance.Add(new NPCMetadata(Info, NPCs.Where(x => x.Character == Character.Pomp).ToArray(), "Mrs Pomp", NPCFlags.Standard | NPCFlags.MakeNoise, new string[] { "teacher", "faculty" }));
-            NPCMetaStorage.Instance.Add(new NPCMetadata(Info, NPCs.Where(x => x.Character == Character.Playtime).ToArray(), "Playtime", NPCFlags.Standard, new string[] { "student" }));
+            NPCMetaStorage.Instance.Add(new NPCMetadata(Info, NPCs.Where(x => x.Character == Character.Playtime).ToArray(), "Playtime", NPCFlags.Standard | NPCFlags.MakeNoise, new string[] { "student" }));
             NPCMetaStorage.Instance.Add(new NPCMetadata(Info, NPCs.Where(x => x.Character == Character.Crafters).ToArray(), "Arts and Crafters", NPCFlags.Standard | NPCFlags.MakeNoise));
             NPCMetaStorage.Instance.Add(new NPCMetadata(Info, NPCs.Where(x => x.Character == Character.Sweep).ToArray(), "Gotta Sweep", NPCFlags.Standard, new string[] { "faculty" }));
             NPCMetaStorage.Instance.Add(new NPCMetadata(Info, NPCs.Where(x => x.Character == Character.LookAt).ToArray(), "LookAt", NPCFlags.Standard));
@@ -460,7 +460,7 @@ namespace MTM101BaldAPI
 
 
             // get all sceneobjects to add metadata
-            Resources.FindObjectsOfTypeAll<SceneObject>().Where(x => x.GetInstanceID() >= 0).Do(x =>
+            Resources.FindObjectsOfTypeAll<SceneObject>().Where(x => x.IsPrefab()).Do(x =>
             {
                 switch (x.name)
                 {
@@ -515,7 +515,7 @@ namespace MTM101BaldAPI
                 }
             });
 
-            PosterObject[] posters = Resources.FindObjectsOfTypeAll<PosterObject>().Where(x => x.GetInstanceID() >= 0).ToArray();
+            PosterObject[] posters = Resources.FindObjectsOfTypeAll<PosterObject>().Where(x => x.IsPrefab()).ToArray();
             // leveltype metadata
             levelTypeMeta.AddMeta(Info, LevelType.Schoolhouse, posters.First(x => x.name == "Chk_Lvl_Schoolhouse"));
             levelTypeMeta.AddMeta(Info, LevelType.Factory, posters.First(x => x.name == "Chk_Lvl_Factory"));
@@ -523,7 +523,7 @@ namespace MTM101BaldAPI
             levelTypeMeta.AddMeta(Info, LevelType.Maintenance, posters.First(x => x.name == "Chk_Lvl_Maintenance"));
 
             // sticker metadata
-            StickerManager stickerMan = Resources.FindObjectsOfTypeAll<StickerManager>().First(x => x.GetInstanceID() >= 0);
+            StickerManager stickerMan = Resources.FindObjectsOfTypeAll<StickerManager>().First(x => x.IsPrefab());
             StickerData[] stickerData = (StickerData[])stickerMan.ReflectionGetVariable("stickerData");
             List<Sticker> bonusStickers = (List<Sticker>)stickerMan.ReflectionGetVariable("bonusStickers");
             for (int i = 0; i < stickerData.Length; i++)
@@ -535,13 +535,14 @@ namespace MTM101BaldAPI
                 }
                 if (((Sticker)i) == Sticker.GlueStick)
                 {
-                    stickerMeta.AddSticker(Info, new ExtendedGluestickData()
+                    StickerMetaData gluestickMeta = stickerMeta.AddSticker(Info, new ExtendedGluestickData()
                     {
                         affectsLevelGeneration = stickerData[i].affectsLevelGeneration,
                         sprite = stickerData[i].sprite,
                         duplicateOddsMultiplier = stickerData[i].duplicateOddsMultiplier,
                         sticker = (Sticker)i // okay
                     });
+                    gluestickMeta.tags.Add("gluestick");
                     continue;
                 }
                 stickerMeta.AddSticker(Info, new VanillaCompatibleExtendedStickerData()
@@ -656,14 +657,14 @@ namespace MTM101BaldAPI
             ambienceClone.name = "Ambience";
             AssetMan.Add<Ambience>("AmbienceTemplate", ambienceClone);
 
-            Canvas endlessScoreCanvasClone = GameObject.Instantiate<Canvas>(Resources.FindObjectsOfTypeAll<Canvas>().First(x => x.GetInstanceID() >= 0 && x.name == "Score" && (x.transform.parent.GetComponent<EndlessGameManager>() != null)), prefabTransform);
+            Canvas endlessScoreCanvasClone = GameObject.Instantiate<Canvas>(Resources.FindObjectsOfTypeAll<Canvas>().First(x => x.IsPrefab() && x.name == "Score" && (x.transform.parent.GetComponent<EndlessGameManager>() != null)), prefabTransform);
             endlessScoreCanvasClone.name = "Score";
             AssetMan.Add("EndlessScoreTemplate", endlessScoreCanvasClone);
 
             AssetMan.Add("ErrorTemplate", Resources.FindObjectsOfTypeAll<Canvas>().Where(x => x.name == "EndingError").First());
             AssetMan.Add("WindowTemplate", Resources.FindObjectsOfTypeAll<WindowObject>().Where(x => x.name == "GreenWindow").First());
             AssetMan.Add("DoorTemplate", Resources.FindObjectsOfTypeAll<StandardDoorMats>().Where(x => x.name == "ClassDoorSet").First());
-            PosterObject[] posters = Resources.FindObjectsOfTypeAll<PosterObject>().Where(x => x.GetInstanceID() >= 0).ToArray();
+            PosterObject[] posters = Resources.FindObjectsOfTypeAll<PosterObject>().Where(x => x.IsPrefab()).ToArray();
             PosterObject baldiposter = posters.Where(x => x.name == "BaldiPoster").First();
             PosterObject posterTemplate = ScriptableObject.Instantiate<PosterObject>(baldiposter);
             posterTemplate.name = "CharacterPosterTemplate";
@@ -710,7 +711,7 @@ namespace MTM101BaldAPI
             AssetMan.Add<AudioClip>("ErrorSound", Resources.FindObjectsOfTypeAll<AudioClip>().First(x => x.name == "Activity_Incorrect"));
 
             // nab and modify the TextTextureGenerator prefab
-            TextTextureGenerator foundGen = Resources.FindObjectsOfTypeAll<TextTextureGenerator>().First(x => x.GetInstanceID() >= 0);
+            TextTextureGenerator foundGen = Resources.FindObjectsOfTypeAll<TextTextureGenerator>().First(x => x.IsPrefab());
             Transform texGenCanvas = foundGen.transform.Find("Canvas");
             RawImage texGenImageTemplate = texGenCanvas.Find("PosterPreview").GetComponent<RawImage>();
             for (int i = 0; i < 10; i++)

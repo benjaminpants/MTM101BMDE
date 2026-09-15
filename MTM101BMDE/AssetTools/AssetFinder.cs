@@ -11,7 +11,7 @@ namespace MTM101BaldAPI.AssetTools
     {
         public static T[] FindAllOfType<T>(bool vanillaNonInstantiatedOnly) where T : UnityEngine.Object
         {
-            return Resources.FindObjectsOfTypeAll<T>().Where(x => (!vanillaNonInstantiatedOnly) || (x.GetInstanceID() >= 0)).ToArray();
+            return Resources.FindObjectsOfTypeAll<T>().Where(x => (!vanillaNonInstantiatedOnly) || (x.IsPrefab())).ToArray();
         }
 
         public static T[] FindAllOfTypeWithName<T>(string name, bool vanillaNonInstantiatedOnly) where T : UnityEngine.Object

@@ -211,7 +211,7 @@ namespace MTM101BaldAPI.Patches
         static bool AddStickerToInventoryPrefix(StickerManager __instance, Sticker sticker, bool displayAnimation, ref bool __runOriginal)
         {
             if (!__runOriginal) return false;
-            __instance.AddSticker(sticker, true, false, true);
+            __instance.AddSticker(sticker, true, false, displayAnimation);
             return false;
         }
 

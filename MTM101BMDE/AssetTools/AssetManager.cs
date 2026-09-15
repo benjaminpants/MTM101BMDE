@@ -121,7 +121,7 @@ namespace MTM101BaldAPI.AssetTools
         /// <typeparam name="T"></typeparam>
         public void AddFromResourcesNoClones<T>() where T : UnityEngine.Object
         {
-            AddRange<T>(Resources.FindObjectsOfTypeAll<T>().Where(x => x.GetInstanceID() >= 0).ToArray());
+            AddRange<T>(Resources.FindObjectsOfTypeAll<T>().Where(x => x.IsPrefab()).ToArray());
         }
 
         /// <summary>

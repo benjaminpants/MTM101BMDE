@@ -167,7 +167,7 @@ namespace MTM101BaldAPI.Registers.Buttons
 
         internal static void InitializeButtonColors()
         {
-            List<Material> materials = Resources.FindObjectsOfTypeAll<Material>().Where(x => x.GetInstanceID() >= 0).ToList();
+            List<Material> materials = Resources.FindObjectsOfTypeAll<Material>().Where(x => x.IsPrefab()).ToList();
 
             // buttons
             AddButtonColorHandler(typeof(GameButton), new ButtonColorHandlerInfo(new (Material, FieldInfo, string)[] {

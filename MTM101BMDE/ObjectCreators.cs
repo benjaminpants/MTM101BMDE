@@ -136,7 +136,7 @@ namespace MTM101BaldAPI
 			if (postertexs.Length == 1)
 			{
                 obj.name = postertexs[0].name + "Poster";
-				obj.baseTexture = postertexs.First();
+				obj.baseTexture = postertexs[0];
             }
 			else
 			{
