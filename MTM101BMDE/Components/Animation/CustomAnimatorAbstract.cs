@@ -16,7 +16,7 @@ namespace MTM101BaldAPI.Components.Animation
 
         void Stop();
 
-        float AnimationSpeed { get; set; }
+        float RawSpeed { get; set; }
     }
 
 
@@ -185,19 +185,27 @@ namespace MTM101BaldAPI.Components.Animation
             {
                 if (!useScaledTime)
                 {
-                    return paused ? 0f : 1f * currentSpeed;
+                    return paused ? 0f : currentSpeed;
                 }
                 return paused ? 0f : GetTimeScale() * Time.timeScale * currentSpeed;
+            }
+        }
+
+        public float RawSpeed
+        {
+            get
+            {
+                return paused ? 0f : currentSpeed;
             }
             set
             {
                 if (value == 0f)
                 {
-                    paused = true;
+                    SetPause(true);
                     return;
                 }
-                paused = false;
-                currentSpeed = value;
+                SetPause(false);
+                ChangeSpeed(value);
             }
         }
 
