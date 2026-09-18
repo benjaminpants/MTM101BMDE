@@ -12,6 +12,7 @@ namespace MTM101BaldAPI.Components.Animation
     public interface ISimpleAnimator
     {
         void Play(string animation, float speed);
+        void PlayAtTime(string animation, float speed, float time);
 
         void Stop();
 
@@ -225,7 +226,7 @@ namespace MTM101BaldAPI.Components.Animation
         /// Loads the animations into the CustomAnimator
         /// </summary>
         /// <param name="animations"></param>
-        public void LoadAnimations(Dictionary<string, AnimationType> animations)
+        public virtual void LoadAnimations(Dictionary<string, AnimationType> animations)
         {
             this.animations = new Dictionary<string, AnimationType>(animations);
         }
@@ -244,7 +245,7 @@ namespace MTM101BaldAPI.Components.Animation
         /// <param name="speed"></param>
         /// <param name="loop"></param>
         /// <exception cref="InvalidOperationException"></exception>
-        public void Play(string id, float speed, bool loop)
+        public virtual void Play(string id, float speed, bool loop)
         {
             if (speed < 0f) throw new InvalidOperationException("Attempted to play: " + id + " with invalid speed " + speed + " in custom animator!");
             looping = loop;
@@ -263,25 +264,47 @@ namespace MTM101BaldAPI.Components.Animation
             ChangeSpeed(speed);
         }
 
+        public virtual void PlayAtTime(string id, float speed, float time, bool loop)
+        {
+            Play(id, speed, loop);
+            if (currentAnimation == null) return;
+            currentAnimationTime = time;
+            while (currentAnimationTime >= currentAnimation.frames[currentAnimationFrame].time)
+            {
+                currentAnimationTime = Mathf.Max(0f, currentAnimationTime - currentAnimation.frames[currentAnimationFrame].time);
+                currentAnimationFrame++;
+                if (currentAnimationFrame >= currentAnimation.frames.Length)
+                {
+                    currentAnimationFrame = currentAnimation.frames.Length - 1;
+                    return;
+                }
+            }
+        }
+
         public void Play(string id, float speed)
         {
             Play(id, speed, false);
         }
 
+        public void PlayAtTime(string id, float speed, float time)
+        {
+            PlayAtTime(id, speed, time, false);
+        }
+
         /// <summary>
         /// Stops the currently running animation and returns to the default animation if specified.
         /// </summary>
-        public void Stop()
+        public virtual void Stop()
         {
             Play(defaultAnimation, defaultSpeed, true);
         }
 
-        public void SetPause(bool paused)
+        public virtual void SetPause(bool paused)
         {
             this.paused = paused;
         }
 
-        public void SetLoop(bool loop)
+        public virtual void SetLoop(bool loop)
         {
             looping = loop;
         }
@@ -296,7 +319,7 @@ namespace MTM101BaldAPI.Components.Animation
             SetDefaultAnimation(animation, speed, false);
         }
 
-        public void SetDefaultAnimation(string animation, float speed, bool play)
+        public virtual void SetDefaultAnimation(string animation, float speed, bool play)
         {
             defaultAnimation = animation;
             defaultSpeed = speed;

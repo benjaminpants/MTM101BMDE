@@ -110,7 +110,7 @@ namespace MTM101BaldAPI.Components
 
         public override void Play(string stateName, int layer, float normalizedTime)
         {
-            simpleAnimator.Play(stateName, normalizedTime);
+            simpleAnimator.PlayAtTime(stateName, 1f, normalizedTime);
         }
 
         public override void ResetTrigger(string id)
