@@ -416,12 +416,12 @@ namespace MTM101BaldAPI
             NPCMetaStorage.Instance.Add(new NPCMetadata(Info, NPCs.Where(x => x.Character == Character.Cumulo).ToArray(), "CloudyCopter", NPCFlags.Standard)); // they do have a trigger it just doesn't do anything
             NPCMetaStorage.Instance.Add(new NPCMetadata(Info, NPCs.Where(x => x.Character == Character.Bully).ToArray(), "Bully", (NPCFlags.Standard | NPCFlags.IsBlockade) & ~NPCFlags.CanMove, new string[] { "student" }));
             NPCMetaStorage.Instance.Add(new NPCMetadata(Info, NPCs.Where(x => x.Character == Character.Pomp).ToArray(), "Mrs Pomp", NPCFlags.Standard | NPCFlags.MakeNoise, new string[] { "teacher", "faculty" }));
-            NPCMetaStorage.Instance.Add(new NPCMetadata(Info, NPCs.Where(x => x.Character == Character.Playtime).ToArray(), "Playtime", NPCFlags.Standard | NPCFlags.MakeNoise, new string[] { "student" }));
+            NPCMetaStorage.Instance.Add(new NPCMetadata(Info, NPCs.Where(x => x.Character == Character.Playtime).ToArray(), "Playtime", NPCFlags.Standard | NPCFlags.MakeNoise | NPCFlags.HasRoom, new string[] { "student" }));
             NPCMetaStorage.Instance.Add(new NPCMetadata(Info, NPCs.Where(x => x.Character == Character.Crafters).ToArray(), "Arts and Crafters", NPCFlags.Standard | NPCFlags.MakeNoise));
             NPCMetaStorage.Instance.Add(new NPCMetadata(Info, NPCs.Where(x => x.Character == Character.Sweep).ToArray(), "Gotta Sweep", NPCFlags.Standard, new string[] { "faculty" }));
             NPCMetaStorage.Instance.Add(new NPCMetadata(Info, NPCs.Where(x => x.Character == Character.LookAt).ToArray(), "LookAt", NPCFlags.Standard));
             NPCMetaStorage.Instance.Add(new NPCMetadata(Info, NPCs.Where(x => x.Character == Character.Prize).ToArray(), "FirstPrize", NPCFlags.Standard | NPCFlags.MakeNoise));
-            NPCMetaStorage.Instance.Add(new NPCMetadata(Info, NPCs.Where(x => x.Character == Character.DrReflex).ToArray(), "DrReflex", NPCFlags.StandardAndHear, new string[] { "faculty" }));
+            NPCMetaStorage.Instance.Add(new NPCMetadata(Info, NPCs.Where(x => x.Character == Character.DrReflex).ToArray(), "DrReflex", NPCFlags.StandardAndHear | NPCFlags.HasRoom, new string[] { "faculty" }));
             // students and other null npcs dont get metadata
 
             Resources.FindObjectsOfTypeAll<RandomEvent>().Do(x =>
@@ -447,10 +447,8 @@ namespace MTM101BaldAPI
                         RandomEventMetaStorage.Instance.Add(new RandomEventMetadata(Info, x, RandomEventFlags.UsesCurtains));
                         break;
                     case RandomEventType.MysteryRoom:
-                        RandomEventMetaStorage.Instance.Add(new RandomEventMetadata(Info, x, RandomEventFlags.AffectsGenerator));
-                        break;
                     case RandomEventType.Lockdown:
-                        RandomEventMetaStorage.Instance.Add(new RandomEventMetadata(Info, x, RandomEventFlags.Permanent));
+                        RandomEventMetaStorage.Instance.Add(new RandomEventMetadata(Info, x, RandomEventFlags.AffectsGenerator));
                         break;
                     case RandomEventType.TimeOut:
                         RandomEventMetaStorage.Instance.Add(new RandomEventMetadata(Info, x, RandomEventFlags.Special));

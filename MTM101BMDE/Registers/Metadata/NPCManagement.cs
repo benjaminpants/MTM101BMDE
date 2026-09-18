@@ -49,6 +49,10 @@ namespace MTM101BaldAPI.Registers
         /// EX: Student
         /// </summary>
         NonStandardSpawn = 128,
+        /// <summary>
+        /// This NPC spawns in a room for them when in play, so including Dr Reflex, but excluding Principal.
+        /// </summary>
+        HasRoom = 256,
         Standard =  CanMove | CanSee | HasSprite | HasTrigger,
         StandardNoCollide = Standard & ~HasTrigger,
         StandardAndHear = Standard | CanHear,

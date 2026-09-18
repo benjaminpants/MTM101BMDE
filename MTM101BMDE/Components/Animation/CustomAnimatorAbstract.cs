@@ -12,6 +12,10 @@ namespace MTM101BaldAPI.Components.Animation
     public interface ISimpleAnimator
     {
         void Play(string animation, float speed);
+
+        void Stop();
+
+        float AnimationSpeed { get; set; }
     }
 
 
@@ -97,8 +101,8 @@ namespace MTM101BaldAPI.Components.Animation
 
         public CustomAnimation()
         {
-            this.frames = new Frame[0];
-            this.animationLength = 0f;
+            frames = new Frame[0];
+            animationLength = 0f;
         }
     }
 
@@ -183,6 +187,16 @@ namespace MTM101BaldAPI.Components.Animation
                     return paused ? 0f : 1f * currentSpeed;
                 }
                 return paused ? 0f : GetTimeScale() * Time.timeScale * currentSpeed;
+            }
+            set
+            {
+                if (value == 0f)
+                {
+                    paused = true;
+                    return;
+                }
+                paused = false;
+                currentSpeed = value;
             }
         }
 

@@ -140,6 +140,10 @@ namespace MTM101BaldAPI.ObjectCreation
                 newNpc.spawnableRooms = spawnableRooms.ToList();
             }
             newNpc.potentialRoomAssets = potentialRoomAssets.ToArray();
+            if (newNpc.potentialRoomAssets.Length > 0)
+            {
+                flags |= NPCFlags.HasRoom;
+            }
             if (hasTrigger)
             {
                 _iEntityTrigger.SetValue(npcEntity, new IEntityTrigger[] { newNpc });
