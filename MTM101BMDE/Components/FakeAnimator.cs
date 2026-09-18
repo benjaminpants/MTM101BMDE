@@ -91,7 +91,7 @@ namespace MTM101BaldAPI.Components
     {
         public ISimpleAnimator simpleAnimator;
 
-        public override float speed { get => simpleAnimator.AnimationSpeed; set => simpleAnimator.AnimationSpeed = value; }
+        public override float speed { get => simpleAnimator.RawSpeed; set => simpleAnimator.RawSpeed = value; }
 
         public override bool GetBool(string id)
         {
@@ -110,7 +110,7 @@ namespace MTM101BaldAPI.Components
 
         public override void Play(string stateName, int layer, float normalizedTime)
         {
-            simpleAnimator.PlayAtTime(stateName, 1f, normalizedTime);
+            simpleAnimator.PlayAtTime(stateName, speed, normalizedTime);
         }
 
         public override void ResetTrigger(string id)
