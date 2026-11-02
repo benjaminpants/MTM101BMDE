@@ -87,6 +87,7 @@ namespace MTM101BaldAPI.Components
         public abstract void ResetTrigger(string id);
     }
 
+    [Serializable]
     public class FakeAnimatorSimple : FakeAnimator
     {
         [SerializeField]
