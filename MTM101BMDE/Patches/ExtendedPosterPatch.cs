@@ -53,7 +53,7 @@ namespace MTM101BaldAPI.Patches
 
 
     [HarmonyPatch(typeof(TextTextureGenerator))]
-    [HarmonyPatch("GenerateTextTexture")]
+    [HarmonyPatch("GenerateTextTexture", new Type[]{typeof(PosterObject), typeof(bool)})]
     class ExtendedPosterCleanupPatch
     {
         static void Postfix(TextTextureGenerator __instance, PosterObject poster)
