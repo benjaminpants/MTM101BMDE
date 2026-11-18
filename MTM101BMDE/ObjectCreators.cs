@@ -19,20 +19,34 @@ namespace MTM101BaldAPI
 	{
 		public static StandardDoorMats CreateDoorDataObject(string name, Texture2D openTex, Texture2D closeTex)
 		{
-			StandardDoorMats template = MTM101BaldiDevAPI.AssetMan.Get<StandardDoorMats>("DoorTemplate");
-			StandardDoorMats mat = ScriptableObject.CreateInstance<StandardDoorMats>();
+			PosterObject openPoster = ScriptableObject.CreateInstance<PosterObject>();
+			PosterObject closePoster = ScriptableObject.CreateInstance<PosterObject>();
+			openPoster.name = name + "_Open_PosterObject";
+			closePoster.name = name + "_Shut_PosterObject";
+			openPoster.baseTexture = openTex;
+            closePoster.baseTexture = closeTex;
+            StandardDoorMats mat = CreateDoorDataObject(name, openPoster, closePoster);
+            return mat;
+        }
+
+        public static StandardDoorMats CreateDoorDataObject(string name, PosterObject openPoster, PosterObject closedPoster)
+        {
+            StandardDoorMats template = MTM101BaldiDevAPI.AssetMan.Get<StandardDoorMats>("DoorTemplate");
+            StandardDoorMats mat = ScriptableObject.CreateInstance<StandardDoorMats>();
             mat.open = new Material(template.open);
-            mat.open.SetMainTexture(openTex);
+            mat.open.SetMainTexture(openPoster.baseTexture);
             mat.shut = new Material(template.shut);
-            mat.shut.SetMainTexture(closeTex);
-			mat.name = name;
+            mat.shut.SetMainTexture(closedPoster.baseTexture);
+            mat.name = name;
+            mat.openPosterData = openPoster;
+			mat.shutPosterData = closedPoster;
 
 
             return mat;
 
         }
 
-		public static WindowObject CreateWindowObject(string name, Texture2D texture, Texture2D brokenTexture, Texture2D mask = null)
+        public static WindowObject CreateWindowObject(string name, Texture2D texture, Texture2D brokenTexture, Texture2D mask = null)
 		{
 			WindowObject obj = ScriptableObject.CreateInstance<WindowObject>();
 			WindowObject template = MTM101BaldiDevAPI.AssetMan.Get<WindowObject>("WindowTemplate");
