@@ -731,7 +731,7 @@ namespace MTM101BaldAPI.AssetTools
             }
         }
 
-        // FlipX, FlipY, and CubemapFromTextureLegacy were adapted from FADE
+        // FlipX and FlipY were adapted from FADE
 
         /// <summary>
         /// Flips the specified Texture2D horizontally.
@@ -835,6 +835,7 @@ namespace MTM101BaldAPI.AssetTools
             texture.Rotate180(false);
 
             Cubemap cubemap = new Cubemap(width, TextureFormat.RGB24, false);
+            cubemap.filterMode = FilterMode.Point;
             cubemap.name = texture.name;
             cubemap.SetPixels(texture.GetPixels(0, width, width, width), CubemapFace.NegativeZ);
             cubemap.SetPixels(texture.GetPixels(width, width, width, width), CubemapFace.NegativeX);
