@@ -51,18 +51,20 @@ namespace MTM101BaldAPI.Registers
         {
             return FindAll(x =>
             {
-                foreach (string toSearchFor in tags)
+                if (!matchAll)
                 {
-                    if (x.tags.Contains(toSearchFor))
+                    foreach (string tag in tags)
                     {
-                        if (!matchAll)
-                        {
+                        if (x.tags.Contains(tag))
                             return true;
-                        }
-                        continue;
                     }
+
                     return false;
                 }
+                foreach (string tag in tags)
+                    if (!x.tags.Contains(tag))
+                        return false;
+
                 return true;
             });
         }
@@ -111,8 +113,10 @@ namespace MTM101BaldAPI.Registers
                 if (!matchAll)
                 {
                     foreach (string tag in tags)
+                    {
                         if (x.tags.Contains(tag))
                             return true;
+                    }
 
                     return false;
                 }
