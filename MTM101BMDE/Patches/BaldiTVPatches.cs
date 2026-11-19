@@ -12,11 +12,13 @@ using UnityEngine;
 namespace MTM101BaldAPI.Patches
 {
     [HarmonyPatch(typeof(BaldiTV))]
-    [HarmonyPatch("QueueEnumerator")]
-    class BaldiTVSpeakPatch
+    class BaldiTVPatches
     {
         static FieldInfo _BaldiSpeaks_sound = AccessTools.Field(AccessTools.Method(typeof(BaldiTV), "BaldiSpeaks").GetCustomAttribute<StateMachineAttribute>().StateMachineType, "sound"); // thank you AlexBW145!
-        static void Prefix(BaldiTV __instance, ref IEnumerator enumerator)
+
+        [HarmonyPatch("QueueEnumerator")]
+        [HarmonyPrefix]
+        static void QueueEnumeratorPrefix(BaldiTV __instance, ref IEnumerator enumerator)
         {
             if (enumerator.GetType().Name.StartsWith("<BaldiSpeaks>d__24"))
             {
@@ -24,6 +26,17 @@ namespace MTM101BaldAPI.Patches
                 string characterToSayLine = BaldiTVExtensionHandler.GetCharacterForSoundObject(sound);
                 if (characterToSayLine == "baldi") return; // no need to change the enumerator
                 enumerator = BaldiTVExtensionHandler.GetCharacterEnumerator(characterToSayLine, __instance, sound);
+            }
+        }
+
+        [HarmonyPatch("ReInit")]
+        [HarmonyPostfix]
+        static void ReInitPatch(BaldiTV __instance)
+        {
+            if (__instance.TryGetComponent(out BaldiTVExtensionContainer container))
+            {
+                container.tvCharacter.CleanupSpeaker(container.image, __instance);
+                GameObject.Destroy(container);
             }
         }
     }

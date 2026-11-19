@@ -503,6 +503,7 @@ namespace MTM101BaldAPI
                     case "Tutorial":
                         x.AddMeta(this, new string[] { "tutorial" });
                         break;
+                    case "NpcClipTest":
                     case "LightTest":
                     case "EventTest":
                         x.AddMeta(this, new string[] { "debug", "unused" });

@@ -56,6 +56,17 @@ namespace MTM101BaldAPI.Patches
     [HarmonyPatch("GenerateTextTexture", new Type[]{typeof(PosterObject), typeof(bool)})]
     class ExtendedPosterCleanupPatch
     {
+        // if we have a mirror poster, use that and turn off mirroring
+        static void Prefix(TextTextureGenerator __instance, ref PosterObject poster, ref bool mirrorBaseTexture)
+        {
+            if (!(poster is ExtendedPosterObject extendedPoster)) return; // nothing
+            if (extendedPoster.mirroredPoster != null && mirrorBaseTexture)
+            {
+                mirrorBaseTexture = false;
+                poster = extendedPoster;
+            }
+        }
+
         static void Postfix(TextTextureGenerator __instance, PosterObject poster)
         {
             if (!(poster is ExtendedPosterObject)) return; // if we aren't an extended poster, there is no reason to run this logic

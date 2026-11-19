@@ -12,6 +12,12 @@ namespace MTM101BaldAPI.PlusExtensions
     [Serializable]
     public class ExtendedPosterObject : PosterObject
     {
+        /// <summary>
+        /// The poster that will be used if this poster is attempted to be generated with mirrorBaseTexture, as in the case with doors, the poster will not be mirrored.
+        /// Can be this poster itself to make it unable to be mirrored.
+        /// </summary>
+        public PosterObject mirroredPoster = null;
+
         public PosterImageData[] overlayData;
 
         public ExtendedPosterObject()

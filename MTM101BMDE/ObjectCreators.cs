@@ -12,12 +12,65 @@ using HarmonyLib;
 using BepInEx.Configuration;
 using System.Linq;
 using System.Collections.Generic;
+using MTM101BaldAPI.UI;
+using TMPro;
+using MTM101BaldAPI.PlusExtensions;
 
 namespace MTM101BaldAPI
 {
 	public static partial class ObjectCreators
 	{
-		public static StandardDoorMats CreateDoorDataObject(string name, Texture2D openTex, Texture2D closeTex)
+		public static StandardDoorMats CreateDoorDataObject(string name, Texture2D openTex, Texture2D closeTex, string doorTextKey, BaldiFonts font = BaldiFonts.ComicSans18, Color? textColor = null)
+		{
+			if (textColor == null)
+			{
+				textColor = Color.black;
+            }
+			StandardDoorMats doorMat = CreateDoorDataObject(name, openTex, closeTex);
+			doorMat.shutPosterData.textData = new PosterTextData[]
+			{
+				new PosterTextData()
+				{
+					color = textColor.Value,
+					alignment = TextAlignmentOptions.Center,
+					textKey = doorTextKey,
+					style = FontStyles.Normal,
+					size = new IntVector2(102, 32),
+					position = new IntVector2(77, 128),
+					fontSize = (int)font.FontSize()
+				}
+			};
+			return doorMat;
+        }
+
+        public static StandardDoorMats CreateDoorDataObject(string name, Texture2D openTex, Texture2D closeTex, Texture2D closeTexMirrored, Texture2D openTexMirrored = null)
+        {
+            ExtendedPosterObject openPoster = ScriptableObject.CreateInstance<ExtendedPosterObject>();
+            ExtendedPosterObject closePoster = ScriptableObject.CreateInstance<ExtendedPosterObject>();
+            openPoster.name = name + "_Open_PosterObject";
+            closePoster.name = name + "_Shut_PosterObject";
+            openPoster.baseTexture = openTex;
+            closePoster.baseTexture = closeTex;
+
+            PosterObject closeMirroredPoster = ScriptableObject.CreateInstance<PosterObject>();
+            closeMirroredPoster.name = name + "_Shut_Mirrored_PosterObject";
+            closeMirroredPoster.baseTexture = closeTexMirrored;
+			closePoster.mirroredPoster = closeMirroredPoster;
+
+            if (openTexMirrored != null)
+			{
+				PosterObject openMirroredPoster = ScriptableObject.CreateInstance<PosterObject>();
+				openMirroredPoster.name = name + "_Open_Mirrored_PosterObject";
+				openMirroredPoster.baseTexture = openTexMirrored;
+                openPoster.mirroredPoster = openMirroredPoster;
+
+            }
+
+            StandardDoorMats mat = CreateDoorDataObject(name, openPoster, closePoster);
+            return mat;
+        }
+
+        public static StandardDoorMats CreateDoorDataObject(string name, Texture2D openTex, Texture2D closeTex)
 		{
 			PosterObject openPoster = ScriptableObject.CreateInstance<PosterObject>();
 			PosterObject closePoster = ScriptableObject.CreateInstance<PosterObject>();
