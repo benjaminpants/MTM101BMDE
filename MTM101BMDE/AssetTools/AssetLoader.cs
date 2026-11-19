@@ -1,19 +1,19 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-using UnityEngine;
-using UnityEngine.Networking;
-using System.IO;
-using BepInEx;
-using System.Linq;
-using MidiPlayerTK;
-using MPTK.NAudio.Midi;
+﻿using BepInEx;
 using HarmonyLib;
 using MEC;
-using System.Reflection;
+using MidiPlayerTK;
 using MTM101BaldAPI.OBJImporter;
+using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Linq;
+using System.Reflection;
 using TMPro;
+using UnityEngine;
+using UnityEngine.Networking;
 using UnityEngine.TextCore.LowLevel;
+using UnityGLTF;
+using UnityGLTF.Loader;
 
 namespace MTM101BaldAPI.AssetTools
 {
@@ -148,6 +148,64 @@ namespace MTM101BaldAPI.AssetTools
             List<string> pathz = paths.ToList();
             pathz.Insert(0, GetModPath(plugin));
             return ModelFromFileManualMaterials(Path.Combine(pathz.ToArray()), materials);
+        }
+
+        /// <summary>
+        /// Loads a .gltf or .glb model the specified file. Note that this must be called on a IEnumerator or it will skip the next frame.
+        /// </summary>
+        /// <param name="path"></param>
+        /// <returns></returns>
+        public static InstantiatedGLTFObject[] GLTFModelFromFile(string path)
+        {
+            string filename = Path.GetFileName(path), directorypath = Path.GetFullPath(path).Replace(filename, "");
+            //MTM101BaldiDevAPI.Log.LogInfo($"Loading GLTF model {filename} from {directorypath}!");
+            ImportOptions importOpt = new ImportOptions
+            {
+                AsyncCoroutineHelper = MTM101BaldiDevAPI.Instance.gameObject.GetOrAddComponent<AsyncCoroutineHelper>(),
+                ImportNormals = GLTFImporterNormals.Import,
+                ImportTangents = GLTFImporterNormals.Import,
+                RuntimeTextureCompression = RuntimeTextureCompression.None,
+                SwapUVs = false,
+                ImportBlendShapeNames = true,
+                CameraImport = CameraImportOption.None,
+                AnimationMethod = AnimationMethod.Legacy
+            };
+            importOpt.DataLoader = new UnityWebRequestLoader(directorypath);
+            using (var import = new GLTFSceneImporter(filename, importOpt)
+            {
+                Collider = GLTFSceneImporter.ColliderType.None,
+                KeepCPUCopyOfMesh = true,
+                KeepCPUCopyOfTexture = true,
+            })
+            {
+                import.SceneParent = MTM101BaldiDevAPI.prefabTransform;
+                var mat = MTM101BaldiDevAPI.AssetMan.Get<Material>("TileBase");
+                import.CustomShaderName = mat.shader.name;
+                var obj = new InstantiatedGLTFObject[1]; // Worst part is that it took me almost 12 hours for a reasonable working result.
+                import.LoadScene(onLoadComplete: (gObj, task) =>
+                {
+                    obj[0] = gObj.GetComponent<InstantiatedGLTFObject>();
+                    obj[0].gameObject.name = filename;
+                    obj[0].CachedData.MaterialCache.Do(x =>
+                    {
+                        x.GetContents(false).SetTexture("_LightMap", mat.GetTexture("_LightMap"));
+                        x.GetContents(true).SetTexture("_LightMap", mat.GetTexture("_LightMap"));
+                    });
+                });
+                return obj;
+            }
+        }
+        /// <summary>
+        /// Loads a .gltf or .glb model the specified mod. Note that this must be called on a IEnumerator or it will skip the next frame.
+        /// </summary>
+        /// <param name="plugin"></param>
+        /// <param name="paths"></param>
+        /// <returns></returns>
+        public static InstantiatedGLTFObject[] GLTFModelFromMod(PluginInfo plugin, params string[] paths)
+        {
+            List<string> pathz = paths.ToList();
+            pathz.Insert(0, GetModPath(plugin.Instance));
+            return GLTFModelFromFile(Path.Combine(pathz.ToArray()));
         }
 
 
