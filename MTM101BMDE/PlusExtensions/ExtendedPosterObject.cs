@@ -18,6 +18,11 @@ namespace MTM101BaldAPI.PlusExtensions
         /// </summary>
         public PosterObject mirroredPoster = null;
 
+        /// <summary>
+        /// If true, the baseTexture will be mirroed by default.
+        /// </summary>
+        public bool baseTextureMirrored = false;
+
         public PosterImageData[] overlayData;
 
         public ExtendedPosterObject()

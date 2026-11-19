@@ -63,7 +63,6 @@ namespace MTM101BaldAPI
 				openMirroredPoster.name = name + "_Open_Mirrored_PosterObject";
 				openMirroredPoster.baseTexture = openTexMirrored;
                 openPoster.mirroredPoster = openMirroredPoster;
-
             }
 
             StandardDoorMats mat = CreateDoorDataObject(name, openPoster, closePoster);
