@@ -1,11 +1,11 @@
 ﻿using HarmonyLib;
+using MTM101BaldAPI.Components;
+using MTM101BaldAPI.Components.Animation;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
-using System.Text;
 using UnityEngine;
-using UnityEngine.Assertions;
 
 namespace MTM101BaldAPI.Registers.Buttons
 {
@@ -35,12 +35,23 @@ namespace MTM101BaldAPI.Registers.Buttons
         /// </summary>
         public string defaultColor;
 
-        public ButtonColorHandlerInfo((Material, FieldInfo, string)[] materialInfoPairs, FieldInfo rendererField, FieldInfo onField, string defaultColor = "Red")
+        public Func<Material[], Dictionary<string, MaterialAnimation>> animationClips;
+
+        public ButtonColorHandlerInfo((Material, FieldInfo, string)[] materialInfoPairs, FieldInfo rendererField, string defaultColor = "Red")
         {
             this.materialInfoPairs = materialInfoPairs;
             this.rendererField = rendererField;
             this.defaultColor = defaultColor;
+        }
+
+        public ButtonColorHandlerInfo((Material, FieldInfo, string)[] materialInfoPairs, FieldInfo rendererField, FieldInfo onField, string defaultColor = "Red") : this(materialInfoPairs, rendererField, defaultColor)
+        {
             this.onField = onField;
+        }
+
+        public ButtonColorHandlerInfo((Material, FieldInfo, string)[] materialInfoPairs, FieldInfo rendererField, Func<Material[], Dictionary<string, MaterialAnimation>> clipDelegate, string defaultColor = "Red") : this(materialInfoPairs, rendererField, defaultColor)
+        {
+            this.animationClips = clipDelegate;
         }
     }
 
@@ -110,18 +121,35 @@ namespace MTM101BaldAPI.Registers.Buttons
         {
             if (!buttonColorHandlers.ContainsKey(button.GetType())) return false;
             ButtonColorHandlerInfo info = buttonColorHandlers[button.GetType()];
-            Renderer renderer = (Renderer)info.rendererField.GetValue(button);
-            for (int i = 0; i < info.materialInfoPairs.Length; i++)
+            var rendfield = info.rendererField.GetValue(button);
+            if (rendfield is Renderer)
             {
-                info.materialInfoPairs[i].Item2.SetValue(button, customMaterials[i]); // adjust the variable
-            }
-            if (info.onField != null)
-            {
-                renderer.sharedMaterial = (bool)info.onField.GetValue(button) ? customMaterials[0] : customMaterials[1];
+                Renderer renderer = (Renderer)rendfield;
+                for (int i = 0; i < info.materialInfoPairs.Length; i++)
+                {
+                    info.materialInfoPairs[i].Item2.SetValue(button, customMaterials[i]); // adjust the variable
+                }
+                if (info.onField != null)
+                {
+                    renderer.sharedMaterial = (bool)info.onField.GetValue(button) ? customMaterials[0] : customMaterials[1];
+                    return true;
+                }
+                renderer.sharedMaterial = customMaterials[0];
                 return true;
             }
-            renderer.sharedMaterial = customMaterials[0];
-            return true;
+            else if (rendfield is Animator && info.animationClips != null)
+            {
+                Animator animator = (Animator)rendfield;
+                animator.gameObject.SetActive(false); // If this were to be removed then the components would've disabled itself for unassigned variables.
+                var faker = animator.gameObject.AddFakeAnimatorComponent<FakeAnimatorSimple>();
+                var customanimator = faker.gameObject.AddComponent<CustomRendererAnimator>();
+                customanimator.renderer = faker.GetComponent<Renderer>();
+                customanimator.LoadAnimations(info.animationClips.Invoke(customMaterials)); // Apply animations set by the info itself.
+                faker.simpleAnimator = customanimator;
+                animator.gameObject.SetActive(true);
+                return true;
+            }
+            return false;
         }
 
         /// <summary>
@@ -176,8 +204,8 @@ namespace MTM101BaldAPI.Registers.Buttons
                 (materials.Find(x => x.name == "Button_RedOff_Unpressed"), AccessTools.Field(typeof(GameButton), "unPressedOffMaterial"), "Button_{0}Off_Unpressed"),
                 (materials.Find(x => x.name == "Button_RedOff_Pressed"), AccessTools.Field(typeof(GameButton), "pressedOffMaterial"), "Button_{0}Off_Pressed")
             },
-            AccessTools.Field(typeof(GameButton), "meshRenderer"), // the accesstool for getting the target mesh renderer
-            null));
+            AccessTools.Field(typeof(GameButton), "meshRenderer") // the accesstool for getting the target mesh renderer
+            ));
             // levers
             AddButtonColorHandler(typeof(GameLever), new ButtonColorHandlerInfo(new (Material, FieldInfo, string)[] {
                 (materials.Find(x => x.name == "Lever_Red_Down"), AccessTools.Field(typeof(GameLever), "offMat"), "Lever_{0}_Down"),
@@ -185,6 +213,64 @@ namespace MTM101BaldAPI.Registers.Buttons
             },
             AccessTools.Field(typeof(GameLever), "meshRenderer"), 
             AccessTools.Field(typeof(GameLever), "on"))); // the accesstool for getting whether or not this lever/switch/whatever is active
+            // steam valves
+            AddButtonColorHandler(typeof(GameValve), new ButtonColorHandlerInfo(new (Material, FieldInfo, string)[]
+            {
+                (materials.Find(x => x.name == "Valve_Red_0"), null, "Valve_{0}_0"),
+                (materials.Find(x => x.name == "Valve_Red_1"), null, "Valve_{0}_1"),
+                (materials.Find(x => x.name == "Valve_Red_2"), null, "Valve_{0}_2"),
+                (materials.Find(x => x.name == "Valve_Red_3"), null, "Valve_{0}_3"),
+            },
+            AccessTools.Field(typeof(GameValve), "animator"),
+            (valvematerials) => new Dictionary<string, MaterialAnimation> // 20 frames of materials, 90 frames of the clip... If I not made a mistake again.
+            {
+                { "Open", new MaterialAnimation(18, new Material[]
+                {
+                    valvematerials[1],
+                    valvematerials[2],
+                    valvematerials[3],
+                    valvematerials[0],
+                    valvematerials[1],
+                    valvematerials[2],
+                    valvematerials[3],
+                    valvematerials[0],
+                    valvematerials[1],
+                    valvematerials[2],
+                    valvematerials[3],
+                    valvematerials[0],
+                    valvematerials[1],
+                    valvematerials[2],
+                    valvematerials[3],
+                    valvematerials[0],
+                    valvematerials[1],
+                    valvematerials[2],
+                    valvematerials[3],
+                    valvematerials[0],
+                }) },
+                { "Close", new MaterialAnimation(18, new Material[]
+                {
+                    valvematerials[0],
+                    valvematerials[1],
+                    valvematerials[2],
+                    valvematerials[3],
+                    valvematerials[0],
+                    valvematerials[1],
+                    valvematerials[2],
+                    valvematerials[3],
+                    valvematerials[0],
+                    valvematerials[1],
+                    valvematerials[2],
+                    valvematerials[3],
+                    valvematerials[0],
+                    valvematerials[1],
+                    valvematerials[2],
+                    valvematerials[3],
+                    valvematerials[0],
+                    valvematerials[1],
+                    valvematerials[2],
+                    valvematerials[3],
+                }.Reverse().ToArray()) },
+            }));
 
             CreateButtonColor("Orange", new Color(1f, 1f, 0f, 0f));
             CreateButtonColor("Yellow", new Color(1f, 1f, 0f, 0f));

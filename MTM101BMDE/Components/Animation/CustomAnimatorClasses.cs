@@ -129,6 +129,40 @@ namespace MTM101BaldAPI.Components.Animation
     }
 
     [Serializable]
+    public class MaterialFrame : CustomAnimationFrame<Material>
+    {
+        public MaterialFrame() { }
+        public MaterialFrame(Material material, float time) : base(material, time) { }
+    }
+
+    [Serializable]
+    public class MaterialAnimation : CustomAnimation<MaterialFrame, Material>
+    {
+        public MaterialAnimation()
+        {
+        }
+
+        public MaterialAnimation(MaterialFrame[] frames) : base(frames)
+        {
+        }
+
+        public MaterialAnimation(int fps, Material[] frames) : base(fps, frames)
+        {
+        }
+
+        public MaterialAnimation(Material[] frames, float totalTime) : base(frames, totalTime)
+        {
+        }
+    }
+
+    [Serializable]
+    public class CustomRendererAnimator : CustomAnimator<MaterialAnimation, MaterialFrame, Material>
+    {
+        public Renderer renderer;
+        public override void ApplyFrame(Material frame) => renderer.material = frame; // For some odd reason `renderer.SetMaterial(frame)` throws a inaccessible method error.
+    }
+
+    [Serializable]
     public class CustomRotatedSpriteAnimator : CustomAnimator<SpriteArrayAnimation, SpriteArrayFrame, Sprite[]>
     {
         public SpriteRotator rotator;
