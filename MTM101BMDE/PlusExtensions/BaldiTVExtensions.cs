@@ -9,6 +9,12 @@ using UnityEngine.UI;
 
 namespace MTM101BaldAPI.PlusExtensions
 {
+    public class BaldiTVExtensionContainer : MonoBehaviour
+    {
+        public BaldiTVCharacter tvCharacter;
+        public Image image;
+    }
+
     public static class BaldiTVExtensionHandler
     {
         private static Dictionary<string, BaldiTVCharacter> characters = new Dictionary<string, BaldiTVCharacter>();
@@ -56,7 +62,7 @@ namespace MTM101BaldAPI.PlusExtensions
             baldiImage.enabled = false;
             clonedImage.transform.SetAsFirstSibling();
             // get a raw enumerator and pass that into the container ienumerator, and return that ienumerator
-            return CharacterEnumeratorContainer(tv, clonedImage, GetRawCharacterEnumerator(id, tv, clonedImage, sound));
+            return CharacterEnumeratorContainer(tv, clonedImage, GetRawCharacterEnumerator(id, tv, clonedImage, sound), characters[id]);
         }
 
         /// <summary>
@@ -94,15 +100,19 @@ namespace MTM101BaldAPI.PlusExtensions
             return "baldi";
         }
 
-        private static IEnumerator CharacterEnumeratorContainer(BaldiTV tv, Image toCleanUp, IEnumerator wrap)
+        private static IEnumerator CharacterEnumeratorContainer(BaldiTV tv, Image toCleanUp, IEnumerator wrap, BaldiTVCharacter character)
         {
             _ResetScreen.Invoke(tv, null);
             toCleanUp.enabled = true;
             ((AudioManager)_baldiTvAudioManager.GetValue(tv)).FlushQueue(true);
+            BaldiTVExtensionContainer extContainer = tv.gameObject.AddComponent<BaldiTVExtensionContainer>();
+            extContainer.tvCharacter = character;
+            extContainer.image = toCleanUp;
             yield return wrap;
             _busy.SetValue(tv, false);
             _QueueCheck.Invoke(tv, null);
-            GameObject.Destroy(toCleanUp.gameObject);
+            character.CleanupSpeaker(toCleanUp, tv);
+            GameObject.Destroy(extContainer);
             yield break;
         }
     }
@@ -128,6 +138,18 @@ namespace MTM101BaldAPI.PlusExtensions
         /// <param name="sound"></param>
         /// <returns></returns>
         public abstract IEnumerator SpeakEnumerator(Image image, BaldiTV tv, AudioManager audMan, SoundObject sound);
+
+        /// <summary>
+        /// Called when the Speaker is abruptly stopped and MUST be cleaned instantly.
+        /// Do not perform any animation here, that is what SpeakEnumerator is for.
+        /// This should clean up the image and any thing else the speaker may have created.
+        /// </summary>
+        /// <param name="image"></param>
+        /// <param name="tv"></param>
+        public virtual void CleanupSpeaker(Image image, BaldiTV tv)
+        {
+            GameObject.Destroy(image.gameObject);
+        }
     }
 
     public class SimpleBaldiTVCharacter : BaldiTVCharacter
@@ -158,7 +180,7 @@ namespace MTM101BaldAPI.PlusExtensions
             return sounds.Contains(obj);
         }
 
-        public override IEnumerator SpeakEnumerator(Image image, BaldiTV tv, AudioManager audMan, SoundObject sound)
+        public virtual CustomImageAnimator SetupAnimator(Image image, BaldiTV tv, AudioManager audMan, SoundObject sound)
         {
             CustomVolumeAnimator volAnim = image.gameObject.AddComponent<CustomVolumeAnimator>();
             CustomImageAnimator anim = image.gameObject.AddComponent<CustomImageAnimator>();
@@ -173,6 +195,12 @@ namespace MTM101BaldAPI.PlusExtensions
             volAnim.audioSource = audMan.audioSourceManager.GetAudioSource(sound.soundType);
             volAnim.sensitivity = sensitivity;
             volAnim.volumeMultipler = volumeMultiplier;
+            return anim;
+        }
+
+        public override IEnumerator SpeakEnumerator(Image image, BaldiTV tv, AudioManager audMan, SoundObject sound)
+        {
+            CustomImageAnimator anim = SetupAnimator(image, tv, audMan, sound);
             audMan.QueueAudio(sound);
             anim.Play("0", 1f);
             yield return null;

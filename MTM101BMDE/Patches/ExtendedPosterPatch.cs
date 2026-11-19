@@ -18,15 +18,19 @@ namespace MTM101BaldAPI.Patches
             if (!(poster is ExtendedPosterObject)) return; // if we aren't an extended poster, there is no reason to run this logic
             Canvas canvas = __instance.transform.Find("Canvas").gameObject.GetComponent<Canvas>();
             ExtendedPosterObject extendedPoster = (ExtendedPosterObject)poster;
-            for (int i = 0; i < extendedPoster.overlayData.Length; i++)
+            if (extendedPoster.overlayData != null)
             {
-                PosterImageData overlayData = extendedPoster.overlayData[i];
-                //GameObject imageObject = new GameObject("Image" + i);
-                RawImage image = canvas.transform.Find("OverlayImage" + i).GetComponent<RawImage>();
-                image.gameObject.SetActive(true);
-                image.texture = overlayData.texture;
-                image.rectTransform.sizeDelta = new Vector2((float)overlayData.size.x, (float)overlayData.size.z);
-                image.rectTransform.anchoredPosition = new Vector2((float)overlayData.position.x, (float)overlayData.position.z);
+                for (int i = 0; i < extendedPoster.overlayData.Length; i++)
+                {
+                    PosterImageData overlayData = extendedPoster.overlayData[i];
+                    //GameObject imageObject = new GameObject("Image" + i);
+                    RawImage image = canvas.transform.Find("OverlayImage" + i).GetComponent<RawImage>();
+                    image.gameObject.SetActive(true);
+                    image.texture = overlayData.texture;
+                    image.transform.localScale = new Vector3(overlayData.size.x >= 0f ? 1f : -1f, overlayData.size.z >= 0f ? 1f : -1f, 1f);
+                    image.rectTransform.sizeDelta = new Vector2(Mathf.Abs((float)overlayData.size.x), Mathf.Abs((float)overlayData.size.z));
+                    image.rectTransform.anchoredPosition = new Vector2((float)overlayData.position.x, (float)overlayData.position.z);
+                }
             }
             // now modify the text
             for (int i = 0; i < extendedPoster.textData.Length; i++)
@@ -56,6 +60,28 @@ namespace MTM101BaldAPI.Patches
     [HarmonyPatch("GenerateTextTexture", new Type[]{typeof(PosterObject), typeof(bool)})]
     class ExtendedPosterCleanupPatch
     {
+        // if we have a mirror poster, use that and turn off mirroring
+        static void Prefix(TextTextureGenerator __instance, ref PosterObject poster, ref bool mirrorBaseTexture)
+        {
+            if (!(poster is ExtendedPosterObject extendedPoster)) return; // nothing
+            if (extendedPoster.mirroredPoster != null && mirrorBaseTexture)
+            {
+                if (extendedPoster.mirroredPoster is ExtendedPosterObject extendedMirror)
+                {
+                    mirrorBaseTexture = extendedMirror.baseTextureMirrored;
+                }
+                else
+                {
+                    mirrorBaseTexture = false;
+                }
+                poster = extendedPoster.mirroredPoster;
+            }
+            else
+            {
+                mirrorBaseTexture = extendedPoster.baseTextureMirrored ? !mirrorBaseTexture : mirrorBaseTexture;
+            }
+        }
+
         static void Postfix(TextTextureGenerator __instance, PosterObject poster)
         {
             if (!(poster is ExtendedPosterObject)) return; // if we aren't an extended poster, there is no reason to run this logic
