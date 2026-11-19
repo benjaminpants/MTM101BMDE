@@ -113,10 +113,8 @@ namespace MTM101BaldAPI.Registers
                 if (!matchAll)
                 {
                     foreach (string tag in tags)
-                    {
                         if (x.tags.Contains(tag))
                             return true;
-                    }
 
                     return false;
                 }
