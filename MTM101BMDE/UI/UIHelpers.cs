@@ -82,13 +82,13 @@ namespace MTM101BaldAPI.UI
                 case BaldiFonts.ComicSans12:
                     return MTM101BaldiDevAPI.AssetMan.Get<TMP_FontAsset>("COMIC_12_Pro");
                 case BaldiFonts.BoldComicSans12:
-                    return MTM101BaldiDevAPI.AssetMan.Get<TMP_FontAsset>("COMIC_BOLD_12_Pro");
+                    return MTM101BaldiDevAPI.AssetMan.Get<TMP_FontAsset>("COMIC_12_Bold_Pro");
                 case BaldiFonts.ComicSans18:
                     return MTM101BaldiDevAPI.AssetMan.Get<TMP_FontAsset>("COMIC_18_Pro");
                 case BaldiFonts.ComicSans24:
                     return MTM101BaldiDevAPI.AssetMan.Get<TMP_FontAsset>("COMIC_24_Pro");
                 case BaldiFonts.BoldComicSans24:
-                    return MTM101BaldiDevAPI.AssetMan.Get<TMP_FontAsset>("COMIC_BOLD_24_Pro");
+                    return MTM101BaldiDevAPI.AssetMan.Get<TMP_FontAsset>("COMIC_24_Bold_Pro");
                 case BaldiFonts.ComicSans36:
                     return MTM101BaldiDevAPI.AssetMan.Get<TMP_FontAsset>("COMIC_36_Pro");
                 case BaldiFonts.SmoothComicSans12:
