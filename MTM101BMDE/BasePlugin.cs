@@ -1,37 +1,39 @@
-﻿using System;
+﻿//BepInEx stuff
+using BepInEx;
+using BepInEx.Bootstrap;
+using BepInEx.Configuration;
+using BepInEx.Logging;
+using HarmonyLib;
+using MidiPlayerTK;
+using MTM101BaldAPI.AssetTools;
+using MTM101BaldAPI.Components;
+using MTM101BaldAPI.ErrorHandler;
+using MTM101BaldAPI.ObjectCreation;
+using MTM101BaldAPI.OptionsAPI;
+using MTM101BaldAPI.Patches;
+using MTM101BaldAPI.Reflection;
+using MTM101BaldAPI.Registers;
+using MTM101BaldAPI.SaveSystem;
+using MTM101BaldAPI.UI;
+using Newtonsoft.Json.Linq;
+using System;
+using System.Collections;
+using System.Collections.Generic;
 using System.Diagnostics;
+using System.IO;
+using System.Linq;
+using System.Linq.Expressions;
+using System.Net;
 using System.Reflection;
 using System.Runtime.CompilerServices;
-using System.Net;
-//BepInEx stuff
-using BepInEx;
-using BepInEx.Logging;
-using UnityEngine;
-using UnityEngine.SceneManagement;
-using HarmonyLib;
-using BepInEx.Configuration;
-using System.Linq;
-using System.Collections.Generic;
-using MTM101BaldAPI.OptionsAPI;
-using MTM101BaldAPI.SaveSystem;
-using System.IO;
-using MTM101BaldAPI.Registers;
-using MTM101BaldAPI.AssetTools;
-using UnityCipher;
-using MTM101BaldAPI.Reflection;
-using TMPro;
-using System.Collections;
-using MTM101BaldAPI.UI;
-using UnityEngine.UI;
-using MidiPlayerTK;
-using MTM101BaldAPI.Patches;
-using MTM101BaldAPI.Components;
 using System.Runtime.InteropServices;
+using TMPro;
+using UnityCipher;
+using UnityEngine;
 using UnityEngine.Networking;
-using Newtonsoft.Json.Linq;
-using MTM101BaldAPI.ErrorHandler;
-using System.Linq.Expressions;
-using BepInEx.Bootstrap;
+using UnityEngine.SceneManagement;
+using UnityEngine.UI;
+using UnityGLTF;
 
 namespace MTM101BaldAPI
 {
@@ -724,7 +726,6 @@ namespace MTM101BaldAPI
             }
 
             // setup loading for default crazy machines
-
         }
 
         internal void ConvertAllLevelObjects()
@@ -923,6 +924,13 @@ PRESS ALT+F4 TO EXIT THE GAME.
                 AddWarningScreen("Newtonsoft.Json is not installed! It should be included with the API zip!", true);
             }
             else */
+            try
+            {
+            }
+            catch
+            {
+                AddWarningScreen("UnityGLTF plugins are not installed correctly. It is included in the mod download and should go in plugins. Install it correctly and stop following obsoleted tutorials.", true);
+            }
             if (attemptOnline.Value)
             {
                 StartCoroutine(GetCurrentGamebananaVersion());
@@ -931,6 +939,56 @@ PRESS ALT+F4 TO EXIT THE GAME.
             //set window title
             if (allowWindowTitleChange.Value)
                 WindowTitle.SetText(Application.productName + " (Modded)");
+#if DEBUG
+            IEnumerator TestEnumerator()
+            {
+                yield return 2;
+                yield return "Test";
+                // GLTF loader and animator as code test (Well we can not call it on `AssetsLoadPre` since it gets called when the scene is unloaded.)
+                var data = AssetLoader.GLTFModelFromFile(Path.Combine(Application.streamingAssetsPath, "TestHumanoidRig.glb"));
+                yield return new WaitUntil(() => data[0] != null);
+                var myman = data[0].Duplicate();
+                DontDestroyOnLoad(myman);
+                var cawl = myman.GetComponent<Animation>();
+                cawl.wrapMode = WrapMode.Loop;
+                cawl.Play("CrawlForward");
+                /*try
+                {
+                    var animator = myman.GetOrAddComponent<Animator>();
+                    var root = myman.transform.GetChild(0).Find("Root");
+                    animator.avatar = new AvatarRigBuilder(myman)
+                        .AutomaticSetBones()
+                        .SetBone(HumanBodyBones.LeftUpperLeg, root.GetChild(0).Find("thigh.L"))
+                        .SetBone(HumanBodyBones.LeftLowerLeg, root.GetChild(0).Find("thigh.L").GetChild(0))
+                        .SetBone(HumanBodyBones.LeftFoot, root.GetChild(0).Find("thigh.L").GetChild(0).GetChild(0))
+                        .SetBone(HumanBodyBones.RightUpperLeg, root.GetChild(0).Find("thigh.R"))
+                        .SetBone(HumanBodyBones.RightLowerLeg, root.GetChild(0).Find("thigh.R").GetChild(0))
+                        .SetBone(HumanBodyBones.RightFoot, root.GetChild(0).Find("thigh.R").GetChild(0).GetChild(0))
+                        .SetBone(HumanBodyBones.LeftUpperArm, root.GetChild(0).Find("Spine").GetChild(0).Find("shoulder.L"))
+                        .SetBone(HumanBodyBones.LeftLowerArm, root.GetChild(0).Find("Spine").GetChild(0).Find("shoulder.L").GetChild(0))
+                        .SetBone(HumanBodyBones.LeftHand, root.GetChild(0).Find("Spine").GetChild(0).Find("shoulder.L").GetChild(0).GetChild(0))
+                        .SetBone(HumanBodyBones.RightUpperArm, root.GetChild(0).Find("Spine").GetChild(0).Find("shoulder.R"))
+                        .SetBone(HumanBodyBones.RightLowerArm, root.GetChild(0).Find("Spine").GetChild(0).Find("shoulder.R").GetChild(0))
+                        .SetBone(HumanBodyBones.RightHand, root.GetChild(0).Find("Spine").GetChild(0).Find("shoulder.R").GetChild(0).GetChild(0))
+                        .Build();
+                    animator.avatar.name = "ABWAvatar";
+                    var animatorcontrollercode = ScriptableObject.CreateInstance<AnimatorControllerCode>();
+                    var mylayer = new AnimationLayer("Base");
+                    var myanimdata = new AnimationData(data[0].CachedData.AnimationCache.First(x => x.LoadedAnimationClip.name == "Crawl").LoadedAnimationClip);
+                    mylayer.entryState = myanimdata;
+                    mylayer.animationDatas.Add(myanimdata);
+                    animatorcontrollercode.layers = new HashSet<AnimationLayer>() { mylayer };
+                    // Requiring of publicization
+                    animatorcontrollercode.ReflectionInvoke("Generate", new object[] { AccessTools.Constructor(typeof(Acc), new Type[] { typeof(string), typeof(AnimatorController), typeof(AccConfig) }).Invoke(new object[] { "Main", new RuntimeAnimatorController(), new AccConfig(myman.transform) }) });
+
+                }
+                catch (Exception e)
+                {
+                    CauseCrash(Info, e);
+                }*/
+            }
+            LoadingEvents.RegisterOnAssetsLoaded(Info, TestEnumerator(), LoadingEventOrder.Start);
+#endif
         }
 
         void TestForNewton()
