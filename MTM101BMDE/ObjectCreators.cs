@@ -161,7 +161,8 @@ namespace MTM101BaldAPI
 			Material mat = new Material(MTM101BaldiDevAPI.AssetMan.Get<Shader>("Shader Graphs/MapTile"));
 			mat.SetTexture("_MapBackground", tex);
 			mat.name = "MapTileMat_" + tex.name;
-			mat.renderQueue = 2000;
+			mat.renderQueue = 3000;
+			mat.shaderKeywords = new string[] { "_KEYMAPSHOWBACKGROUND_ON" };
 			mat.color = Color.white;
 
             return mat;
