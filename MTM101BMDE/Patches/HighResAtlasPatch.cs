@@ -18,6 +18,7 @@ namespace MTM101BaldAPI.Patches
             if (maxSize > 256)
             {
                 __instance.GenerateTextureAtlas(maxSize);
+                __instance.GenerateDoorTextures();
                 return false;
             }
             return true;
